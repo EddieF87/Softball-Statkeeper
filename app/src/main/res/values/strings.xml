@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">scorekeepdraft1</string>
+    <string name="scoreboard">Team1: X    Team2: Y</string>
+    <string name="nowbatting">Now batting: Player1</string>
+</resources>
