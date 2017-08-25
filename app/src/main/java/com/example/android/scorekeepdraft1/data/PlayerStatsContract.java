@@ -24,6 +24,7 @@ public class PlayerStatsContract {
     public static final String CONTENT_AUTHORITY = "com.example.android.scorekeepdraft1";
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
     public static final String PATH_STATS = "stats";
+    public static final String PATH_TEAMS = "stats";
 
     public PlayerStatsContract() {
     }
@@ -31,11 +32,14 @@ public class PlayerStatsContract {
     /* Inner class that defines the table contents of the weather table */
     public static final class PlayerStatsEntry implements BaseColumns {
 
-        /* The base CONTENT_URI used to query the Weather table from the content provider */
-        public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_STATS);
+        /* The base CONTENT_URI1 used to query the Weather table from the content provider */
+        public static final Uri CONTENT_URI1 = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_STATS);
+        public static final Uri CONTENT_URI2 = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_TEAMS);
+
 
         /* Used internally as the name of our weather table. */
-        public static final String TABLE_NAME = "playerstatistics";
+        public static final String PLAYERS_TABLE_NAME = "playerstatistics";
+        public static final String TEAMS_TABLE_NAME = "teamstatistics";
 
         /*
          * The date column will store the UTC date that correlates to the local date for which
@@ -68,6 +72,16 @@ public class PlayerStatsContract {
         public static final String COLUMN_RBI = "rbi";
         public static final String COLUMN_RUN = "runs";
 
+
+        public static final String COLUMN_LEAGUE = "league";
+        public static final String COLUMN_WINS = "league";
+        public static final String COLUMN_LOSSES= "league";
+        public static final String COLUMN_TIES = "league";
+        public static final String COLUMN_RUNSFOR = "runsfor";
+        public static final String COLUMN_RUNSAGAINST = "runsagainst";
+
+
+
         public static final String CONTENT_LIST_TYPE =
                 ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY +
                         "/" + PATH_STATS;
@@ -75,6 +89,7 @@ public class PlayerStatsContract {
         public static final String CONTENT_ITEM_TYPE =
                 ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY +
                         PATH_STATS;
+
     }
 
 }

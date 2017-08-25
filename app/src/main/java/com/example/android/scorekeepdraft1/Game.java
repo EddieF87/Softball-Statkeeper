@@ -19,6 +19,9 @@ import com.example.android.scorekeepdraft1.undoredo.UndoRedoManager;
 
 import com.example.android.scorekeepdraft1.data.PlayerStatsContract.PlayerStatsEntry;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+
 /**
  *
  * @author Eddie
@@ -36,7 +39,7 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
     private TextView runDisplay;
     private TextView hrDisplay;
 
-
+    //TODO:CHANGE TO RADIO BUTTONS (WITH SUBMIT AND RESET BUTTONS)
     private Button setSingle;
     private Button setDouble;
     private Button setTriple;
@@ -46,6 +49,13 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
     private Button setBB;
     private Button setSF;
     private Button setOut;
+
+    //TODO: CREATE A SELECT TEAMS AND SET LINEUP ACTIVITY (AND CARRY CHOICES OVER TO GAME ACTIVITY)
+    //TODO: ADD LEADERBOARD DISPLAYS ACTIVITY (ALL ONE ACTIVITY USING "SORTBY"?)
+    //TODO: ADD PLAYER STATS DISPLAYS BY TEAM (ALL ONE ACTIVITY USING "WHERE"?)
+    //TODO: ADD RUNS/WINS/ETC TO TEAM STATS AFTER GAME IS OVER
+    //TODO: FIGURE OUT HOW TO END GAME AND NEXT STEPS
+
 
     //private boolean valuesAdded = false;
     //temporary default values
@@ -59,9 +69,14 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
     private Player currentPlayer;
     private Team currentTeam;
 
+    private NumberFormat formatter = new DecimalFormat("#.000");
+
+
     private UndoRedoManager manager;
     private boolean unDoing = false;
     private AtBat currentAB;
+
+    //TODO: ADD DRAG AND DROP DISPLAY/LOGIC FOR BASES
 
 
     @Override
@@ -206,7 +221,7 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
                 values.put(PlayerStatsEntry.COLUMN_OUT, 0);
                 values.put(PlayerStatsEntry.COLUMN_RUN, 0);
                 values.put(PlayerStatsEntry.COLUMN_RBI, 0);
-                getContentResolver().insert(PlayerStatsEntry.CONTENT_URI, values);
+                getContentResolver().insert(PlayerStatsEntry.CONTENT_URI1, values);
             }
             startCursor();
             setDisplays();
@@ -231,7 +246,7 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
         String[] selectionArgs = {currentPlayer.getName()};
 
         mCursor = getContentResolver().query(
-                PlayerStatsEntry.CONTENT_URI, null,
+                PlayerStatsEntry.CONTENT_URI1, null,
                 selection, selectionArgs, null
         );
         mCursor.moveToNext();
@@ -298,13 +313,14 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
         String[] selectionArgs = {currentPlayer.getName()};
 
         getContentResolver().update(
-                PlayerStatsEntry.CONTENT_URI,
+                PlayerStatsEntry.CONTENT_URI1,
                 values,
                 selection,
                 selectionArgs
         );
     }
 
+    //sets the textview displays with updated player/game data
     public void setDisplays() {
         int hrIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_HR);
         int nameIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_NAME);
@@ -327,7 +343,7 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
 
         nowBatting.setText("Now batting: " + currentPlayer + " (" + name);
 
-        avgDisplay.setText("AVG: " + avg);
+        avgDisplay.setText("AVG: " + formatter.format(avg));
         hrDisplay.setText("HR: " + displayHR);
         rbiDisplay.setText("RBI: " + displayRBI);
         runDisplay.setText("Outs: " + playerOuts);

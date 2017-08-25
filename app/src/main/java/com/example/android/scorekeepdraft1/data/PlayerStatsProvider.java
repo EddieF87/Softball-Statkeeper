@@ -13,9 +13,6 @@ import android.util.Log;
 
 import com.example.android.scorekeepdraft1.data.PlayerStatsContract.PlayerStatsEntry;
 
-import static com.example.android.scorekeepdraft1.data.PlayerStatsContract.CONTENT_AUTHORITY;
-import static com.example.android.scorekeepdraft1.data.PlayerStatsContract.PATH_STATS;
-
 /**
  * Created by Eddie on 16/08/2017.
  */
@@ -26,6 +23,7 @@ public class PlayerStatsProvider extends ContentProvider {
 
     public static final int STATS = 100;
     public static final int STATS_ID = 101;
+    public static final int TEAMS = 102;
 
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     private PlayerDbHelper mOpenHelper;
@@ -36,8 +34,8 @@ public class PlayerStatsProvider extends ContentProvider {
         final String authority = PlayerStatsContract.CONTENT_AUTHORITY;
 
         matcher.addURI(authority, PlayerStatsContract.PATH_STATS, STATS);
-
         matcher.addURI(authority, PlayerStatsContract.PATH_STATS + "/#", STATS_ID);
+        matcher.addURI(authority, PlayerStatsContract.PATH_STATS, TEAMS);
 
         return matcher;
     }
@@ -60,15 +58,18 @@ public class PlayerStatsProvider extends ContentProvider {
         int match = sUriMatcher.match(uri);
         switch (match) {
             case STATS:
-                cursor = database.query(PlayerStatsEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
+                cursor = database.query(PlayerStatsEntry.PLAYERS_TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
                 break;
             /*case STATS_ID:
                 selection = PlayerStatsEntry._ID + "=?";
                 selectionArgs = new String[] { String.valueOf(ContentUris.parseId(uri)) };
 
-                cursor = database.query(PlayerStatsEntry.TABLE_NAME, projection, selection, selectionArgs,
+                cursor = database.query(PlayerStatsEntry.PLAYERS_TABLE_NAME, projection, selection, selectionArgs,
                         null, null, sortOrder);
                 break;*/
+            case TEAMS:
+                cursor = database.query(PlayerStatsEntry.TEAMS_TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
+                break;
             default:
                 throw new IllegalArgumentException("Cannot query unknown URI " + uri);
         }
@@ -86,6 +87,7 @@ public class PlayerStatsProvider extends ContentProvider {
                 return PlayerStatsEntry.CONTENT_LIST_TYPE;
             case STATS_ID:
                 return PlayerStatsEntry.CONTENT_ITEM_TYPE;
+            //TODO: enter teams type
             default:
                 throw new IllegalStateException("Unknown URI " + uri + " with match " + match);
         }    }
@@ -97,6 +99,8 @@ public class PlayerStatsProvider extends ContentProvider {
         switch (match) {
             case STATS:
                 return insertPlayer(uri, values);
+            case TEAMS:
+                //TODO: enter insertTeam method
             default:
                 throw new IllegalArgumentException("Insertion is not supported for " + uri);
         }    }
@@ -113,7 +117,7 @@ public class PlayerStatsProvider extends ContentProvider {
         SQLiteDatabase database = mOpenHelper.getWritableDatabase();
 
         // Insert the new pet with the given values
-        long id = database.insert(PlayerStatsEntry.TABLE_NAME, null, values);
+        long id = database.insert(PlayerStatsEntry.PLAYERS_TABLE_NAME, null, values);
         // If the ID is -1, then the insertion failed. Log an error and return null.
         if (id == -1) {
             Log.e(LOG_TAG, "Failed to insert row for " + uri);
@@ -129,23 +133,26 @@ public class PlayerStatsProvider extends ContentProvider {
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
         return 0;
+        //TODO: enter delete player and delete team logic
     }
 
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
-        /*final int match = sUriMatcher.match(uri);
+        final int match = sUriMatcher.match(uri);
         switch (match) {
-            case STATS:*/
+            case STATS:
                 return updatePlayer(uri, values, selection, selectionArgs);
-            /*default:
+            case TEAMS:
+                //TODO: enter updateTeam method
+            default:
                 throw new IllegalArgumentException("Update is not supported for " + uri);
-        }*/
+        }
     }
     
     private int updatePlayer(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
         SQLiteDatabase database = mOpenHelper.getWritableDatabase();
         // Perform the update on the database and get the number of rows affected
-        int rowsUpdated = database.update(PlayerStatsEntry.TABLE_NAME, values, selection, selectionArgs);
+        int rowsUpdated = database.update(PlayerStatsEntry.PLAYERS_TABLE_NAME, values, selection, selectionArgs);
         // If 1 or more rows were updated, then notify all listeners that the data at the
         // given URI has changed
         if (rowsUpdated != 0) {
