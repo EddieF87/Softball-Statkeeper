@@ -51,7 +51,7 @@ public class PlayerDbHelper extends SQLiteOpenHelper {
                         PlayerStatsEntry.COLUMN_TIES + " INTEGER, " +
 
                         PlayerStatsEntry.COLUMN_RUNSFOR + " INTEGER, " +
-                        PlayerStatsEntry.COLUMN_RUNSAGAINST + " INTEGER, " +
+                        PlayerStatsEntry.COLUMN_RUNSAGAINST + " INTEGER" +
                         ");" ;
 
                 db.execSQL(SQL_CREATE_PLAYERSTATS_TABLE);

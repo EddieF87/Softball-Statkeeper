@@ -35,7 +35,7 @@ public class PlayerStatsProvider extends ContentProvider {
 
         matcher.addURI(authority, PlayerStatsContract.PATH_STATS, STATS);
         matcher.addURI(authority, PlayerStatsContract.PATH_STATS + "/#", STATS_ID);
-        matcher.addURI(authority, PlayerStatsContract.PATH_STATS, TEAMS);
+        matcher.addURI(authority, PlayerStatsContract.PATH_TEAMS, TEAMS);
 
         return matcher;
     }

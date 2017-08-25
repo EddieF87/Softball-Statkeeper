@@ -24,7 +24,7 @@ public class PlayerStatsContract {
     public static final String CONTENT_AUTHORITY = "com.example.android.scorekeepdraft1";
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
     public static final String PATH_STATS = "stats";
-    public static final String PATH_TEAMS = "stats";
+    public static final String PATH_TEAMS = "teams";
 
     public PlayerStatsContract() {
     }
@@ -74,9 +74,9 @@ public class PlayerStatsContract {
 
 
         public static final String COLUMN_LEAGUE = "league";
-        public static final String COLUMN_WINS = "league";
-        public static final String COLUMN_LOSSES= "league";
-        public static final String COLUMN_TIES = "league";
+        public static final String COLUMN_WINS = "wins";
+        public static final String COLUMN_LOSSES= "losses";
+        public static final String COLUMN_TIES = "ties";
         public static final String COLUMN_RUNSFOR = "runsfor";
         public static final String COLUMN_RUNSAGAINST = "runsagainst";
 

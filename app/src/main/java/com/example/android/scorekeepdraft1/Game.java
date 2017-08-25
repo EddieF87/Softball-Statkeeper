@@ -5,10 +5,12 @@
  */
 package com.example.android.scorekeepdraft1;
 
+import android.content.ClipData;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -103,6 +105,9 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
         setSF = (Button) findViewById(R.id.sf);
         setOut = (Button) findViewById(R.id.out);
 
+        // Assign the touch listener to your view which you want to move
+        //findViewById(R.id.home_display).setOnTouchListener(new MyTouchListener());
+
         setSingle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -171,6 +176,22 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
 
         startGame();
     }
+
+    // This defines your touch listener
+/*    private final class MyTouchListener implements View.OnTouchListener {
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                ClipData data = ClipData.newPlainText("", "");
+                View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(
+                        view);
+                view.startDrag(data, shadowBuilder, view, 0);
+                view.setVisibility(View.INVISIBLE);
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }*/
 
     public void addRBI() {
         updatePlayerStats("rbi");
