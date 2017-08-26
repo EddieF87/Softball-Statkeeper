@@ -8,11 +8,22 @@ package com.example.android.scorekeepdraft1;
 import android.content.ClipData;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.DragEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,12 +34,17 @@ import com.example.android.scorekeepdraft1.data.PlayerStatsContract.PlayerStatsE
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import static android.R.attr.data;
+import static android.os.Build.VERSION_CODES.M;
+import static android.transition.Fade.IN;
 
 /**
- *
  * @author Eddie
  */
-public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCallbacks<Cursor>*/{
+public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCallbacks<Cursor>*/ {
 
     private Cursor mCursor;
 
@@ -51,6 +67,13 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
     private Button setBB;
     private Button setSF;
     private Button setOut;
+
+    private ImageView batterDisplay;
+    private ImageView outTrash;
+    private TextView firstDisplay;
+    private TextView secondDisplay;
+    private TextView thirdDisplay;
+    private TextView homeDisplay;
 
     //TODO: CREATE A SELECT TEAMS AND SET LINEUP ACTIVITY (AND CARRY CHOICES OVER TO GAME ACTIVITY)
     //TODO: ADD LEADERBOARD DISPLAYS ACTIVITY (ALL ONE ACTIVITY USING "SORTBY"?)
@@ -86,6 +109,8 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
+        onBase = new Player[5];
+
         scoreboard = (TextView) findViewById(R.id.scoreboard);
         nowBatting = (TextView) findViewById(R.id.nowbatting);
         outsDisplay = (TextView) findViewById(R.id.num_of_outs);
@@ -105,8 +130,6 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
         setSF = (Button) findViewById(R.id.sf);
         setOut = (Button) findViewById(R.id.out);
 
-        // Assign the touch listener to your view which you want to move
-        //findViewById(R.id.home_display).setOnTouchListener(new MyTouchListener());
 
         setSingle.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -134,7 +157,7 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
             public void onClick(View view) {
                 updatePlayerStats("hr");
                 addRBI();
-                addRun();
+                addRun(currentPlayer.getName());
                 nextBatter();
             }
         });
@@ -173,34 +196,232 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
                 addOut();
             }
         });
+        findViewById(R.id.second_display).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                findViewById(R.id.home_display).setVisibility(View.VISIBLE);
+            }
+        });
+
+        // Assign the touch listener to your view which you want to move
+
+        batterDisplay = (ImageView) findViewById(R.id.batter);
+        firstDisplay = (TextView) findViewById(R.id.first_display);
+        secondDisplay = (TextView) findViewById(R.id.second_display);
+        thirdDisplay = (TextView) findViewById(R.id.third_display);
+        homeDisplay = (TextView) findViewById(R.id.home_display);
+        outTrash = (ImageView) findViewById(R.id.trash);
+
+        batterDisplay.setOnLongClickListener(new MyClickListener());
+
+        firstDisplay.setOnDragListener(new MyDragListener());
+        secondDisplay.setOnDragListener(new MyDragListener());
+        thirdDisplay.setOnDragListener(new MyDragListener());
+        homeDisplay.setOnDragListener(new MyDragListener());
+        outTrash.setOnDragListener(new MyDragListener());
 
         startGame();
     }
 
-    // This defines your touch listener
-/*    private final class MyTouchListener implements View.OnTouchListener {
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
-                ClipData data = ClipData.newPlainText("", "");
-                View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(
-                        view);
-                view.startDrag(data, shadowBuilder, view, 0);
-                view.setVisibility(View.INVISIBLE);
-                return true;
-            } else {
-                return false;
-            }
+
+    private boolean firstOccupied = false;
+    private boolean secondOccupied = false;
+    private boolean thirdOccupied = false;
+
+    public void basesAllSet() {
+        if (firstDisplay.getText().toString().isEmpty()) {
+            firstDisplay.setOnLongClickListener(null);
+            firstDisplay.setOnDragListener(new MyDragListener());
+            firstOccupied = false;
+        } else {
+            firstDisplay.setOnLongClickListener(new MyClickListener());
+            firstDisplay.setOnDragListener(null);
+            firstOccupied = true;
         }
-    }*/
+
+        if (secondDisplay.getText().toString().isEmpty()) {
+            secondDisplay.setOnLongClickListener(null);
+            secondDisplay.setOnDragListener(new MyDragListener());
+            secondOccupied = false;
+        } else {
+            secondDisplay.setOnLongClickListener(new MyClickListener());
+            secondDisplay.setOnDragListener(null);
+            secondOccupied = true;
+        }
+
+        if (thirdDisplay.getText().toString().isEmpty()) {
+            thirdDisplay.setOnLongClickListener(null);
+            thirdDisplay.setOnDragListener(new MyDragListener());
+            thirdOccupied = false;
+        } else {
+            thirdDisplay.setOnLongClickListener(new MyClickListener());
+            thirdDisplay.setOnDragListener(null);
+            thirdOccupied = true;
+        }
+
+        homeDisplay.setOnDragListener(new MyDragListener());
+    }
+
+
+    class MyDragListener implements View.OnDragListener {
+
+        @Override
+        public boolean onDrag(View v, DragEvent event) {
+            int action = event.getAction();
+
+            TextView dropPoint = null;
+            if (v.getId() != R.id.trash) {
+                dropPoint = (TextView) v;
+            }
+            View eventView = (View) event.getLocalState();
+
+            switch (action) {
+                case DragEvent.ACTION_DRAG_STARTED:
+                    break;
+                case DragEvent.ACTION_DRAG_ENTERED:
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                        v.setBackgroundColor(Color.LTGRAY);
+                    }
+                    break;
+                case DragEvent.ACTION_DRAG_EXITED:
+                    v.setBackgroundColor(Color.TRANSPARENT);
+                    break;
+                case DragEvent.ACTION_DRAG_LOCATION:
+                    break;
+                case DragEvent.ACTION_DROP:
+                    String movedPlayer = "";
+                    if (v.getId() == R.id.trash) {
+                        if (eventView instanceof TextView) {
+                            TextView draggedView = (TextView) eventView;
+                            draggedView.setText("");
+                        } else {
+                            batterDisplay.setVisibility(View.INVISIBLE);
+                        }
+                        addOut();
+                    } else {
+                        if (eventView instanceof TextView) {
+                            TextView draggedView = (TextView) eventView;
+                            movedPlayer = draggedView.getText().toString();
+                            dropPoint.setText(movedPlayer);
+                            draggedView.setText("");
+                        } else {
+                            dropPoint.setText(currentPlayer.getName());
+                            batterDisplay.setVisibility(View.INVISIBLE);
+                        }
+                    }
+                    v.setBackgroundColor(Color.TRANSPARENT);
+                    if (dropPoint == homeDisplay) {
+                        Toast.makeText(Game.this, "HOMIE!!!", Toast.LENGTH_SHORT).show();
+                        if (eventView instanceof TextView) {
+                            addRun(movedPlayer);
+                        } else {
+                            addRun(currentPlayer.getName());
+                        }
+                        addRBI();
+                        homeDisplay.setText("");
+                    }
+                    basesAllSet();
+                    break;
+                case DragEvent.ACTION_DRAG_ENDED:
+                    v.setBackgroundColor(Color.TRANSPARENT);
+                    if (eventView instanceof TextView) {
+                        eventView.setBackgroundColor(Color.TRANSPARENT);
+                    }
+                    break;
+                default:
+                    break;
+            }
+            return true;
+        }
+    }
+
+
+    //TODO: LOOK into performance issues of making new onclick/ondrag listeners each time as opposed to perhaps recycling the same one?
+    // This defines your touch listener
+    private final class MyClickListener implements View.OnLongClickListener {
+        @Override
+        public boolean onLongClick(View view) {
+            basesAllSet();
+
+            switch (view.getId()) {
+                case R.id.batter:
+                    if (firstOccupied) {
+                        secondDisplay.setOnDragListener(null);
+                        thirdDisplay.setOnDragListener(null);
+                        homeDisplay.setOnDragListener(null);
+                    } else if (secondOccupied) {
+                        thirdDisplay.setOnDragListener(null);
+                        homeDisplay.setOnDragListener(null);
+                    } else if (thirdOccupied) {
+                        homeDisplay.setOnDragListener(null);
+                    }
+                    break;
+                case R.id.first_display:
+                    if (secondOccupied) {
+                        thirdDisplay.setOnDragListener(null);
+                        homeDisplay.setOnDragListener(null);
+                    } else if (thirdOccupied) {
+                        homeDisplay.setOnDragListener(null);
+                    }
+                    break;
+                case R.id.second_display:
+                    firstDisplay.setOnDragListener(null);
+                    if (thirdOccupied) {
+                        homeDisplay.setOnDragListener(null);
+                    }
+                    break;
+                case R.id.third_display:
+                    firstDisplay.setOnDragListener(null);
+                    secondDisplay.setOnDragListener(null);
+                    break;
+                default:
+                    Toast.makeText(Game.this, "SOMETHING WENT WRONG WITH THE SWITCH", Toast.LENGTH_LONG).show();
+                    break;
+            }
+
+            ClipData data = ClipData.newPlainText("", "");
+            View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                view.startDragAndDrop(data, shadowBuilder, view, 0);
+            } else {
+                view.startDrag(data, shadowBuilder, view, 0);
+            }
+            return true;
+        }
+    }
+
 
     public void addRBI() {
         updatePlayerStats("rbi");
     }
 
-    public void addRun() {
-        updatePlayerStats("run");
+    public void addRun(String player) {
+        String selection = PlayerStatsEntry.COLUMN_NAME + "=?";
+        String[] selectionArgs = {player};
+
+        mCursor = getContentResolver().query(
+                PlayerStatsEntry.CONTENT_URI1, null,
+                selection, selectionArgs, null
+        );
+        mCursor.moveToNext();
+
+        ContentValues values = new ContentValues();
+        int valueIndex;
+        int newValue;
+        valueIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_RUN);
+        newValue = mCursor.getInt(valueIndex) + 1;
+        values.put(PlayerStatsEntry.COLUMN_RUN, newValue);
+
+        getContentResolver().update(
+                PlayerStatsEntry.CONTENT_URI1,
+                values,
+                selection,
+                selectionArgs
+        );
+
         currentTeam.addRun();
         scoreboard.setText(awayTeam.getName() + " " + awayTeam.getCurrentRuns() + "    " + homeTeam.getName() + " " + homeTeam.getCurrentRuns());
+        startCursor();
     }
 
 
@@ -258,7 +479,6 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
         currentPlayer = currentTeam.getLineup().get(currentTeam.getIndex());
 
         startCursor();
-
         setDisplays();
     }
 
@@ -315,11 +535,6 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
                 newValue = mCursor.getInt(valueIndex) + 1;
                 values.put(PlayerStatsEntry.COLUMN_OUT, newValue);
                 break;
-            case "run":
-                valueIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_RUN);
-                newValue = mCursor.getInt(valueIndex) + 1;
-                values.put(PlayerStatsEntry.COLUMN_RUN, newValue);
-                break;
             case "rbi":
                 valueIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_RBI);
                 newValue = mCursor.getInt(valueIndex) + 1;
@@ -343,10 +558,12 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
 
     //sets the textview displays with updated player/game data
     public void setDisplays() {
-        int hrIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_HR);
-        int nameIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_NAME);
-        int rbiIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_RBI);
+        batterDisplay.setVisibility(View.VISIBLE);
 
+        int nameIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_NAME);
+        int hrIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_HR);
+        int rbiIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_RBI);
+        int runIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_RUN);
         int singleIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_1B);
         int doubleIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_2B);
         int tripleIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_3B);
@@ -355,6 +572,7 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
         String name = mCursor.getString(nameIndex);
         int displayHR = mCursor.getInt(hrIndex);
         int displayRBI = mCursor.getInt(rbiIndex);
+        int displayRun = mCursor.getInt(runIndex);
         int singles = mCursor.getInt(singleIndex);
         int doubles = mCursor.getInt(doubleIndex);
         int triples = mCursor.getInt(tripleIndex);
@@ -363,15 +581,18 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
         double avg = calculateAverage(singles, doubles, triples, displayHR, playerOuts, 0);
 
         nowBatting.setText("Now batting: " + currentPlayer + " (" + name);
-
         avgDisplay.setText("AVG: " + formatter.format(avg));
         hrDisplay.setText("HR: " + displayHR);
         rbiDisplay.setText("RBI: " + displayRBI);
-        runDisplay.setText("Outs: " + playerOuts);
+        runDisplay.setText("R: " + displayRun);
     }
 
     public void nextInning() {
-        if (inningNumber>=6) {
+        gameOuts = 0;
+        for (int i = 0; i < onBase.length; i++) {
+            onBase[i] = null;
+        }
+        if (inningNumber >= 6) {
             Toast.makeText(Game.this, "GAME OVER", Toast.LENGTH_LONG).show();
         }
         if (currentTeam == awayTeam) {
@@ -389,13 +610,11 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
         return (hits / (outs + errors + hits));
     }
 
-
     public void addOut() {
         gameOuts++;
         Toast.makeText(Game.this, "Outs = " + gameOuts, Toast.LENGTH_SHORT).show();
         //AtBat.addPlay(new Play(currentPlayer, currentTeam, "o"));
-        if (gameOuts >=3) {
-            gameOuts = 0;
+        if (gameOuts >= 3) {
             nextInning();
         } else {
             nextBatter();
@@ -406,39 +625,24 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
     public void subtractOut() {
         gameOuts--;
     }
-
-    public void editOnBase(Player[] basesCopied) {
-        System.arraycopy(basesCopied, 1, this.onBase, 1, 4);
-    }
-
+    public void editOnBase(Player[] basesCopied) {System.arraycopy(basesCopied, 1, this.onBase, 1, 4);}
     public Team getAwayTeam() {
         return awayTeam;
     }
-
     public Team getHomeTeam() {
         return homeTeam;
     }
-
     public int getGameOuts() {
         return gameOuts;
     }
-
     public void setGameOuts(int gameOuts) {
         this.gameOuts = gameOuts;
     }
-
-    public void setInningNumber(int inningNumber) {
-        this.inningNumber = inningNumber;
-    }
-
-    public int getInningNumber() {
-        return inningNumber;
-    }
-
+    public void setInningNumber(int inningNumber) {this.inningNumber = inningNumber;}
+    public int getInningNumber() {return inningNumber;}
     public void increaseInningNumber() {
         this.inningNumber++;
     }
-
     public void decreaseInningNumber() {
         this.inningNumber--;
     }

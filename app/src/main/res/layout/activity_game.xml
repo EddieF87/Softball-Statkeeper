@@ -6,15 +6,17 @@
     android:layout_height="match_parent"
     tools:context="com.example.android.scorekeepdraft1.Game">
 
-    <Button
-        android:id="@+id/first_display"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_marginLeft="8dp"
-        android:text="1B"
-        app:layout_constraintLeft_toRightOf="@+id/home_display"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/second_display" />
+    <TextView
+        android:id="@+id/second_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="0dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:text="2B"
+        app:layout_constraintBottom_toTopOf="@+id/second_display"
+        app:layout_constraintLeft_toLeftOf="@+id/second_display"
+        app:layout_constraintRight_toRightOf="@+id/second_display" />
 
     <TextView
         android:id="@+id/scoreboard"
@@ -221,34 +223,108 @@
         app:layout_constraintLeft_toLeftOf="@+id/nowbatting"
         app:layout_constraintTop_toBottomOf="@+id/nowbatting" />
 
-    <Button
+    <TextView
+        android:id="@+id/first_display"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/back"
+        android:gravity="center_vertical|center"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toRightOf="@+id/home_display"
+        app:layout_constraintTop_toBottomOf="@+id/second_display" />
+
+    <TextView
         android:id="@+id/second_display"
         android:layout_width="70dp"
         android:layout_height="70dp"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="24dp"
-        android:text="2B"
+        android:background="@drawable/back"
+        android:gravity="center_vertical|center"
+        android:textStyle="bold"
         app:layout_constraintLeft_toRightOf="@+id/third_display"
         app:layout_constraintTop_toBottomOf="@+id/avgdisplay" />
 
-    <Button
+    <TextView
         android:id="@+id/third_display"
         android:layout_width="70dp"
         android:layout_height="70dp"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="8dp"
-        android:text="3B"
+        android:background="@drawable/back"
+        android:gravity="center_vertical|center"
+        android:textStyle="bold"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/second_display" />
 
-    <Button
+    <TextView
         android:id="@+id/home_display"
         android:layout_width="70dp"
         android:layout_height="70dp"
-        android:text="HOME"
-        app:layout_constraintLeft_toRightOf="@+id/third_display"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
+        android:background="@drawable/back"
+        android:gravity="center_vertical|center"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toRightOf="@+id/third_display"
         app:layout_constraintTop_toBottomOf="@+id/third_display" />
+
+    <ImageView
+        android:id="@+id/batter"
+        android:layout_width="57dp"
+        android:layout_height="50dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintLeft_toRightOf="@+id/home_display"
+        app:layout_constraintTop_toBottomOf="@+id/first_display"
+        app:srcCompat="@drawable/batter" />
+
+    <TextView
+        android:id="@+id/first_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="0dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:text="1B"
+        app:layout_constraintBottom_toTopOf="@+id/first_display"
+        app:layout_constraintLeft_toLeftOf="@+id/first_display"
+        app:layout_constraintRight_toRightOf="@+id/first_display" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="0dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:text="3B"
+        app:layout_constraintBottom_toTopOf="@+id/third_display"
+        app:layout_constraintLeft_toLeftOf="@+id/third_display"
+        app:layout_constraintRight_toRightOf="@+id/third_display" />
+
+    <TextView
+        android:id="@+id/home_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="0dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:text="Home"
+        app:layout_constraintBottom_toTopOf="@+id/home_display"
+        app:layout_constraintLeft_toLeftOf="@+id/home_display"
+        app:layout_constraintRight_toRightOf="@+id/home_display" />
+
+    <ImageView
+        android:id="@+id/trash"
+        android:layout_width="55dp"
+        android:layout_height="55dp"
+        android:layout_marginLeft="24dp"
+        android:layout_marginTop="0dp"
+        app:layout_constraintLeft_toRightOf="@+id/first_display"
+        app:layout_constraintTop_toBottomOf="@+id/first_text"
+        app:srcCompat="@drawable/trash" />
 
 </android.support.constraint.ConstraintLayout>
