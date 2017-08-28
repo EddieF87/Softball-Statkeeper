@@ -5,7 +5,7 @@
  */
 package com.example.android.scorekeepdraft1.undoredo;
 
-import com.example.android.scorekeepdraft1.Game;
+import com.example.android.scorekeepdraft1.GameActivity;
 import com.example.android.scorekeepdraft1.Player;
 import com.example.android.scorekeepdraft1.Team;
 
@@ -37,7 +37,7 @@ public class Play {
         return team;
     }
 
-    public void undoPlay(Game game) {
+    public void undoPlay(GameActivity game) {
 
         switch (action) {
             case "s":
@@ -89,7 +89,7 @@ public class Play {
         }
     }
 
-    public void redoPlay(Game game) {
+    public void redoPlay(GameActivity game) {
 
         switch (action) {
             case "s":

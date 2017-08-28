@@ -8,7 +8,7 @@ package com.example.android.scorekeepdraft1.undoredo;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.example.android.scorekeepdraft1.Game;
+import com.example.android.scorekeepdraft1.GameActivity;
 import com.example.android.scorekeepdraft1.Team;
 
 
@@ -40,7 +40,7 @@ public class Inning {
         atBats.add(ab);
     }
 
-    public void undoAtBat(Game game) {
+    public void undoAtBat(GameActivity game) {
         if (atBats.isEmpty()) {
             manager.previousInning();
             return;
@@ -56,7 +56,7 @@ public class Inning {
         undoOrRedo(game);
     }
 
-    public void redoAtBat(Game game) {
+    public void redoAtBat(GameActivity game) {
         if (redoList.isEmpty()) {
             if (game.getGameOuts() == 3) {
                 manager.nextInning();
@@ -77,11 +77,11 @@ public class Inning {
         undoOrRedo(game);
     }
 
-    public void undoOrRedo(Game game) {
+    public void undoOrRedo(GameActivity game) {
         System.out.println("To undo an AB, type 'u'\nTo redo an AB, type 'r'"
                 + "\nTo continue, type any other key");
 
-        /*String command = Game.reader.nextLine();
+        /*String command = GameActivity.reader.nextLine();
 
         if (command.equals("u")) {
             undoAtBat(game);

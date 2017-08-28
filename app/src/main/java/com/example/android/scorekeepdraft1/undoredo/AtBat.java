@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.example.android.scorekeepdraft1.Game;
+import com.example.android.scorekeepdraft1.GameActivity;
 import com.example.android.scorekeepdraft1.Player;
 
 /**
@@ -58,18 +58,18 @@ public class AtBat {
         return "test: initalbase = " + Arrays.toString(initialBases) + "   index = " + lineupIndex + "\n final bases = " + Arrays.toString(finalBases);
     }
 
-    public void undoPlays(Game game) {
+    public void undoPlays(GameActivity game) {
         for (Play play : plays) {
             play.undoPlay(game);
         }
-        game.editOnBase(initialBases);
+        //TODO game.editOnBase(initialBases);
     }
 
-    public void redoPlays(Game game) {
+    public void redoPlays(GameActivity game) {
         for (Play play : plays) {
             play.redoPlay(game);
         }
-        game.editOnBase(finalBases);
+        //TODO game.editOnBase(finalBases);
     }
 
 }

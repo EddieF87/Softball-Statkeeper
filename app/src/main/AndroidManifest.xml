@@ -16,12 +16,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Game"></activity>
+        <activity android:name=".GameActivity" />
 
         <provider
-            android:authorities="com.example.android.scorekeepdraft1"
             android:name=".data.PlayerStatsProvider"
+            android:authorities="com.example.android.scorekeepdraft1"
             android:exported="false" />
+
+        <activity android:name=".StandingsActivity" />
+        <activity android:name=".StatsActivity"></activity>
     </application>
 
 </manifest>

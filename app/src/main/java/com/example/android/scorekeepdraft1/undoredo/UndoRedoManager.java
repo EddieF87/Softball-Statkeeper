@@ -7,7 +7,7 @@ package com.example.android.scorekeepdraft1.undoredo;
 
 import java.util.ArrayList;
 import java.util.List;
-import com.example.android.scorekeepdraft1.Game;
+import com.example.android.scorekeepdraft1.GameActivity;
 
 /**
  *
@@ -17,9 +17,9 @@ public class UndoRedoManager {
 
     private List<Inning> innings = new ArrayList<>();
     private List<Inning> redoInningList = new ArrayList<>();
-    private Game game;
+    private GameActivity game;
 
-    public UndoRedoManager(Game game) {
+    public UndoRedoManager(GameActivity game) {
         this.game = game;
     }
 
