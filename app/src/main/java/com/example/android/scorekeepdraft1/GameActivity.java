@@ -9,42 +9,33 @@ import android.content.ClipData;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.DragEvent;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.Switch;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.undoredo.AtBat;
+import com.example.android.scorekeepdraft1.undoredo.BaseLog;
 import com.example.android.scorekeepdraft1.undoredo.UndoRedoManager;
 
 import com.example.android.scorekeepdraft1.data.PlayerStatsContract.PlayerStatsEntry;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.Timer;
-import java.util.TimerTask;
 
-import static android.R.attr.data;
-import static android.os.Build.VERSION_CODES.M;
-import static android.transition.Fade.IN;
+import static android.R.attr.checked;
 
 /**
  * @author Eddie
  */
-public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCallbacks<Cursor>*/ {
+public class GameActivity extends AppCompatActivity /*implements LoaderManager.LoaderCallbacks<Cursor>*/ {
 
     private Cursor mCursor;
 
@@ -58,15 +49,12 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
     private TextView hrDisplay;
 
     //TODO:CHANGE TO RADIO BUTTONS (WITH SUBMIT AND RESET BUTTONS)
-    private Button setSingle;
-    private Button setDouble;
-    private Button setTriple;
-    private Button setHR;
-    private Button setError;
-    private Button setFC;
-    private Button setBB;
-    private Button setSF;
-    private Button setOut;
+    private Button submitPlay;
+    private Button resetBases;
+
+    private RadioGroup group1;
+    private RadioGroup group2;
+    private String result;
 
     private ImageView batterDisplay;
     private ImageView outTrash;
@@ -90,17 +78,23 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
 
     private int inningNumber = 1;
     private int gameOuts = 0;
-    private Player[] onBase;
+    private int tempOuts;
+    //TODO incorporate tempRuns?
+    private int tempRuns;
+
     private Player currentPlayer;
     private Team currentTeam;
 
     private NumberFormat formatter = new DecimalFormat("#.000");
+    BaseLog currentBaseLog;
 
 
     private UndoRedoManager manager;
     private boolean unDoing = false;
     private AtBat currentAB;
 
+    private boolean playEntered = false;
+    private boolean batterMoved = false;
     //TODO: ADD DRAG AND DROP DISPLAY/LOGIC FOR BASES
 
 
@@ -108,8 +102,6 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
-
-        onBase = new Player[5];
 
         scoreboard = (TextView) findViewById(R.id.scoreboard);
         nowBatting = (TextView) findViewById(R.id.nowbatting);
@@ -120,90 +112,35 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
         runDisplay = (TextView) findViewById(R.id.rundisplay);
         hrDisplay = (TextView) findViewById(R.id.hrdisplay);
 
-        setSingle = (Button) findViewById(R.id.single);
-        setDouble = (Button) findViewById(R.id.dbl);
-        setTriple = (Button) findViewById(R.id.triple);
-        setHR = (Button) findViewById(R.id.hr);
-        setError = (Button) findViewById(R.id.error);
-        setFC = (Button) findViewById(R.id.fc);
-        setBB = (Button) findViewById(R.id.bb);
-        setSF = (Button) findViewById(R.id.sf);
-        setOut = (Button) findViewById(R.id.out);
+        group1 = (RadioGroup) findViewById(R.id.group1);
+        group2 = (RadioGroup) findViewById(R.id.group2);
 
-
-        setSingle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                updatePlayerStats("1b");
-                nextBatter();
-            }
-        });
-        setDouble.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                updatePlayerStats("2b");
-                nextBatter();
-            }
-        });
-        setTriple.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                updatePlayerStats("3b");
-                nextBatter();
-            }
-        });
-        setHR.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                updatePlayerStats("hr");
-                addRBI();
-                addRun(currentPlayer.getName());
-                nextBatter();
-            }
-        });
-        setError.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                updatePlayerStats("out");
-                nextBatter();
-            }
-        });
-        setFC.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                updatePlayerStats("out");
-                nextBatter();
-            }
-        });
-        setBB.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                updatePlayerStats("bb");
-                nextBatter();
-            }
-        });
-        setSF.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                updatePlayerStats("sf");
-                nextBatter();
-            }
-        });
-        setOut.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                updatePlayerStats("out");
-                addOut();
-            }
-        });
-        findViewById(R.id.second_display).setOnClickListener(new View.OnClickListener() {
+        submitPlay = (Button) findViewById(R.id.submit);
+        submitPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                findViewById(R.id.home_display).setVisibility(View.VISIBLE);
+                onSubmit();
             }
         });
+        submitPlay.setVisibility(View.INVISIBLE);
 
-        // Assign the touch listener to your view which you want to move
+        resetBases = (Button) findViewById(R.id.reset);
+        resetBases.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String[] bases = currentBaseLog.getBasepositions();
+                firstDisplay.setText(bases[1]);
+                secondDisplay.setText(bases[2]);
+                thirdDisplay.setText(bases[3]);
+                batterDisplay.setVisibility(View.VISIBLE);
+                batterMoved = false;
+                submitPlay.setVisibility(View.INVISIBLE);
+                resetBases.setVisibility(View.INVISIBLE);
+                setBaseListeners();
+                tempOuts = 0;
+            }
+        });
+        resetBases.setVisibility(View.INVISIBLE);
 
         batterDisplay = (ImageView) findViewById(R.id.batter);
         firstDisplay = (TextView) findViewById(R.id.first_display);
@@ -223,12 +160,69 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
         startGame();
     }
 
+    public void onRadioButtonClicked(View view) {
+        // Is the button now checked?
+        boolean checked = ((RadioButton) view).isChecked();
+        playEntered = true;
+        // Check which radio button was clicked
+        switch(view.getId()) {
+            case R.id.single:
+                if (checked)
+                    result = "1b";
+                    group2.clearCheck();
+                    break;
+            case R.id.dbl:
+                if (checked)
+                    result = "2b";
+                    group2.clearCheck();
+                    break;
+            case R.id.triple:
+                if (checked)
+                    result = "3b";
+                    group2.clearCheck();
+                    break;
+            case R.id.hr:
+                if (checked)
+                    result = "hr";
+                    group2.clearCheck();
+                    break;
+            case R.id.bb:
+                if (checked)
+                    result = "bb";
+                    group1.clearCheck();
+                    break;
+            case R.id.out:
+                if (checked)
+                    result = "out";
+                    group1.clearCheck();
+                    break;
+            case R.id.error:
+                if (checked)
+                    result = "error";
+                    group1.clearCheck();
+                    break;
+            case R.id.fc:
+                if (checked)
+                    result = "fc";
+                    group1.clearCheck();
+                    break;
+            case R.id.sf:
+                if (checked)
+                    result = "sf";
+                    group1.clearCheck();
+                    break;
+        }
+        if(batterMoved) {
+            submitPlay.setVisibility(View.VISIBLE);
+        }
+    }
+
 
     private boolean firstOccupied = false;
     private boolean secondOccupied = false;
     private boolean thirdOccupied = false;
 
-    public void basesAllSet() {
+    public void setBaseListeners() {
         if (firstDisplay.getText().toString().isEmpty()) {
             firstDisplay.setOnLongClickListener(null);
             firstDisplay.setOnDragListener(new MyDragListener());
@@ -258,10 +252,8 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
             thirdDisplay.setOnDragListener(null);
             thirdOccupied = true;
         }
-
         homeDisplay.setOnDragListener(new MyDragListener());
     }
-
 
     class MyDragListener implements View.OnDragListener {
 
@@ -290,14 +282,19 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
                     break;
                 case DragEvent.ACTION_DROP:
                     String movedPlayer = "";
+                    //check later whether can shorten this section
                     if (v.getId() == R.id.trash) {
                         if (eventView instanceof TextView) {
                             TextView draggedView = (TextView) eventView;
                             draggedView.setText("");
                         } else {
                             batterDisplay.setVisibility(View.INVISIBLE);
+                            batterMoved = true;
+                            if(playEntered) {
+                                submitPlay.setVisibility(View.VISIBLE);
+                            }
                         }
-                        addOut();
+                        tempOuts++;
                     } else {
                         if (eventView instanceof TextView) {
                             TextView draggedView = (TextView) eventView;
@@ -307,11 +304,14 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
                         } else {
                             dropPoint.setText(currentPlayer.getName());
                             batterDisplay.setVisibility(View.INVISIBLE);
+                            batterMoved = true;
+                            if(playEntered) {
+                                submitPlay.setVisibility(View.VISIBLE);
+                            }
                         }
                     }
                     v.setBackgroundColor(Color.TRANSPARENT);
                     if (dropPoint == homeDisplay) {
-                        Toast.makeText(Game.this, "HOMIE!!!", Toast.LENGTH_SHORT).show();
                         if (eventView instanceof TextView) {
                             addRun(movedPlayer);
                         } else {
@@ -320,7 +320,8 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
                         addRBI();
                         homeDisplay.setText("");
                     }
-                    basesAllSet();
+                    resetBases.setVisibility(View.VISIBLE);
+                    setBaseListeners();
                     break;
                 case DragEvent.ACTION_DRAG_ENDED:
                     v.setBackgroundColor(Color.TRANSPARENT);
@@ -341,7 +342,7 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
     private final class MyClickListener implements View.OnLongClickListener {
         @Override
         public boolean onLongClick(View view) {
-            basesAllSet();
+            setBaseListeners();
 
             switch (view.getId()) {
                 case R.id.batter:
@@ -375,7 +376,7 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
                     secondDisplay.setOnDragListener(null);
                     break;
                 default:
-                    Toast.makeText(Game.this, "SOMETHING WENT WRONG WITH THE SWITCH", Toast.LENGTH_LONG).show();
+                    Toast.makeText(GameActivity.this, "SOMETHING WENT WRONG WITH THE SWITCH", Toast.LENGTH_LONG).show();
                     break;
             }
 
@@ -424,8 +425,8 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
         startCursor();
     }
 
-
     public void startGame() {
+        //TEMPORARY
         for (int i = 0; i < listOfPlayers.length; i++) {
             if (i % 2 == 0) {
                 awayTeam.addPlayer(new Player(listOfPlayers[i]));
@@ -436,20 +437,18 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
         awayTeam.setCurrentRuns(0);
         homeTeam.setCurrentRuns(0);
 
-        //this.onBase = new Player[5];
-        //this.manager = new UndoRedoManager(this);
+        //TODO? this.manager = new UndoRedoManager(this);
 
         currentTeam = awayTeam;
         currentPlayer = awayTeam.getLineup().get(0);
-
+        currentBaseLog = new BaseLog(currentPlayer.getName(), "", "", "");
         scoreboard.setText(awayTeam.getName() + " " + awayTeam.getCurrentRuns() + "    " + homeTeam.getName() + " " + homeTeam.getCurrentRuns());
 
         try {
             startCursor();
-
             setDisplays();
         } catch (Exception e) {
-            Toast.makeText(Game.this, "Adding a temporary database first!", Toast.LENGTH_LONG).show();
+            Toast.makeText(GameActivity.this, "Adding a temporary database first!", Toast.LENGTH_LONG).show();
             for (String player : listOfPlayers) {
                 ContentValues values = new ContentValues();
                 values.put(PlayerStatsEntry.COLUMN_NAME, player);
@@ -475,11 +474,17 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
         if (currentTeam.getIndex() >= currentTeam.getLineup().size()) {
             currentTeam.setIndex(0);
         }
-
         currentPlayer = currentTeam.getLineup().get(currentTeam.getIndex());
-
         startCursor();
         setDisplays();
+        group1.clearCheck();
+        group2.clearCheck();
+        currentBaseLog = new BaseLog(currentPlayer.getName(), firstDisplay.getText().toString(), secondDisplay.getText().toString(), thirdDisplay.getText().toString());
+        submitPlay.setVisibility(View.INVISIBLE);
+        resetBases.setVisibility(View.INVISIBLE);
+        tempOuts = 0;
+        playEntered = false;
+        batterMoved = false;
     }
 
     public void startCursor() {
@@ -541,7 +546,7 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
                 values.put(PlayerStatsEntry.COLUMN_RBI, newValue);
                 break;
             default:
-                Toast.makeText(Game.this, "SOMETHING FUCKED UP BIG TIME!!!", Toast.LENGTH_LONG).show();
+                Toast.makeText(GameActivity.this, "SOMETHING FUCKED UP BIG TIME!!!", Toast.LENGTH_LONG).show();
                 break;
         }
 
@@ -554,6 +559,48 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
                 selection,
                 selectionArgs
         );
+    }
+
+    public void moveBatter(String command){
+        String batter = currentPlayer.getName();
+
+        switch (command) {
+            case "1b":
+                if(firstOccupied) {
+                    Toast.makeText(GameActivity.this, "Please move " + firstDisplay.getText() + " first!", Toast.LENGTH_SHORT);
+                } else {
+                    firstDisplay.setText(batter);
+                    batterDisplay.setVisibility(View.INVISIBLE);
+                }
+                break;
+            case "2b":
+                if(firstOccupied || secondOccupied) {
+                    Toast.makeText(GameActivity.this, "Please move other runners first!", Toast.LENGTH_SHORT);
+                } else {
+                    secondDisplay.setText(batter);
+                    batterDisplay.setVisibility(View.INVISIBLE);
+                }
+                break;
+            case "3b":
+                if(firstOccupied || secondOccupied || thirdOccupied) {
+                    Toast.makeText(GameActivity.this, "Please move other runners first!", Toast.LENGTH_SHORT);
+                } else {
+                    secondDisplay.setText(batter);
+                    batterDisplay.setVisibility(View.INVISIBLE);
+                }
+                break;
+            case "hr":
+                if (firstOccupied) {
+                    //TODO: ADD RUN FOR EACH PLAYER
+                }
+                if (secondOccupied) {
+
+                }
+                if (thirdOccupied) {
+
+                }
+                break;
+        }
     }
 
     //sets the textview displays with updated player/game data
@@ -589,11 +636,8 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
 
     public void nextInning() {
         gameOuts = 0;
-        for (int i = 0; i < onBase.length; i++) {
-            onBase[i] = null;
-        }
         if (inningNumber >= 6) {
-            Toast.makeText(Game.this, "GAME OVER", Toast.LENGTH_LONG).show();
+            Toast.makeText(GameActivity.this, "GAME OVER", Toast.LENGTH_LONG).show();
         }
         if (currentTeam == awayTeam) {
             currentTeam = homeTeam;
@@ -612,7 +656,7 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
 
     public void addOut() {
         gameOuts++;
-        Toast.makeText(Game.this, "Outs = " + gameOuts, Toast.LENGTH_SHORT).show();
+        Toast.makeText(GameActivity.this, "Outs = " + gameOuts, Toast.LENGTH_SHORT).show();
         //AtBat.addPlay(new Play(currentPlayer, currentTeam, "o"));
         if (gameOuts >= 3) {
             nextInning();
@@ -622,10 +666,20 @@ public class Game extends AppCompatActivity /*implements LoaderManager.LoaderCal
         outsDisplay.setText(gameOuts + "outs");
     }
 
+    public void onSubmit() {
+        gameOuts += tempOuts;
+
+        if (gameOuts >= 3) {
+            nextInning();
+        } else {
+            nextBatter();
+        }
+        outsDisplay.setText(gameOuts + "outs");    }
+
     public void subtractOut() {
         gameOuts--;
     }
-    public void editOnBase(Player[] basesCopied) {System.arraycopy(basesCopied, 1, this.onBase, 1, 4);}
+//    public void editOnBase(Player[] basesCopied) {System.arraycopy(basesCopied, 1, this.onBase, 1, 4);}
     public Team getAwayTeam() {
         return awayTeam;
     }
