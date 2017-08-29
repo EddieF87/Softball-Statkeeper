@@ -11,9 +11,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="2B"
-        app:layout_constraintBottom_toTopOf="@+id/second_display"
         app:layout_constraintLeft_toLeftOf="@+id/second_display"
-        app:layout_constraintRight_toRightOf="@+id/second_display" />
+        app:layout_constraintRight_toRightOf="@+id/second_display"
+        app:layout_constraintHorizontal_bias="0.528"
+        app:layout_constraintTop_toTopOf="@+id/second_display"
+        android:layout_marginTop="0dp" />
 
     <TextView
         android:id="@+id/scoreboard"
@@ -284,27 +286,33 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="1B"
-        app:layout_constraintBottom_toTopOf="@+id/first_display"
         app:layout_constraintLeft_toLeftOf="@+id/first_display"
-        app:layout_constraintRight_toRightOf="@+id/first_display" />
+        app:layout_constraintRight_toRightOf="@+id/first_display"
+        app:layout_constraintHorizontal_bias="0.509"
+        app:layout_constraintTop_toTopOf="@+id/first_display"
+        android:layout_marginTop="0dp" />
 
     <TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="3B"
-        app:layout_constraintBottom_toTopOf="@+id/third_display"
         app:layout_constraintLeft_toLeftOf="@+id/third_display"
-        app:layout_constraintRight_toRightOf="@+id/third_display" />
+        app:layout_constraintRight_toRightOf="@+id/third_display"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintTop_toTopOf="@+id/third_display"
+        android:layout_marginTop="0dp" />
 
     <TextView
         android:id="@+id/home_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Home"
-        app:layout_constraintBottom_toTopOf="@+id/home_display"
         app:layout_constraintLeft_toLeftOf="@+id/home_display"
-        app:layout_constraintRight_toRightOf="@+id/home_display" />
+        app:layout_constraintRight_toRightOf="@+id/home_display"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintTop_toTopOf="@+id/home_display"
+        android:layout_marginTop="0dp" />
 
     <ImageView
         android:id="@+id/trash"
@@ -343,5 +351,38 @@
         app:layout_constraintBottom_toTopOf="@+id/group1"
         app:layout_constraintRight_toRightOf="parent"
      />
+
+    <TextView
+        android:id="@+id/outText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Out"
+        android:layout_marginBottom="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/trash"
+        android:layout_marginLeft="0dp"
+        app:layout_constraintLeft_toLeftOf="@+id/trash"
+        android:layout_marginRight="0dp"
+        app:layout_constraintRight_toRightOf="@+id/trash"
+        app:layout_constraintHorizontal_bias="0.5" />
+
+    <Button
+        android:id="@+id/redobutton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="0dp"
+        android:layout_marginTop="0dp"
+        android:text="Redo"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/undobutton" />
+
+    <Button
+        android:id="@+id/undobutton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="0dp"
+        android:layout_marginTop="16dp"
+        android:text="Undo"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/rundisplay" />
 
 </android.support.constraint.ConstraintLayout>

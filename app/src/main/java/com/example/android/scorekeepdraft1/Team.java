@@ -79,6 +79,10 @@ public class Team {
         this.index = index;
     }
 
+    public void setIndex(Player player) {
+        this.index = team.indexOf(player);
+    }
+
     public int getIndex() {
         return index;
     }

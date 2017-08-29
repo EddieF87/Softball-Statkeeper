@@ -109,21 +109,21 @@ public class Play {
                 break;
 
             case "o":
-                player.addOut();
-                game.addOut();
+                //player.addOut();
+                //game.addOut();
                 break;
 
             case "e":
-                player.addOut();
+                //player.addOut();
                 break;
 
             case "fc":
-                player.addOut();
+                //player.addOut();
                 break;
 
             case "sf":
                 player.addSacFly();
-                game.addOut();
+                //game.addOut();
                 break;
 
             case "run":
