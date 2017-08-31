@@ -21,6 +21,10 @@ public class GameHistory {
         return gameLogs.get(index);
     }
 
+    public void updateGameLog(int index) {
+        gameLogs.subList(index + 1, gameLogs.size()).clear();
+    }
+
     public void addGameLog(GameLog gameLog) {
         gameLogs.add(gameLog);
     }

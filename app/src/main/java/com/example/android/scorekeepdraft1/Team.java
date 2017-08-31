@@ -30,6 +30,10 @@ public class Team {
         team.add(player);
     }
 
+    public Player getPlayer(int index) {
+        return team.get(index);
+    }
+
     public String getName() {
         return name;
     }
@@ -73,6 +77,9 @@ public class Team {
 
     public void increaseIndex() {
         this.index++;
+        if(index >= team.size()) {
+            index = 0;
+        }
     }
 
     public void setIndex(int index) {
