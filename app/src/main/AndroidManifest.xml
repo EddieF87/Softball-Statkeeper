@@ -24,7 +24,8 @@
             android:exported="false" />
 
         <activity android:name=".StandingsActivity" />
-        <activity android:name=".StatsActivity"></activity>
+        <activity android:name=".StatsActivity" />
+        <activity android:name=".LineupActivity"></activity>
     </application>
 
 </manifest>

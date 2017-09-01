@@ -21,12 +21,10 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.android.scorekeepdraft1.undoredo.AtBat;
 import com.example.android.scorekeepdraft1.undoredo.BaseLog;
 import com.example.android.scorekeepdraft1.undoredo.GameHistory;
 import com.example.android.scorekeepdraft1.undoredo.GameLog;
 import com.example.android.scorekeepdraft1.undoredo.RunsLog;
-import com.example.android.scorekeepdraft1.undoredo.UndoRedoManager;
 
 import com.example.android.scorekeepdraft1.data.PlayerStatsContract.PlayerStatsEntry;
 
@@ -102,13 +100,13 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     private GameHistory gameHistory;
     private int gameLogIndex = 0;
 
-    private UndoRedoManager manager;
     private boolean undoRedo = false;
-    private AtBat currentAB;
 
     private boolean playEntered = false;
     private boolean batterMoved = false;
-
+    private boolean firstOccupied = false;
+    private boolean secondOccupied = false;
+    private boolean thirdOccupied = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -237,11 +235,6 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         }
     }
 
-
-    private boolean firstOccupied = false;
-    private boolean secondOccupied = false;
-    private boolean thirdOccupied = false;
-
     public void setBaseListeners() {
         if (firstDisplay.getText().toString().isEmpty()) {
             firstDisplay.setOnLongClickListener(null);
@@ -273,147 +266,6 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             thirdOccupied = true;
         }
         homeDisplay.setOnDragListener(new MyDragListener());
-    }
-
-    class MyDragListener implements View.OnDragListener {
-
-        @Override
-        public boolean onDrag(View v, DragEvent event) {
-            int action = event.getAction();
-            TextView dropPoint = null;
-            if (v.getId() != R.id.trash) {
-                dropPoint = (TextView) v;
-            }
-            View eventView = (View) event.getLocalState();
-
-            switch (action) {
-                case DragEvent.ACTION_DRAG_STARTED:
-                    break;
-                case DragEvent.ACTION_DRAG_ENTERED:
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                        v.setBackgroundColor(Color.LTGRAY);
-                    }
-                    break;
-                case DragEvent.ACTION_DRAG_EXITED:
-                    v.setBackgroundColor(Color.TRANSPARENT);
-                    break;
-                case DragEvent.ACTION_DRAG_LOCATION:
-                    break;
-                case DragEvent.ACTION_DROP:
-                    String movedPlayer = "";
-                    //check later whether can shorten this section
-                    if (v.getId() == R.id.trash) {
-                        if (eventView instanceof TextView) {
-                            TextView draggedView = (TextView) eventView;
-                            draggedView.setText("");
-                        } else {
-                            batterDisplay.setVisibility(View.INVISIBLE);
-                            batterMoved = true;
-                            if(playEntered) {
-                                submitPlay.setVisibility(View.VISIBLE);
-                            }
-                        }
-                        tempOuts++;
-                        outsDisplay.setText((gameOuts + tempOuts) + "outs");
-                    } else {
-                        if (eventView instanceof TextView) {
-                            TextView draggedView = (TextView) eventView;
-                            movedPlayer = draggedView.getText().toString();
-                            dropPoint.setText(movedPlayer);
-                            draggedView.setText("");
-                        } else {
-                            dropPoint.setText(currentBatter.getName());
-                            batterDisplay.setVisibility(View.INVISIBLE);
-                            batterMoved = true;
-                            if(playEntered) {
-                                submitPlay.setVisibility(View.VISIBLE);
-                            }
-                        }
-                    }
-                    v.setBackgroundColor(Color.TRANSPARENT);
-                    if (dropPoint == homeDisplay) {
-                        if (eventView instanceof TextView) {
-                            currentRunsLog.addPlayerScored(movedPlayer);
-                        } else {
-                            currentRunsLog.addPlayerScored(currentBatter.getName());
-                        }
-                        homeDisplay.setText("");
-                        tempRuns++;
-                        if (currentTeam == awayTeam) {
-                            scoreboard.setText(awayTeam.getName() + " " + (awayTeam.getCurrentRuns() + tempRuns) + "    " + homeTeam.getName() + " " + (homeTeam.getCurrentRuns()));
-                        } else {
-                            scoreboard.setText(awayTeam.getName() + " " + (awayTeam.getCurrentRuns()) + "    " + homeTeam.getName() + " " + (homeTeam.getCurrentRuns() + tempRuns));
-                        }
-                    }
-                    resetBases.setVisibility(View.VISIBLE);
-                    setBaseListeners();
-                    break;
-                case DragEvent.ACTION_DRAG_ENDED:
-                    v.setBackgroundColor(Color.TRANSPARENT);
-                    if (eventView instanceof TextView) {
-                        eventView.setBackgroundColor(Color.TRANSPARENT);
-                    }
-                    break;
-                default:
-                    break;
-            }
-            return true;
-        }
-    }
-
-
-    //TODO: LOOK into performance issues of making new onclick/ondrag listeners each time as opposed to perhaps recycling the same one?
-    // This defines your touch listener
-    private final class MyClickListener implements View.OnLongClickListener {
-        @Override
-        public boolean onLongClick(View view) {
-            setBaseListeners();
-
-            switch (view.getId()) {
-                case R.id.batter:
-                    if (firstOccupied) {
-                        secondDisplay.setOnDragListener(null);
-                        thirdDisplay.setOnDragListener(null);
-                        homeDisplay.setOnDragListener(null);
-                    } else if (secondOccupied) {
-                        thirdDisplay.setOnDragListener(null);
-                        homeDisplay.setOnDragListener(null);
-                    } else if (thirdOccupied) {
-                        homeDisplay.setOnDragListener(null);
-                    }
-                    break;
-                case R.id.first_display:
-                    if (secondOccupied) {
-                        thirdDisplay.setOnDragListener(null);
-                        homeDisplay.setOnDragListener(null);
-                    } else if (thirdOccupied) {
-                        homeDisplay.setOnDragListener(null);
-                    }
-                    break;
-                case R.id.second_display:
-                    firstDisplay.setOnDragListener(null);
-                    if (thirdOccupied) {
-                        homeDisplay.setOnDragListener(null);
-                    }
-                    break;
-                case R.id.third_display:
-                    firstDisplay.setOnDragListener(null);
-                    secondDisplay.setOnDragListener(null);
-                    break;
-                default:
-                    Toast.makeText(GameActivity.this, "SOMETHING WENT WRONG WITH THE SWITCH", Toast.LENGTH_LONG).show();
-                    break;
-            }
-
-            ClipData data = ClipData.newPlainText("", "");
-            View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                view.startDragAndDrop(data, shadowBuilder, view, 0);
-            } else {
-                view.startDrag(data, shadowBuilder, view, 0);
-            }
-            return true;
-        }
     }
 
     public void startGame() {
@@ -812,31 +664,6 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         outsDisplay.setText(gameOuts + "outs");
     }
 
-    public void subtractOut() {
-        gameOuts--;
-    }
-//    public void editOnBase(Player[] basesCopied) {System.arraycopy(basesCopied, 1, this.onBase, 1, 4);}
-    public Team getAwayTeam() {
-        return awayTeam;
-    }
-    public Team getHomeTeam() {
-        return homeTeam;
-    }
-    public int getGameOuts() {
-        return gameOuts;
-    }
-    public void setGameOuts(int gameOuts) {
-        this.gameOuts = gameOuts;
-    }
-    public void setInningNumber(int inningNumber) {this.inningNumber = inningNumber;}
-    public int getInningNumber() {return inningNumber;}
-    public void increaseInningNumber() {
-        this.inningNumber++;
-    }
-    public void decreaseInningNumber() {
-        this.inningNumber--;
-    }
-
     public void undoPlay() {
         String undoResult;
         if(gameLogIndex > 0) {
@@ -921,4 +748,166 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         setDisplays();
         nextBatter();
     }
+
+    class MyDragListener implements View.OnDragListener {
+
+        @Override
+        public boolean onDrag(View v, DragEvent event) {
+            int action = event.getAction();
+            TextView dropPoint = null;
+            if (v.getId() != R.id.trash) {
+                dropPoint = (TextView) v;
+            }
+            View eventView = (View) event.getLocalState();
+
+            switch (action) {
+                case DragEvent.ACTION_DRAG_STARTED:
+                    break;
+                case DragEvent.ACTION_DRAG_ENTERED:
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                        v.setBackgroundColor(Color.LTGRAY);
+                    }
+                    break;
+                case DragEvent.ACTION_DRAG_EXITED:
+                    v.setBackgroundColor(Color.TRANSPARENT);
+                    break;
+                case DragEvent.ACTION_DRAG_LOCATION:
+                    break;
+                case DragEvent.ACTION_DROP:
+                    String movedPlayer = "";
+                    //check later whether can shorten this section
+                    if (v.getId() == R.id.trash) {
+                        if (eventView instanceof TextView) {
+                            TextView draggedView = (TextView) eventView;
+                            draggedView.setText("");
+                        } else {
+                            batterDisplay.setVisibility(View.INVISIBLE);
+                            batterMoved = true;
+                            if(playEntered) {
+                                submitPlay.setVisibility(View.VISIBLE);
+                            }
+                        }
+                        tempOuts++;
+                        outsDisplay.setText((gameOuts + tempOuts) + "outs");
+                    } else {
+                        if (eventView instanceof TextView) {
+                            TextView draggedView = (TextView) eventView;
+                            movedPlayer = draggedView.getText().toString();
+                            dropPoint.setText(movedPlayer);
+                            draggedView.setText("");
+                        } else {
+                            dropPoint.setText(currentBatter.getName());
+                            batterDisplay.setVisibility(View.INVISIBLE);
+                            batterMoved = true;
+                            if(playEntered) {
+                                submitPlay.setVisibility(View.VISIBLE);
+                            }
+                        }
+                    }
+                    v.setBackgroundColor(Color.TRANSPARENT);
+                    if (dropPoint == homeDisplay) {
+                        if (eventView instanceof TextView) {
+                            currentRunsLog.addPlayerScored(movedPlayer);
+                        } else {
+                            currentRunsLog.addPlayerScored(currentBatter.getName());
+                        }
+                        homeDisplay.setText("");
+                        tempRuns++;
+                        if (currentTeam == awayTeam) {
+                            scoreboard.setText(awayTeam.getName() + " " + (awayTeam.getCurrentRuns() + tempRuns) + "    " + homeTeam.getName() + " " + (homeTeam.getCurrentRuns()));
+                        } else {
+                            scoreboard.setText(awayTeam.getName() + " " + (awayTeam.getCurrentRuns()) + "    " + homeTeam.getName() + " " + (homeTeam.getCurrentRuns() + tempRuns));
+                        }
+                    }
+                    resetBases.setVisibility(View.VISIBLE);
+                    setBaseListeners();
+                    break;
+                case DragEvent.ACTION_DRAG_ENDED:
+                    v.setBackgroundColor(Color.TRANSPARENT);
+                    if (eventView instanceof TextView) {
+                        eventView.setBackgroundColor(Color.TRANSPARENT);
+                    }
+                    break;
+                default:
+                    break;
+            }
+            return true;
+        }
+    }
+
+    //TODO: LOOK into performance issues of making new onclick/ondrag listeners each time as opposed to perhaps recycling the same one?
+    // This defines your touch listener
+    private final class MyClickListener implements View.OnLongClickListener {
+        @Override
+        public boolean onLongClick(View view) {
+            setBaseListeners();
+
+            switch (view.getId()) {
+                case R.id.batter:
+                    if (firstOccupied) {
+                        secondDisplay.setOnDragListener(null);
+                        thirdDisplay.setOnDragListener(null);
+                        homeDisplay.setOnDragListener(null);
+                    } else if (secondOccupied) {
+                        thirdDisplay.setOnDragListener(null);
+                        homeDisplay.setOnDragListener(null);
+                    } else if (thirdOccupied) {
+                        homeDisplay.setOnDragListener(null);
+                    }
+                    break;
+                case R.id.first_display:
+                    if (secondOccupied) {
+                        thirdDisplay.setOnDragListener(null);
+                        homeDisplay.setOnDragListener(null);
+                    } else if (thirdOccupied) {
+                        homeDisplay.setOnDragListener(null);
+                    }
+                    break;
+                case R.id.second_display:
+                    firstDisplay.setOnDragListener(null);
+                    if (thirdOccupied) {
+                        homeDisplay.setOnDragListener(null);
+                    }
+                    break;
+                case R.id.third_display:
+                    firstDisplay.setOnDragListener(null);
+                    secondDisplay.setOnDragListener(null);
+                    break;
+                default:
+                    Toast.makeText(GameActivity.this, "SOMETHING WENT WRONG WITH THE SWITCH", Toast.LENGTH_LONG).show();
+                    break;
+            }
+
+            ClipData data = ClipData.newPlainText("", "");
+            View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                view.startDragAndDrop(data, shadowBuilder, view, 0);
+            } else {
+                view.startDrag(data, shadowBuilder, view, 0);
+            }
+            return true;
+        }
+    }
+
+    public void subtractOut() {
+        gameOuts--;
+    }
+    public Team getAwayTeam() {
+        return awayTeam;
+    }
+    public Team getHomeTeam() {
+        return homeTeam;
+    }
+    public int getGameOuts() {
+        return gameOuts;
+    }
+    public void setGameOuts(int gameOuts) {
+        this.gameOuts = gameOuts;
+    }
+    public int getInningNumber() {return inningNumber;}
+    public void setInningNumber(int inningNumber) {this.inningNumber = inningNumber;}
+    public void increaseInningNumber() {
+        this.inningNumber++;
+    }
+    public void decreaseInningNumber() {this.inningNumber--;}
 }

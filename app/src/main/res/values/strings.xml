@@ -2,4 +2,22 @@
     <string name="app_name">scorekeepdraft1</string>
     <string name="scoreboard">Team1: X    Team2: Y</string>
     <string name="nowbatting">Now batting: Player1</string>
+
+    <array name="main_items">
+    <item>List - Basic Drag and Swipe</item>
+    <item>Grid - Basic Swipe</item>
+    </array>
+
+    <array name="dummy_items">
+    <item>One</item>
+    <item>Two</item>
+    <item>Three</item>
+    <item>Four</item>
+    <item>Five</item>
+    <item>Six</item>
+    <item>Seven</item>
+    <item>Eight</item>
+    <item>Nine</item>
+    <item>Ten</item>
+    </array>
 </resources>
