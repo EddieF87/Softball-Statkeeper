@@ -25,7 +25,8 @@
 
         <activity android:name=".StandingsActivity" />
         <activity android:name=".StatsActivity" />
-        <activity android:name=".LineupActivity"></activity>
+        <activity android:name=".SetLineupActivity" />
+        <activity android:name=".SetTeamsActivity"></activity>
     </application>
 
 </manifest>

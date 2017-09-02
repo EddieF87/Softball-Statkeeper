@@ -14,7 +14,9 @@ import java.util.List;
  */
 public class Team {
 
-    private List<Player> team = new ArrayList<>();
+    private List<Player> roster = new ArrayList<>();
+    private List<Player> lineup = new ArrayList<>();
+    private List<Player> bench = new ArrayList<>();
     private String name;
     private int totalRunsScored = 0;
     private int totalRunsAgainst = 0;
@@ -27,33 +29,39 @@ public class Team {
 
     public void addPlayer(Player player) {
         player.setTeam(getName());
-        team.add(player);
+        roster.add(player);
     }
 
     public Player getPlayer(int index) {
-        return team.get(index);
+        return roster.get(index);
     }
-
     public String getName() {
         return name;
     }
 
-    public List<Player> getLineup() {
-        return team;
+    public List<Player> getRoster() {
+        return roster;
+    }
+    public List<Player> getBench() {
+        return bench;
+    }
+    public List<Player> getLineup() {return lineup;}
+
+    public void putOnBench(Player player) {
+        if(lineup.contains(player)) {lineup.remove(player);}
+        if(bench.contains(player)) {return;}
+        bench.add(player);
     }
 
-    @Override
-    public String toString() {
-        StringBuilder teamString = new StringBuilder(name + ": ");
-        for (Player player : team) {
-            teamString.append(player.getName());
-            if (team.indexOf(player) == team.size() - 1) {
-                break;
-            }
-            teamString.append(", ");
-        }
-        return teamString.toString();
+    public void putInLineup(Player player) {
+        if(bench.contains(player)) {bench.remove(player);}
+        if(lineup.contains(player)) {return;}
+        lineup.add(player);
     }
+
+    public int getRosterSize(){return roster.size();}
+    public int getLineupSize(){return lineup.size();}
+    public int getBenchSize(){return bench.size();}
 
     public void addRun() {
         currentRuns++;
@@ -77,9 +85,18 @@ public class Team {
 
     public void increaseIndex() {
         this.index++;
-        if(index >= team.size()) {
+        if(index >= roster.size()) {
             index = 0;
         }
+    }
+
+    public boolean isOnRoster(String playerName) {
+        for (Player player : roster) {
+            if (player.getName().equals(playerName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void setIndex(int index) {
@@ -87,7 +104,7 @@ public class Team {
     }
 
     public void setIndex(Player player) {
-        this.index = team.indexOf(player);
+        this.index = roster.indexOf(player);
     }
 
     public int getIndex() {

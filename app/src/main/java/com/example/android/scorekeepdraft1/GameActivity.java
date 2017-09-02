@@ -31,7 +31,6 @@ import com.example.android.scorekeepdraft1.data.PlayerStatsContract.PlayerStatsE
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
-import static android.R.attr.action;
 import static com.example.android.scorekeepdraft1.R.id.reset;
 
 /**
@@ -283,7 +282,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         gameHistory = new GameHistory();
         //TODO? this.manager = new UndoRedoManager(this);
         currentTeam = awayTeam;
-        currentBatter = awayTeam.getLineup().get(0);
+        currentBatter = awayTeam.getRoster().get(0);
         currentRunsLog = new RunsLog();
         currentBaseLogStart = new BaseLog(currentTeam, currentBatter, "", "", "", 0, 0, 0);
         gameHistory.addGameLog(new GameLog(currentBaseLogStart, currentRunsLog, "start", null, false));
@@ -353,7 +352,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             Toast.makeText(GameActivity.this, "GAME OVER", Toast.LENGTH_LONG).show();
         }
         currentTeam.increaseIndex();
-        if (currentTeam.getIndex() >= currentTeam.getLineup().size()) {
+        if (currentTeam.getIndex() >= currentTeam.getRoster().size()) {
             currentTeam.setIndex(0);
         }
         if (currentTeam == awayTeam) {

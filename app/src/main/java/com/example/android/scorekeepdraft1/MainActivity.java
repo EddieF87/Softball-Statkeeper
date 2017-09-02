@@ -6,9 +6,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -29,7 +26,16 @@ public class MainActivity extends AppCompatActivity {
         test.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, LineupActivity.class);
+                Intent intent = new Intent(MainActivity.this, SetLineupActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        Button test2 = (Button) findViewById(R.id.testbut2);
+        test2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, SetTeamsActivity.class);
                 startActivity(intent);
             }
         });
