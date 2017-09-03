@@ -10,8 +10,13 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.data.PlayerStatsContract.PlayerStatsEntry;
+
+import static android.R.attr.name;
+import static android.os.Build.VERSION_CODES.N;
+import static android.support.v7.widget.AppCompatDrawableManager.get;
 
 /**
  * Created by Eddie on 16/08/2017.
@@ -100,7 +105,7 @@ public class PlayerStatsProvider extends ContentProvider {
             case STATS:
                 return insertPlayer(uri, values);
             case TEAMS:
-                //TODO: enter insertTeam method
+                return insertTeam(uri, values);
             default:
                 throw new IllegalArgumentException("Insertion is not supported for " + uri);
         }    }
@@ -130,6 +135,42 @@ public class PlayerStatsProvider extends ContentProvider {
         return ContentUris.withAppendedId(uri, id);
     }
 
+    private Uri insertTeam (Uri uri, ContentValues values) {
+        // Check that the name is not null
+        if (values.containsKey(PlayerStatsEntry.COLUMN_NAME)) {
+            String name = values.getAsString(PlayerStatsEntry.COLUMN_NAME);
+            if (name == null) {
+                throw new IllegalArgumentException("Team requires a name");
+            }
+
+            String[] projection = new String[] {PlayerStatsEntry.COLUMN_NAME};
+            Cursor cursor = query(PlayerStatsEntry.CONTENT_URI2, projection, null, null, null);
+            while (cursor.moveToNext()) {
+                int nameIndex = cursor.getColumnIndex(PlayerStatsEntry.COLUMN_NAME);
+                String teamName = cursor.getString(nameIndex);
+                if (teamName.equals(name)) {
+                    Toast.makeText(getContext(), "This team already exists!", Toast.LENGTH_SHORT).show();
+                    return null;
+                }
+            }
+        }
+
+        SQLiteDatabase database = mOpenHelper.getWritableDatabase();
+
+        // Insert the new pet with the given values
+        long id = database.insert(PlayerStatsEntry.TEAMS_TABLE_NAME, null, values);
+        // If the ID is -1, then the insertion failed. Log an error and return null.
+        if (id == -1) {
+            Log.e(LOG_TAG, "Failed to insert row for " + uri);
+            return null;
+        }
+
+        getContext().getContentResolver().notifyChange(uri, null);
+
+        // Return the new URI with the ID (of the newly inserted row) appended at the end
+        return ContentUris.withAppendedId(uri, id);
+    }
+
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
         return 0;
@@ -143,7 +184,7 @@ public class PlayerStatsProvider extends ContentProvider {
             case STATS:
                 return updatePlayer(uri, values, selection, selectionArgs);
             case TEAMS:
-                //TODO: enter updateTeam method
+                return updateTeam(uri, values, selection, selectionArgs);
             default:
                 throw new IllegalArgumentException("Update is not supported for " + uri);
         }
@@ -153,6 +194,18 @@ public class PlayerStatsProvider extends ContentProvider {
         SQLiteDatabase database = mOpenHelper.getWritableDatabase();
         // Perform the update on the database and get the number of rows affected
         int rowsUpdated = database.update(PlayerStatsEntry.PLAYERS_TABLE_NAME, values, selection, selectionArgs);
+        // If 1 or more rows were updated, then notify all listeners that the data at the
+        // given URI has changed
+        if (rowsUpdated != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return rowsUpdated;
+    }
+
+    private int updateTeam(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
+        SQLiteDatabase database = mOpenHelper.getWritableDatabase();
+        // Perform the update on the database and get the number of rows affected
+        int rowsUpdated = database.update(PlayerStatsEntry.TEAMS_TABLE_NAME, values, selection, selectionArgs);
         // If 1 or more rows were updated, then notify all listeners that the data at the
         // given URI has changed
         if (rowsUpdated != 0) {

@@ -23,17 +23,71 @@
     tools:context="com.example.android.scorekeepdraft1.SetTeamsActivity">
 
     <LinearLayout
+        android:id="@+id/linearlayout3_team"
         android:layout_width="0dp"
         android:layout_height="60dp"
-        android:orientation="horizontal"
-        android:layout_marginRight="8dp"
-        app:layout_constraintRight_toRightOf="parent"
         android:layout_marginLeft="8dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:id="@+id/linearlayout_team"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        android:descendantFocusability="beforeDescendants"
+        android:focusableInTouchMode="true"
+        android:orientation="horizontal"
         app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp">
+
+        <Spinner
+            android:id="@+id/awayteam_spinner"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:gravity="bottom"
+            android:text="AwayTeam"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/at_symbol_text"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="\@"
+            android:textAlignment="center"
+            android:textSize="30sp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:textStyle="bold" />
+
+        <Spinner
+            android:id="@+id/hometeam_spinner"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:gravity="bottom"
+            android:text="HomeTeam"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearlayout_team"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
         android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/linearlayout4_team">
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/linearlayout4_team"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp">
 
         <Button
             android:id="@+id/edit_away_team_button"
@@ -53,35 +107,37 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/linearlayout4_team"
         android:layout_width="368dp"
         android:layout_height="60dp"
+        android:layout_marginBottom="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:id="@+id/linearlayout4_team"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginBottom="8dp">
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp">
 
         <Button
-            android:id="@+id/lineup_submit"
+            android:id="@+id/start_game"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="2"
             android:text="Start Game"
-            android:textStyle="bold"/>
+            android:textStyle="bold" />
 
         <Button
             android:id="@+id/team_name_display"
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_margin="4dp"
             android:layout_weight="1"
-            android:text="Create New Team?"
             android:gravity="center"
-            android:textAlignment="center"
-            android:layout_margin="4dp" />
+            android:text="Create New Team?"
+            android:textAlignment="center" />
 
     </LinearLayout>
 
@@ -89,8 +145,6 @@
         android:id="@+id/linearlayout2_team"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
         android:orientation="horizontal"
         app:layout_constraintHorizontal_bias="0.0"
@@ -98,18 +152,18 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearlayout3_team"
         android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/linearlayout_team">
+        app:layout_constraintBottom_toTopOf="@+id/linearlayout5_team">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_left_team"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:padding="10dp"
+            android:paddingEnd="10dp"
             android:paddingLeft="20dp"
             android:paddingRight="10dp"
-            android:paddingStart="20dp"
-            android:paddingEnd="10dp"
-            android:padding="10dp"/>
+            android:paddingStart="20dp" />
 
 
         <android.support.v7.widget.RecyclerView
@@ -117,63 +171,28 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:padding="10dp"
+            android:paddingEnd="10dp"
             android:paddingLeft="20dp"
             android:paddingRight="10dp"
-            android:paddingStart="20dp"
-            android:paddingEnd="10dp"
-            android:padding="10dp"/>
+            android:paddingStart="20dp" />
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/linearlayout3_team"
+        android:id="@+id/linearlayout5_team"
         android:layout_width="0dp"
         android:layout_height="60dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
-        android:descendantFocusability="beforeDescendants"
-        android:focusableInTouchMode="true"
         android:orientation="horizontal"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="8dp">
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/linearlayout_team">
 
-        <Spinner
-            android:id="@+id/awayteam_spinner"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="2"
-            android:gravity="bottom"
-            android:text="AwayTeam"
-            android:textAlignment="center"
-            android:textSize="30sp"
-            android:textStyle="bold"
-            />
 
-        <TextView
-            android:id="@+id/at_symbol_text"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="bottom"
-            android:text="\@"
-            android:textAlignment="center"
-            android:textSize="30sp"
-            android:textStyle="bold" />
-
-        <Spinner
-            android:id="@+id/hometeam_spinner"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="2"
-            android:gravity="bottom"
-            android:text="HomeTeam"
-            android:textAlignment="center"
-            android:textSize="30sp"
-            android:textStyle="bold"
-            />
-
-    </LinearLayout>
-
+        </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

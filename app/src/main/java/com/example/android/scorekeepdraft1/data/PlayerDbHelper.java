@@ -26,6 +26,7 @@ public class PlayerDbHelper extends SQLiteOpenHelper {
                         PlayerStatsEntry._ID               + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         PlayerStatsEntry.COLUMN_NAME + " TEXT NOT NULL, " +
                         PlayerStatsEntry.COLUMN_TEAM + " TEXT, " +
+                        PlayerStatsEntry.COLUMN_ORDER + " INTEGER, " +
 
                         PlayerStatsEntry.COLUMN_1B + " INTEGER, " +
                         PlayerStatsEntry.COLUMN_2B + " INTEGER, " +
@@ -52,6 +53,22 @@ public class PlayerDbHelper extends SQLiteOpenHelper {
 
                         PlayerStatsEntry.COLUMN_RUNSFOR + " INTEGER, " +
                         PlayerStatsEntry.COLUMN_RUNSAGAINST + " INTEGER" +
+
+/*                   remember commas     PlayerStatsEntry.B1 + " INTEGER, " +
+                        PlayerStatsEntry.B2 + " INTEGER, " +
+                        PlayerStatsEntry.B3 + " INTEGER, " +
+                        PlayerStatsEntry.B4 + " INTEGER, " +
+                        PlayerStatsEntry.B5 + " INTEGER, " +
+                        PlayerStatsEntry.B6 + " INTEGER, " +
+                        PlayerStatsEntry.B7 + " INTEGER, " +
+                        PlayerStatsEntry.B8 + " INTEGER, " +
+                        PlayerStatsEntry.B9 + " INTEGER, " +
+                        PlayerStatsEntry.B10 + " INTEGER, " +
+                        PlayerStatsEntry.B11 + " INTEGER, " +
+                        PlayerStatsEntry.B12 + " INTEGER, " +
+                        PlayerStatsEntry.B13 + " INTEGER, " +
+                        PlayerStatsEntry.B14 + " INTEGER, " +
+                        PlayerStatsEntry.B15 + " INTEGER" +*/
                         ");" ;
 
                 db.execSQL(SQL_CREATE_PLAYERSTATS_TABLE);

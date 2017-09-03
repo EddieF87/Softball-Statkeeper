@@ -59,6 +59,8 @@ public class PlayerStatsContract {
          */
         public static final String COLUMN_NAME = "name";
         public static final String COLUMN_TEAM = "team";
+        public static final String COLUMN_ORDER = "batting";
+
 
         public static final String COLUMN_1B = "single";
         public static final String COLUMN_2B = "double";
@@ -80,6 +82,21 @@ public class PlayerStatsContract {
         public static final String COLUMN_RUNSFOR = "runsfor";
         public static final String COLUMN_RUNSAGAINST = "runsagainst";
 
+/*        public static final String B1 = "batting1";
+        public static final String B2 = "batting2";
+        public static final String B3 = "batting3";
+        public static final String B4 = "batting4";
+        public static final String B5 = "batting5";
+        public static final String B6 = "batting6";
+        public static final String B7 = "batting7";
+        public static final String B8 = "batting8";
+        public static final String B9 = "batting89";
+        public static final String B10 = "batting10";
+        public static final String B11 = "batting11";
+        public static final String B12 = "batting12";
+        public static final String B13 = "batting13";
+        public static final String B14 = "batting14";
+        public static final String B15 = "batting15";*/
 
 
         public static final String CONTENT_LIST_TYPE =

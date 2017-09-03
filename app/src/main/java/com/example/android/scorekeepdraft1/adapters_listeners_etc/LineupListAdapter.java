@@ -1,8 +1,7 @@
-package com.example.android.scorekeepdraft1;
+package com.example.android.scorekeepdraft1.adapters_listeners_etc;
 
 import android.content.ClipData;
 import android.os.Build;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,44 +11,45 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import com.example.android.scorekeepdraft1.Player;
+import com.example.android.scorekeepdraft1.R;
+
 import java.util.List;
 
 /**
  * Created by Eddie on 02/09/2017.
  */
 
-public class ListAdapter  extends RecyclerView.Adapter<ListAdapter.ListViewHolder>
+public class LineupListAdapter extends RecyclerView.Adapter<LineupListAdapter.ListViewHolder>
         implements View.OnTouchListener {
 
-/*    private List<Player> lineupList;
-    private List<Player> benchList;*/
-    private List<Player> list;
+    private List<String> list;
     private Listener listener;
     private boolean isBench;
 
 
-    public ListAdapter(List<Player> list, Listener listener, boolean isBench) {
+    public LineupListAdapter(List<String> list, Listener listener, boolean isBench) {
         this.list = list;
         this.listener = listener;
         this.isBench = isBench;
     }
 
     @Override
-    public ListAdapter.ListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        FrameLayout frameLayout = (FrameLayout) LayoutInflater.from(parent.getContext()).inflate(R.layout.item_main, parent, false);
+    public LineupListAdapter.ListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        FrameLayout frameLayout = (FrameLayout) LayoutInflater.from(parent.getContext()).inflate(R.layout.item_lineup, parent, false);
 
         return new ListViewHolder(frameLayout);
     }
 
     @Override
-    public void onBindViewHolder(ListAdapter.ListViewHolder holder, int position) {
+    public void onBindViewHolder(LineupListAdapter.ListViewHolder holder, int position) {
         FrameLayout frameLayout = holder.mFrameLayout;
-        TextView textView = (TextView) frameLayout.findViewById(R.id.text);
+        TextView textView = (TextView) frameLayout.findViewById(R.id.lineup_text);
 
         if(isBench) {
-            textView.setText("B:   " + list.get(position).getName());
+            textView.setText("B:   " + list.get(position));
         } else {
-            textView.setText((position + 1) + ". " + list.get(position).getName());
+            textView.setText((position + 1) + ". " + list.get(position));
         }
         frameLayout.setTag(position);
         frameLayout.setOnTouchListener(this);
@@ -77,8 +77,8 @@ public class ListAdapter  extends RecyclerView.Adapter<ListAdapter.ListViewHolde
         return false;
     }
 
-    public List<Player> getList() {return list;    }
-    public void updateList(List<Player> list) {
+    public List<String> getList() {return list;    }
+    public void updateList(List<String> list) {
         this.list = list;
     }
 
@@ -104,7 +104,7 @@ public class ListAdapter  extends RecyclerView.Adapter<ListAdapter.ListViewHolde
         if (listener != null) {
             return new DragListener(listener);
         } else {
-            Log.e("ListAdapter", "Listener wasn't initialized!");
+            Log.e("LineupListAdapter", "Listener wasn't initialized!");
             return null;
         }
     }

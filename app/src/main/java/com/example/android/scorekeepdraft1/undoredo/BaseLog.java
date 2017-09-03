@@ -3,19 +3,21 @@ package com.example.android.scorekeepdraft1.undoredo;
 import com.example.android.scorekeepdraft1.Player;
 import com.example.android.scorekeepdraft1.Team;
 
+import java.util.List;
+
 /**
  * Created by Eddie on 26/08/2017.
  */
 
 public class BaseLog {
-    private Team team;
-    private Player batter;
+    private List<String> team;
+    private String batter;
     private String[] basepositions;
     private int outCount;
     private int awayTeamRuns;
     private int homeTeamRuns;
 
-    public BaseLog(Team team, Player batter, String first, String second, String third, int outs, int awayTeamRuns, int homeTeamRuns) {
+    public BaseLog(List<String> team, String batter, String first, String second, String third, int outs, int awayTeamRuns, int homeTeamRuns) {
         this.team = team;
         this.batter = batter;
         this.basepositions =  new String[]{first, second, third};
@@ -40,11 +42,11 @@ public class BaseLog {
         return homeTeamRuns;
     }
 
-    public Player getBatter() {
+    public String getBatter() {
         return batter;
     }
 
-    public Team getTeam() {
+    public List<String> getTeam() {
         return team;
     }
 }

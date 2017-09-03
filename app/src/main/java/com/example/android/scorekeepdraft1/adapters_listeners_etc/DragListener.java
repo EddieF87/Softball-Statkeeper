@@ -1,8 +1,11 @@
-package com.example.android.scorekeepdraft1;
+package com.example.android.scorekeepdraft1.adapters_listeners_etc;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.DragEvent;
 import android.view.View;
+
+import com.example.android.scorekeepdraft1.Player;
+import com.example.android.scorekeepdraft1.R;
 
 import java.util.List;
 
@@ -28,7 +31,7 @@ public class DragListener implements View.OnDragListener {
 
                 View viewSource = (View) event.getLocalState();
                 int viewId = v.getId();
-                final int flItem = R.id.item_layout;
+                final int flItem = R.id.lineup_item_layout;
                 //final int tvEmptyListTop = R.id.tvEmptyListTop;
                 //final int tvEmptyListBottom = R.id.tvEmptyListBottom;
                 final int rvLeft = R.id.rvLeft;
@@ -59,19 +62,19 @@ public class DragListener implements View.OnDragListener {
                         if (viewSource != null) {
                             RecyclerView source = (RecyclerView) viewSource.getParent();
 
-                            ListAdapter adapterSource = (ListAdapter) source.getAdapter();
+                            LineupListAdapter adapterSource = (LineupListAdapter) source.getAdapter();
                             int positionSource = (int) viewSource.getTag();
                             int sourceId = source.getId();
 
-                            Player list = adapterSource.getList().get(positionSource);
-                            List<Player> listSource = adapterSource.getList();
+                            String list = adapterSource.getList().get(positionSource);
+                            List<String> listSource = adapterSource.getList();
 
                             listSource.remove(positionSource);
                             adapterSource.updateList(listSource);
                             adapterSource.notifyDataSetChanged();
 
-                            ListAdapter adapterTarget = (ListAdapter) target.getAdapter();
-                            List<Player> customListTarget = adapterTarget.getList();
+                            LineupListAdapter adapterTarget = (LineupListAdapter) target.getAdapter();
+                            List<String> customListTarget = adapterTarget.getList();
                             if (positionTarget >= 0) {
                                 customListTarget.add(positionTarget, list);
                             } else {

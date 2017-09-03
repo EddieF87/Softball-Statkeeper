@@ -10,13 +10,15 @@ public class GameLog {
     private String result;
     private String previousBatter;
     private boolean inningChanged;
+    private int inningNumber;
 
-    public GameLog(BaseLog baseLogEnd, RunsLog runsLog, String result, String previousBatter, boolean inningChanged) {
+    public GameLog(BaseLog baseLogEnd, RunsLog runsLog, String result, String previousBatter, int inning, boolean inningChanged) {
         this.baseLogEnd = baseLogEnd;
         this.runsLog = runsLog;
         this.result = result;
         this.previousBatter = previousBatter;
         this.inningChanged = inningChanged;
+        this.inningNumber = inning;
     }
 
     public BaseLog getBaseLogEnd() {return baseLogEnd;}
@@ -27,5 +29,6 @@ public class GameLog {
         return result;
     }
     public String getPreviousBatter() {return previousBatter;}
-    public boolean isInningChanged() {return inningChanged;    }
+    public boolean isInningChanged() {return inningChanged;}
+    public int getInningNumber() {return inningNumber;}
 }

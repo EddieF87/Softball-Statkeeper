@@ -30,6 +30,8 @@ import com.example.android.scorekeepdraft1.data.PlayerStatsContract.PlayerStatsE
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.example.android.scorekeepdraft1.R.id.reset;
 
@@ -70,11 +72,15 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     //TODO: FIGURE OUT HOW TO END GAME AND NEXT STEPS
 
 
-    //private boolean valuesAdded = false;
-    //temporary default values
-    private String[] listOfPlayers = {"a1", "b1", "a2", "b2", "a3", "b3", "a4", "b4", "a5", "b5", "a6", "b6"};
-    private Team awayTeam = new Team("Isotopes");
-    private Team homeTeam = new Team("Purptopes");
+
+    private List<String> awayTeam;
+    private List<String> homeTeam;
+    private String awayTeamName;
+    private String homeTeamName;
+    private int awayTeamRuns;
+    private int homeTeamRuns;
+    private int awayTeamIndex;
+    private int homeTeamIndex;
 
     //temporary buttonw?
     private Button undoButton;
@@ -88,8 +94,8 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     private int tempOuts;
     private int tempRuns;
 
-    private Player currentBatter;
-    private Team currentTeam;
+    private String currentBatter;
+    private List<String> currentTeam;
 
     private NumberFormat formatter = new DecimalFormat("#.000");
     private BaseLog currentBaseLogStart;
@@ -111,6 +117,43 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
+        Bundle b = getIntent().getExtras();
+        if(b != null) {
+            awayTeamName = b.getString("awayteam");
+            homeTeamName = b.getString("hometeam");
+        }
+        awayTeam = new ArrayList<>();
+        homeTeam = new ArrayList<>();
+
+        String selection = PlayerStatsEntry.COLUMN_TEAM + "=?";
+        String sortOrder = PlayerStatsEntry.COLUMN_ORDER + " ASC";
+        String[] selectionArgs = new String[]{awayTeamName};
+
+        mCursor = getContentResolver().query(PlayerStatsEntry.CONTENT_URI1, null,
+                selection, selectionArgs, sortOrder);
+        while (mCursor.moveToNext()) {
+            int nameIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_NAME);
+            int orderIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_ORDER);
+            String playerName = mCursor.getString(nameIndex);
+            int order = mCursor.getInt(orderIndex);
+            if( order < 50) {
+                awayTeam.add(playerName);
+            }
+        }
+
+        selectionArgs = new String[]{homeTeamName};
+        mCursor = getContentResolver().query(PlayerStatsEntry.CONTENT_URI1, null,
+                selection, selectionArgs, sortOrder);
+        while (mCursor.moveToNext()) {
+            int nameIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_NAME);
+            int orderIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_ORDER);
+            String playerName = mCursor.getString(nameIndex);
+            int order = mCursor.getInt(orderIndex);
+            if( order < 50) {
+                homeTeam.add(playerName);
+            }
+        }
+
 
         scoreboard = (TextView) findViewById(R.id.scoreboard);
         nowBatting = (TextView) findViewById(R.id.nowbatting);
@@ -269,31 +312,31 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
 
     public void startGame() {
         //TEMPORARY
-        for (int i = 0; i < listOfPlayers.length; i++) {
+        /*for (int i = 0; i < listOfPlayers.length; i++) {
             if (i % 2 == 0) {
                 awayTeam.addPlayer(new Player(listOfPlayers[i]));
             } else {
                 homeTeam.addPlayer(new Player(listOfPlayers[i]));
             }
-        }
-        awayTeam.setCurrentRuns(0);
-        homeTeam.setCurrentRuns(0);
+        }*/
+        awayTeamRuns = 0;
+        homeTeamRuns = 0;
 
         gameHistory = new GameHistory();
         //TODO? this.manager = new UndoRedoManager(this);
         currentTeam = awayTeam;
-        currentBatter = awayTeam.getRoster().get(0);
+        currentBatter = awayTeam.get(0);
         currentRunsLog = new RunsLog();
         currentBaseLogStart = new BaseLog(currentTeam, currentBatter, "", "", "", 0, 0, 0);
-        gameHistory.addGameLog(new GameLog(currentBaseLogStart, currentRunsLog, "start", null, false));
-        scoreboard.setText(awayTeam.getName() + " " + awayTeam.getCurrentRuns() + "    " + homeTeam.getName() + " " + homeTeam.getCurrentRuns());
+        gameHistory.addGameLog(new GameLog(currentBaseLogStart, currentRunsLog, "start", null, inningNumber, false));
+        scoreboard.setText(awayTeamName + " " + awayTeamRuns + "    " + homeTeamName + " " + homeTeamRuns);
 
         try {
             startCursor();
             setDisplays();
         } catch (Exception e) {
-            Toast.makeText(GameActivity.this, "Adding a temporary database first!", Toast.LENGTH_LONG).show();
-            for (String player : listOfPlayers) {
+            Toast.makeText(GameActivity.this, "UHOH SPAGETTIOS!", Toast.LENGTH_LONG).show();
+            /*for (String player : listOfPlayers) {
                 ContentValues values = new ContentValues();
                 values.put(PlayerStatsEntry.COLUMN_NAME, player);
                 values.put(PlayerStatsEntry.COLUMN_TEAM, "xxx");
@@ -309,7 +352,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                 getContentResolver().insert(PlayerStatsEntry.CONTENT_URI1, values);
             }
             startCursor();
-            setDisplays();
+            setDisplays();*/
         }
     }
 
@@ -317,18 +360,18 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         if (gameOuts >= 3) {
             nextInning();
         } else {
-            currentTeam.increaseIndex();
+            increaseIndex();
         }
-        String previousBatterName = currentBatter.getName();
-        currentBatter = currentTeam.getPlayer(currentTeam.getIndex());
+        String previousBatterName = currentBatter;
+        currentBatter = currentTeam.get(getIndex());
 
         currentBaseLogEnd = new BaseLog(currentTeam, currentBatter, firstDisplay.getText().toString(),
                 secondDisplay.getText().toString(), thirdDisplay.getText().toString(),
-                gameOuts, awayTeam.getCurrentRuns(), homeTeam.getCurrentRuns());
+                gameOuts, awayTeamRuns, homeTeamRuns);
         currentBaseLogStart = new BaseLog(currentTeam, currentBatter, firstDisplay.getText().toString(),
                 secondDisplay.getText().toString(), thirdDisplay.getText().toString(),
-                gameOuts, awayTeam.getCurrentRuns(), homeTeam.getCurrentRuns());
-        gameHistory.addGameLog(new GameLog(currentBaseLogEnd, currentRunsLog, result, previousBatterName, inningChanged));
+                gameOuts, awayTeamRuns, homeTeamRuns);
+        gameHistory.addGameLog(new GameLog(currentBaseLogEnd, currentRunsLog, result, previousBatterName, inningNumber, inningChanged));
         gameLogIndex++;
 
         startCursor();
@@ -348,26 +391,23 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     public void nextInning() {
         gameOuts = 0;
         emptyBases();
-        if (inningNumber >= 6) {
+        if (inningNumber/2 >= 6) {
             Toast.makeText(GameActivity.this, "GAME OVER", Toast.LENGTH_LONG).show();
         }
-        currentTeam.increaseIndex();
-        if (currentTeam.getIndex() >= currentTeam.getRoster().size()) {
-            currentTeam.setIndex(0);
-        }
+        increaseIndex();
         if (currentTeam == awayTeam) {
             currentTeam = homeTeam;
         } else {
             currentTeam = awayTeam;
-            inningNumber++;
-            inningDisplay.setText(String.valueOf(inningNumber));
+            inningDisplay.setText(String.valueOf(inningNumber/2));
         }
+        inningNumber++;
         inningChanged = true;
     }
 
     public void startCursor() {
         String selection = PlayerStatsEntry.COLUMN_NAME + "=?";
-        String[] selectionArgs = {currentBatter.getName()};
+        String[] selectionArgs = {currentBatter};
         mCursor = getContentResolver().query(
                 PlayerStatsEntry.CONTENT_URI1, null,
                 selection, selectionArgs, null
@@ -405,7 +445,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         rbiDisplay.setText("RBI: " + displayRBI);
         runDisplay.setText("R: " + displayRun);
 
-        scoreboard.setText(awayTeam.getName() + " " + awayTeam.getCurrentRuns() + "    " + homeTeam.getName() + " " + homeTeam.getCurrentRuns());
+        scoreboard.setText(awayTeamName + " " + awayTeamRuns + "    " + homeTeamName + " " + homeTeamRuns);
     }
 
     public void updatePlayerStats(String action) {
@@ -418,7 +458,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                     selection, selectionArgs, null
             );
         } else {
-            selectionArgs = new String[]{currentBatter.getName()};
+            selectionArgs = new String[]{currentBatter};
         }
         mCursor.moveToFirst();
         ContentValues values = new ContentValues();
@@ -594,7 +634,11 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                 selectionArgs
         );
         if (!undoRedo) {
-            currentTeam.addRun();
+            if (currentTeam == homeTeam) {
+                homeTeamRuns++;
+            } else {
+                awayTeamRuns++;
+            };
         }
     }
 
@@ -638,7 +682,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         tempOuts = 0;
         tempRuns = 0;
         outsDisplay.setText(gameOuts + "outs");
-        scoreboard.setText(awayTeam.getName() + " " + awayTeam.getCurrentRuns() + "    " + homeTeam.getName() + " " + homeTeam.getCurrentRuns());
+        scoreboard.setText(awayTeamName + " " + awayTeamRuns + "    " + homeTeamName + " " + homeTeamRuns);
     }
 
     public void emptyBases() {
@@ -724,6 +768,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             } else {
                 Toast.makeText(GameActivity.this, "inningChanged logic is fucked up!!!", Toast.LENGTH_SHORT).show();
             }
+            inningDisplay.setText(String.valueOf(inningNumber/2));
             inningChanged = false;
         }
         currentTeam.setIndex(currentBatter);
@@ -888,14 +933,34 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         }
     }
 
+    private void increaseIndex() {
+        if (currentTeam == awayTeam) {
+            awayTeamIndex++;
+            if (awayTeamIndex >= homeTeam.size()) {
+                awayTeamIndex = 0;
+            }
+        } else if (currentTeam == homeTeam) {
+            homeTeamIndex++;
+            if(homeTeamIndex >= homeTeam.size()) {
+                homeTeamIndex = 0;
+            }
+        } else {
+            Toast.makeText(GameActivity.this, "SOMETHING WENT WRONG WITH THE INDEXES!!!", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private int getIndex() {
+        if (currentTeam == awayTeam) {
+            return awayTeamIndex;
+        } else if (currentTeam == homeTeam) {
+            return homeTeamIndex;
+        } else {
+            Toast.makeText(GameActivity.this, "SOMETHING WENT WRONG WITH THE INDEXES!!!", Toast.LENGTH_LONG).show();
+        }
+    }
+
     public void subtractOut() {
         gameOuts--;
-    }
-    public Team getAwayTeam() {
-        return awayTeam;
-    }
-    public Team getHomeTeam() {
-        return homeTeam;
     }
     public int getGameOuts() {
         return gameOuts;

@@ -16,7 +16,10 @@ package com.example.android.scorekeepdraft1;
  * limitations under the License.
  */
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -28,9 +31,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.woxthebox.draglistview.DragListView;
 
+import com.example.android.scorekeepdraft1.adapters_listeners_etc.LineupListAdapter;
+import com.example.android.scorekeepdraft1.adapters_listeners_etc.Listener;
+import com.example.android.scorekeepdraft1.data.PlayerStatsContract;
+import com.example.android.scorekeepdraft1.data.PlayerStatsContract.PlayerStatsEntry;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,59 +49,47 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
     private Button addPlayerButton;
     private EditText addPlayerText;
 
-    private ListAdapter leftListAdapter;
-    private ListAdapter rightListAdapter;
+    private LineupListAdapter leftListAdapter;
+    private LineupListAdapter rightListAdapter;
 
-    private RecyclerView rvLeft;
-    private RecyclerView rvRight;
+    private RecyclerView rvLeftLineup;
+    private RecyclerView rvRightLineup;
 
-    private List<Player> mLineup;
-    private List<Player> mBench;
-    private List<Player> mRoster;
+    private List<String> mLineup;
+    private List<String> mBench;
+    private String mTeam;
+    private Cursor mCursor;
 
-    private DragListView mDragListView;
-
-    private Team boogeymen = new Team("boogeymen");
-
+    //TODO figure out why both spinners are the same after submitting lineup
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lineup);
-
-        rvLeft = (RecyclerView) findViewById(R.id.rvLeft);
-        rvRight = (RecyclerView) findViewById(R.id.rvRight);
-
-
-        boogeymen = new Team("Boogeymen");
-        boogeymen.addPlayer(new Player("Kosta"));
-        boogeymen.addPlayer(new Player("EDD"));
-        boogeymen.addPlayer(new Player("Agy"));
-        boogeymen.addPlayer(new Player("Jay"));
-        boogeymen.addPlayer(new Player("IVA"));
-        boogeymen.addPlayer(new Player("Mike"));
-        boogeymen.addPlayer(new Player("Josh"));
-        boogeymen.addPlayer(new Player("Isaac"));
-        boogeymen.addPlayer(new Player("Adam"));
-        boogeymen.addPlayer(new Player("IV222A"));
-        boogeymen.addPlayer(new Player("Mi222ke"));
-        boogeymen.addPlayer(new Player("Jo222sh"));
-        boogeymen.addPlayer(new Player("Is22aac"));
-        boogeymen.addPlayer(new Player("Ad222am"));
-        boogeymen.addPlayer(new Player("IVA444"));
-        boogeymen.addPlayer(new Player("4444"));
-        boogeymen.addPlayer(new Player("Jo444sh"));
-        boogeymen.addPlayer(new Player("Is444aac"));
-        boogeymen.addPlayer(new Player("Ad444am"));
-        mRoster = boogeymen.getRoster();
-        for (int i = 0; i < mRoster.size(); i++) {
-            if (i % 2 == 0) {
-                boogeymen.putInLineup(mRoster.get(i));
-            } else {
-                boogeymen.putOnBench(mRoster.get(i));
-            }
+        Bundle b = getIntent().getExtras();
+        if(b != null) {
+            mTeam = b.getString("team");
         }
-        mLineup = boogeymen.getLineup();
-        mBench = boogeymen.getBench();
+
+        rvLeftLineup = (RecyclerView) findViewById(R.id.rvLeft);
+        rvRightLineup = (RecyclerView) findViewById(R.id.rvRight);
+        mLineup = new ArrayList<>();
+        mBench = new ArrayList<>();
+
+        String[] projection = new String[]{PlayerStatsEntry._ID, PlayerStatsEntry.COLUMN_NAME, PlayerStatsEntry.COLUMN_ORDER};
+        String selection = PlayerStatsEntry.COLUMN_TEAM + "=?";
+        String[] selectionArgs = new String[]{mTeam};
+        String sortOrder = PlayerStatsEntry.COLUMN_ORDER + " ASC";
+        mCursor = getContentResolver().query(PlayerStatsEntry.CONTENT_URI1, projection,
+                selection, selectionArgs, sortOrder);
+
+        while (mCursor.moveToNext()){
+            int nameIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_NAME);
+            int orderIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_ORDER);
+            String playerName = mCursor.getString(nameIndex);
+            int playerOrder = mCursor.getInt(orderIndex);
+            if (playerOrder > 50) {mBench.add(playerName);
+            } else {mLineup.add(playerName);}
+        }
 
         initLeftRecyclerView();
         initRightRecyclerView();
@@ -103,73 +98,114 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
         lineupSubmitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                List<Player> cookiecris = getLeftListAdapter().getList();
-                for (Player player : cookiecris) {
-                    Toast.makeText(SetLineupActivity.this, player.getName(), Toast.LENGTH_SHORT).show();
-                }
+                updateAndSubmitLineup();
             }
         });
 
         TextView teamName = (TextView) findViewById(R.id.team_name_display);
-        teamName.setText("boogeymen");
+        teamName.setText(mTeam);
 
         addPlayerButton = (Button) findViewById(R.id.add_player_submit);
         addPlayerText = (EditText) findViewById(R.id.add_player_text);
         addPlayerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                InputMethodManager inputManager = (InputMethodManager)
-                        getSystemService(Context.INPUT_METHOD_SERVICE);
-
-                inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),
-                        InputMethodManager.HIDE_NOT_ALWAYS);
-
-                String playerName = addPlayerText.getText().toString();
-                if (playerName.isEmpty()) {
-                    Toast.makeText(SetLineupActivity.this, "Please type a player's name first",
-                            Toast.LENGTH_SHORT).show();
-                } else if (boogeymen.isOnRoster(playerName)) {
-                    Toast.makeText(SetLineupActivity.this, playerName + " is already on" + boogeymen.getName(),
-                            Toast.LENGTH_SHORT).show();
-                } else {
-                    Player newPlayer = new Player(playerName);
-                    boogeymen.addPlayer(newPlayer);
-                    boogeymen.putOnBench(newPlayer);
-                }
-                addPlayerText.setText("");
+                addPlayer();
             }
         });
     }
 
     private void initLeftRecyclerView() {
-        rvLeft.setLayoutManager(new LinearLayoutManager(
+        rvLeftLineup.setLayoutManager(new LinearLayoutManager(
                 this, LinearLayoutManager.VERTICAL, false));
 
-        leftListAdapter = new ListAdapter(mLineup, this, false);
-        rvLeft.setAdapter(leftListAdapter);
-        rvLeft.setOnDragListener(leftListAdapter.getDragInstance());
+        leftListAdapter = new LineupListAdapter(mLineup, this, false);
+        rvLeftLineup.setAdapter(leftListAdapter);
+        rvLeftLineup.setOnDragListener(leftListAdapter.getDragInstance());
     }
 
     private void initRightRecyclerView() {
-        rvRight.setLayoutManager(new LinearLayoutManager(
+        rvRightLineup.setLayoutManager(new LinearLayoutManager(
                 this, LinearLayoutManager.VERTICAL, false));
 
-        rightListAdapter = new ListAdapter(mBench, this, true);
-        rvRight.setAdapter(rightListAdapter);
-        rvRight.setOnDragListener(rightListAdapter.getDragInstance());
+        rightListAdapter = new LineupListAdapter(mBench, this, true);
+        rvRightLineup.setAdapter(rightListAdapter);
+        rvRightLineup.setOnDragListener(rightListAdapter.getDragInstance());
+    }
+
+    public void addPlayer(){
+        InputMethodManager inputManager = (InputMethodManager)
+                getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),
+                InputMethodManager.HIDE_NOT_ALWAYS);
+
+        String playerName = addPlayerText.getText().toString();
+        if (playerName.isEmpty()) {
+            Toast.makeText(SetLineupActivity.this, "Please type a player's name first",
+                    Toast.LENGTH_SHORT).show();
+        } else if (mBench.contains(playerName) || mLineup.contains(playerName)) {
+            Toast.makeText(SetLineupActivity.this, playerName + " is already on" + mTeam,
+                    Toast.LENGTH_SHORT).show();
+        } else {
+            ContentValues values = new ContentValues();
+            values.put(PlayerStatsEntry.COLUMN_NAME, playerName);
+            values.put(PlayerStatsEntry.COLUMN_TEAM, mTeam);
+            values.put(PlayerStatsEntry.COLUMN_ORDER, 99);
+            values.put(PlayerStatsEntry.COLUMN_1B, 0);
+            values.put(PlayerStatsEntry.COLUMN_2B, 0);
+            values.put(PlayerStatsEntry.COLUMN_3B, 0);
+            values.put(PlayerStatsEntry.COLUMN_HR, 0);
+            values.put(PlayerStatsEntry.COLUMN_BB, 0);
+            values.put(PlayerStatsEntry.COLUMN_SF, 0);
+            values.put(PlayerStatsEntry.COLUMN_OUT, 0);
+            values.put(PlayerStatsEntry.COLUMN_RUN, 0);
+            values.put(PlayerStatsEntry.COLUMN_RBI, 0);
+            getContentResolver().insert(PlayerStatsEntry.CONTENT_URI1, values);
+            mBench.add(playerName);
+        }
+        addPlayerText.setText("");
+    }
+
+    public void updateAndSubmitLineup() {
+        String selection = PlayerStatsEntry.COLUMN_NAME + "=?";
+        String[] selectionArgs;
+
+        int i = 1;
+        List<String> lineupList = getLeftListAdapter().getList();
+        for (String player : lineupList) {
+            selectionArgs = new String[]{player};
+            ContentValues values = new ContentValues();
+            values.put(PlayerStatsEntry.COLUMN_ORDER, i);
+            getContentResolver().update(PlayerStatsEntry.CONTENT_URI1, values,
+                    selection, selectionArgs);
+            i++;
+        }
+
+        i = 99;
+        List<String> benchList = getRightListAdapter().getList();
+        for (String player : benchList) {
+            selectionArgs = new String[]{player};
+            ContentValues values = new ContentValues();
+            values.put(PlayerStatsEntry.COLUMN_ORDER, i);
+            getContentResolver().update(PlayerStatsEntry.CONTENT_URI1, values,
+                    selection, selectionArgs);
+        }
+
+        Intent intent = new Intent(SetLineupActivity.this, SetTeamsActivity.class);
+        startActivity(intent);
     }
 
     @Override
-    public void setEmptyListTop(boolean visibility) {
-
-    }
-
+    public void setEmptyListTop(boolean visibility) {}
     @Override
-    public void setEmptyListBottom(boolean visibility) {
-
-    }
-
-    public ListAdapter getLeftListAdapter() {
+    public void setEmptyListBottom(boolean visibility) {}
+    public LineupListAdapter getLeftListAdapter() {
         return leftListAdapter;
     }
+
+    public LineupListAdapter getRightListAdapter() {
+        return rightListAdapter;
+    }
 }
+
