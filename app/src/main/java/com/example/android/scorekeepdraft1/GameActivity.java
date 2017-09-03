@@ -33,6 +33,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.R.attr.action;
 import static com.example.android.scorekeepdraft1.R.id.reset;
 
 /**
@@ -65,7 +66,6 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     private TextView thirdDisplay;
     private TextView homeDisplay;
 
-    //TODO: CREATE A SELECT TEAMS AND SET LINEUP ACTIVITY (AND CARRY CHOICES OVER TO GAME ACTIVITY)
     //TODO: ADD LEADERBOARD DISPLAYS ACTIVITY (ALL ONE ACTIVITY USING "SORTBY"?)
     //TODO: ADD PLAYER STATS DISPLAYS BY TEAM (ALL ONE ACTIVITY USING "WHERE"?)
     //TODO: ADD RUNS/WINS/ETC TO TEAM STATS AFTER GAME IS OVER
@@ -89,7 +89,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     private String tempBatter;
     private boolean inningChanged = false;
 
-    private int inningNumber = 1;
+    private int inningNumber = 2;
     private int gameOuts = 0;
     private int tempOuts;
     private int tempRuns;
@@ -101,6 +101,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     private BaseLog currentBaseLogStart;
     private BaseLog currentBaseLogEnd;
     private RunsLog currentRunsLog;
+    private RunsLog tempRunsLog;
 
     private GameHistory gameHistory;
     private int gameLogIndex = 0;
@@ -153,7 +154,6 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                 homeTeam.add(playerName);
             }
         }
-
 
         scoreboard = (TextView) findViewById(R.id.scoreboard);
         nowBatting = (TextView) findViewById(R.id.nowbatting);
@@ -323,7 +323,6 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         homeTeamRuns = 0;
 
         gameHistory = new GameHistory();
-        //TODO? this.manager = new UndoRedoManager(this);
         currentTeam = awayTeam;
         currentBatter = awayTeam.get(0);
         currentRunsLog = new RunsLog();
@@ -378,6 +377,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         setDisplays();
         group1.clearCheck();
         group2.clearCheck();
+        tempRunsLog = null;
         currentRunsLog = new RunsLog();
         submitPlay.setVisibility(View.INVISIBLE);
         resetBases.setVisibility(View.INVISIBLE);
@@ -401,7 +401,12 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             currentTeam = awayTeam;
             inningDisplay.setText(String.valueOf(inningNumber/2));
         }
+        Toast.makeText(GameActivity.this, "inning " + inningNumber + "+ 1 =", Toast.LENGTH_LONG).show();
+
         inningNumber++;
+        Toast.makeText(GameActivity.this, "inning " + inningNumber, Toast.LENGTH_LONG).show();
+
+        inningDisplay.setText(String.valueOf(inningNumber/2));
         inningChanged = true;
     }
 
@@ -676,6 +681,9 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         if(!undoRedo) {
             currentRunsLog.resetPlayersScored();
         }
+        if(tempRunsLog != null) {
+            tempRunsLog.resetPlayersScored();
+        }
         submitPlay.setVisibility(View.INVISIBLE);
         resetBases.setVisibility(View.INVISIBLE);
         setBaseListeners();
@@ -700,6 +708,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         if(undoRedo) {
             gameHistory.updateGameLog(gameLogIndex);
             undoRedo = false;
+            currentRunsLog = tempRunsLog;
         }
         updatePlayerStats(result);
         gameOuts += tempOuts;
@@ -715,25 +724,31 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             tempBatter = gameLog1.getPreviousBatter();
             undoResult = gameLog1.getResult();
             currentRunsLog = gameLog1.getRunsLog();
-
+            if (gameLog1.isInningChanged()){
+                inningNumber--;
+                Toast.makeText(GameActivity.this, "inning subtracted " + inningNumber, Toast.LENGTH_LONG).show();
+                inningDisplay.setText(String.valueOf(inningNumber/2));
+            }
             gameLogIndex--;
             redoButton.setVisibility(View.VISIBLE);
         } else {
             Toast.makeText(GameActivity.this, "This is the beginning of the game!", Toast.LENGTH_SHORT).show();
             return;
         }
-        Toast.makeText(GameActivity.this, "gameindex =" + gameLogIndex, Toast.LENGTH_SHORT).show();
         GameLog gameLog2 = gameHistory.getGameLog(gameLogIndex);
         BaseLog baseLogEnd = gameLog2.getBaseLogEnd();
         currentBaseLogStart = baseLogEnd;
         //undoRuns
-        awayTeam.setCurrentRuns(baseLogEnd.getAwayTeamRuns());
-        homeTeam.setCurrentRuns(baseLogEnd.getHomeTeamRuns());
+        awayTeamRuns = baseLogEnd.getAwayTeamRuns();
+        homeTeamRuns = baseLogEnd.getHomeTeamRuns();
+        if(tempRunsLog != null) {
+            tempRunsLog.resetPlayersScored();
+        }
 
         gameOuts = baseLogEnd.getOutCount();
         currentTeam = baseLogEnd.getTeam();
         currentBatter = baseLogEnd.getBatter();
-        currentTeam.setIndex(currentBatter);
+        setIndex(currentBatter);
         resetBases(baseLogEnd);
         undoPlayerStats(undoResult);
         setDisplays();
@@ -748,30 +763,34 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             Toast.makeText(GameActivity.this, "Already caught up! \n gameindex =" + gameLogIndex, Toast.LENGTH_SHORT).show();
             return;
         }
-        Toast.makeText(GameActivity.this, "gameindex =" + gameLogIndex, Toast.LENGTH_SHORT).show();
         GameLog gameLog = gameHistory.getGameLog(gameLogIndex);
         currentRunsLog = gameLog.getRunsLog();
         BaseLog baseLogEnd = gameLog.getBaseLogEnd();
         currentBaseLogStart = baseLogEnd;
-        awayTeam.setCurrentRuns(baseLogEnd.getAwayTeamRuns());
-        homeTeam.setCurrentRuns(baseLogEnd.getHomeTeamRuns());
+        awayTeamRuns = baseLogEnd.getAwayTeamRuns();
+        homeTeamRuns = baseLogEnd.getHomeTeamRuns();
         gameOuts = baseLogEnd.getOutCount();
         currentTeam = baseLogEnd.getTeam();
         currentBatter = baseLogEnd.getBatter();
         tempBatter = gameLog.getPreviousBatter();
         String redoResult = gameLog.getResult();
+        if(tempRunsLog != null) {
+            tempRunsLog.resetPlayersScored();
+        }
         if(gameLog.isInningChanged()) {
+            inningNumber++;
+            Toast.makeText(GameActivity.this, "inning added " + inningNumber, Toast.LENGTH_LONG).show();
             if(currentTeam == awayTeam) {
-                homeTeam.increaseIndex();
+                homeTeamIndex++;
             } else if (currentTeam == homeTeam){
-                awayTeam.increaseIndex();
+                awayTeamIndex++;
             } else {
                 Toast.makeText(GameActivity.this, "inningChanged logic is fucked up!!!", Toast.LENGTH_SHORT).show();
             }
             inningDisplay.setText(String.valueOf(inningNumber/2));
             inningChanged = false;
         }
-        currentTeam.setIndex(currentBatter);
+        setIndex(currentBatter);
         resetBases(baseLogEnd);
         updatePlayerStats(redoResult);
         setDisplays();
@@ -781,12 +800,12 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         GameLog currentGameLog = gameHistory.getGameLog(gameLogIndex);
         currentRunsLog = currentGameLog.getRunsLog();
         //currentBaseLogStart = currentGameLog.getBaseLogStart();
-        awayTeam.setCurrentRuns(currentBaseLogStart.getAwayTeamRuns());
-        homeTeam.setCurrentRuns(currentBaseLogStart.getHomeTeamRuns());
+        awayTeamRuns = currentBaseLogStart.getAwayTeamRuns();
+        homeTeamRuns = currentBaseLogStart.getHomeTeamRuns();
         gameOuts = currentBaseLogStart.getOutCount();
         currentTeam = currentBaseLogStart.getTeam();
         currentBatter = currentBaseLogStart.getBatter();
-        currentTeam.setIndex(currentBatter);
+        setIndex(currentBatter);
         startCursor();
         resetBases(currentBaseLogEnd);
         setDisplays();
@@ -797,6 +816,11 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
 
         @Override
         public boolean onDrag(View v, DragEvent event) {
+            if(undoRedo) {
+                if (tempRunsLog == null || tempRunsLog.getRBICount() == 0) {
+                tempRunsLog = new RunsLog();
+                }
+            }
             int action = event.getAction();
             TextView dropPoint = null;
             if (v.getId() != R.id.trash) {
@@ -840,7 +864,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                             dropPoint.setText(movedPlayer);
                             draggedView.setText("");
                         } else {
-                            dropPoint.setText(currentBatter.getName());
+                            dropPoint.setText(currentBatter);
                             batterDisplay.setVisibility(View.INVISIBLE);
                             batterMoved = true;
                             if(playEntered) {
@@ -851,16 +875,20 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                     v.setBackgroundColor(Color.TRANSPARENT);
                     if (dropPoint == homeDisplay) {
                         if (eventView instanceof TextView) {
-                            currentRunsLog.addPlayerScored(movedPlayer);
+                            if(undoRedo) {
+                                tempRunsLog.addPlayerScored(movedPlayer);
+                            } else {currentRunsLog.addPlayerScored(movedPlayer);}
                         } else {
-                            currentRunsLog.addPlayerScored(currentBatter.getName());
+                            if(undoRedo) {
+                                tempRunsLog.addPlayerScored(currentBatter);
+                            } else {currentRunsLog.addPlayerScored(currentBatter);}
                         }
                         homeDisplay.setText("");
                         tempRuns++;
                         if (currentTeam == awayTeam) {
-                            scoreboard.setText(awayTeam.getName() + " " + (awayTeam.getCurrentRuns() + tempRuns) + "    " + homeTeam.getName() + " " + (homeTeam.getCurrentRuns()));
+                            scoreboard.setText(awayTeamName + " " + (awayTeamRuns + tempRuns) + "    " + homeTeamName + " " + homeTeamRuns);
                         } else {
-                            scoreboard.setText(awayTeam.getName() + " " + (awayTeam.getCurrentRuns()) + "    " + homeTeam.getName() + " " + (homeTeam.getCurrentRuns() + tempRuns));
+                            scoreboard.setText(awayTeamName + " " + awayTeamRuns + "    " + homeTeamName + " " + (homeTeamRuns + tempRuns));
                         }
                     }
                     resetBases.setVisibility(View.VISIBLE);
@@ -936,7 +964,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     private void increaseIndex() {
         if (currentTeam == awayTeam) {
             awayTeamIndex++;
-            if (awayTeamIndex >= homeTeam.size()) {
+            if (awayTeamIndex >= awayTeam.size()) {
                 awayTeamIndex = 0;
             }
         } else if (currentTeam == homeTeam) {
@@ -954,6 +982,17 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             return awayTeamIndex;
         } else if (currentTeam == homeTeam) {
             return homeTeamIndex;
+        } else {
+            Toast.makeText(GameActivity.this, "SOMETHING WENT WRONG WITH THE INDEXES!!!", Toast.LENGTH_LONG).show();
+        }
+        return 0;
+    }
+
+    private void setIndex(String player) {
+        if (currentTeam == awayTeam) {
+            awayTeamIndex = awayTeam.indexOf(player);
+        } else if (currentTeam == homeTeam) {
+            homeTeamIndex = homeTeam.indexOf(player);
         } else {
             Toast.makeText(GameActivity.this, "SOMETHING WENT WRONG WITH THE INDEXES!!!", Toast.LENGTH_LONG).show();
         }

@@ -61,6 +61,8 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
     private Cursor mCursor;
 
     //TODO figure out why both spinners are the same after submitting lineup
+
+    //TODO add player from free agency/other teams
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="1dp"
+    >
+
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="70dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Charlie"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/team_abv"
+        android:layout_width="30dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="PTP"
+        android:textSize="12sp"
+        android:layout_marginRight="10dp"/>
+
+    <TextView
+        android:id="@+id/hit"
+        android:layout_width="30dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="00"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/hr"
+        android:layout_width="30dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="00"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/run"
+        android:layout_width="30dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="00"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/rbi"
+        android:layout_width="30dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="00"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/avg"
+        android:layout_width="30dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="00"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/obp"
+        android:layout_width="30dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="00"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/slg"
+        android:layout_width="30dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="00"
+        android:textSize="12sp" />
+
+</LinearLayout>
