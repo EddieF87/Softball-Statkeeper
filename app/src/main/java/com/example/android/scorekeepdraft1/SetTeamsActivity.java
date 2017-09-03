@@ -2,7 +2,6 @@ package com.example.android.scorekeepdraft1;
 
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -16,10 +15,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.android.scorekeepdraft1.adapters_listeners_etc.LineupListAdapter;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.TeamListAdapter;
-import com.example.android.scorekeepdraft1.data.PlayerStatsContract;
-import com.example.android.scorekeepdraft1.data.PlayerStatsContract.PlayerStatsEntry;
+import com.example.android.scorekeepdraft1.data.StatsContract.PlayerStatsEntry;
 
 import java.util.ArrayList;
 import java.util.List;

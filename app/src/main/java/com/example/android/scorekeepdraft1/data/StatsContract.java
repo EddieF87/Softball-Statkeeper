@@ -13,7 +13,7 @@ import android.provider.BaseColumns;
  * the code organized.
  */
 
-public class PlayerStatsContract {
+public class StatsContract {
 
     /*
  * The "Content authority" is a name for the entire content provider, similar to the
@@ -26,7 +26,7 @@ public class PlayerStatsContract {
     public static final String PATH_STATS = "stats";
     public static final String PATH_TEAMS = "teams";
 
-    public PlayerStatsContract() {
+    public StatsContract() {
     }
 
     /* Inner class that defines the table contents of the weather table */

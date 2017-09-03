@@ -10,73 +10,92 @@
         android:id="@+id/name"
         android:layout_width="70dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
         android:gravity="center"
-        android:text="Charlie"
-        android:textSize="12sp" />
+        android:maxLines="1"
+        android:text="Name"
+        android:textSize="12sp"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/team_abv"
         android:layout_width="30dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:layout_marginRight="10dp"
         android:gravity="center"
-        android:text="PTP"
-        android:textSize="12sp"
-        android:layout_marginRight="10dp"/>
+        android:text="Team"
+        android:textSize="12sp" />
 
     <TextView
         android:id="@+id/hit"
         android:layout_width="30dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
         android:gravity="center"
-        android:text="00"
+        android:text="H"
         android:textSize="12sp" />
 
     <TextView
         android:id="@+id/hr"
         android:layout_width="30dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
         android:gravity="center"
-        android:text="00"
+        android:text="HR"
         android:textSize="12sp" />
 
     <TextView
         android:id="@+id/run"
         android:layout_width="30dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
         android:gravity="center"
-        android:text="00"
+        android:text="R"
         android:textSize="12sp" />
 
     <TextView
         android:id="@+id/rbi"
         android:layout_width="30dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
         android:gravity="center"
-        android:text="00"
+        android:text="RBI"
         android:textSize="12sp" />
 
     <TextView
         android:id="@+id/avg"
-        android:layout_width="30dp"
+        android:layout_width="40dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
         android:gravity="center"
-        android:text="00"
+        android:text="AVG"
         android:textSize="12sp" />
 
     <TextView
         android:id="@+id/obp"
-        android:layout_width="30dp"
+        android:layout_width="40dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
         android:gravity="center"
-        android:text="00"
+        android:text="OBP"
         android:textSize="12sp" />
 
     <TextView
         android:id="@+id/slg"
-        android:layout_width="30dp"
+        android:layout_width="40dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
         android:gravity="center"
-        android:text="00"
+        android:text="SLG"
         android:textSize="12sp" />
 
+    <TextView
+        android:id="@+id/ops"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:gravity="center"
+        android:text="OPS"
+        android:textSize="12sp" />
 </LinearLayout>

@@ -9,10 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.example.android.scorekeepdraft1.data.PlayerStatsContract;
-import com.example.android.scorekeepdraft1.data.PlayerStatsContract.PlayerStatsEntry;
-
-import static android.R.attr.name;
+import com.example.android.scorekeepdraft1.data.StatsContract.PlayerStatsEntry;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -35,6 +32,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, SetLineupActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        Button testStat = (Button) findViewById(R.id.teststats);
+        testStat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, StatsActivity.class);
                 startActivity(intent);
             }
         });

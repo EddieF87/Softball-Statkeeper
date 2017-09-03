@@ -3,19 +3,19 @@ package com.example.android.scorekeepdraft1.data;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import com.example.android.scorekeepdraft1.data.PlayerStatsContract.PlayerStatsEntry;
+import com.example.android.scorekeepdraft1.data.StatsContract.PlayerStatsEntry;
 
 /**
  * Created by Eddie on 16/08/2017.
  */
 
-public class PlayerDbHelper extends SQLiteOpenHelper {
+public class StatsDbHelper extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "playerstats.db";
     private static final int DATABASE_VERSION = 3;
 
 
-    public PlayerDbHelper(Context context) {
+    public StatsDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 

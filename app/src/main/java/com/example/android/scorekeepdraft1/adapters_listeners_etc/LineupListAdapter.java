@@ -109,11 +109,11 @@ public class LineupListAdapter extends RecyclerView.Adapter<LineupListAdapter.Li
         }
     }
 
-    public static class ListViewHolder extends RecyclerView.ViewHolder {
+    static class ListViewHolder extends RecyclerView.ViewHolder {
 
         FrameLayout mFrameLayout;
 
-        public ListViewHolder(View itemView) {
+         ListViewHolder(View itemView) {
             super(itemView);
             mFrameLayout = (FrameLayout) itemView;
         }

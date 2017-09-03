@@ -12,35 +12,31 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.example.android.scorekeepdraft1.data.PlayerStatsContract.PlayerStatsEntry;
-
-import static android.R.attr.name;
-import static android.os.Build.VERSION_CODES.N;
-import static android.support.v7.widget.AppCompatDrawableManager.get;
+import com.example.android.scorekeepdraft1.data.StatsContract.PlayerStatsEntry;
 
 /**
  * Created by Eddie on 16/08/2017.
  */
 
-public class PlayerStatsProvider extends ContentProvider {
+public class StatsProvider extends ContentProvider {
 
-    public static final String LOG_TAG = PlayerStatsProvider.class.getSimpleName();
+    public static final String LOG_TAG = StatsProvider.class.getSimpleName();
 
     public static final int STATS = 100;
     public static final int STATS_ID = 101;
     public static final int TEAMS = 102;
 
     private static final UriMatcher sUriMatcher = buildUriMatcher();
-    private PlayerDbHelper mOpenHelper;
+    private StatsDbHelper mOpenHelper;
 
     public static UriMatcher buildUriMatcher() {
 
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
-        final String authority = PlayerStatsContract.CONTENT_AUTHORITY;
+        final String authority = StatsContract.CONTENT_AUTHORITY;
 
-        matcher.addURI(authority, PlayerStatsContract.PATH_STATS, STATS);
-        matcher.addURI(authority, PlayerStatsContract.PATH_STATS + "/#", STATS_ID);
-        matcher.addURI(authority, PlayerStatsContract.PATH_TEAMS, TEAMS);
+        matcher.addURI(authority, StatsContract.PATH_STATS, STATS);
+        matcher.addURI(authority, StatsContract.PATH_STATS + "/#", STATS_ID);
+        matcher.addURI(authority, StatsContract.PATH_TEAMS, TEAMS);
 
         return matcher;
     }
@@ -48,7 +44,7 @@ public class PlayerStatsProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        mOpenHelper = new PlayerDbHelper(getContext());
+        mOpenHelper = new StatsDbHelper(getContext());
         return true;
     }
 

@@ -26,14 +26,13 @@ import com.example.android.scorekeepdraft1.undoredo.GameHistory;
 import com.example.android.scorekeepdraft1.undoredo.GameLog;
 import com.example.android.scorekeepdraft1.undoredo.RunsLog;
 
-import com.example.android.scorekeepdraft1.data.PlayerStatsContract.PlayerStatsEntry;
+import com.example.android.scorekeepdraft1.data.StatsContract.PlayerStatsEntry;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.R.attr.action;
 import static com.example.android.scorekeepdraft1.R.id.reset;
 
 /**
@@ -445,10 +444,15 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         double avg = calculateAverage(singles, doubles, triples, displayHR, playerOuts, 0);
 
         nowBatting.setText("Now batting: " + currentBatter + " (" + name);
-        avgDisplay.setText("AVG: " + formatter.format(avg));
-        hrDisplay.setText("HR: " + displayHR);
-        rbiDisplay.setText("RBI: " + displayRBI);
-        runDisplay.setText("R: " + displayRun);
+        String avgDisplayText = "AVG: " + formatter.format(avg);
+        String hrDisplayText = "HR: " + displayHR;
+        String rbiDisplayText = "RBI: " + displayRBI;
+        String runDisplayText = "R: " + displayRun;
+
+        avgDisplay.setText(avgDisplayText);
+        hrDisplay.setText(hrDisplayText);
+        rbiDisplay.setText(rbiDisplayText);
+        runDisplay.setText(runDisplayText);
 
         scoreboard.setText(awayTeamName + " " + awayTeamRuns + "    " + homeTeamName + " " + homeTeamRuns);
     }

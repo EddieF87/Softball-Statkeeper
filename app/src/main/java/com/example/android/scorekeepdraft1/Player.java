@@ -41,6 +41,20 @@ public class Player {
         this.team = "Free Agent";
     }
 
+    public Player(String name, String team, int singles, int doubles, int triples, int hrs, int walks, int runs, int rbis, int outs, int sacFlies) {
+        this.name = name;
+        this.team = team;
+        this.singles = singles;
+        this.doubles = doubles;
+        this.triples = triples;
+        this.hrs = hrs;
+        this.walks = walks;
+        this.runs = runs;
+        this.rbis = rbis;
+        this.outs = outs;
+        this.sacFlies = sacFlies;
+    }
+
     public int getHits() {
         return this.singles + this.doubles + this.triples + this.hrs;
     }

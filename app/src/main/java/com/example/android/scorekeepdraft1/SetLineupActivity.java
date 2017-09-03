@@ -34,8 +34,7 @@ import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.LineupListAdapter;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.Listener;
-import com.example.android.scorekeepdraft1.data.PlayerStatsContract;
-import com.example.android.scorekeepdraft1.data.PlayerStatsContract.PlayerStatsEntry;
+import com.example.android.scorekeepdraft1.data.StatsContract.PlayerStatsEntry;
 
 import java.util.ArrayList;
 import java.util.List;

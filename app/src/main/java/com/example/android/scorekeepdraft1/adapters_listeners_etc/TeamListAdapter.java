@@ -44,7 +44,7 @@ public class TeamListAdapter extends RecyclerView.Adapter<TeamListAdapter.ListVi
         return list.size();
     }
 
-    public static class ListViewHolder extends RecyclerView.ViewHolder {
+     static class ListViewHolder extends RecyclerView.ViewHolder {
 
         FrameLayout mFrameLayout;
 

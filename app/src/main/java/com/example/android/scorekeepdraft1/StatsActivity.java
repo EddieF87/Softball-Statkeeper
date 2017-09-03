@@ -3,21 +3,27 @@ package com.example.android.scorekeepdraft1;
 import android.database.Cursor;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.example.android.scorekeepdraft1.data.PlayerStatsContract;
-import com.example.android.scorekeepdraft1.data.PlayerStatsContract.PlayerStatsEntry;
+import com.example.android.scorekeepdraft1.adapters_listeners_etc.PlayerStatsAdapter;
+import com.example.android.scorekeepdraft1.data.StatsContract.PlayerStatsEntry;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class StatsActivity extends AppCompatActivity {
 
     private RecyclerView rv;
+    private PlayerStatsAdapter rvAdapter;
     private Spinner statSpinner;
     private Spinner teamSpinner;
     private TextView titleView;
     private Cursor mCursor;
-
+    private List<Player> players;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +36,8 @@ public class StatsActivity extends AppCompatActivity {
 
         mCursor = getContentResolver().query(PlayerStatsEntry.CONTENT_URI1, null,
                 null, null, sortOrder);
+        players = new ArrayList<>();
+
         while (mCursor.moveToNext()) {
             int nameIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_NAME);
             int teamIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_ORDER);
@@ -54,15 +62,31 @@ public class StatsActivity extends AppCompatActivity {
             int rbi = mCursor.getInt(rbiIndex);
             int run = mCursor.getInt(runIndex);
             int sf = mCursor.getInt(sfIndex);
-            int hit = hr + tpl + dbl + sgl;
-            int ab = hit + out;
-            int pa = hit + out + sf;
-            double avg = (double) hit/ab;
-            double obp = (double) (hit+bb)/(pa);
-            double slg = (double) ((sgl * 1) + (dbl * 2) + (tpl * 3) + (hr * 4)) /ab;
-                playerList.add(playerName);
-            //List<Player> players;
-            }
+
+            players.add(new Player(player, team, sgl, dbl, tpl, hr, bb, run, rbi, out, sf));
         }
+        initRecyclerView();
+
+        statSpinner = (Spinner) findViewById(R.id.spinner_stats_sort);
+        ArrayList<String> spinnerArray = new ArrayList<String>();
+        spinnerArray.add("H");
+        spinnerArray.add("HR");
+        spinnerArray.add("R");
+        spinnerArray.add("RBI");
+        spinnerArray.add("AVG");
+        spinnerArray.add("OBP");
+        spinnerArray.add("SLG");
+        spinnerArray.add("OPS");
+        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_dropdown_item, spinnerArray);
+
+        statSpinner.setAdapter(spinnerArrayAdapter);
+    }
+
+    private void initRecyclerView() {
+        rv.setLayoutManager(new LinearLayoutManager(
+                this, LinearLayoutManager.VERTICAL, false));
+        rvAdapter = new PlayerStatsAdapter(players);
+        rv.setAdapter(rvAdapter);
     }
 }
