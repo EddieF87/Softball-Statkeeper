@@ -16,7 +16,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".GameActivity" />
+        <activity android:name=".GameActivity"
+            android:parentActivityName="com.example.android.scorekeepdraft1.SetTeamsActivity"
+            />
 
         <provider
             android:name=".data.StatsProvider"
@@ -25,8 +27,14 @@
 
         <activity android:name=".StandingsActivity" />
         <activity android:name=".StatsActivity" />
-        <activity android:name=".SetLineupActivity" />
-        <activity android:name=".SetTeamsActivity"></activity>
+        <activity android:name=".SetLineupActivity"
+            android:parentActivityName="com.example.android.scorekeepdraft1.SetTeamsActivity"
+            android:label="Lineup Editor"
+            />
+        <activity android:name=".SetTeamsActivity"
+            android:parentActivityName="com.example.android.scorekeepdraft1.MainActivity"
+            android:label="Matchup Selector"
+            />
     </application>
 
 </manifest>

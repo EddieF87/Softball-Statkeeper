@@ -1,5 +1,6 @@
 package com.example.android.scorekeepdraft1.adapters_listeners_etc;
 
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,6 +51,29 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
         TextView obpView = (TextView) linearLayout.findViewById(R.id.obp);
         TextView slgView = (TextView) linearLayout.findViewById(R.id.slg);
         TextView opsView = (TextView) linearLayout.findViewById(R.id.ops);
+        TextView sglView = (TextView) linearLayout.findViewById(R.id.sgl);
+        TextView dblView = (TextView) linearLayout.findViewById(R.id.dbl);
+        TextView tplView = (TextView) linearLayout.findViewById(R.id.tpl);
+        TextView bbView = (TextView) linearLayout.findViewById(R.id.bb);
+
+        if (position % 2 == 1) {
+            nameView.setBackgroundColor(Color.parseColor("#dfdfdf"));
+            teamView.setBackgroundColor(Color.parseColor("#dfdfdf"));
+            hitView.setBackgroundColor(Color.parseColor("#dfdfdf"));
+            hrView.setBackgroundColor(Color.parseColor("#dfdfdf"));
+            rbiView.setBackgroundColor(Color.parseColor("#dfdfdf"));
+            runView.setBackgroundColor(Color.parseColor("#dfdfdf"));
+            avgView.setBackgroundColor(Color.parseColor("#dfdfdf"));
+            obpView.setBackgroundColor(Color.parseColor("#dfdfdf"));
+            slgView.setBackgroundColor(Color.parseColor("#dfdfdf"));
+            opsView.setBackgroundColor(Color.parseColor("#dfdfdf"));
+            sglView.setBackgroundColor(Color.parseColor("#dfdfdf"));
+            dblView.setBackgroundColor(Color.parseColor("#dfdfdf"));
+            tplView.setBackgroundColor(Color.parseColor("#dfdfdf"));
+            bbView.setBackgroundColor(Color.parseColor("#dfdfdf"));
+        }
+
+
 
 
         Player player = players.get(position);
@@ -71,6 +95,10 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
         obpView.setText(String.valueOf(formatter.format(player.getOBP())));
         slgView.setText(String.valueOf(formatter.format(player.getSLG())));
         opsView.setText(String.valueOf(formatter.format(player.getOPS())));
+        sglView.setText(String.valueOf(player.getSingles()));
+        dblView.setText(String.valueOf(player.getDoubles()));
+        tplView.setText(String.valueOf(player.getTriples()));
+        bbView.setText(String.valueOf(player.getWalks()));
 
         linearLayout.setTag(position);
     }

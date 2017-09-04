@@ -69,7 +69,7 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
         Bundle b = getIntent().getExtras();
         if(b != null) {
             mTeam = b.getString("team");
-        }
+        } else {mTeam = "Purptopes";}
 
         rvLeftLineup = (RecyclerView) findViewById(R.id.rvLeft);
         rvRightLineup = (RecyclerView) findViewById(R.id.rvRight);

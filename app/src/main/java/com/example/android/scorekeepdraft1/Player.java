@@ -87,7 +87,7 @@ public class Player {
     }
 
     public double getOPS() {
-        return getOBP() + getOBP();
+        return getOBP() + getSLG();
     }
 
     public void addSingle() {

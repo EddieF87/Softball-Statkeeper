@@ -1,6 +1,7 @@
 package com.example.android.scorekeepdraft1;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
@@ -48,6 +49,10 @@ public class SetTeamsActivity extends AppCompatActivity implements AdapterView.O
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_set_teams);
 
+        SharedPreferences awaySpinnerSave = getSharedPreferences("awayspinnerstate",0);
+        SharedPreferences homeSpinnerSave = getSharedPreferences("homespinnerstate",0);
+
+
         String[] projection = new String[] {PlayerStatsEntry._ID, PlayerStatsEntry.COLUMN_NAME};
         String selection = PlayerStatsEntry.COLUMN_LEAGUE + "=?";
         String league = "ISL";
@@ -65,8 +70,9 @@ public class SetTeamsActivity extends AppCompatActivity implements AdapterView.O
         homeTeamSpinner.setAdapter(adapter);
         awayTeamSpinner.setOnItemSelectedListener(this);
         homeTeamSpinner.setOnItemSelectedListener(this);
-        awayTeamSpinner.setSelection(getPersistedItem());
-        homeTeamSpinner.setSelection(getPersistedItem());
+        awayTeamSpinner.setSelection(awaySpinnerSave.getInt("spinnerPos", 0));
+        homeTeamSpinner.setSelection(homeSpinnerSave.getInt("spinnerPos", 0));
+
 
         rvLeft = (RecyclerView) findViewById(R.id.rv_left_team);
         rvRight = (RecyclerView) findViewById(R.id.rv_right_team);
@@ -81,7 +87,6 @@ public class SetTeamsActivity extends AppCompatActivity implements AdapterView.O
                 b.putString("team", awayTeamSelection);
                 intent.putExtras(b);
                 startActivity(intent);
-                finish();
             }
         });
         editHomeLineup.setOnClickListener(new View.OnClickListener() {
@@ -92,7 +97,6 @@ public class SetTeamsActivity extends AppCompatActivity implements AdapterView.O
                 b.putString("team", homeTeamSelection);
                 intent.putExtras(b);
                 startActivity(intent);
-                finish();
             }
         });
 
@@ -115,6 +119,9 @@ public class SetTeamsActivity extends AppCompatActivity implements AdapterView.O
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        if(view == null) {
+            return;
+        }
         TextView textView = (TextView) view;
         String team = textView.getText().toString();
         if (parent.getId() == R.id.awayteam_spinner) {
@@ -147,18 +154,25 @@ public class SetTeamsActivity extends AppCompatActivity implements AdapterView.O
             Toast.makeText(this, "woops  " + e, Toast.LENGTH_SHORT).show();
         }
 
+        SharedPreferences.Editor editor;
+        SharedPreferences spinnersaving;
         if (parent.getId() == R.id.awayteam_spinner) {
             rvLeft.setLayoutManager(new LinearLayoutManager(
                     this, LinearLayoutManager.VERTICAL, false));
             leftListAdapter = new TeamListAdapter(playerList);
             rvLeft.setAdapter(leftListAdapter);
+            spinnersaving = getSharedPreferences("awayspinnerstate",0);
+
         } else {
             rvRight.setLayoutManager(new LinearLayoutManager(
                     this, LinearLayoutManager.VERTICAL, false));
             rightListAdapter = new TeamListAdapter(playerList);
             rvRight.setAdapter(rightListAdapter);
+            spinnersaving = getSharedPreferences("homespinnerstate",0);
         }
-        setPersistedItem(position);
+        editor = spinnersaving.edit();
+        editor.putInt("spinnerPos", position);
+        editor.commit();
     }
 
     public TeamListAdapter getLeftListAdapter() {return leftListAdapter;}
@@ -169,15 +183,10 @@ public class SetTeamsActivity extends AppCompatActivity implements AdapterView.O
 
     }
 
-    private int getPersistedItem() {
-        String keyName = makePersistedItemKeyName();
-        return PreferenceManager.getDefaultSharedPreferences(this).getInt(keyName, 0);
-    }
-    protected void setPersistedItem(int position) {
-        String keyName = makePersistedItemKeyName();
-        PreferenceManager.getDefaultSharedPreferences(this).edit().putInt(keyName, position).commit();
-    }
-    private String makePersistedItemKeyName() {
-        return "_your_key";
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("awaySpinner", awayTeamSpinner.getSelectedItemPosition());
+        outState.putInt("homeSpinner", homeTeamSpinner.getSelectedItemPosition());
     }
 }

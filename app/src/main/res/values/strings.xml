@@ -2,6 +2,20 @@
     <string name="app_name">scorekeepdraft1</string>
     <string name="scoreboard">Team1: X    Team2: Y</string>
     <string name="nowbatting">Now batting: Player1</string>
+    <string name="_3b">3B</string>
+    <string name="bb">BB</string>
+    <string name="_2b">2B</string>
+    <string name="_1b">1B</string>
+    <string name="ops">OPS</string>
+    <string name="slg">SLG</string>
+    <string name="obp">OBP</string>
+    <string name="avg">AVG</string>
+    <string name="rbi">RBI</string>
+    <string name="r">R</string>
+    <string name="hr">HR</string>
+    <string name="h">H</string>
+    <string name="team">Team</string>
+    <string name="name">Name</string>
 
     <array name="main_items">
         <item>List - Basic Drag and Swipe</item>
