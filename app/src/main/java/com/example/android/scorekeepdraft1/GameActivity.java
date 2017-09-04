@@ -26,7 +26,7 @@ import com.example.android.scorekeepdraft1.undoredo.GameHistory;
 import com.example.android.scorekeepdraft1.undoredo.GameLog;
 import com.example.android.scorekeepdraft1.undoredo.RunsLog;
 
-import com.example.android.scorekeepdraft1.data.StatsContract.PlayerStatsEntry;
+import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -125,15 +125,15 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         awayTeam = new ArrayList<>();
         homeTeam = new ArrayList<>();
 
-        String selection = PlayerStatsEntry.COLUMN_TEAM + "=?";
-        String sortOrder = PlayerStatsEntry.COLUMN_ORDER + " ASC";
+        String selection = StatsEntry.COLUMN_TEAM + "=?";
+        String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
         String[] selectionArgs = new String[]{awayTeamName};
 
-        mCursor = getContentResolver().query(PlayerStatsEntry.CONTENT_URI1, null,
+        mCursor = getContentResolver().query(StatsEntry.CONTENT_URI1, null,
                 selection, selectionArgs, sortOrder);
         while (mCursor.moveToNext()) {
-            int nameIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_NAME);
-            int orderIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_ORDER);
+            int nameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
+            int orderIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_ORDER);
             String playerName = mCursor.getString(nameIndex);
             int order = mCursor.getInt(orderIndex);
             if( order < 50) {
@@ -142,11 +142,11 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         }
 
         selectionArgs = new String[]{homeTeamName};
-        mCursor = getContentResolver().query(PlayerStatsEntry.CONTENT_URI1, null,
+        mCursor = getContentResolver().query(StatsEntry.CONTENT_URI1, null,
                 selection, selectionArgs, sortOrder);
         while (mCursor.moveToNext()) {
-            int nameIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_NAME);
-            int orderIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_ORDER);
+            int nameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
+            int orderIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_ORDER);
             String playerName = mCursor.getString(nameIndex);
             int order = mCursor.getInt(orderIndex);
             if( order < 50) {
@@ -336,18 +336,18 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             Toast.makeText(GameActivity.this, "UHOH SPAGETTIOS!", Toast.LENGTH_LONG).show();
             /*for (String player : listOfPlayers) {
                 ContentValues values = new ContentValues();
-                values.put(PlayerStatsEntry.COLUMN_NAME, player);
-                values.put(PlayerStatsEntry.COLUMN_TEAM, "xxx");
-                values.put(PlayerStatsEntry.COLUMN_1B, 0);
-                values.put(PlayerStatsEntry.COLUMN_2B, 0);
-                values.put(PlayerStatsEntry.COLUMN_3B, 0);
-                values.put(PlayerStatsEntry.COLUMN_HR, 0);
-                values.put(PlayerStatsEntry.COLUMN_BB, 0);
-                values.put(PlayerStatsEntry.COLUMN_SF, 0);
-                values.put(PlayerStatsEntry.COLUMN_OUT, 0);
-                values.put(PlayerStatsEntry.COLUMN_RUN, 0);
-                values.put(PlayerStatsEntry.COLUMN_RBI, 0);
-                getContentResolver().insert(PlayerStatsEntry.CONTENT_URI1, values);
+                values.put(StatsEntry.COLUMN_NAME, player);
+                values.put(StatsEntry.COLUMN_TEAM, "xxx");
+                values.put(StatsEntry.COLUMN_1B, 0);
+                values.put(StatsEntry.COLUMN_2B, 0);
+                values.put(StatsEntry.COLUMN_3B, 0);
+                values.put(StatsEntry.COLUMN_HR, 0);
+                values.put(StatsEntry.COLUMN_BB, 0);
+                values.put(StatsEntry.COLUMN_SF, 0);
+                values.put(StatsEntry.COLUMN_OUT, 0);
+                values.put(StatsEntry.COLUMN_RUN, 0);
+                values.put(StatsEntry.COLUMN_RBI, 0);
+                getContentResolver().insert(StatsEntry.CONTENT_URI1, values);
             }
             startCursor();
             setDisplays();*/
@@ -410,10 +410,10 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     }
 
     public void startCursor() {
-        String selection = PlayerStatsEntry.COLUMN_NAME + "=?";
+        String selection = StatsEntry.COLUMN_NAME + "=?";
         String[] selectionArgs = {currentBatter};
         mCursor = getContentResolver().query(
-                PlayerStatsEntry.CONTENT_URI1, null,
+                StatsEntry.CONTENT_URI1, null,
                 selection, selectionArgs, null
         );
         mCursor.moveToNext();
@@ -423,14 +423,14 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     public void setDisplays() {
         batterDisplay.setVisibility(View.VISIBLE);
 
-        int nameIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_NAME);
-        int hrIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_HR);
-        int rbiIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_RBI);
-        int runIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_RUN);
-        int singleIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_1B);
-        int doubleIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_2B);
-        int tripleIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_3B);
-        int outIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_OUT);
+        int nameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
+        int hrIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_HR);
+        int rbiIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_RBI);
+        int runIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_RUN);
+        int singleIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_1B);
+        int doubleIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_2B);
+        int tripleIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_3B);
+        int outIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_OUT);
 
         String name = mCursor.getString(nameIndex);
         int displayHR = mCursor.getInt(hrIndex);
@@ -460,10 +460,10 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     public void updatePlayerStats(String action) {
         String[] selectionArgs;
         if(undoRedo) {
-            String selection = PlayerStatsEntry.COLUMN_NAME + "=?";
+            String selection = StatsEntry.COLUMN_NAME + "=?";
             selectionArgs = new String[]{tempBatter};
             mCursor = getContentResolver().query(
-                    PlayerStatsEntry.CONTENT_URI1, null,
+                    StatsEntry.CONTENT_URI1, null,
                     selection, selectionArgs, null
             );
         } else {
@@ -476,39 +476,39 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
 
         switch (action) {
             case "1b":
-                valueIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_1B);
+                valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_1B);
                 newValue = mCursor.getInt(valueIndex) + 1;
-                values.put(PlayerStatsEntry.COLUMN_1B, newValue);
+                values.put(StatsEntry.COLUMN_1B, newValue);
                 break;
             case "2b":
-                valueIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_2B);
+                valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_2B);
                 newValue = mCursor.getInt(valueIndex) + 1;
-                values.put(PlayerStatsEntry.COLUMN_2B, newValue);
+                values.put(StatsEntry.COLUMN_2B, newValue);
                 break;
             case "3b":
-                valueIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_3B);
+                valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_3B);
                 newValue = mCursor.getInt(valueIndex) + 1;
-                values.put(PlayerStatsEntry.COLUMN_3B, newValue);
+                values.put(StatsEntry.COLUMN_3B, newValue);
                 break;
             case "hr":
-                valueIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_HR);
+                valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_HR);
                 newValue = mCursor.getInt(valueIndex) + 1;
-                values.put(PlayerStatsEntry.COLUMN_HR, newValue);
+                values.put(StatsEntry.COLUMN_HR, newValue);
                 break;
             case "bb":
-                valueIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_BB);
+                valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_BB);
                 newValue = mCursor.getInt(valueIndex) + 1;
-                values.put(PlayerStatsEntry.COLUMN_BB, newValue);
+                values.put(StatsEntry.COLUMN_BB, newValue);
                 break;
             case "sf":
-                valueIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_SF);
+                valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_SF);
                 newValue = mCursor.getInt(valueIndex) + 1;
-                values.put(PlayerStatsEntry.COLUMN_SF, newValue);
+                values.put(StatsEntry.COLUMN_SF, newValue);
                 break;
             case "out":
-                valueIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_OUT);
+                valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_OUT);
                 newValue = mCursor.getInt(valueIndex) + 1;
-                values.put(PlayerStatsEntry.COLUMN_OUT, newValue);
+                values.put(StatsEntry.COLUMN_OUT, newValue);
                 break;
             default:
                 Toast.makeText(GameActivity.this, "SOMETHING FUCKED UP BIG TIME!!!", Toast.LENGTH_LONG).show();
@@ -517,14 +517,14 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
 
         int rbiCount = currentRunsLog.getRBICount();
         if (rbiCount > 0) {
-            valueIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_RBI);
+            valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_RBI);
             newValue = mCursor.getInt(valueIndex) + rbiCount;
-            values.put(PlayerStatsEntry.COLUMN_RBI, newValue);
+            values.put(StatsEntry.COLUMN_RBI, newValue);
         }
 
-        String selection = PlayerStatsEntry.COLUMN_NAME + "=?";
+        String selection = StatsEntry.COLUMN_NAME + "=?";
         getContentResolver().update(
-                PlayerStatsEntry.CONTENT_URI1,
+                StatsEntry.CONTENT_URI1,
                 values,
                 selection,
                 selectionArgs
@@ -544,10 +544,10 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             Toast.makeText(GameActivity.this, "TWAS NULL!!!", Toast.LENGTH_SHORT).show();
             return;
         }
-        String selection = PlayerStatsEntry.COLUMN_NAME + "=?";
+        String selection = StatsEntry.COLUMN_NAME + "=?";
         String[] selectionArgs = {tempBatter};
         mCursor = getContentResolver().query(
-                PlayerStatsEntry.CONTENT_URI1, null,
+                StatsEntry.CONTENT_URI1, null,
                 selection, selectionArgs, null);
         mCursor.moveToFirst();
         ContentValues values = new ContentValues();
@@ -556,39 +556,39 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
 
         switch (action) {
             case "1b":
-                valueIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_1B);
+                valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_1B);
                 newValue = mCursor.getInt(valueIndex) - 1;
-                values.put(PlayerStatsEntry.COLUMN_1B, newValue);
+                values.put(StatsEntry.COLUMN_1B, newValue);
                 break;
             case "2b":
-                valueIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_2B);
+                valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_2B);
                 newValue = mCursor.getInt(valueIndex) - 1;
-                values.put(PlayerStatsEntry.COLUMN_2B, newValue);
+                values.put(StatsEntry.COLUMN_2B, newValue);
                 break;
             case "3b":
-                valueIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_3B);
+                valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_3B);
                 newValue = mCursor.getInt(valueIndex) - 1;
-                values.put(PlayerStatsEntry.COLUMN_3B, newValue);
+                values.put(StatsEntry.COLUMN_3B, newValue);
                 break;
             case "hr":
-                valueIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_HR);
+                valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_HR);
                 newValue = mCursor.getInt(valueIndex) - 1;
-                values.put(PlayerStatsEntry.COLUMN_HR, newValue);
+                values.put(StatsEntry.COLUMN_HR, newValue);
                 break;
             case "bb":
-                valueIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_BB);
+                valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_BB);
                 newValue = mCursor.getInt(valueIndex) - 1;
-                values.put(PlayerStatsEntry.COLUMN_BB, newValue);
+                values.put(StatsEntry.COLUMN_BB, newValue);
                 break;
             case "sf":
-                valueIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_SF);
+                valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_SF);
                 newValue = mCursor.getInt(valueIndex) - 1;
-                values.put(PlayerStatsEntry.COLUMN_SF, newValue);
+                values.put(StatsEntry.COLUMN_SF, newValue);
                 break;
             case "out":
-                valueIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_OUT);
+                valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_OUT);
                 newValue = mCursor.getInt(valueIndex) - 1;
-                values.put(PlayerStatsEntry.COLUMN_OUT, newValue);
+                values.put(StatsEntry.COLUMN_OUT, newValue);
                 break;
             default:
                 Toast.makeText(GameActivity.this, "SOMETHING FUCKED UP BIG TIME!!!", Toast.LENGTH_LONG).show();
@@ -597,15 +597,15 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
 
         int rbiCount = currentRunsLog.getRBICount();
         if (rbiCount > 0) {
-            valueIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_RBI);
+            valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_RBI);
             newValue = mCursor.getInt(valueIndex) - rbiCount;
-            values.put(PlayerStatsEntry.COLUMN_RBI, newValue);
+            values.put(StatsEntry.COLUMN_RBI, newValue);
         }
 
 /*        String selection = PlayervStatsEntry.COLUMN_NAME + "=?";
         String[] selectionArgs = {currentBatter.getName()};*/
         getContentResolver().update(
-                PlayerStatsEntry.CONTENT_URI1,
+                StatsEntry.CONTENT_URI1,
                 values,
                 selection,
                 selectionArgs
@@ -621,10 +621,10 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     }
 
     public void addRun(String player) {
-        String selection = PlayerStatsEntry.COLUMN_NAME + "=?";
+        String selection = StatsEntry.COLUMN_NAME + "=?";
         String[] selectionArgs = {player};
         mCursor = getContentResolver().query(
-                PlayerStatsEntry.CONTENT_URI1, null,
+                StatsEntry.CONTENT_URI1, null,
                 selection, selectionArgs, null
         );
         mCursor.moveToNext();
@@ -632,12 +632,12 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         ContentValues values = new ContentValues();
         int valueIndex;
         int newValue;
-        valueIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_RUN);
+        valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_RUN);
         newValue = mCursor.getInt(valueIndex) + 1;
-        values.put(PlayerStatsEntry.COLUMN_RUN, newValue);
+        values.put(StatsEntry.COLUMN_RUN, newValue);
 
         getContentResolver().update(
-                PlayerStatsEntry.CONTENT_URI1,
+                StatsEntry.CONTENT_URI1,
                 values,
                 selection,
                 selectionArgs
@@ -652,10 +652,10 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     }
 
     public void subtractRun(String player) {
-        String selection = PlayerStatsEntry.COLUMN_NAME + "=?";
+        String selection = StatsEntry.COLUMN_NAME + "=?";
         String[] selectionArgs = {player};
         mCursor = getContentResolver().query(
-                PlayerStatsEntry.CONTENT_URI1, null,
+                StatsEntry.CONTENT_URI1, null,
                 selection, selectionArgs, null
         );
         mCursor.moveToNext();
@@ -663,12 +663,12 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         ContentValues values = new ContentValues();
         int valueIndex;
         int newValue;
-        valueIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_RUN);
+        valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_RUN);
         newValue = mCursor.getInt(valueIndex) - 1;
-        values.put(PlayerStatsEntry.COLUMN_RUN, newValue);
+        values.put(StatsEntry.COLUMN_RUN, newValue);
 
         getContentResolver().update(
-                PlayerStatsEntry.CONTENT_URI1,
+                StatsEntry.CONTENT_URI1,
                 values,
                 selection,
                 selectionArgs

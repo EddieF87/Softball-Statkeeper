@@ -8,37 +8,46 @@
     android:orientation="vertical"
     tools:context="com.example.android.scorekeepdraft1.StatsActivity">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:paddingTop="20dp"
+        android:paddingBottom="20dp"
+        android:paddingLeft="16dp"
+        android:paddingStart="16dp"
+        android:paddingRight="16dp"
+        android:paddingEnd="16dp">
 
         <TextView
             android:layout_width="200dp"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="STATISTICS"
-            android:textSize="36sp"
-            android:textStyle="bold" />
-
-        <Spinner
-            android:id="@+id/spinner_stats_sort"
-            android:layout_width="90dp"
-            android:layout_height="match_parent"></Spinner>
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:text="ISOTOPES LEAGUE"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            />
 
         <Spinner
             android:id="@+id/spinner_stats_teams"
-            android:layout_width="90dp"
-            android:layout_height="match_parent"></Spinner>
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            />
 
-    </LinearLayout>
+    </RelativeLayout>
 
     <HorizontalScrollView
         android:id="@+id/scrollView1"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="10">
+        android:layout_height="match_parent"
+        >
 
         <LinearLayout xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="wrap_content"
@@ -55,10 +64,14 @@
                     android:id="@+id/name_title"
                     android:layout_width="100dp"
                     android:layout_height="wrap_content"
-                    android:paddingRight="20dp"
-                    android:paddingBottom="4dp"
+                    android:background="#7fdfff"
                     android:gravity="start"
                     android:maxLines="1"
+                    android:paddingBottom="3dp"
+                    android:paddingEnd="20dp"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="20dp"
+                    android:paddingStart="8dp"
                     android:text="@string/name"
                     android:textAlignment="textStart"
                     android:textSize="20sp"
@@ -68,10 +81,11 @@
                     android:id="@+id/team_abv_title"
                     android:layout_width="60dp"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="4dp"
-                    android:paddingRight="10dp"
+                    android:background="#7fdfff"
                     android:gravity="center"
                     android:maxLines="1"
+                    android:paddingBottom="4dp"
+                    android:paddingRight="10dp"
                     android:text="@string/team"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -80,9 +94,10 @@
                     android:id="@+id/hit_title"
                     android:layout_width="50dp"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="4dp"
+                    android:background="#7fdfff"
                     android:gravity="center"
                     android:maxLines="1"
+                    android:paddingBottom="4dp"
                     android:text="@string/h"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -91,9 +106,10 @@
                     android:id="@+id/hr_title"
                     android:layout_width="50dp"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="4dp"
+                    android:background="#7fdfff"
                     android:gravity="center"
                     android:maxLines="1"
+                    android:paddingBottom="4dp"
                     android:text="@string/hr"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -102,9 +118,10 @@
                     android:id="@+id/run_title"
                     android:layout_width="50dp"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="4dp"
+                    android:background="#7fdfff"
                     android:gravity="center"
                     android:maxLines="1"
+                    android:paddingBottom="4dp"
                     android:text="@string/r"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -113,9 +130,10 @@
                     android:id="@+id/rbi_title"
                     android:layout_width="50dp"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="4dp"
+                    android:background="#7fdfff"
                     android:gravity="center"
                     android:maxLines="1"
+                    android:paddingBottom="4dp"
                     android:text="@string/rbi"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -124,9 +142,10 @@
                     android:id="@+id/avg_title"
                     android:layout_width="70dp"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="4dp"
+                    android:background="#7fdfff"
                     android:gravity="center"
                     android:maxLines="1"
+                    android:paddingBottom="4dp"
                     android:text="@string/avg"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -135,9 +154,10 @@
                     android:id="@+id/obp_title"
                     android:layout_width="70dp"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="4dp"
+                    android:background="#7fdfff"
                     android:gravity="center"
                     android:maxLines="1"
+                    android:paddingBottom="4dp"
                     android:text="@string/obp"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -146,9 +166,10 @@
                     android:id="@+id/slg_title"
                     android:layout_width="70dp"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="4dp"
+                    android:background="#7fdfff"
                     android:gravity="center"
                     android:maxLines="1"
+                    android:paddingBottom="4dp"
                     android:text="@string/slg"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -157,9 +178,10 @@
                     android:id="@+id/ops_title"
                     android:layout_width="70dp"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="4dp"
+                    android:background="#7fdfff"
                     android:gravity="center"
                     android:maxLines="1"
+                    android:paddingBottom="4dp"
                     android:text="@string/ops"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -168,6 +190,7 @@
                     android:id="@+id/sgl_title"
                     android:layout_width="50dp"
                     android:layout_height="wrap_content"
+                    android:background="#7fdfff"
                     android:gravity="center"
                     android:maxLines="1"
                     android:paddingBottom="4dp"
@@ -179,6 +202,7 @@
                     android:id="@+id/dbl_title"
                     android:layout_width="50dp"
                     android:layout_height="wrap_content"
+                    android:background="#7fdfff"
                     android:gravity="center"
                     android:maxLines="1"
                     android:paddingBottom="4dp"
@@ -190,6 +214,7 @@
                     android:id="@+id/tpl_title"
                     android:layout_width="50dp"
                     android:layout_height="wrap_content"
+                    android:background="#7fdfff"
                     android:gravity="center"
                     android:maxLines="1"
                     android:paddingBottom="4dp"
@@ -201,6 +226,7 @@
                     android:id="@+id/bb_title"
                     android:layout_width="50dp"
                     android:layout_height="wrap_content"
+                    android:background="#7fdfff"
                     android:gravity="center"
                     android:maxLines="1"
                     android:paddingBottom="4dp"
@@ -213,7 +239,7 @@
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/rv_stats"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"></android.support.v7.widget.RecyclerView>
+                android:layout_height="wrap_content" />
         </LinearLayout>
     </HorizontalScrollView>
 

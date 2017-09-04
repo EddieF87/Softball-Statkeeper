@@ -16,6 +16,7 @@ import java.text.NumberFormat;
 import java.util.List;
 
 import static com.example.android.scorekeepdraft1.R.id.linearLayout;
+import static com.example.android.scorekeepdraft1.R.string.team;
 
 /**
  * Created by Eddie on 03/09/2017.
@@ -73,16 +74,20 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             bbView.setBackgroundColor(Color.parseColor("#dfdfdf"));
         }
 
-
-
-
+        //TODO remove temporary abbr setText and import list<string> teams here to do it automagically
         Player player = players.get(position);
         String team = player.getTeam();
         String teamabv;
         if (team.equals("Purptopes")) {
-            teamabv= "PTP";
+            teamabv = "PTP";
+        } else if (team.equals("Goon Nation")) {
+            teamabv = "GN";
+        } else if (team.equals("Boogeymen")) {
+            teamabv = "BGM";
+        } else if (team.equals("Rigtopes")) {
+            teamabv = "RIG";
         } else {
-            teamabv = "XXX";
+            teamabv = "FA";
         }
 
         nameView.setText(player.getName());
@@ -112,9 +117,9 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
 
         LinearLayout linearLayout;
 
-         ListViewHolder(View itemView) {
+        ListViewHolder(View itemView) {
             super(itemView);
-             linearLayout = (LinearLayout) itemView;
+            linearLayout = (LinearLayout) itemView;
         }
     }
 }

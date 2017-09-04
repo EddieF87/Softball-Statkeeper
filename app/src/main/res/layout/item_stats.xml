@@ -10,6 +10,8 @@
         android:layout_height="wrap_content"
         android:paddingRight="20dp"
         android:paddingEnd="20dp"
+        android:paddingLeft="8dp"
+        android:paddingStart="8dp"
         android:paddingBottom="4dp"
         android:maxLines="1"
         android:text="@string/name"
@@ -17,6 +19,7 @@
         android:textStyle="bold"
         android:textAlignment="textStart"
         android:gravity="start"
+        android:onClick="goToPlayerPage"
         />
 
     <TextView

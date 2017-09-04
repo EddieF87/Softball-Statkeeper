@@ -30,7 +30,7 @@ public class StatsContract {
     }
 
     /* Inner class that defines the table contents of the weather table */
-    public static final class PlayerStatsEntry implements BaseColumns {
+    public static final class StatsEntry implements BaseColumns {
 
         /* The base CONTENT_URI1 used to query the Weather table from the content provider */
         public static final Uri CONTENT_URI1 = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_STATS);
@@ -75,28 +75,13 @@ public class StatsContract {
         public static final String COLUMN_RUN = "runs";
 
 
+        public static final String COLUMN_ABBREVIATION = "abbr";
         public static final String COLUMN_LEAGUE = "league";
         public static final String COLUMN_WINS = "wins";
         public static final String COLUMN_LOSSES= "losses";
         public static final String COLUMN_TIES = "ties";
         public static final String COLUMN_RUNSFOR = "runsfor";
         public static final String COLUMN_RUNSAGAINST = "runsagainst";
-
-/*        public static final String B1 = "batting1";
-        public static final String B2 = "batting2";
-        public static final String B3 = "batting3";
-        public static final String B4 = "batting4";
-        public static final String B5 = "batting5";
-        public static final String B6 = "batting6";
-        public static final String B7 = "batting7";
-        public static final String B8 = "batting8";
-        public static final String B9 = "batting89";
-        public static final String B10 = "batting10";
-        public static final String B11 = "batting11";
-        public static final String B12 = "batting12";
-        public static final String B13 = "batting13";
-        public static final String B14 = "batting14";
-        public static final String B15 = "batting15";*/
 
 
         public static final String CONTENT_LIST_TYPE =

@@ -12,7 +12,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.example.android.scorekeepdraft1.data.StatsContract.PlayerStatsEntry;
+import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 
 /**
  * Created by Eddie on 16/08/2017.
@@ -59,17 +59,17 @@ public class StatsProvider extends ContentProvider {
         int match = sUriMatcher.match(uri);
         switch (match) {
             case STATS:
-                cursor = database.query(PlayerStatsEntry.PLAYERS_TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
+                cursor = database.query(StatsEntry.PLAYERS_TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
                 break;
             /*case STATS_ID:
-                selection = PlayerStatsEntry._ID + "=?";
+                selection = StatsEntry._ID + "=?";
                 selectionArgs = new String[] { String.valueOf(ContentUris.parseId(uri)) };
 
-                cursor = database.query(PlayerStatsEntry.PLAYERS_TABLE_NAME, projection, selection, selectionArgs,
+                cursor = database.query(StatsEntry.PLAYERS_TABLE_NAME, projection, selection, selectionArgs,
                         null, null, sortOrder);
                 break;*/
             case TEAMS:
-                cursor = database.query(PlayerStatsEntry.TEAMS_TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
+                cursor = database.query(StatsEntry.TEAMS_TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
                 break;
             default:
                 throw new IllegalArgumentException("Cannot query unknown URI " + uri);
@@ -85,9 +85,9 @@ public class StatsProvider extends ContentProvider {
         final int match = sUriMatcher.match(uri);
         switch (match) {
             case STATS:
-                return PlayerStatsEntry.CONTENT_LIST_TYPE;
+                return StatsEntry.CONTENT_LIST_TYPE;
             case STATS_ID:
-                return PlayerStatsEntry.CONTENT_ITEM_TYPE;
+                return StatsEntry.CONTENT_ITEM_TYPE;
             //TODO: enter teams type
             default:
                 throw new IllegalStateException("Unknown URI " + uri + " with match " + match);
@@ -108,8 +108,8 @@ public class StatsProvider extends ContentProvider {
 
     private Uri insertPlayer (Uri uri, ContentValues values) {
         // Check that the name is not null
-        if (values.containsKey(PlayerStatsEntry.COLUMN_NAME)) {
-            String name = values.getAsString(PlayerStatsEntry.COLUMN_NAME);
+        if (values.containsKey(StatsEntry.COLUMN_NAME)) {
+            String name = values.getAsString(StatsEntry.COLUMN_NAME);
             if (name == null) {
                 throw new IllegalArgumentException("Player requires a name");
             }
@@ -118,7 +118,7 @@ public class StatsProvider extends ContentProvider {
         SQLiteDatabase database = mOpenHelper.getWritableDatabase();
 
         // Insert the new pet with the given values
-        long id = database.insert(PlayerStatsEntry.PLAYERS_TABLE_NAME, null, values);
+        long id = database.insert(StatsEntry.PLAYERS_TABLE_NAME, null, values);
         // If the ID is -1, then the insertion failed. Log an error and return null.
         if (id == -1) {
             Log.e(LOG_TAG, "Failed to insert row for " + uri);
@@ -133,16 +133,16 @@ public class StatsProvider extends ContentProvider {
 
     private Uri insertTeam (Uri uri, ContentValues values) {
         // Check that the name is not null
-        if (values.containsKey(PlayerStatsEntry.COLUMN_NAME)) {
-            String name = values.getAsString(PlayerStatsEntry.COLUMN_NAME);
+        if (values.containsKey(StatsEntry.COLUMN_NAME)) {
+            String name = values.getAsString(StatsEntry.COLUMN_NAME);
             if (name == null) {
                 throw new IllegalArgumentException("Team requires a name");
             }
 
-            String[] projection = new String[] {PlayerStatsEntry.COLUMN_NAME};
-            Cursor cursor = query(PlayerStatsEntry.CONTENT_URI2, projection, null, null, null);
+            String[] projection = new String[] {StatsEntry.COLUMN_NAME};
+            Cursor cursor = query(StatsEntry.CONTENT_URI2, projection, null, null, null);
             while (cursor.moveToNext()) {
-                int nameIndex = cursor.getColumnIndex(PlayerStatsEntry.COLUMN_NAME);
+                int nameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_NAME);
                 String teamName = cursor.getString(nameIndex);
                 if (teamName.equals(name)) {
                     Toast.makeText(getContext(), "This team already exists!", Toast.LENGTH_SHORT).show();
@@ -154,7 +154,7 @@ public class StatsProvider extends ContentProvider {
         SQLiteDatabase database = mOpenHelper.getWritableDatabase();
 
         // Insert the new pet with the given values
-        long id = database.insert(PlayerStatsEntry.TEAMS_TABLE_NAME, null, values);
+        long id = database.insert(StatsEntry.TEAMS_TABLE_NAME, null, values);
         // If the ID is -1, then the insertion failed. Log an error and return null.
         if (id == -1) {
             Log.e(LOG_TAG, "Failed to insert row for " + uri);
@@ -189,7 +189,7 @@ public class StatsProvider extends ContentProvider {
     private int updatePlayer(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
         SQLiteDatabase database = mOpenHelper.getWritableDatabase();
         // Perform the update on the database and get the number of rows affected
-        int rowsUpdated = database.update(PlayerStatsEntry.PLAYERS_TABLE_NAME, values, selection, selectionArgs);
+        int rowsUpdated = database.update(StatsEntry.PLAYERS_TABLE_NAME, values, selection, selectionArgs);
         // If 1 or more rows were updated, then notify all listeners that the data at the
         // given URI has changed
         if (rowsUpdated != 0) {
@@ -201,7 +201,7 @@ public class StatsProvider extends ContentProvider {
     private int updateTeam(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
         SQLiteDatabase database = mOpenHelper.getWritableDatabase();
         // Perform the update on the database and get the number of rows affected
-        int rowsUpdated = database.update(PlayerStatsEntry.TEAMS_TABLE_NAME, values, selection, selectionArgs);
+        int rowsUpdated = database.update(StatsEntry.TEAMS_TABLE_NAME, values, selection, selectionArgs);
         // If 1 or more rows were updated, then notify all listeners that the data at the
         // given URI has changed
         if (rowsUpdated != 0) {

@@ -34,7 +34,8 @@ import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.LineupListAdapter;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.Listener;
-import com.example.android.scorekeepdraft1.data.StatsContract.PlayerStatsEntry;
+import com.example.android.scorekeepdraft1.data.StatsContract;
+import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,9 +60,9 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
     private String mTeam;
     private Cursor mCursor;
 
-    //TODO figure out why both spinners are the same after submitting lineup
 
     //TODO add player from free agency/other teams
+    //TODO figure out how to always update bench immediately
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,16 +77,16 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
         mLineup = new ArrayList<>();
         mBench = new ArrayList<>();
 
-        String[] projection = new String[]{PlayerStatsEntry._ID, PlayerStatsEntry.COLUMN_NAME, PlayerStatsEntry.COLUMN_ORDER};
-        String selection = PlayerStatsEntry.COLUMN_TEAM + "=?";
+        String[] projection = new String[]{StatsEntry._ID, StatsEntry.COLUMN_NAME, StatsEntry.COLUMN_ORDER};
+        String selection = StatsEntry.COLUMN_TEAM + "=?";
         String[] selectionArgs = new String[]{mTeam};
-        String sortOrder = PlayerStatsEntry.COLUMN_ORDER + " ASC";
-        mCursor = getContentResolver().query(PlayerStatsEntry.CONTENT_URI1, projection,
+        String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
+        mCursor = getContentResolver().query(StatsEntry.CONTENT_URI1, projection,
                 selection, selectionArgs, sortOrder);
 
         while (mCursor.moveToNext()){
-            int nameIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_NAME);
-            int orderIndex = mCursor.getColumnIndex(PlayerStatsEntry.COLUMN_ORDER);
+            int nameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
+            int orderIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_ORDER);
             String playerName = mCursor.getString(nameIndex);
             int playerOrder = mCursor.getInt(orderIndex);
             if (playerOrder > 50) {mBench.add(playerName);
@@ -150,26 +151,26 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
                     Toast.LENGTH_SHORT).show();
         } else {
             ContentValues values = new ContentValues();
-            values.put(PlayerStatsEntry.COLUMN_NAME, playerName);
-            values.put(PlayerStatsEntry.COLUMN_TEAM, mTeam);
-            values.put(PlayerStatsEntry.COLUMN_ORDER, 99);
-            values.put(PlayerStatsEntry.COLUMN_1B, 0);
-            values.put(PlayerStatsEntry.COLUMN_2B, 0);
-            values.put(PlayerStatsEntry.COLUMN_3B, 0);
-            values.put(PlayerStatsEntry.COLUMN_HR, 0);
-            values.put(PlayerStatsEntry.COLUMN_BB, 0);
-            values.put(PlayerStatsEntry.COLUMN_SF, 0);
-            values.put(PlayerStatsEntry.COLUMN_OUT, 0);
-            values.put(PlayerStatsEntry.COLUMN_RUN, 0);
-            values.put(PlayerStatsEntry.COLUMN_RBI, 0);
-            getContentResolver().insert(PlayerStatsEntry.CONTENT_URI1, values);
+            values.put(StatsEntry.COLUMN_NAME, playerName);
+            values.put(StatsEntry.COLUMN_TEAM, mTeam);
+            values.put(StatsEntry.COLUMN_ORDER, 99);
+            values.put(StatsEntry.COLUMN_1B, 0);
+            values.put(StatsEntry.COLUMN_2B, 0);
+            values.put(StatsContract.StatsEntry.COLUMN_3B, 0);
+            values.put(StatsContract.StatsEntry.COLUMN_HR, 0);
+            values.put(StatsContract.StatsEntry.COLUMN_BB, 0);
+            values.put(StatsEntry.COLUMN_SF, 0);
+            values.put(StatsContract.StatsEntry.COLUMN_OUT, 0);
+            values.put(StatsEntry.COLUMN_RUN, 0);
+            values.put(StatsEntry.COLUMN_RBI, 0);
+            getContentResolver().insert(StatsEntry.CONTENT_URI1, values);
             mBench.add(playerName);
         }
         addPlayerText.setText("");
     }
 
     public void updateAndSubmitLineup() {
-        String selection = PlayerStatsEntry.COLUMN_NAME + "=?";
+        String selection = StatsEntry.COLUMN_NAME + "=?";
         String[] selectionArgs;
 
         int i = 1;
@@ -177,8 +178,8 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
         for (String player : lineupList) {
             selectionArgs = new String[]{player};
             ContentValues values = new ContentValues();
-            values.put(PlayerStatsEntry.COLUMN_ORDER, i);
-            getContentResolver().update(PlayerStatsEntry.CONTENT_URI1, values,
+            values.put(StatsEntry.COLUMN_ORDER, i);
+            getContentResolver().update(StatsEntry.CONTENT_URI1, values,
                     selection, selectionArgs);
             i++;
         }
@@ -188,8 +189,8 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
         for (String player : benchList) {
             selectionArgs = new String[]{player};
             ContentValues values = new ContentValues();
-            values.put(PlayerStatsEntry.COLUMN_ORDER, i);
-            getContentResolver().update(PlayerStatsEntry.CONTENT_URI1, values,
+            values.put(StatsContract.StatsEntry.COLUMN_ORDER, i);
+            getContentResolver().update(StatsContract.StatsEntry.CONTENT_URI1, values,
                     selection, selectionArgs);
         }
 

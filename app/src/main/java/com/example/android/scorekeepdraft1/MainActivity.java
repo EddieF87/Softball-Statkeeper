@@ -9,7 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.example.android.scorekeepdraft1.data.StatsContract.PlayerStatsEntry;
+import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -45,6 +45,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Button title = (Button) findViewById(R.id.testtitle);
+        title.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setTitle("Bbbbbbb");
+            }
+        });
+
         Button test2 = (Button) findViewById(R.id.testbut2);
         test2.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -61,14 +69,14 @@ public class MainActivity extends AppCompatActivity {
                 String[] listOfTeams = {"Purptopes", "Rigtopes", "Goon Nation", "Boogeymen"};
                 for (String team : listOfTeams) {
                     ContentValues values = new ContentValues();
-                    values.put(PlayerStatsEntry.COLUMN_NAME, team);
-                    values.put(PlayerStatsEntry.COLUMN_LEAGUE, "ISL");
-                    values.put(PlayerStatsEntry.COLUMN_WINS, 0);
-                    values.put(PlayerStatsEntry.COLUMN_LOSSES, 0);
-                    values.put(PlayerStatsEntry.COLUMN_TIES, 0);
-                    values.put(PlayerStatsEntry.COLUMN_RUNSFOR, 0);
-                    values.put(PlayerStatsEntry.COLUMN_RUNSAGAINST, 0);
-                    getContentResolver().insert(PlayerStatsEntry.CONTENT_URI2, values);
+                    values.put(StatsEntry.COLUMN_NAME, team);
+                    values.put(StatsEntry.COLUMN_LEAGUE, "ISL");
+                    values.put(StatsEntry.COLUMN_WINS, 0);
+                    values.put(StatsEntry.COLUMN_LOSSES, 0);
+                    values.put(StatsEntry.COLUMN_TIES, 0);
+                    values.put(StatsEntry.COLUMN_RUNSFOR, 0);
+                    values.put(StatsEntry.COLUMN_RUNSAGAINST, 0);
+                    getContentResolver().insert(StatsEntry.CONTENT_URI2, values);
                 }
             }
         });
@@ -77,11 +85,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Cursor cursor = getContentResolver().query(
-                        PlayerStatsEntry.CONTENT_URI2, null,
+                        StatsEntry.CONTENT_URI2, null,
                         null, null, null
                 );
                 while (cursor.moveToNext()) {
-                    int nameIndex = cursor.getColumnIndex(PlayerStatsEntry.COLUMN_NAME);
+                    int nameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_NAME);
                     String name = cursor.getString(nameIndex);
                     Toast.makeText(MainActivity.this, "Team: " + name, Toast.LENGTH_SHORT).show();
                 }
@@ -97,19 +105,19 @@ public class MainActivity extends AppCompatActivity {
 
                 for (String player : listOfPlayers) {
                     ContentValues values = new ContentValues();
-                    values.put(PlayerStatsEntry.COLUMN_NAME, player);
-                    values.put(PlayerStatsEntry.COLUMN_TEAM, "Purptopes");
-      //              values.put(PlayerStatsEntry.COLUMN_ORDER, "null");
-                    values.put(PlayerStatsEntry.COLUMN_1B, 0);
-                    values.put(PlayerStatsEntry.COLUMN_2B, 0);
-                    values.put(PlayerStatsEntry.COLUMN_3B, 0);
-                    values.put(PlayerStatsEntry.COLUMN_HR, 0);
-                    values.put(PlayerStatsEntry.COLUMN_BB, 0);
-                    values.put(PlayerStatsEntry.COLUMN_SF, 0);
-                    values.put(PlayerStatsEntry.COLUMN_OUT, 0);
-                    values.put(PlayerStatsEntry.COLUMN_RUN, 0);
-                    values.put(PlayerStatsEntry.COLUMN_RBI, 0);
-                    getContentResolver().insert(PlayerStatsEntry.CONTENT_URI1, values);
+                    values.put(StatsEntry.COLUMN_NAME, player);
+                    values.put(StatsEntry.COLUMN_TEAM, "Purptopes");
+      //              values.put(StatsEntry.COLUMN_ORDER, "null");
+                    values.put(StatsEntry.COLUMN_1B, 0);
+                    values.put(StatsEntry.COLUMN_2B, 0);
+                    values.put(StatsEntry.COLUMN_3B, 0);
+                    values.put(StatsEntry.COLUMN_HR, 0);
+                    values.put(StatsEntry.COLUMN_BB, 0);
+                    values.put(StatsEntry.COLUMN_SF, 0);
+                    values.put(StatsEntry.COLUMN_OUT, 0);
+                    values.put(StatsEntry.COLUMN_RUN, 0);
+                    values.put(StatsEntry.COLUMN_RBI, 0);
+                    getContentResolver().insert(StatsEntry.CONTENT_URI1, values);
                 }
             }
         });
