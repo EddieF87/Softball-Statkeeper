@@ -52,17 +52,17 @@ public class StatsActivity extends AppCompatActivity implements AdapterView.OnIt
         players = new ArrayList<>();
 
         while (mCursor.moveToNext()) {
-            int nameIndex = mCursor.getColumnIndex(StatsContract.StatsEntry.COLUMN_NAME);
+            int nameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
             int teamIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_ORDER);
             int hrIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_HR);
-            int tripleIndex = mCursor.getColumnIndex(StatsContract.StatsEntry.COLUMN_3B);
-            int doubleIndex = mCursor.getColumnIndex(StatsContract.StatsEntry.COLUMN_2B);
-            int singleIndex = mCursor.getColumnIndex(StatsContract.StatsEntry.COLUMN_1B);
-            int bbIndex = mCursor.getColumnIndex(StatsContract.StatsEntry.COLUMN_BB);
+            int tripleIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_3B);
+            int doubleIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_2B);
+            int singleIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_1B);
+            int bbIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_BB);
             int outIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_OUT);
-            int rbiIndex = mCursor.getColumnIndex(StatsContract.StatsEntry.COLUMN_RBI);
+            int rbiIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_RBI);
             int runIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_RUN);
-            int sfIndex = mCursor.getColumnIndex(StatsContract.StatsEntry.COLUMN_SF);
+            int sfIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_SF);
 
             String player = mCursor.getString(nameIndex);
             String team = mCursor.getString(teamIndex);
@@ -78,14 +78,13 @@ public class StatsActivity extends AppCompatActivity implements AdapterView.OnIt
 
             players.add(new Player(player, team, sgl, dbl, tpl, hr, bb, run, rbi, out, sf));
         }
-        initRecyclerView();
 
-        mCursor = getContentResolver().query(StatsContract.StatsEntry.CONTENT_URI2,
-                new String[] {StatsContract.StatsEntry.COLUMN_NAME}, null, null, null);
+        mCursor = getContentResolver().query(StatsEntry.CONTENT_URI2,
+                new String[] {StatsEntry.COLUMN_NAME}, null, null, null);
         teams = new ArrayList<>();
         teams.add("All Teams");
         while (mCursor.moveToNext()) {
-            int teamNameIndex = mCursor.getColumnIndex(StatsContract.StatsEntry.COLUMN_NAME);
+            int teamNameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
             String teamName = mCursor.getString(teamNameIndex);
             teams.add(teamName);
         }
@@ -126,7 +125,7 @@ public class StatsActivity extends AppCompatActivity implements AdapterView.OnIt
     public void sortedFilteredQuery() {
         String sortOrder;
         if (statSort != null) {
-            if (statSort.equals(StatsContract.StatsEntry.COLUMN_NAME) || statSort.equals(StatsEntry.COLUMN_TEAM)) {
+            if (statSort.equals(StatsEntry.COLUMN_NAME) || statSort.equals(StatsEntry.COLUMN_TEAM)) {
                 sortOrder = statSort + " COLLATE NOCASE ASC";
             } else {sortOrder = statSort + " DESC";}
         } else {
@@ -137,26 +136,26 @@ public class StatsActivity extends AppCompatActivity implements AdapterView.OnIt
         String[] selectionArgs;
 
         if (teamFilter != null && !teamFilter.equals("All Teams")) {
-            selection = StatsContract.StatsEntry.COLUMN_TEAM + "=?";
+            selection = StatsEntry.COLUMN_TEAM + "=?";
             selectionArgs = new String[]{teamFilter};
         } else {
             selection = null;
             selectionArgs = null;
         }
 
-        mCursor = getContentResolver().query(StatsContract.StatsEntry.CONTENT_URI1, projection,
+        mCursor = getContentResolver().query(StatsEntry.CONTENT_URI1, projection,
                 selection, selectionArgs, sortOrder);
         players = new ArrayList<>();
 
         while (mCursor.moveToNext()) {
             int nameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
             int teamIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_TEAM);
-            int hrIndex = mCursor.getColumnIndex(StatsContract.StatsEntry.COLUMN_HR);
-            int tripleIndex = mCursor.getColumnIndex(StatsContract.StatsEntry.COLUMN_3B);
+            int hrIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_HR);
+            int tripleIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_3B);
             int doubleIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_2B);
-            int singleIndex = mCursor.getColumnIndex(StatsContract.StatsEntry.COLUMN_1B);
-            int bbIndex = mCursor.getColumnIndex(StatsContract.StatsEntry.COLUMN_BB);
-            int outIndex = mCursor.getColumnIndex(StatsContract.StatsEntry.COLUMN_OUT);
+            int singleIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_1B);
+            int bbIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_BB);
+            int outIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_OUT);
             int rbiIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_RBI);
             int runIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_RUN);
             int sfIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_SF);
@@ -211,77 +210,77 @@ public class StatsActivity extends AppCompatActivity implements AdapterView.OnIt
                 break;
             case R.id.hit_title:
                 statSort = "hits";
-                projection = new String[]{"*, (" + StatsContract.StatsEntry.COLUMN_1B + " + " + StatsContract.StatsEntry.COLUMN_2B + " + " +
-                        StatsContract.StatsEntry.COLUMN_3B + " + " + StatsContract.StatsEntry.COLUMN_HR + ") AS hits"};
+                projection = new String[]{"*, (" + StatsEntry.COLUMN_1B + " + " + StatsEntry.COLUMN_2B + " + " +
+                        StatsEntry.COLUMN_3B + " + " + StatsEntry.COLUMN_HR + ") AS hits"};
                 break;
             case R.id.hr_title:
                 statSort = StatsEntry.COLUMN_HR;
                 projection = null;
                 break;
             case R.id.run_title:
-                statSort = StatsContract.StatsEntry.COLUMN_RUN;
+                statSort = StatsEntry.COLUMN_RUN;
                 projection = null;
                 break;
             case R.id.rbi_title:
-                statSort = StatsContract.StatsEntry.COLUMN_RBI;
+                statSort = StatsEntry.COLUMN_RBI;
                 projection = null;
                 break;
             case R.id.avg_title:
                 statSort = "avg";
-                projection = new String[]{"*, (CAST ((" + StatsEntry.COLUMN_1B + " + " + StatsContract.StatsEntry.COLUMN_2B +
+                projection = new String[]{"*, (CAST ((" + StatsEntry.COLUMN_1B + " + " + StatsEntry.COLUMN_2B +
                         " + " + StatsEntry.COLUMN_3B + " + " + StatsEntry.COLUMN_HR +
                         ") AS FLOAT) / (" + StatsEntry.COLUMN_1B + " + " + StatsEntry.COLUMN_2B +
-                        " + " + StatsContract.StatsEntry.COLUMN_3B + " + " + StatsEntry.COLUMN_HR +
+                        " + " + StatsEntry.COLUMN_3B + " + " + StatsEntry.COLUMN_HR +
                         " + " + StatsEntry.COLUMN_OUT + ")) AS avg"};
                 break;
             case R.id.obp_title:
                 statSort = "obp";
                 projection = new String[]{"*, (CAST ((" + StatsEntry.COLUMN_1B + " + " + StatsEntry.COLUMN_2B +
-                        " + " + StatsContract.StatsEntry.COLUMN_3B + " + " + StatsContract.StatsEntry.COLUMN_HR +
-                        " + " + StatsContract.StatsEntry.COLUMN_BB + ") AS FLOAT) / (" + StatsContract.StatsEntry.COLUMN_1B +
+                        " + " + StatsEntry.COLUMN_3B + " + " + StatsEntry.COLUMN_HR +
+                        " + " + StatsEntry.COLUMN_BB + ") AS FLOAT) / (" + StatsEntry.COLUMN_1B +
                         " + " + StatsEntry.COLUMN_2B + " + " + StatsEntry.COLUMN_3B + " + " +
-                        StatsEntry.COLUMN_HR + " + " + StatsContract.StatsEntry.COLUMN_OUT + " + " + StatsEntry.COLUMN_BB +
+                        StatsEntry.COLUMN_HR + " + " + StatsEntry.COLUMN_OUT + " + " + StatsEntry.COLUMN_BB +
                         " + " + StatsEntry.COLUMN_SF + ")) AS obp"};
                 break;
             case R.id.slg_title:
                 statSort = "slg";
-                projection = new String[]{"*, (CAST ((" + StatsEntry.COLUMN_1B + " + " + StatsContract.StatsEntry.COLUMN_2B +
-                        " * 2 + " + StatsContract.StatsEntry.COLUMN_3B + " * 3 + " + StatsContract.StatsEntry.COLUMN_HR +
-                        " * 4) AS FLOAT) / (" + StatsEntry.COLUMN_1B + " + " + StatsContract.StatsEntry.COLUMN_2B +
-                        " + " + StatsContract.StatsEntry.COLUMN_3B + " + " + StatsContract.StatsEntry.COLUMN_HR +
+                projection = new String[]{"*, (CAST ((" + StatsEntry.COLUMN_1B + " + " + StatsEntry.COLUMN_2B +
+                        " * 2 + " + StatsEntry.COLUMN_3B + " * 3 + " + StatsEntry.COLUMN_HR +
+                        " * 4) AS FLOAT) / (" + StatsEntry.COLUMN_1B + " + " + StatsEntry.COLUMN_2B +
+                        " + " + StatsEntry.COLUMN_3B + " + " + StatsEntry.COLUMN_HR +
                         " + " + StatsEntry.COLUMN_OUT + ")) AS slg"};
                 break;
             case R.id.ops_title:
                 statSort = "ops";
-                projection = new String[]{"*, (CAST ((" + StatsContract.StatsEntry.COLUMN_1B + " + " + StatsEntry.COLUMN_2B +
-                        " * 2 + " + StatsContract.StatsEntry.COLUMN_3B + " * 3 + " + StatsContract.StatsEntry.COLUMN_HR +
-                        " * 4) AS FLOAT) / (" + StatsContract.StatsEntry.COLUMN_1B + " + " + StatsEntry.COLUMN_2B +
-                        " + " + StatsContract.StatsEntry.COLUMN_3B + " + " + StatsContract.StatsEntry.COLUMN_HR +
+                projection = new String[]{"*, (CAST ((" + StatsEntry.COLUMN_1B + " + " + StatsEntry.COLUMN_2B +
+                        " * 2 + " + StatsEntry.COLUMN_3B + " * 3 + " + StatsEntry.COLUMN_HR +
+                        " * 4) AS FLOAT) / (" + StatsEntry.COLUMN_1B + " + " + StatsEntry.COLUMN_2B +
+                        " + " + StatsEntry.COLUMN_3B + " + " + StatsEntry.COLUMN_HR +
                         " + " + StatsEntry.COLUMN_OUT + ") + " + "CAST ((" + StatsEntry.COLUMN_1B + " + " + StatsEntry.COLUMN_2B +
-                        " + " + StatsContract.StatsEntry.COLUMN_3B + " + " + StatsContract.StatsEntry.COLUMN_HR +
-                        " + " + StatsEntry.COLUMN_BB + ") AS FLOAT) / (" + StatsContract.StatsEntry.COLUMN_1B +
-                        " + " + StatsContract.StatsEntry.COLUMN_2B + " + " + StatsContract.StatsEntry.COLUMN_3B + " + " +
-                        StatsContract.StatsEntry.COLUMN_HR + " + " + StatsEntry.COLUMN_OUT + " + " + StatsEntry.COLUMN_BB +
-                        " + " + StatsContract.StatsEntry.COLUMN_SF + ")) AS ops"};
+                        " + " + StatsEntry.COLUMN_3B + " + " + StatsEntry.COLUMN_HR +
+                        " + " + StatsEntry.COLUMN_BB + ") AS FLOAT) / (" + StatsEntry.COLUMN_1B +
+                        " + " + StatsEntry.COLUMN_2B + " + " + StatsEntry.COLUMN_3B + " + " +
+                        StatsEntry.COLUMN_HR + " + " + StatsEntry.COLUMN_OUT + " + " + StatsEntry.COLUMN_BB +
+                        " + " + StatsEntry.COLUMN_SF + ")) AS ops"};
                 break;
             case R.id.sgl_title:
                 statSort = StatsEntry.COLUMN_1B;
                 projection = null;
                 break;
             case R.id.dbl_title:
-                statSort = StatsContract.StatsEntry.COLUMN_2B;
+                statSort = StatsEntry.COLUMN_2B;
                 projection = null;
                 break;
             case R.id.tpl_title:
-                statSort = StatsContract.StatsEntry.COLUMN_3B;
+                statSort = StatsEntry.COLUMN_3B;
                 projection = null;
                 break;
             case R.id.bb_title:
-                statSort = StatsContract.StatsEntry.COLUMN_BB;
+                statSort = StatsEntry.COLUMN_BB;
                 projection = null;
                 break;
             default:
-                Toast.makeText(StatsActivity.this, "SOMETHIGN WRONG WITH SPINNER", Toast.LENGTH_LONG).show();
+                Toast.makeText(StatsActivity.this, "SOMETHIGN WRONG WITH onClick", Toast.LENGTH_LONG).show();
         }
         sortedFilteredQuery();
     }

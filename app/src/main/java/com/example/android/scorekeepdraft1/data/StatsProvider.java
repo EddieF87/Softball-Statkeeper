@@ -41,7 +41,7 @@ public class StatsProvider extends ContentProvider {
         return matcher;
     }
 
-
+//TODO prevent sql injection when player enters info and elsewhere
     @Override
     public boolean onCreate() {
         mOpenHelper = new StatsDbHelper(getContext());

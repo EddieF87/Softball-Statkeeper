@@ -11,7 +11,10 @@ import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 
+import java.util.Random;
+
 public class MainActivity extends AppCompatActivity {
+    private Random randomizer = new Random();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +44,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, StatsActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        Button testStand = (Button) findViewById(R.id.teststand);
+        testStand.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, StandingsActivity.class);
                 startActivity(intent);
             }
         });
@@ -80,6 +92,33 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        Button testUpdate = (Button) findViewById(R.id.testupdate);
+        testUpdate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String[] listOfTeams = {"Purptopes", "Rigtopes", "Goon Nation", "Boogeymen"};
+                for (String team : listOfTeams) {
+                    int wins = randomizer.nextInt(10);
+                    int losses = randomizer.nextInt(10);
+                    int ties = randomizer.nextInt(3);
+                    int runsfor = randomizer.nextInt(14) * (wins + losses + ties);
+                    int runsagainst = randomizer.nextInt(14) * (wins + losses + ties);
+
+                    ContentValues values = new ContentValues();
+                    values.put(StatsEntry.COLUMN_NAME, team);
+                    values.put(StatsEntry.COLUMN_LEAGUE, "ISL");
+                    values.put(StatsEntry.COLUMN_WINS, wins);
+                    values.put(StatsEntry.COLUMN_LOSSES, losses);
+                    values.put(StatsEntry.COLUMN_TIES, ties);
+                    values.put(StatsEntry.COLUMN_RUNSFOR, runsfor);
+                    values.put(StatsEntry.COLUMN_RUNSAGAINST, runsagainst);
+                    getContentResolver().update(StatsEntry.CONTENT_URI2, values,
+                            StatsEntry.COLUMN_NAME + "=?", new String[] {team});
+                }
+            }
+        });
+
         Button testQuery = (Button) findViewById(R.id.testquery);
         testQuery.setOnClickListener(new View.OnClickListener() {
             @Override

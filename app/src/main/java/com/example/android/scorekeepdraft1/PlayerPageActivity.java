@@ -32,7 +32,8 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
         if (b != null) {
             playerString = b.getString("player");
         }
-        setTitle(playerString);
+        String title = "Player Bio: " + playerString;
+        setTitle(title);
         getLoaderManager().initLoader(EXISTING_PLAYER_LOADER, null, this);
     }
 
@@ -109,12 +110,9 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
         dblView.setText(String.valueOf(player.getDoubles()));
         tplView.setText(String.valueOf(player.getTriples()));
         bbView.setText(String.valueOf(player.getWalks()));
-        Toast.makeText(this, "ALL DONE11", Toast.LENGTH_SHORT).show();
-
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-
     }
 }

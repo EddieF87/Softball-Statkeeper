@@ -6,4 +6,158 @@
     android:layout_height="match_parent"
     tools:context="com.example.android.scorekeepdraft1.StandingsActivity">
 
+
+    <TextView
+        android:id="@+id/team_title"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:maxLines="1"
+        android:text="Team"
+        android:textAlignment="center"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/wins_title"
+        app:layout_constraintTop_toBottomOf="@+id/standings_title" />
+
+    <TextView
+        android:id="@+id/wins_title"
+        android:layout_width="30dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="W"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toRightOf="@+id/team_title"
+        app:layout_constraintRight_toLeftOf="@+id/losses_title"
+        app:layout_constraintTop_toTopOf="@+id/team_title" />
+
+    <TextView
+        android:id="@+id/losses_title"
+        android:layout_width="30dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="L"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toRightOf="@+id/wins_title"
+        app:layout_constraintRight_toLeftOf="@+id/ties_title"
+        app:layout_constraintTop_toTopOf="@+id/wins_title" />
+
+    <TextView
+        android:id="@+id/ties_title"
+        android:layout_width="30dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="T"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toRightOf="@+id/losses_title"
+        app:layout_constraintRight_toLeftOf="@+id/winPCT_title"
+        app:layout_constraintTop_toTopOf="@+id/losses_title" />
+
+    <TextView
+        android:id="@+id/winPCT_title"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Win%"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toRightOf="@+id/ties_title"
+        app:layout_constraintRight_toLeftOf="@+id/runsFor_title"
+        app:layout_constraintTop_toTopOf="@+id/ties_title" />
+
+    <TextView
+        android:id="@+id/runsFor_title"
+        android:layout_width="36dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Runs Scored"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toRightOf="@+id/winPCT_title"
+        app:layout_constraintRight_toLeftOf="@+id/runsAgainst_title"
+        app:layout_constraintTop_toTopOf="@+id/winPCT_title" />
+
+    <TextView
+        android:id="@+id/runsAgainst_title"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Runs Allowed"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toRightOf="@+id/runsFor_title"
+        app:layout_constraintRight_toLeftOf="@+id/runDiff_title"
+        app:layout_constraintTop_toTopOf="@+id/runsFor_title" />
+
+    <TextView
+        android:id="@+id/runDiff_title"
+        android:layout_width="36dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Run Diff."
+        android:textSize="10sp"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toRightOf="@+id/runsAgainst_title"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/runsAgainst_title" />
+
+    <TextView
+        android:id="@+id/standings_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="LEAGUE STANDINGS"
+        android:textSize="30sp"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="16dp"
+        android:layout_marginLeft="24dp"
+        app:layout_constraintLeft_toLeftOf="parent" />
+
+    <android.support.constraint.Guideline
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/guideline"
+        android:orientation="vertical"
+        app:layout_constraintGuide_end="364dp" />
+
+    <android.support.constraint.Guideline
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/guideline2"
+        app:layout_constraintGuide_begin="20dp"
+        android:orientation="horizontal" />
+
+    <android.support.constraint.Guideline
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/guideline3"
+        app:layout_constraintGuide_begin="20dp"
+        android:orientation="horizontal" />
+
+    <android.support.constraint.Guideline
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/guideline4"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.052083332" />
+
+    <android.support.constraint.Guideline
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/guideline5"
+        app:layout_constraintGuide_begin="20dp"
+        android:orientation="horizontal" />
+
+    <ListView
+        android:id="@+id/list"
+        android:layout_width="match_parent"
+        android:layout_height="495dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/team_title" />
 </android.support.constraint.ConstraintLayout>

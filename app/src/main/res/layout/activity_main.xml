@@ -90,4 +90,24 @@
         android:text="change title"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/testbut2" />
+
+    <Button
+        android:id="@+id/teststand"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        android:text="standings"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/teststats" />
+
+    <Button
+        android:id="@+id/testupdate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="0dp"
+        android:text="Update"
+        app:layout_constraintLeft_toRightOf="@+id/testplayers"
+        app:layout_constraintTop_toTopOf="@+id/testplayers" />
 </android.support.constraint.ConstraintLayout>
