@@ -25,7 +25,8 @@
             android:authorities="com.example.android.scorekeepdraft1"
             android:exported="false" />
 
-        <activity android:name=".StandingsActivity"
+        <activity
+            android:name=".StandingsActivity"
             android:label="STANDINGS"
             android:parentActivityName=".MainActivity" />
         />
@@ -41,8 +42,12 @@
             android:name=".SetTeamsActivity"
             android:label="Matchup Selector"
             android:parentActivityName=".MainActivity" />
-        <activity android:name=".PlayerPageActivity"
-            android:parentActivityName=".StatsActivity" />/>
+        <activity
+            android:name=".PlayerPageActivity"
+            android:parentActivityName=".StatsActivity" />
+        />
+        <activity android:name=".LeagueActivity" />
+        <activity android:name=".TeamActivity"></activity>
     </application>
 
 </manifest>

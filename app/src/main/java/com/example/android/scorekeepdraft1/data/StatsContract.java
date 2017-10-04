@@ -23,7 +23,7 @@ public class StatsContract {
  */
     public static final String CONTENT_AUTHORITY = "com.example.android.scorekeepdraft1";
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
-    public static final String PATH_STATS = "stats";
+    public static final String PATH_PLAYERS = "players";
     public static final String PATH_TEAMS = "teams";
 
     public StatsContract() {
@@ -33,13 +33,13 @@ public class StatsContract {
     public static final class StatsEntry implements BaseColumns {
 
         /* The base CONTENT_URI1 used to query the Weather table from the content provider */
-        public static final Uri CONTENT_URI1 = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_STATS);
+        public static final Uri CONTENT_URI1 = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_PLAYERS);
         public static final Uri CONTENT_URI2 = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_TEAMS);
 
 
         /* Used internally as the name of our weather table. */
-        public static final String PLAYERS_TABLE_NAME = "playerstatistics";
-        public static final String TEAMS_TABLE_NAME = "teamstatistics";
+        public static final String PLAYERS_TABLE_NAME = "players";
+        public static final String TEAMS_TABLE_NAME = "teams";
 
         /*
          * The date column will store the UTC date that correlates to the local date for which
@@ -84,14 +84,13 @@ public class StatsContract {
         public static final String COLUMN_RUNSAGAINST = "runsagainst";
 
 
-        public static final String CONTENT_LIST_TYPE =
+        public static final String CONTENT_PLAYERS_TYPE =
                 ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY +
-                        "/" + PATH_STATS;
+                        "/" + PATH_PLAYERS;
 
-        public static final String CONTENT_ITEM_TYPE =
-                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY +
-                        PATH_STATS;
-
+        public static final String CONTENT_TEAMS_TYPE =
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY +
+                        "/" + PATH_TEAMS;
     }
 
 }

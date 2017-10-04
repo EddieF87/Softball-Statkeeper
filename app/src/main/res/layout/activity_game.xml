@@ -21,28 +21,27 @@
         android:id="@+id/scoreboard"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
         android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="32dp"
         android:text="@string/scoreboard"
         android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+        android:textSize="18sp"
         app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="32dp"
-        android:layout_marginRight="8dp"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintHorizontal_bias="0.25" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/nowbatting"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/nowbatting"
-        android:maxLines="1"
-        android:textAppearance="@style/TextAppearance.AppCompat.Headline"
         android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@+id/scoreboard"
-        app:layout_constraintLeft_toLeftOf="@+id/scoreboard" />
+        android:maxLines="1"
+        android:text="@string/nowbatting"
+        android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+        android:textSize="18sp"
+        app:layout_constraintLeft_toLeftOf="@+id/scoreboard"
+        app:layout_constraintTop_toBottomOf="@+id/scoreboard" />
 
 
     <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
@@ -143,8 +142,9 @@
         app:srcCompat="@android:drawable/arrow_up_float"
         app:layout_constraintTop_toTopOf="@+id/scoreboard"
         app:layout_constraintLeft_toRightOf="@+id/scoreboard"
-        android:layout_marginLeft="32dp"
-        android:layout_marginStart="32dp" />
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="0dp" />
 
     <ImageView
         android:id="@+id/imageView2"
@@ -172,13 +172,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="24dp"
-        android:layout_marginRight="8dp"
+        android:layout_marginRight="24dp"
         android:text="0 outs"
         app:layout_constraintLeft_toRightOf="@+id/inning"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="@+id/inning"
         android:layout_marginStart="24dp"
-        android:layout_marginEnd="8dp" />
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="0dp"
+        app:layout_constraintHorizontal_bias="0.5" />
 
     <TextView
         android:id="@+id/hrdisplay"
@@ -344,14 +346,13 @@
         android:id="@+id/submit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
         android:layout_marginEnd="15dp"
-        android:layout_marginRight="16dp"
         android:text="SUBMIT PLAY"
         android:textSize="12sp"
-        app:layout_constraintBottom_toTopOf="@+id/group1"
-        app:layout_constraintRight_toRightOf="parent"
-     />
+        android:layout_marginLeft="0dp"
+        app:layout_constraintLeft_toLeftOf="@+id/batter"
+        app:layout_constraintTop_toTopOf="@+id/reset"
+        android:layout_marginTop="0dp" />
 
     <TextView
         android:id="@+id/outText"

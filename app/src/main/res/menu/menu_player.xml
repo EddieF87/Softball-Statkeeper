@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".PlayerPageActivity">
+
+    <item
+        android:id="@+id/action_change_name"
+        android:title="Edit name"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_edit_photo"
+        android:title="Edit photo"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_change_team"
+        android:title="Edit team"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_delete_player"
+        android:title="Delete player"
+        app:showAsAction="never" />
+</menu>

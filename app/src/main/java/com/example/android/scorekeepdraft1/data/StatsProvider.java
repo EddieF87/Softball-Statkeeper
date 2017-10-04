@@ -22,9 +22,10 @@ public class StatsProvider extends ContentProvider {
 
     public static final String LOG_TAG = StatsProvider.class.getSimpleName();
 
-    public static final int STATS = 100;
-    public static final int STATS_ID = 101;
+    public static final int PLAYERS = 100;
+    public static final int PLAYERS_ID = 101;
     public static final int TEAMS = 102;
+    public static final int TEAMS_ID = 103;
 
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     private StatsDbHelper mOpenHelper;
@@ -34,9 +35,11 @@ public class StatsProvider extends ContentProvider {
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
         final String authority = StatsContract.CONTENT_AUTHORITY;
 
-        matcher.addURI(authority, StatsContract.PATH_STATS, STATS);
-        matcher.addURI(authority, StatsContract.PATH_STATS + "/#", STATS_ID);
+        matcher.addURI(authority, StatsContract.PATH_PLAYERS, PLAYERS);
+        matcher.addURI(authority, StatsContract.PATH_PLAYERS + "/#", PLAYERS_ID);
         matcher.addURI(authority, StatsContract.PATH_TEAMS, TEAMS);
+        matcher.addURI(authority, StatsContract.PATH_TEAMS + "/#", TEAMS_ID);
+
 
         return matcher;
     }
@@ -58,18 +61,23 @@ public class StatsProvider extends ContentProvider {
         // Figure out if the URI matcher can match the URI to a specific code
         int match = sUriMatcher.match(uri);
         switch (match) {
-            case STATS:
+            case PLAYERS:
                 cursor = database.query(StatsEntry.PLAYERS_TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
                 break;
-            /*case STATS_ID:
+            case PLAYERS_ID:
                 selection = StatsEntry._ID + "=?";
                 selectionArgs = new String[] { String.valueOf(ContentUris.parseId(uri)) };
-
                 cursor = database.query(StatsEntry.PLAYERS_TABLE_NAME, projection, selection, selectionArgs,
                         null, null, sortOrder);
-                break;*/
+                break;
             case TEAMS:
                 cursor = database.query(StatsEntry.TEAMS_TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
+                break;
+            case TEAMS_ID:
+                selection = StatsEntry._ID + "=?";
+                selectionArgs = new String[] { String.valueOf(ContentUris.parseId(uri)) };
+                cursor = database.query(StatsEntry.TEAMS_TABLE_NAME, projection, selection, selectionArgs,
+                        null, null, sortOrder);
                 break;
             default:
                 throw new IllegalArgumentException("Cannot query unknown URI " + uri);
@@ -84,11 +92,11 @@ public class StatsProvider extends ContentProvider {
     public String getType(@NonNull Uri uri) {
         final int match = sUriMatcher.match(uri);
         switch (match) {
-            case STATS:
-                return StatsEntry.CONTENT_LIST_TYPE;
-            case STATS_ID:
-                return StatsEntry.CONTENT_ITEM_TYPE;
-            //TODO: enter teams type
+            case PLAYERS:
+                return StatsEntry.CONTENT_PLAYERS_TYPE;
+            case PLAYERS_ID:
+                return StatsEntry.CONTENT_TEAMS_TYPE;
+            //TODO: learn/fix getType?
             default:
                 throw new IllegalStateException("Unknown URI " + uri + " with match " + match);
         }    }
@@ -98,7 +106,7 @@ public class StatsProvider extends ContentProvider {
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
         final int match = sUriMatcher.match(uri);
         switch (match) {
-            case STATS:
+            case PLAYERS:
                 return insertPlayer(uri, values);
             case TEAMS:
                 return insertTeam(uri, values);
@@ -169,15 +177,39 @@ public class StatsProvider extends ContentProvider {
 
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
-        return 0;
-        //TODO: enter delete player and delete team logic
+        SQLiteDatabase database = mOpenHelper.getWritableDatabase();
+
+        final int match = sUriMatcher.match(uri);
+
+        int rowsDeleted;
+
+        switch (match) {
+            case PLAYERS_ID:
+                // Delete a single row given by the ID in the URI
+                selection = StatsEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                rowsDeleted = database.delete(StatsEntry.PLAYERS_TABLE_NAME, selection, selectionArgs);
+                getContext().getContentResolver().notifyChange(uri, null);
+                return rowsDeleted;
+
+            case TEAMS_ID:
+                // Delete a single row given by the ID in the URI
+                selection = StatsEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                rowsDeleted = database.delete(StatsEntry.TEAMS_TABLE_NAME, selection, selectionArgs);
+                getContext().getContentResolver().notifyChange(uri, null);
+                return rowsDeleted;
+
+            default:
+                throw new IllegalArgumentException("Deletion is not supported for " + uri);
+        }
     }
 
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
         final int match = sUriMatcher.match(uri);
         switch (match) {
-            case STATS:
+            case PLAYERS:
                 return updatePlayer(uri, values, selection, selectionArgs);
             case TEAMS:
                 return updateTeam(uri, values, selection, selectionArgs);
@@ -209,4 +241,6 @@ public class StatsProvider extends ContentProvider {
         }
         return rowsUpdated;
     }
+
+
 }

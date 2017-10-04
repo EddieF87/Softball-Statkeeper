@@ -165,6 +165,7 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
             values.put(StatsEntry.COLUMN_RBI, 0);
             getContentResolver().insert(StatsEntry.CONTENT_URI1, values);
             mBench.add(playerName);
+            initRightRecyclerView();
         }
         addPlayerText.setText("");
     }

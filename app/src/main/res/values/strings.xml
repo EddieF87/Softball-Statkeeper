@@ -16,6 +16,12 @@
     <string name="h">H</string>
     <string name="team">Team</string>
     <string name="name">Name</string>
+    <string name="delete_dialog_msg">Are you sure you want to permanently delete this player from the league?</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="editor_delete_player_failed">There was an error deleting the player!</string>
+    <string name="editor_delete_player_successful"> was successfully deleted.</string>
+    <string name="editor_delete_team_failed">There was an error deleting the team!</string>
 
     <array name="main_items">
         <item>List - Basic Drag and Swipe</item>

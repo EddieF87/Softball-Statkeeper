@@ -25,7 +25,8 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_goneMarginEnd="8dp"
         app:layout_goneMarginRight="8dp"
-        tools:text="GoonNation" />
+        tools:text="GoonNation"
+        />
 
     <TextView
         android:id="@+id/wins_title"

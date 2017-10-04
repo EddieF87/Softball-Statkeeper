@@ -42,7 +42,6 @@ public class SetTeamsActivity extends AppCompatActivity implements AdapterView.O
 
     //TODO add menu options so I can put "Create new team there" and have more space
     //TODO add bench spots (gridview?)
-    //TODO figure out how to disable option on one spinner if selected on other
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

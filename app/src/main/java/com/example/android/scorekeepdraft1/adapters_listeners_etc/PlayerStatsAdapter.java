@@ -58,36 +58,16 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
         TextView bbView = (TextView) linearLayout.findViewById(R.id.bb);
 
         if (position % 2 == 1) {
-            nameView.setBackgroundColor(Color.parseColor("#dfdfdf"));
-            teamView.setBackgroundColor(Color.parseColor("#dfdfdf"));
-            hitView.setBackgroundColor(Color.parseColor("#dfdfdf"));
-            hrView.setBackgroundColor(Color.parseColor("#dfdfdf"));
-            rbiView.setBackgroundColor(Color.parseColor("#dfdfdf"));
-            runView.setBackgroundColor(Color.parseColor("#dfdfdf"));
-            avgView.setBackgroundColor(Color.parseColor("#dfdfdf"));
-            obpView.setBackgroundColor(Color.parseColor("#dfdfdf"));
-            slgView.setBackgroundColor(Color.parseColor("#dfdfdf"));
-            opsView.setBackgroundColor(Color.parseColor("#dfdfdf"));
-            sglView.setBackgroundColor(Color.parseColor("#dfdfdf"));
-            dblView.setBackgroundColor(Color.parseColor("#dfdfdf"));
-            tplView.setBackgroundColor(Color.parseColor("#dfdfdf"));
-            bbView.setBackgroundColor(Color.parseColor("#dfdfdf"));
+            linearLayout.setBackgroundColor(Color.parseColor("#dfdfdf"));
         }
 
-        //TODO remove temporary abbr setText and import list<string> teams here to do it automagically
         Player player = players.get(position);
         String team = player.getTeam();
         String teamabv;
-        if (team.equals("Purptopes")) {
-            teamabv = "PTP";
-        } else if (team.equals("Goon Nation")) {
-            teamabv = "GN";
-        } else if (team.equals("Boogeymen")) {
-            teamabv = "BGM";
-        } else if (team.equals("Rigtopes")) {
-            teamabv = "RIG";
-        } else {
+        if (team.equals("")) {
             teamabv = "FA";
+        } else {
+            teamabv = ("" + team.charAt(0) + team.charAt(1) + team.charAt(2)).toUpperCase();
         }
 
         nameView.setText(player.getName());
@@ -113,7 +93,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
         return players.size();
     }
 
-    static class ListViewHolder extends RecyclerView.ViewHolder {
+    static class ListViewHolder extends RecyclerView.ViewHolder{
 
         LinearLayout linearLayout;
 

@@ -80,7 +80,9 @@
             android:layout_gravity="center"
             android:textSize="30sp"
             android:textStyle="bold"
-            android:hint="Add Player" />
+            android:hint="Add Player"
+            android:inputType="text"
+            android:maxLines="1"/>
 
         <Button
             android:id="@+id/add_player_submit"

@@ -2,8 +2,6 @@ package com.example.android.scorekeepdraft1.adapters_listeners_etc;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.icu.text.DecimalFormat;
-import android.icu.text.NumberFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +10,9 @@ import android.widget.TextView;
 
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
+
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 
 import static com.example.android.scorekeepdraft1.R.id.runsFor_title;
 
