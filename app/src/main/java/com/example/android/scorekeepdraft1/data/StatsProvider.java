@@ -184,6 +184,11 @@ public class StatsProvider extends ContentProvider {
         int rowsDeleted;
 
         switch (match) {
+            case PLAYERS:
+                rowsDeleted = database.delete(StatsEntry.PLAYERS_TABLE_NAME, selection, selectionArgs);
+                getContext().getContentResolver().notifyChange(uri, null);
+                return rowsDeleted;
+
             case PLAYERS_ID:
                 // Delete a single row given by the ID in the URI
                 selection = StatsEntry._ID + "=?";
@@ -210,6 +215,10 @@ public class StatsProvider extends ContentProvider {
         final int match = sUriMatcher.match(uri);
         switch (match) {
             case PLAYERS:
+                return updatePlayer(uri, values, selection, selectionArgs);
+            case PLAYERS_ID:
+                selection = StatsEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 return updatePlayer(uri, values, selection, selectionArgs);
             case TEAMS:
                 return updateTeam(uri, values, selection, selectionArgs);

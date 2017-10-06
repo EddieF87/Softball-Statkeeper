@@ -64,10 +64,12 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
         Player player = players.get(position);
         String team = player.getTeam();
         String teamabv;
-        if (team.equals("")) {
+        if (team == null || team.equals("Free Agent")) {
             teamabv = "FA";
-        } else {
+        } else if (team.length()>2){
             teamabv = ("" + team.charAt(0) + team.charAt(1) + team.charAt(2)).toUpperCase();
+        } else {
+            teamabv = ("" + team.charAt(0)).toUpperCase();
         }
 
         nameView.setText(player.getName());
@@ -94,7 +96,6 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
     }
 
     static class ListViewHolder extends RecyclerView.ViewHolder{
-
         LinearLayout linearLayout;
 
         ListViewHolder(View itemView) {

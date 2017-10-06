@@ -17,11 +17,17 @@
     <string name="team">Team</string>
     <string name="name">Name</string>
     <string name="delete_dialog_msg">Are you sure you want to permanently delete this player from the league?</string>
+    <string name="delete_team_msg">Are you sure you want to permanently delete this team from the league?</string>
     <string name="delete">Delete</string>
     <string name="cancel">Cancel</string>
     <string name="editor_delete_player_failed">There was an error deleting the player!</string>
     <string name="editor_delete_player_successful"> was successfully deleted.</string>
     <string name="editor_delete_team_failed">There was an error deleting the team!</string>
+    <string name="delete_or_freeagency_msg">Delete players permanently or make players free agents?</string>
+    <string name="waivers">Waivers</string>
+    <string name="empty_view_title_text">No teams currently in the league.</string>
+    <string name="empty_view_player_text">No players currently.</string>
+    <string name="edit_player_name">Edit player\'s name:</string>
 
     <array name="main_items">
         <item>List - Basic Drag and Swipe</item>
@@ -40,4 +46,8 @@
         <item>Nine</item>
         <item>Ten</item>
     </array>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="choose_team_title">Choose Team</string>
 </resources>

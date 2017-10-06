@@ -50,6 +50,8 @@ public class StandingsActivity extends AppCompatActivity implements LoaderManage
                 startActivity(intent);
             }
         });
+        View emptyView = findViewById(R.id.empty_text);
+        listView.setEmptyView(emptyView);
 
         TextView title = (TextView) findViewById(R.id.standings_title);
         String titleString = selectionArgs[0] + " Standings";

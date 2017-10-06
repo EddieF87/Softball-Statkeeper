@@ -1,8 +1,10 @@
 package com.example.android.scorekeepdraft1;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.LoaderManager;
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Loader;
@@ -10,20 +12,27 @@ import android.database.Cursor;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Build;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 
+import static android.R.attr.data;
 import static android.R.attr.id;
 
 
@@ -33,15 +42,20 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
     private NumberFormat formatter = new DecimalFormat("#.000");
     private static final int EXISTING_PLAYER_LOADER = 0;
     private Uri mCurrentPlayerUri;
+    private boolean nameChanged;
+    private String teamString;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player_page);
         Bundle b = getIntent().getExtras();
-        if (b != null) {
+        if (savedInstanceState != null) {
+            playerString = savedInstanceState.getString("player");
+        } else if (b != null) {
             playerString = b.getString("player");
         }
+        nameChanged = false;
         String title = "Player Bio: " + playerString;
         setTitle(title);
         getLoaderManager().initLoader(EXISTING_PLAYER_LOADER, null, this);
@@ -65,6 +79,8 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        TextView nameView = (TextView) findViewById(R.id.player_name);
+
         if (cursor.moveToFirst()) {
             int nameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_NAME);
             int teamIndex = cursor.getColumnIndex(StatsEntry.COLUMN_TEAM);
@@ -94,7 +110,6 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
             mCurrentPlayerUri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI1, playerId);
 
             Player player = new Player(playerName, team, sgl, dbl, tpl, hr, bb, run, rbi, out, sf);
-            TextView nameView = (TextView) findViewById(R.id.player_name);
             TextView teamView = (TextView) findViewById(R.id.player_team);
             TextView hitView = (TextView) findViewById(R.id.playerboard_hit);
             TextView hrView = (TextView) findViewById(R.id.player_hr);
@@ -123,6 +138,8 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
             dblView.setText(String.valueOf(player.getDoubles()));
             tplView.setText(String.valueOf(player.getTriples()));
             bbView.setText(String.valueOf(player.getWalks()));
+        } else if (nameChanged) {
+            nameView.setText(playerString);
         } else {
             finish();
         }
@@ -130,7 +147,6 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        String test = "";
     }
 
     @Override
@@ -143,14 +159,11 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
     public boolean onOptionsItemSelected(MenuItem item) {
         // User clicked on a menu option in the app bar overflow menu
         switch (item.getItemId()) {
-            // Respond to a click on the "Save" menu option
             case R.id.action_change_name:
-
-                finish();
+                editNameDialog();
                 return true;
-            // Respond to a click on the "Delete" menu option
             case R.id.action_change_team:
-
+                changeTeamDialog();
                 return true;
             case R.id.action_edit_photo:
 
@@ -163,8 +176,6 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
     }
 
     private void showDeleteConfirmationDialog() {
-        // Create an AlertDialog.Builder and set the message, and click listeners
-        // for the postivie and negative buttons on the dialog.
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.delete_dialog_msg);
         builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
@@ -182,31 +193,107 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
                 }
             }
         });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
 
-        // Create and show the AlertDialog
+    private void editNameDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.edit_player_name);
+        final LayoutInflater inflater = getLayoutInflater();
+        builder.setView(inflater.inflate(R.layout.dialog_edit_name, null))
+                .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        Dialog dialog1 = (Dialog) dialog;
+                        EditText editText = (EditText) dialog1.findViewById(R.id.username);
+                        String enteredPlayer = editText.getText().toString();
+                        if(nameAlreadyInDB(enteredPlayer)) {
+                            Toast.makeText(PlayerPageActivity.this, enteredPlayer + " already exists!",
+                                    Toast.LENGTH_SHORT).show();
+                            editNameDialog();
+                        } else {
+                            updatePlayerName(enteredPlayer);
+                        }
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        if (dialog != null) {
+                            dialog.dismiss();
+                        }
+                    }
+                });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    private void changeTeamDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        Cursor mCursor = getContentResolver().query(StatsEntry.CONTENT_URI2,
+                new String[]{StatsEntry.COLUMN_NAME}, null, null, null);
+        ArrayList<String> teams = new ArrayList<>();
+        while (mCursor.moveToNext()) {
+            int teamNameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
+            String teamName = mCursor.getString(teamNameIndex);
+            teams.add(teamName);
+        }
+        teams.add(getString(R.string.waivers));
+        final CharSequence[] teams_array = teams.toArray(new CharSequence[teams.size()]);
+        builder.setTitle(R.string.edit_player_name);
+        builder.setItems(teams_array, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int item) {
+                String team = teams_array[item].toString();
+                if (team.equals(getString(R.string.waivers))) {
+                    team = "Free Agent";
+                }
+                updatePlayerTeam(team);
+            }
+        });
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
     }
 
     private void deletePlayer() {
-        // Only perform the delete if this is an existing pet.
         if (mCurrentPlayerUri != null) {
-            // Call the ContentResolver to delete the pet at the given content URI.
-            // Pass in null for the selection and selection args because the mCurrentPetUri
-            // content URI already identifies the pet that we want.
             int rowsDeleted = getContentResolver().delete(mCurrentPlayerUri, null, null);
-
-            // Show a toast message depending on whether or not the delete was successful.
-            if (rowsDeleted == 1) {
-                // If no rows were deleted, then there was an error with the delete.
-                Toast.makeText(this, playerString + " " + getString(R.string.editor_delete_player_successful),
-                        Toast.LENGTH_SHORT).show();
-            } else {
-                // Otherwise, the delete was successful and we can display a toast.
-                Toast.makeText(this, getString(R.string.editor_delete_player_failed),
-                        Toast.LENGTH_SHORT).show();
-            }
+            if (rowsDeleted == 1) {Toast.makeText(this, playerString + " " + getString(R.string.editor_delete_player_successful), Toast.LENGTH_SHORT).show();
+            } else {Toast.makeText(this, getString(R.string.editor_delete_player_failed), Toast.LENGTH_SHORT).show();}
         }
-        //finish();
+        finish();
+    }
+
+    private void updatePlayerName(String player) {
+        playerString = player;
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(StatsEntry.COLUMN_NAME, playerString);
+        getContentResolver().update(mCurrentPlayerUri, contentValues, null, null);
+        getLoaderManager().restartLoader(EXISTING_PLAYER_LOADER, null, this);
+    }
+
+    private void updatePlayerTeam(String team) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(StatsEntry.COLUMN_TEAM, team);
+        getContentResolver().update(mCurrentPlayerUri, contentValues, null, null);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("player", playerString);
+    }
+
+    private boolean nameAlreadyInDB(String playerName) {
+        String selection = StatsEntry.COLUMN_NAME + " = '" + playerName + "' COLLATE NOCASE";
+        String[] selectionArgs = new String[] {playerName};
+
+        Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI1, null, selection, null, null);
+        if(cursor.getCount() <= 0){
+            cursor.close();
+            return false;
+        }
+        cursor.close();
+        return true;
     }
 }

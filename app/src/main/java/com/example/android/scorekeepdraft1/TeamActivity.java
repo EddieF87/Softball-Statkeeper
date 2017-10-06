@@ -1,6 +1,7 @@
 package com.example.android.scorekeepdraft1;
 
 import android.app.AlertDialog;
+import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -26,6 +27,8 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.drm.DrmStore.DrmObjectType.CONTENT;
 
 public class TeamActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -157,8 +160,7 @@ public class TeamActivity extends AppCompatActivity implements LoaderManager.Loa
         switch (item.getItemId()) {
             // Respond to a click on the "Save" menu option
             case R.id.action_change_name:
-
-                finish();
+                //TODO
                 return true;
             // Respond to a click on the "Delete" menu option
             case R.id.action_change_team:
@@ -178,11 +180,26 @@ public class TeamActivity extends AppCompatActivity implements LoaderManager.Loa
         // Create an AlertDialog.Builder and set the message, and click listeners
         // for the postivie and negative buttons on the dialog.
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(R.string.delete_dialog_msg);
+        builder.setMessage(R.string.delete_team_msg);
         builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
+                AlertDialog.Builder choice = new AlertDialog.Builder(TeamActivity.this);
+                choice.setMessage(R.string.delete_or_freeagency_msg);
+                choice.setPositiveButton(R.string.waivers, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        updatePlayers();
+                        deleteTeam();
+                    }
+                });
+                choice.setNegativeButton(R.string.delete, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        deletePlayers();
+                        deleteTeam();
+                    }
+                });
+                AlertDialog alertDialog2 = choice.create();
+                alertDialog2.show();
                 // User clicked the "Delete" button, so delete the pet.
-                deletePlayer();
             }
         });
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -194,13 +211,11 @@ public class TeamActivity extends AppCompatActivity implements LoaderManager.Loa
                 }
             }
         });
-
-        // Create and show the AlertDialog
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
     }
 
-    private void deletePlayer() {
+    private void deleteTeam() {
         // Only perform the delete if this is an existing pet.
         if (mCurrentTeamUri != null) {
             int rowsDeleted = getContentResolver().delete(mCurrentTeamUri, null, null);
@@ -217,5 +232,19 @@ public class TeamActivity extends AppCompatActivity implements LoaderManager.Loa
             }
         }
         finish();
+    }
+
+    private void updatePlayers(){
+        String selection = StatsEntry.COLUMN_TEAM + "=?";
+        String[] selectionArgs = new String[]{teamSelected};
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(StatsEntry.COLUMN_TEAM, "FA");
+        getContentResolver().update(StatsEntry.CONTENT_URI1, contentValues, selection, selectionArgs);
+    }
+
+    private void deletePlayers() {
+        String selection = StatsEntry.COLUMN_TEAM + "=?";
+        String[] selectionArgs = new String[]{teamSelected};
+        getContentResolver().delete(StatsEntry.CONTENT_URI1, selection, selectionArgs);
     }
 }

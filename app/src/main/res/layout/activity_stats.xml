@@ -240,7 +240,16 @@
                 android:id="@+id/rv_stats"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/empty_stats_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:paddingLeft="48dp"
+                android:textSize="36sp"
+                android:visibility="gone"
+                android:text="@string/empty_view_player_text" />
         </LinearLayout>
     </HorizontalScrollView>
-
 </LinearLayout>
