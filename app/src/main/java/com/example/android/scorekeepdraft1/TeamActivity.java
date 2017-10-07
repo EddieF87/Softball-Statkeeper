@@ -43,14 +43,19 @@ public class TeamActivity extends AppCompatActivity implements LoaderManager.Loa
     private List<Player> players;
     private String teamSelected;
     private PlayerStatsAdapter rvAdapter;
+    private boolean waivers;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_team);
+        waivers = false;
         Intent intent = getIntent();
         mCurrentTeamUri = intent.getData();
+        if (mCurrentTeamUri == null) {
+            waivers = true;
+        }
 
         teamNameView = (TextView) findViewById(R.id.teamName);
         teamRecordView = (TextView) findViewById(R.id.teamRecord);
@@ -68,14 +73,27 @@ public class TeamActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(
-                this,
-                mCurrentTeamUri,
-                null,
-                null,
-                null,
-                null
-        );
+        if (waivers) {
+            String selection = StatsEntry.COLUMN_NAME + "=?";
+            String[] selectionArgs = new String[]{"Waivers"};
+            return new CursorLoader(
+                    this,
+                    StatsEntry.CONTENT_URI2,
+                    null,
+                    selection,
+                    selectionArgs,
+                    null
+            );
+        } else {
+            return new CursorLoader(
+                    this,
+                    mCurrentTeamUri,
+                    null,
+                    null,
+                    null,
+                    null
+            );
+        }
     }
 
     @Override
@@ -92,18 +110,27 @@ public class TeamActivity extends AppCompatActivity implements LoaderManager.Loa
             int losses = cursor.getInt(lossColumnIndex);
             int ties = cursor.getInt(tieColumnIndex);
 
-            teamNameView.setText(teamSelected);
             teamRecordView.setText(wins + "-" + losses + "-" + ties);
-            setTitle(teamSelected);
         }
+
+        String sortOrder;
+        if (waivers) {
+            teamSelected = "Free Agent";
+            sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
+            teamNameView.setText("Waiv ers");
+        } else {
+            sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
+            teamNameView.setText(teamSelected);
+        }
+        setTitle(teamSelected);
 
         String selection = StatsEntry.COLUMN_TEAM + "=?";
         String[] selectionArgs = new String[]{teamSelected};
-        String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
+
         mCursor = getContentResolver().query(StatsEntry.CONTENT_URI1, null,
                 selection, selectionArgs, sortOrder);
         players = new ArrayList<>();
-
+        mCursor.moveToPosition(-1);
         while (mCursor.moveToNext()) {
             int nameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
             int hrIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_HR);
@@ -130,6 +157,7 @@ public class TeamActivity extends AppCompatActivity implements LoaderManager.Loa
 
             players.add(new Player(player, team, sgl, dbl, tpl, hr, bb, run, rbi, out, sf));
         }
+
         initRecyclerView();
     }
 
@@ -138,7 +166,7 @@ public class TeamActivity extends AppCompatActivity implements LoaderManager.Loa
 
     }
 
-    public void goToPlayerPage(View v){
+    public void goToPlayerPage(View v) {
         Intent intent = new Intent(TeamActivity.this, PlayerPageActivity.class);
         TextView textView = (TextView) v;
         String player = textView.getText().toString();
@@ -234,11 +262,11 @@ public class TeamActivity extends AppCompatActivity implements LoaderManager.Loa
         finish();
     }
 
-    private void updatePlayers(){
+    private void updatePlayers() {
         String selection = StatsEntry.COLUMN_TEAM + "=?";
         String[] selectionArgs = new String[]{teamSelected};
         ContentValues contentValues = new ContentValues();
-        contentValues.put(StatsEntry.COLUMN_TEAM, "FA");
+        contentValues.put(StatsEntry.COLUMN_TEAM, "Free Agent");
         getContentResolver().update(StatsEntry.CONTENT_URI1, contentValues, selection, selectionArgs);
     }
 

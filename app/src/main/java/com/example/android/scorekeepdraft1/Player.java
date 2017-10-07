@@ -71,7 +71,7 @@ public class Player {
     }
 
     public double getOBP() {
-        if (getABs() == 0) {
+        if (getABs() + getWalks() == 0) {
             return .000;
         }
         return ((double) (getHits() + this.walks))

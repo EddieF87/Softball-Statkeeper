@@ -36,6 +36,17 @@
         android:textStyle="italic"/>
 
     <TextView
+        android:id="@+id/ab"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:maxLines="1"
+        android:paddingBottom="5dp"
+        android:paddingTop="2dp"
+        android:text="@string/ab"
+        android:textSize="18sp" />
+
+    <TextView
         android:id="@+id/hit"
         android:layout_width="50dp"
         android:layout_height="wrap_content"

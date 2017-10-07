@@ -51,6 +51,7 @@ public class StatsActivity extends AppCompatActivity implements LoaderManager.Lo
         findViewById(R.id.name_title).setOnClickListener(this);
         findViewById(R.id.team_abv_title).setOnClickListener(this);
         findViewById(R.id.hr_title).setOnClickListener(this);
+        findViewById(R.id.ab_title).setOnClickListener(this);
         findViewById(R.id.hit_title).setOnClickListener(this);
         findViewById(R.id.rbi_title).setOnClickListener(this);
         findViewById(R.id.run_title).setOnClickListener(this);
@@ -124,6 +125,11 @@ public class StatsActivity extends AppCompatActivity implements LoaderManager.Lo
             case R.id.team_abv_title:
                 statSort = StatsEntry.COLUMN_TEAM;
                 projection = null;
+                break;
+            case R.id.ab_title:
+                statSort = "atbats";
+                projection = new String[]{"*, (" + StatsEntry.COLUMN_1B + " + " + StatsEntry.COLUMN_2B + " + " +
+                        StatsEntry.COLUMN_3B + " + " + StatsEntry.COLUMN_HR + " + " + StatsEntry.COLUMN_OUT + ") AS atbats"};
                 break;
             case R.id.hit_title:
                 statSort = "hits";

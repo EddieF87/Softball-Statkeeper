@@ -129,7 +129,8 @@
         android:textSize="24sp"
         android:textStyle="italic"
         app:layout_constraintLeft_toRightOf="@+id/player_jersey"
-        app:layout_constraintTop_toTopOf="@+id/player_jersey" />
+        app:layout_constraintTop_toTopOf="@+id/player_jersey"
+        android:onClick="goToTeamPage"/>
 
     <TextView
         android:id="@+id/player_jersey"

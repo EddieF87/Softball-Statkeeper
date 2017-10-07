@@ -1,5 +1,6 @@
 package com.example.android.scorekeepdraft1;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.LoaderManager;
@@ -7,6 +8,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 
@@ -34,6 +36,7 @@ import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 
 import static android.R.attr.data;
 import static android.R.attr.id;
+import static com.example.android.scorekeepdraft1.R.string.team;
 
 
 public class PlayerPageActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -44,6 +47,7 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
     private Uri mCurrentPlayerUri;
     private boolean nameChanged;
     private String teamString;
+    private TextView teamView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +60,8 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
             playerString = b.getString("player");
         }
         nameChanged = false;
+        teamView = (TextView) findViewById(R.id.player_team);
+
         String title = "Player Bio: " + playerString;
         setTitle(title);
         getLoaderManager().initLoader(EXISTING_PLAYER_LOADER, null, this);
@@ -95,7 +101,7 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
             int sfIndex = cursor.getColumnIndex(StatsEntry.COLUMN_SF);
 
             String playerName = cursor.getString(nameIndex);
-            String team = cursor.getString(teamIndex);
+            teamString = cursor.getString(teamIndex);
             int hr = cursor.getInt(hrIndex);
             int tpl = cursor.getInt(tripleIndex);
             int dbl = cursor.getInt(doubleIndex);
@@ -109,8 +115,7 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
             int playerId = cursor.getInt(cursor.getColumnIndex(StatsEntry._ID));
             mCurrentPlayerUri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI1, playerId);
 
-            Player player = new Player(playerName, team, sgl, dbl, tpl, hr, bb, run, rbi, out, sf);
-            TextView teamView = (TextView) findViewById(R.id.player_team);
+            Player player = new Player(playerName, teamString, sgl, dbl, tpl, hr, bb, run, rbi, out, sf);
             TextView hitView = (TextView) findViewById(R.id.playerboard_hit);
             TextView hrView = (TextView) findViewById(R.id.player_hr);
             TextView rbiView = (TextView) findViewById(R.id.player_rbi);
@@ -125,7 +130,7 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
             TextView bbView = (TextView) findViewById(R.id.playerboard_bb);
 
             nameView.setText(player.getName());
-            teamView.setText(team);
+            teamView.setText(teamString);
             hitView.setText(String.valueOf(player.getHits()));
             hrView.setText(String.valueOf(player.getHrs()));
             rbiView.setText(String.valueOf(player.getRbis()));
@@ -208,7 +213,7 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
                         Dialog dialog1 = (Dialog) dialog;
                         EditText editText = (EditText) dialog1.findViewById(R.id.username);
                         String enteredPlayer = editText.getText().toString();
-                        if(nameAlreadyInDB(enteredPlayer)) {
+                        if (nameAlreadyInDB(enteredPlayer)) {
                             Toast.makeText(PlayerPageActivity.this, enteredPlayer + " already exists!",
                                     Toast.LENGTH_SHORT).show();
                             editNameDialog();
@@ -244,11 +249,11 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
         builder.setTitle(R.string.edit_player_name);
         builder.setItems(teams_array, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
-                String team = teams_array[item].toString();
-                if (team.equals(getString(R.string.waivers))) {
-                    team = "Free Agent";
+                teamString = teams_array[item].toString();
+                if (teamString.equals(getString(R.string.waivers))) {
+                    teamString = "Free Agent";
                 }
-                updatePlayerTeam(team);
+                updatePlayerTeam(teamString);
             }
         });
         AlertDialog alertDialog = builder.create();
@@ -258,8 +263,11 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
     private void deletePlayer() {
         if (mCurrentPlayerUri != null) {
             int rowsDeleted = getContentResolver().delete(mCurrentPlayerUri, null, null);
-            if (rowsDeleted == 1) {Toast.makeText(this, playerString + " " + getString(R.string.editor_delete_player_successful), Toast.LENGTH_SHORT).show();
-            } else {Toast.makeText(this, getString(R.string.editor_delete_player_failed), Toast.LENGTH_SHORT).show();}
+            if (rowsDeleted == 1) {
+                Toast.makeText(this, playerString + " " + getString(R.string.editor_delete_player_successful), Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, getString(R.string.editor_delete_player_failed), Toast.LENGTH_SHORT).show();
+            }
         }
         finish();
     }
@@ -275,6 +283,7 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
     private void updatePlayerTeam(String team) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(StatsEntry.COLUMN_TEAM, team);
+        contentValues.put(StatsEntry.COLUMN_ORDER, 99);
         getContentResolver().update(mCurrentPlayerUri, contentValues, null, null);
     }
 
@@ -286,14 +295,32 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
 
     private boolean nameAlreadyInDB(String playerName) {
         String selection = StatsEntry.COLUMN_NAME + " = '" + playerName + "' COLLATE NOCASE";
-        String[] selectionArgs = new String[] {playerName};
 
         Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI1, null, selection, null, null);
-        if(cursor.getCount() <= 0){
+        if (cursor.getCount() <= 0) {
             cursor.close();
             return false;
         }
         cursor.close();
         return true;
+    }
+
+    public void goToTeamPage(View v) {
+        if (teamString != null) {
+            Intent intent = new Intent(PlayerPageActivity.this, TeamActivity.class);
+
+            String selection = StatsEntry.COLUMN_NAME + "=?";
+            String[] selectionArgs = new String[]{teamString};
+            Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI2,
+                    null, selection, selectionArgs, null);
+            if (cursor.moveToFirst()) {
+                int playerId = cursor.getInt(cursor.getColumnIndex(StatsEntry._ID));
+                Uri teamUri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI2, playerId);
+                intent.setData(teamUri);
+            }
+            startActivity(intent);
+        } else {
+            Toast.makeText(PlayerPageActivity.this, "gosogsogogogoog", Toast.LENGTH_SHORT).show();
+        }
     }
 }

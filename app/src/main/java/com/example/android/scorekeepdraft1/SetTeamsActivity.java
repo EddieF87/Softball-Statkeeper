@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -21,6 +22,8 @@ import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static java.lang.reflect.Array.getInt;
 
 public class SetTeamsActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
@@ -64,14 +67,19 @@ public class SetTeamsActivity extends AppCompatActivity implements AdapterView.O
                 new String[]{StatsContract.StatsEntry.COLUMN_NAME},
                 new int[]{R.id.spinnerTarget}, 0);
         adapter.setDropDownViewResource(R.layout.spinner_layout);
+        int numberOfTeams = mCursor.getCount();
 
 
         awayTeamSpinner.setAdapter(adapter);
         homeTeamSpinner.setAdapter(adapter);
         awayTeamSpinner.setOnItemSelectedListener(this);
         homeTeamSpinner.setOnItemSelectedListener(this);
-        awayTeamSpinner.setSelection(awaySpinnerSave.getInt("spinnerPos", 0));
-        homeTeamSpinner.setSelection(homeSpinnerSave.getInt("spinnerPos", 0));
+        int awayIndex = awaySpinnerSave.getInt("spinnerPos", 0);
+        int homeIndex = homeSpinnerSave.getInt("spinnerPos", 0);
+        if (awayIndex >= numberOfTeams) {awayIndex = 0;}
+        if (homeIndex >= numberOfTeams) {homeIndex = 0;}
+        awayTeamSpinner.setSelection(awayIndex);
+        homeTeamSpinner.setSelection(homeIndex);
 
 
         rvLeft = (RecyclerView) findViewById(R.id.rv_left_team);
@@ -82,6 +90,9 @@ public class SetTeamsActivity extends AppCompatActivity implements AdapterView.O
         editAwayLineup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (awayTeamSelection == null) {
+                    return;
+                }
                 Intent intent = new Intent(SetTeamsActivity.this, SetLineupActivity.class);
                 Bundle b = new Bundle();
                 b.putString("team", awayTeamSelection);
@@ -92,6 +103,9 @@ public class SetTeamsActivity extends AppCompatActivity implements AdapterView.O
         editHomeLineup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (homeTeamSelection == null) {
+                    return;
+                }
                 Intent intent = new Intent(SetTeamsActivity.this, SetLineupActivity.class);
                 Bundle b = new Bundle();
                 b.putString("team", homeTeamSelection);
@@ -104,6 +118,11 @@ public class SetTeamsActivity extends AppCompatActivity implements AdapterView.O
         startGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (awayTeamSelection == null || homeTeamSelection == null) {
+                    Toast.makeText(SetTeamsActivity.this, "No teams currently in this league.",
+                            Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 if (awayTeamSelection.equals(homeTeamSelection)) {
                     Toast.makeText(SetTeamsActivity.this, "Please choose different teams.", Toast.LENGTH_SHORT).show();
                     return;

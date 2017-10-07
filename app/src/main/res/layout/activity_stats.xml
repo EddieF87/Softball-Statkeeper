@@ -91,6 +91,18 @@
                     android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/ab_title"
+                    android:layout_width="50dp"
+                    android:layout_height="wrap_content"
+                    android:background="#7fdfff"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:paddingBottom="4dp"
+                    android:text="@string/ab"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
                     android:id="@+id/hit_title"
                     android:layout_width="50dp"
                     android:layout_height="wrap_content"

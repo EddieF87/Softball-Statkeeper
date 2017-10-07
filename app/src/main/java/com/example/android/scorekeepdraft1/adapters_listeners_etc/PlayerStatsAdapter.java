@@ -44,6 +44,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
         LinearLayout linearLayout = holder.linearLayout;
         TextView nameView = (TextView) linearLayout.findViewById(R.id.name);
         TextView teamView = (TextView) linearLayout.findViewById(R.id.team_abv);
+        TextView abView = (TextView) linearLayout.findViewById(R.id.ab);
         TextView hitView = (TextView) linearLayout.findViewById(R.id.hit);
         TextView hrView = (TextView) linearLayout.findViewById(R.id.hr);
         TextView rbiView = (TextView) linearLayout.findViewById(R.id.rbi);
@@ -74,19 +75,32 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
 
         nameView.setText(player.getName());
         teamView.setText(teamabv);
+        int ab = player.getABs();
+        int sf = player.getSacFlies();
+        int bb = player.getWalks();
+        abView.setText(String.valueOf(ab));
         hitView.setText(String.valueOf(player.getHits()));
         hrView.setText(String.valueOf(player.getHrs()));
         rbiView.setText(String.valueOf(player.getRbis()));
         runView.setText(String.valueOf(player.getRuns()));
-        avgView.setText(String.valueOf(formatter.format(player.getAVG())));
-        obpView.setText(String.valueOf(formatter.format(player.getOBP())));
-        slgView.setText(String.valueOf(formatter.format(player.getSLG())));
-        opsView.setText(String.valueOf(formatter.format(player.getOPS())));
         sglView.setText(String.valueOf(player.getSingles()));
         dblView.setText(String.valueOf(player.getDoubles()));
         tplView.setText(String.valueOf(player.getTriples()));
-        bbView.setText(String.valueOf(player.getWalks()));
-
+        bbView.setText(String.valueOf(bb));
+        if (ab == 0) {
+            avgView.setText("- - -");
+            slgView.setText("- - -");
+        } else {
+            avgView.setText(String.valueOf(formatter.format(player.getAVG())));
+            slgView.setText(String.valueOf(formatter.format(player.getSLG())));
+        }
+        if (ab == 0) {
+            obpView.setText("- - -");
+            opsView.setText("- - -");
+        } else {
+            obpView.setText(String.valueOf(formatter.format(player.getOBP())));
+            opsView.setText(String.valueOf(formatter.format(player.getOPS())));
+        }
         linearLayout.setTag(position);
     }
 
