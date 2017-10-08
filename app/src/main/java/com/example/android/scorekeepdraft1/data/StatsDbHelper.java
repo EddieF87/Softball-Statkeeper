@@ -12,7 +12,7 @@ import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 public class StatsDbHelper extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "playerstats.db";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 1;
 
 
     public StatsDbHelper(Context context) {
@@ -25,50 +25,56 @@ public class StatsDbHelper extends SQLiteOpenHelper {
                 "CREATE TABLE " + StatsEntry.PLAYERS_TABLE_NAME + " (" +
                         StatsEntry._ID               + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         StatsEntry.COLUMN_NAME + " TEXT NOT NULL, " +
-                        StatsContract.StatsEntry.COLUMN_TEAM + " TEXT DEFAULT 'FA', " +
+                        StatsEntry.COLUMN_TEAM + " TEXT DEFAULT 'FA', " +
+                        StatsEntry.COLUMN_ORDER + " INTEGER, " +
+
+                        //StatsEntry.COLUMN_G + " INTEGER, " +
+                        StatsEntry.COLUMN_1B + " INTEGER, " +
+                        StatsEntry.COLUMN_2B + " INTEGER, " +
+                        StatsEntry.COLUMN_3B + " INTEGER, " +
+                        StatsEntry.COLUMN_HR + " INTEGER, " +
+
+                        StatsEntry.COLUMN_BB + " INTEGER, " +
+                        StatsEntry.COLUMN_SF + " INTEGER, " +
+                        StatsEntry.COLUMN_OUT + " INTEGER, " +
+
+
+                        StatsEntry.COLUMN_RUN + " INTEGER, " +
+                        StatsEntry.COLUMN_RBI + " INTEGER" +
+                        ");" ;
+
+        final String SQL_CREATE_TEMPPLAYERSTATS_TABLE =
+                "CREATE TABLE " + StatsEntry.TEMP_TABLE_NAME + " (" +
+                        StatsEntry._ID               + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        StatsEntry.COLUMN_NAME + " TEXT NOT NULL, " +
+                        StatsEntry.COLUMN_TEAM + " TEXT DEFAULT 'FA', " +
                         StatsEntry.COLUMN_ORDER + " INTEGER, " +
 
                         StatsEntry.COLUMN_1B + " INTEGER, " +
                         StatsEntry.COLUMN_2B + " INTEGER, " +
-                        StatsContract.StatsEntry.COLUMN_3B + " INTEGER, " +
-                        StatsContract.StatsEntry.COLUMN_HR + " INTEGER, " +
+                        StatsEntry.COLUMN_3B + " INTEGER, " +
+                        StatsEntry.COLUMN_HR + " INTEGER, " +
 
                         StatsEntry.COLUMN_BB + " INTEGER, " +
-                        StatsContract.StatsEntry.COLUMN_SF + " INTEGER, " +
-                        StatsContract.StatsEntry.COLUMN_OUT + " INTEGER, " +
+                        StatsEntry.COLUMN_SF + " INTEGER, " +
+                        StatsEntry.COLUMN_OUT + " INTEGER, " +
 
-                        StatsContract.StatsEntry.COLUMN_RUN + " INTEGER, " +
+                        StatsEntry.COLUMN_RUN + " INTEGER, " +
                         StatsEntry.COLUMN_RBI + " INTEGER" +
                         ");" ;
 
         final String SQL_CREATE_TEAMSTATS_TABLE =
                 "CREATE TABLE " + StatsEntry.TEAMS_TABLE_NAME + " (" +
-                        StatsContract.StatsEntry._ID               + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        StatsEntry._ID               + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         StatsEntry.COLUMN_NAME + " TEXT NOT NULL, " +
                         StatsEntry.COLUMN_LEAGUE + " TEXT, " +
 
                         StatsEntry.COLUMN_WINS + " INTEGER, " +
-                        StatsContract.StatsEntry.COLUMN_LOSSES + " INTEGER, " +
+                        StatsEntry.COLUMN_LOSSES + " INTEGER, " +
                         StatsEntry.COLUMN_TIES + " INTEGER, " +
 
-                        StatsContract.StatsEntry.COLUMN_RUNSFOR + " INTEGER, " +
-                        StatsContract.StatsEntry.COLUMN_RUNSAGAINST + " INTEGER" +
-
-/*                   remember commas     StatsEntry.B1 + " INTEGER, " +
-                        StatsEntry.B2 + " INTEGER, " +
-                        StatsEntry.B3 + " INTEGER, " +
-                        StatsEntry.B4 + " INTEGER, " +
-                        StatsEntry.B5 + " INTEGER, " +
-                        StatsEntry.B6 + " INTEGER, " +
-                        StatsEntry.B7 + " INTEGER, " +
-                        StatsEntry.B8 + " INTEGER, " +
-                        StatsEntry.B9 + " INTEGER, " +
-                        StatsEntry.B10 + " INTEGER, " +
-                        StatsEntry.B11 + " INTEGER, " +
-                        StatsEntry.B12 + " INTEGER, " +
-                        StatsEntry.B13 + " INTEGER, " +
-                        StatsEntry.B14 + " INTEGER, " +
-                        StatsEntry.B15 + " INTEGER" +*/
+                        StatsEntry.COLUMN_RUNSFOR + " INTEGER, " +
+                        StatsEntry.COLUMN_RUNSAGAINST + " INTEGER" +
                         ");" ;
 
                 db.execSQL(SQL_CREATE_PLAYERSTATS_TABLE);

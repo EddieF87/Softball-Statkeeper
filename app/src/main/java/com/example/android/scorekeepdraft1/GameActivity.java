@@ -332,23 +332,6 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             setDisplays();
         } catch (Exception e) {
             Toast.makeText(GameActivity.this, "UHOH SPAGETTIOS!", Toast.LENGTH_LONG).show();
-            /*for (String player : listOfPlayers) {
-                ContentValues values = new ContentValues();
-                values.put(StatsEntry.COLUMN_NAME, player);
-                values.put(StatsEntry.COLUMN_TEAM, "xxx");
-                values.put(StatsEntry.COLUMN_1B, 0);
-                values.put(StatsEntry.COLUMN_2B, 0);
-                values.put(StatsEntry.COLUMN_3B, 0);
-                values.put(StatsEntry.COLUMN_HR, 0);
-                values.put(StatsEntry.COLUMN_BB, 0);
-                values.put(StatsEntry.COLUMN_SF, 0);
-                values.put(StatsEntry.COLUMN_OUT, 0);
-                values.put(StatsEntry.COLUMN_RUN, 0);
-                values.put(StatsEntry.COLUMN_RBI, 0);
-                getContentResolver().insert(StatsEntry.CONTENT_URI1, values);
-            }
-            startCursor();
-            setDisplays();*/
         }
     }
 
@@ -888,7 +871,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         setDisplays();
     }
 
-    class MyDragListener implements View.OnDragListener {
+    private class MyDragListener implements View.OnDragListener {
 
         @Override
         public boolean onDrag(View v, DragEvent event) {
@@ -932,7 +915,8 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                             }
                         }
                         tempOuts++;
-                        outsDisplay.setText((gameOuts + tempOuts) + "outs");
+                        String sumOuts = gameOuts + tempOuts + "outs";
+                        outsDisplay.setText(sumOuts);
                     } else {
                         if (eventView instanceof TextView) {
                             TextView draggedView = (TextView) eventView;

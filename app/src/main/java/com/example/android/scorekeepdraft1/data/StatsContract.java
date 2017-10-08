@@ -25,6 +25,7 @@ public class StatsContract {
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
     public static final String PATH_PLAYERS = "players";
     public static final String PATH_TEAMS = "teams";
+    public static final String PATH_TEMP = "temp";
 
     public StatsContract() {
     }
@@ -35,11 +36,13 @@ public class StatsContract {
         /* The base CONTENT_URI1 used to query the Weather table from the content provider */
         public static final Uri CONTENT_URI1 = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_PLAYERS);
         public static final Uri CONTENT_URI2 = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_TEAMS);
+        public static final Uri CONTENT_URI3 = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_TEMP);
 
 
         /* Used internally as the name of our weather table. */
         public static final String PLAYERS_TABLE_NAME = "players";
         public static final String TEAMS_TABLE_NAME = "teams";
+        public static final String TEMP_TABLE_NAME = "temp";
 
         /*
          * The date column will store the UTC date that correlates to the local date for which
@@ -61,7 +64,7 @@ public class StatsContract {
         public static final String COLUMN_TEAM = "team";
         public static final String COLUMN_ORDER = "batting";
 
-
+        public static final String COLUMN_G = "games";
         public static final String COLUMN_1B = "single";
         public static final String COLUMN_2B = "double";
         public static final String COLUMN_3B = "triple";
@@ -74,8 +77,6 @@ public class StatsContract {
         public static final String COLUMN_RBI = "rbi";
         public static final String COLUMN_RUN = "runs";
 
-
-        public static final String COLUMN_ABBREVIATION = "abbr";
         public static final String COLUMN_LEAGUE = "league";
         public static final String COLUMN_WINS = "wins";
         public static final String COLUMN_LOSSES= "losses";

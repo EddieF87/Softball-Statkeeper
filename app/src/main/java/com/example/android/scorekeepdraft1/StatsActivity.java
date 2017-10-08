@@ -74,6 +74,7 @@ public class StatsActivity extends AppCompatActivity implements LoaderManager.Lo
             String teamName = mCursor.getString(teamNameIndex);
             teams.add(teamName);
         }
+        teams.add("Free Agent");
         teamSpinner = (Spinner) findViewById(R.id.spinner_stats_teams);
 
         ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(this,
