@@ -99,6 +99,7 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
             int rbiIndex = cursor.getColumnIndex(StatsEntry.COLUMN_RBI);
             int runIndex = cursor.getColumnIndex(StatsEntry.COLUMN_RUN);
             int sfIndex = cursor.getColumnIndex(StatsEntry.COLUMN_SF);
+            int gameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_G);
 
             String playerName = cursor.getString(nameIndex);
             teamString = cursor.getString(teamIndex);
@@ -111,11 +112,12 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
             int rbi = cursor.getInt(rbiIndex);
             int run = cursor.getInt(runIndex);
             int sf = cursor.getInt(sfIndex);
+            int g = cursor.getInt(gameIndex);
 
             int playerId = cursor.getInt(cursor.getColumnIndex(StatsEntry._ID));
             mCurrentPlayerUri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI1, playerId);
 
-            Player player = new Player(playerName, teamString, sgl, dbl, tpl, hr, bb, run, rbi, out, sf);
+            Player player = new Player(playerName, teamString, sgl, dbl, tpl, hr, bb, run, rbi, out, sf, g);
             TextView hitView = (TextView) findViewById(R.id.playerboard_hit);
             TextView hrView = (TextView) findViewById(R.id.player_hr);
             TextView rbiView = (TextView) findViewById(R.id.player_rbi);

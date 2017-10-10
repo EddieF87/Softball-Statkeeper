@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static android.drm.DrmStore.DrmObjectType.CONTENT;
+import static com.example.android.scorekeepdraft1.R.string.g;
 
 public class TeamActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -117,7 +118,7 @@ public class TeamActivity extends AppCompatActivity implements LoaderManager.Loa
         if (waivers) {
             teamSelected = "Free Agent";
             sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
-            teamNameView.setText("Waiv ers");
+            teamNameView.setText("Waivers");
         } else {
             sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
             teamNameView.setText(teamSelected);
@@ -142,6 +143,7 @@ public class TeamActivity extends AppCompatActivity implements LoaderManager.Loa
             int rbiIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_RBI);
             int runIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_RUN);
             int sfIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_SF);
+            int gameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_G);
 
             String player = mCursor.getString(nameIndex);
             String team = teamSelected;
@@ -154,8 +156,9 @@ public class TeamActivity extends AppCompatActivity implements LoaderManager.Loa
             int rbi = mCursor.getInt(rbiIndex);
             int run = mCursor.getInt(runIndex);
             int sf = mCursor.getInt(sfIndex);
+            int g = mCursor.getInt(gameIndex);
 
-            players.add(new Player(player, team, sgl, dbl, tpl, hr, bb, run, rbi, out, sf));
+            players.add(new Player(player, team, sgl, dbl, tpl, hr, bb, run, rbi, out, sf, g));
         }
 
         initRecyclerView();
@@ -184,15 +187,9 @@ public class TeamActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // User clicked on a menu option in the app bar overflow menu
         switch (item.getItemId()) {
-            // Respond to a click on the "Save" menu option
             case R.id.action_change_name:
                 //TODO
-                return true;
-            // Respond to a click on the "Delete" menu option
-            case R.id.action_change_team:
-
                 return true;
             case R.id.action_edit_photo:
 
@@ -205,8 +202,6 @@ public class TeamActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     private void showDeleteConfirmationDialog() {
-        // Create an AlertDialog.Builder and set the message, and click listeners
-        // for the postivie and negative buttons on the dialog.
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.delete_team_msg);
         builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
@@ -227,13 +222,10 @@ public class TeamActivity extends AppCompatActivity implements LoaderManager.Loa
                 });
                 AlertDialog alertDialog2 = choice.create();
                 alertDialog2.show();
-                // User clicked the "Delete" button, so delete the pet.
             }
         });
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                // User clicked the "Cancel" button, so dismiss the dialog
-                // and continue editing the pet.
                 if (dialog != null) {
                     dialog.dismiss();
                 }

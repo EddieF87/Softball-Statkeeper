@@ -26,6 +26,7 @@ public class StatsContract {
     public static final String PATH_PLAYERS = "players";
     public static final String PATH_TEAMS = "teams";
     public static final String PATH_TEMP = "temp";
+    public static final String PATH_GAME = "game";
 
     public StatsContract() {
     }
@@ -37,12 +38,14 @@ public class StatsContract {
         public static final Uri CONTENT_URI1 = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_PLAYERS);
         public static final Uri CONTENT_URI2 = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_TEAMS);
         public static final Uri CONTENT_URI3 = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_TEMP);
+        public static final Uri CONTENT_URI4 = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_GAME);
 
 
         /* Used internally as the name of our weather table. */
         public static final String PLAYERS_TABLE_NAME = "players";
         public static final String TEAMS_TABLE_NAME = "teams";
-        public static final String TEMP_TABLE_NAME = "temp";
+        public static final String TEMPPLAYERS_TABLE_NAME = "temp";
+        public static final String GAME_TABLE_NAME = "game";
 
         /*
          * The date column will store the UTC date that correlates to the local date for which
@@ -92,6 +95,19 @@ public class StatsContract {
         public static final String CONTENT_TEAMS_TYPE =
                 ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY +
                         "/" + PATH_TEAMS;
+        
+        public static final String COLUMN_PLAY = "play";
+        public static final String COLUMN_BATTER = "batter";
+        public static final String COLUMN_ONDECK = "ondeck";
+
+        public static final String COLUMN_AWAY_RUNS = "awayruns";
+        public static final String COLUMN_HOME_RUNS = "homeruns";
+
+        public static final String COLUMN_RUN1 = "runa";
+        public static final String COLUMN_RUN2 = "runb";
+        public static final String COLUMN_RUN3 = "runc";
+        public static final String COLUMN_RUN4 = "rund";
+        public static final String COLUMN_INNING_CHANGED = "innchange";
     }
 
 }

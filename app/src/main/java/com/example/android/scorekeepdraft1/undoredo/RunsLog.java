@@ -21,9 +21,7 @@ public class RunsLog {
         playersScored.add(player);
     }
 
-    public void resetPlayersScored() {
-        playersScored.clear();
-    }
+    public void resetPlayersScored() {playersScored.clear();}
 
     public int getRBICount(){
         return playersScored.size();

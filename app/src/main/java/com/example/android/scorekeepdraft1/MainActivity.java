@@ -21,15 +21,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button test = (Button) findViewById(R.id.testbut);
-        test.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, SetLineupActivity.class);
-                startActivity(intent);
-            }
-        });
-
         Button testStat = (Button) findViewById(R.id.teststats);
         testStat.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -61,6 +52,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, SetTeamsActivity.class);
+                getContentResolver().delete(StatsEntry.CONTENT_URI3, null, null);
+                getContentResolver().delete(StatsEntry.CONTENT_URI4, null, null);
                 startActivity(intent);
             }
         });
@@ -131,13 +124,33 @@ public class MainActivity extends AppCompatActivity {
         testPlayers.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String[] listOfPlayers = {"bbaa1", "bgt4w1", "gwbbra2", "byhbbyb2", "a3", "b3", "a4", "bbebb4", "a5", "b5", "bbbba6", "b6"};
+                String[] listOfPlayers = {"Purp1", "Purp2", "Purp3", "Purp4", "Purp5"};
 
                 for (String player : listOfPlayers) {
                     ContentValues values = new ContentValues();
                     values.put(StatsEntry.COLUMN_NAME, player);
                     values.put(StatsEntry.COLUMN_TEAM, "Purptopes");
       //              values.put(StatsEntry.COLUMN_ORDER, "null");
+//                    values.put(StatsEntry.COLUMN_1B, 0);
+//                    values.put(StatsEntry.COLUMN_2B, 0);
+//                    values.put(StatsEntry.COLUMN_3B, 0);
+//                    values.put(StatsEntry.COLUMN_HR, 0);
+//                    values.put(StatsEntry.COLUMN_BB, 0);
+//                    values.put(StatsEntry.COLUMN_SF, 0);
+//                    values.put(StatsEntry.COLUMN_OUT, 0);
+//                    values.put(StatsEntry.COLUMN_RUN, 0);
+//                    values.put(StatsEntry.COLUMN_RBI, 0);
+//                    values.put(StatsEntry.COLUMN_G, 0);
+                    getContentResolver().insert(StatsEntry.CONTENT_URI1, values);
+                }
+
+                String[] listOfPlayers2 = {"Goon1", "Goon2", "Goon3", "Goon4", "Goon5"};
+
+                for (String player : listOfPlayers2) {
+                    ContentValues values = new ContentValues();
+                    values.put(StatsEntry.COLUMN_NAME, player);
+                    values.put(StatsEntry.COLUMN_TEAM, "Goon Nation");
+                    //              values.put(StatsEntry.COLUMN_ORDER, "null");
                     values.put(StatsEntry.COLUMN_1B, 0);
                     values.put(StatsEntry.COLUMN_2B, 0);
                     values.put(StatsEntry.COLUMN_3B, 0);

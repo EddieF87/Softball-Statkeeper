@@ -57,10 +57,9 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
         TextView dblView = (TextView) linearLayout.findViewById(R.id.dbl);
         TextView tplView = (TextView) linearLayout.findViewById(R.id.tpl);
         TextView bbView = (TextView) linearLayout.findViewById(R.id.bb);
+        TextView gameView = (TextView) linearLayout.findViewById(R.id.game);
 
-        if (position % 2 == 1) {
-            linearLayout.setBackgroundColor(Color.parseColor("#dfdfdf"));
-        }
+        if (position % 2 == 1) {linearLayout.setBackgroundColor(Color.parseColor("#dfdfdf"));}
 
         Player player = players.get(position);
         String team = player.getTeam();
@@ -76,8 +75,8 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
         nameView.setText(player.getName());
         teamView.setText(teamabv);
         int ab = player.getABs();
-        int sf = player.getSacFlies();
         int bb = player.getWalks();
+        int sf = player.getSacFlies();
         abView.setText(String.valueOf(ab));
         hitView.setText(String.valueOf(player.getHits()));
         hrView.setText(String.valueOf(player.getHrs()));
@@ -86,6 +85,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
         sglView.setText(String.valueOf(player.getSingles()));
         dblView.setText(String.valueOf(player.getDoubles()));
         tplView.setText(String.valueOf(player.getTriples()));
+        gameView.setText(String.valueOf(player.getGames()));
         bbView.setText(String.valueOf(bb));
         if (ab == 0) {
             avgView.setText("- - -");
@@ -94,7 +94,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             avgView.setText(String.valueOf(formatter.format(player.getAVG())));
             slgView.setText(String.valueOf(formatter.format(player.getSLG())));
         }
-        if (ab == 0) {
+        if (ab == 0 && bb == 0 && sf == 0) {
             obpView.setText("- - -");
             opsView.setText("- - -");
         } else {

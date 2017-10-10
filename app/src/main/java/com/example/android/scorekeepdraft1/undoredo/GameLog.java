@@ -1,18 +1,20 @@
 package com.example.android.scorekeepdraft1.undoredo;
 
+import java.util.ArrayList;
+
 /**
  * Created by Eddie on 29/08/2017.
  */
 
 public class GameLog {
     private BaseLog baseLogEnd;
-    private RunsLog runsLog;
+    private ArrayList<String> runsLog;
     private String result;
     private String previousBatter;
-    private boolean inningChanged;
+    private int inningChanged;
     private int inningNumber;
 
-    public GameLog(BaseLog baseLogEnd, RunsLog runsLog, String result, String previousBatter, int inning, boolean inningChanged) {
+    public GameLog(BaseLog baseLogEnd, ArrayList<String>  runsLog, String result, String previousBatter, int inning, int inningChanged) {
         this.baseLogEnd = baseLogEnd;
         this.runsLog = runsLog;
         this.result = result;
@@ -22,13 +24,18 @@ public class GameLog {
     }
 
     public BaseLog getBaseLogEnd() {return baseLogEnd;}
-    public RunsLog getRunsLog() {
+    public ArrayList<String>  getRunsLog() {
         return runsLog;
     }
     public String getResult() {
         return result;
     }
     public String getPreviousBatter() {return previousBatter;}
-    public boolean isInningChanged() {return inningChanged;}
+    public boolean isInningChanged() {
+        if (inningChanged == 1){
+            return true;
+        }
+        return false;
+    }
     public int getInningNumber() {return inningNumber;}
 }

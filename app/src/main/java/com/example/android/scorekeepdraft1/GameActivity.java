@@ -6,10 +6,12 @@
 package com.example.android.scorekeepdraft1;
 
 import android.content.ClipData;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -24,16 +26,16 @@ import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.undoredo.BaseLog;
 import com.example.android.scorekeepdraft1.undoredo.GameHistory;
-import com.example.android.scorekeepdraft1.undoredo.GameLog;
-import com.example.android.scorekeepdraft1.undoredo.RunsLog;
 
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
+import com.example.android.scorekeepdraft1.undoredo.RunsLog;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.media.CamcorderProfile.get;
 import static com.example.android.scorekeepdraft1.R.id.reset;
 
 /**
@@ -41,7 +43,9 @@ import static com.example.android.scorekeepdraft1.R.id.reset;
  */
 public class GameActivity extends AppCompatActivity /*implements LoaderManager.LoaderCallbacks<Cursor>*/ {
 
-    private Cursor mCursor;
+    private Cursor playerCursor;
+    private Cursor gameCursor;
+    private Uri gameUri;
 
     private TextView scoreboard;
     private TextView nowBatting;
@@ -80,7 +84,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     private Button redoButton;
 
     private String tempBatter;
-    private boolean inningChanged = false;
+    private int inningChanged = 0;
 
     private int inningNumber = 2;
     private int gameOuts = 0;
@@ -93,8 +97,8 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     private NumberFormat formatter = new DecimalFormat("#.000");
     private BaseLog currentBaseLogStart;
     private BaseLog currentBaseLogEnd;
-    private RunsLog currentRunsLog;
-    private RunsLog tempRunsLog;
+    private ArrayList<String> currentRunsLog;
+    private ArrayList<String> tempRunsLog;
 
     private GameHistory gameHistory;
     private int gameLogIndex = 0;
@@ -108,12 +112,41 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     private boolean secondOccupied = false;
     private boolean thirdOccupied = false;
 
+    private int playIndex;
+    private int currentTeamIndex;
+    private int prevBatterIndex;
+    private int currentBatterIndex;
+    private int firstIndex;
+    private int secondIndex;
+    private int thirdIndex;
+    private int gameOutIndex;
+    private int awayRunsIndex;
+    private int homeRunsIndex;
+    private int run1Index;
+    private int run2Index;
+    private int run3Index;
+    private int run4Index;
+    private int inningChangedIndex;
+    private int idIndex;
+    private int nameIndex;
+    private int teamIndex;
+    private int orderIndex;
+    private int singleIndex;
+    private int doubleIndex;
+    private int tripleIndex;
+    private int hrIndex;
+    private int bbIndex;
+    private int sfIndex;
+    private int playerOutIndex;
+    private int playerRunIndex;
+    private int rbiIndex;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
         Bundle b = getIntent().getExtras();
-        if(b != null) {
+        if (b != null) {
             awayTeamName = b.getString("awayteam");
             homeTeamName = b.getString("hometeam");
         }
@@ -124,30 +157,23 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
         String[] selectionArgs = new String[]{awayTeamName};
 
-        mCursor = getContentResolver().query(StatsEntry.CONTENT_URI1, null,
+        playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI3, null,
                 selection, selectionArgs, sortOrder);
-        while (mCursor.moveToNext()) {
-            int nameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
-            int orderIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_ORDER);
-            String playerName = mCursor.getString(nameIndex);
-            int order = mCursor.getInt(orderIndex);
-            if( order < 50) {
-                awayTeam.add(playerName);
-            }
+        int nameIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
+        while (playerCursor.moveToNext()) {
+            String playerName = playerCursor.getString(nameIndex);
+            awayTeam.add(playerName);
         }
 
         selectionArgs = new String[]{homeTeamName};
-        mCursor = getContentResolver().query(StatsEntry.CONTENT_URI1, null,
+        playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI3, null,
                 selection, selectionArgs, sortOrder);
-        while (mCursor.moveToNext()) {
-            int nameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
-            int orderIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_ORDER);
-            String playerName = mCursor.getString(nameIndex);
-            int order = mCursor.getInt(orderIndex);
-            if( order < 50) {
-                homeTeam.add(playerName);
-            }
+        while (playerCursor.moveToNext()) {
+            String playerName = playerCursor.getString(nameIndex);
+            homeTeam.add(playerName);
         }
+        playerCursor.moveToFirst();
+        getPlayerColumnIndeces();
 
         scoreboard = (TextView) findViewById(R.id.scoreboard);
         nowBatting = (TextView) findViewById(R.id.nowbatting);
@@ -212,7 +238,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         homeDisplay.setOnDragListener(new MyDragListener());
         outTrash.setOnDragListener(new MyDragListener());
 
-        finalInning= false;
+        finalInning = false;
 
         startGame();
     }
@@ -222,54 +248,54 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         boolean checked = ((RadioButton) view).isChecked();
         playEntered = true;
         // Check which radio button was clicked
-        switch(view.getId()) {
+        switch (view.getId()) {
             case R.id.single:
                 if (checked)
                     result = "1b";
-                    group2.clearCheck();
-                    break;
+                group2.clearCheck();
+                break;
             case R.id.dbl:
                 if (checked)
                     result = "2b";
-                    group2.clearCheck();
-                    break;
+                group2.clearCheck();
+                break;
             case R.id.triple:
                 if (checked)
                     result = "3b";
-                    group2.clearCheck();
-                    break;
+                group2.clearCheck();
+                break;
             case R.id.hr:
                 if (checked)
                     result = "hr";
-                    group2.clearCheck();
-                    break;
+                group2.clearCheck();
+                break;
             case R.id.bb:
                 if (checked)
                     result = "bb";
-                    group1.clearCheck();
-                    break;
+                group1.clearCheck();
+                break;
             case R.id.out:
                 if (checked)
                     result = "out";
-                    group1.clearCheck();
-                    break;
+                group1.clearCheck();
+                break;
             case R.id.error:
                 if (checked)
                     result = "out";
-                    group1.clearCheck();
-                    break;
+                group1.clearCheck();
+                break;
             case R.id.fc:
                 if (checked)
                     result = "out";
-                    group1.clearCheck();
-                    break;
+                group1.clearCheck();
+                break;
             case R.id.sf:
                 if (checked)
                     result = "sf";
-                    group1.clearCheck();
-                    break;
+                group1.clearCheck();
+                break;
         }
-        if(batterMoved) {
+        if (batterMoved) {
             submitPlay.setVisibility(View.VISIBLE);
         }
     }
@@ -308,24 +334,36 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     }
 
     public void startGame() {
-        //TEMPORARY
-        /*for (int i = 0; i < listOfPlayers.length; i++) {
-            if (i % 2 == 0) {
-                awayTeam.addPlayer(new Player(listOfPlayers[i]));
-            } else {
-                homeTeam.addPlayer(new Player(listOfPlayers[i]));
-            }
-        }*/
         awayTeamRuns = 0;
         homeTeamRuns = 0;
 
-        gameHistory = new GameHistory();
+        //gameHistory = new GameHistory();
         currentTeam = awayTeam;
         currentBatter = awayTeam.get(0);
-        currentRunsLog = new RunsLog();
+        currentRunsLog = new ArrayList<>();
+        tempRunsLog = new ArrayList<>();
         currentBaseLogStart = new BaseLog(currentTeam, currentBatter, "", "", "", 0, 0, 0);
-        gameHistory.addGameLog(new GameLog(currentBaseLogStart, currentRunsLog, "start", null, inningNumber, false));
+
+        //gameHistory.addGameLog(new GameLog(currentBaseLogStart, currentRunsLog, "start", null, inningNumber, false));
         scoreboard.setText(awayTeamName + " " + awayTeamRuns + "    " + homeTeamName + " " + homeTeamRuns);
+
+        ContentValues values = new ContentValues();
+        //currentBaseLogStart
+        values.put(StatsEntry.COLUMN_ONDECK, currentBatter);
+        values.put(StatsEntry.COLUMN_TEAM, 0);
+        values.put(StatsEntry.COLUMN_OUT, 0);
+        values.put(StatsEntry.COLUMN_AWAY_RUNS, 0);
+        values.put(StatsEntry.COLUMN_HOME_RUNS, 0);
+        //currentRunsLog
+        //result
+        values.put(StatsEntry.COLUMN_PLAY, "start");
+        //previousBatter
+        //isInningChanged
+        values.put(StatsEntry.COLUMN_INNING_CHANGED, 0);
+        gameUri = getContentResolver().insert(StatsEntry.CONTENT_URI4, values);
+        gameCursor = getContentResolver().query(StatsEntry.CONTENT_URI4, null,
+                null, null, null);
+        getGameColumnIndeces();
 
         try {
             startCursor();
@@ -336,11 +374,11 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     }
 
     public void nextBatter() {
-        if(currentTeam == homeTeam && finalInning && homeTeamRuns>awayTeamRuns) {
+        if (currentTeam == homeTeam && finalInning && homeTeamRuns > awayTeamRuns) {
             endGame();
         }
         if (gameOuts >= 3) {
-            if(currentTeam == homeTeam && finalInning && awayTeamRuns>homeTeamRuns) {
+            if (currentTeam == homeTeam && finalInning && awayTeamRuns > homeTeamRuns) {
                 endGame();
             } else {
                 nextInning();
@@ -353,60 +391,103 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
 
         currentBaseLogEnd = new BaseLog(currentTeam, currentBatter, firstDisplay.getText().toString(),
                 secondDisplay.getText().toString(), thirdDisplay.getText().toString(),
-                gameOuts, awayTeamRuns, homeTeamRuns);
+                gameOuts, awayTeamRuns, homeTeamRuns
+        );
         currentBaseLogStart = new BaseLog(currentTeam, currentBatter, firstDisplay.getText().toString(),
                 secondDisplay.getText().toString(), thirdDisplay.getText().toString(),
-                gameOuts, awayTeamRuns, homeTeamRuns);
-        gameHistory.addGameLog(new GameLog(currentBaseLogEnd, currentRunsLog, result, previousBatterName, inningNumber, inningChanged));
+                gameOuts, awayTeamRuns, homeTeamRuns
+        );
+        //gameHistory.addGameLog(new GameLog(currentBaseLogEnd, currentRunsLog, result, previousBatterName, inningNumber, inningChanged));
         gameLogIndex++;
+
+        int team;
+        if (currentTeam == awayTeam) {
+            team = 0;
+        } else {
+            team = 1;
+        }
+        String first = currentBaseLogEnd.getBasepositions()[0];
+        String second = currentBaseLogEnd.getBasepositions()[1];
+        String third = currentBaseLogEnd.getBasepositions()[2];
+
+        ContentValues values = new ContentValues();
+        values.put(StatsEntry.COLUMN_PLAY, result);
+        values.put(StatsEntry.COLUMN_TEAM, team);
+        values.put(StatsEntry.COLUMN_BATTER, previousBatterName);
+        values.put(StatsEntry.COLUMN_ONDECK, currentBatter);
+        values.put(StatsEntry.COLUMN_1B, first);
+        values.put(StatsEntry.COLUMN_2B, second);
+        values.put(StatsEntry.COLUMN_3B, third);
+        values.put(StatsEntry.COLUMN_OUT, gameOuts);
+        values.put(StatsEntry.COLUMN_AWAY_RUNS, awayTeamRuns);
+        values.put(StatsEntry.COLUMN_HOME_RUNS, homeTeamRuns);
+        values.put(StatsEntry.COLUMN_INNING_CHANGED, inningChanged);
+        for(int i = 0; i < currentRunsLog.size(); i++) {
+            String player = currentRunsLog.get(i);
+            switch (i) {
+                case 0:
+                    values.put(StatsEntry.COLUMN_RUN1, player);
+                    break;
+                case 1:
+                    values.put(StatsEntry.COLUMN_RUN2, player);
+                    break;
+                case 2:
+                    values.put(StatsEntry.COLUMN_RUN3, player);
+                    break;
+                case 3:
+                    values.put(StatsEntry.COLUMN_RUN4, player);
+                    break;
+                default:
+                    break;
+            }
+        }
+        gameUri = getContentResolver().insert(StatsEntry.CONTENT_URI4, values);
 
         startCursor();
         setDisplays();
         group1.clearCheck();
         group2.clearCheck();
-        tempRunsLog = null;
-        currentRunsLog = new RunsLog();
+        tempRunsLog.clear();
+        currentRunsLog.clear();
         submitPlay.setVisibility(View.INVISIBLE);
         resetBases.setVisibility(View.INVISIBLE);
         tempOuts = 0;
         tempRuns = 0;
         playEntered = false;
         batterMoved = false;
-        inningChanged = false;
+        inningChanged = 0;
     }
 
     public void nextInning() {
         gameOuts = 0;
         emptyBases();
 
-        if (inningNumber/2 >= 1) {
+        if (inningNumber / 2 >= 1) {
             finalInning = true;
         }
         increaseIndex();
         if (currentTeam == awayTeam) {
-            if(finalInning && homeTeamRuns > awayTeamRuns) {
+            if (finalInning && homeTeamRuns > awayTeamRuns) {
                 endGame();
             }
             currentTeam = homeTeam;
         } else {
             currentTeam = awayTeam;
-            inningDisplay.setText(String.valueOf(inningNumber/2));
+            inningDisplay.setText(String.valueOf(inningNumber / 2));
         }
         inningNumber++;
         Toast.makeText(GameActivity.this, "inning " + inningNumber, Toast.LENGTH_LONG).show();
 
-        inningDisplay.setText(String.valueOf(inningNumber/2));
-        inningChanged = true;
+        inningDisplay.setText(String.valueOf(inningNumber / 2));
+        inningChanged = 1;
     }
 
     public void startCursor() {
         String selection = StatsEntry.COLUMN_NAME + "=?";
         String[] selectionArgs = {currentBatter};
-        mCursor = getContentResolver().query(
-                StatsEntry.CONTENT_URI1, null,
-                selection, selectionArgs, null
-        );
-        mCursor.moveToNext();
+        playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI3, null,
+                selection, selectionArgs, null);
+        playerCursor.moveToNext();
     }
 
     public void endGame() {
@@ -414,107 +495,171 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         int newValue;
         String selection = StatsEntry.COLUMN_NAME + "=?";
         String[] selectionArgsHome = {homeTeamName};
-        mCursor = getContentResolver().query(
-                StatsEntry.CONTENT_URI2, null,
+        playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI2, null,
                 selection, selectionArgsHome, null
         );
-        mCursor.moveToFirst();
+        playerCursor.moveToFirst();
         ContentValues values = new ContentValues();
-        if (homeTeamRuns>awayTeamRuns) {
-            valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_WINS);
-            newValue = mCursor.getInt(valueIndex) + 1;
+        if (homeTeamRuns > awayTeamRuns) {
+            valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_WINS);
+            newValue = playerCursor.getInt(valueIndex) + 1;
             values.put(StatsEntry.COLUMN_WINS, newValue);
-        } else if (awayTeamRuns>homeTeamRuns) {
-            valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_LOSSES);
-            newValue = mCursor.getInt(valueIndex) + 1;
+        } else if (awayTeamRuns > homeTeamRuns) {
+            valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_LOSSES);
+            newValue = playerCursor.getInt(valueIndex) + 1;
             values.put(StatsEntry.COLUMN_LOSSES, newValue);
         } else {
-            valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_TIES);
-            newValue = mCursor.getInt(valueIndex) + 1;
+            valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_TIES);
+            newValue = playerCursor.getInt(valueIndex) + 1;
             values.put(StatsEntry.COLUMN_TIES, newValue);
         }
-        valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_RUNSFOR);
-        newValue = mCursor.getInt(valueIndex) + homeTeamRuns;
+        valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_RUNSFOR);
+        newValue = playerCursor.getInt(valueIndex) + homeTeamRuns;
         values.put(StatsEntry.COLUMN_RUNSFOR, newValue);
 
-        valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_RUNSAGAINST);
-        newValue = mCursor.getInt(valueIndex) + awayTeamRuns;
+        valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_RUNSAGAINST);
+        newValue = playerCursor.getInt(valueIndex) + awayTeamRuns;
         values.put(StatsEntry.COLUMN_RUNSAGAINST, newValue);
 
-        getContentResolver().update(
-                StatsEntry.CONTENT_URI2,
-                values,
-                selection,
-                selectionArgsHome
-        );
-
+        getContentResolver().update(StatsEntry.CONTENT_URI2, values, selection, selectionArgsHome);
 
         String[] selectionArgsAway = {awayTeamName};
-        mCursor = getContentResolver().query(
-                StatsEntry.CONTENT_URI2, null,
+        playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI2, null,
                 selection, selectionArgsAway, null
         );
-        mCursor.moveToFirst();
+        playerCursor.moveToFirst();
         values = new ContentValues();
-        if (awayTeamRuns>homeTeamRuns) {
-            valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_WINS);
-            newValue = mCursor.getInt(valueIndex) + 1;
+        if (awayTeamRuns > homeTeamRuns) {
+            valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_WINS);
+            newValue = playerCursor.getInt(valueIndex) + 1;
             values.put(StatsEntry.COLUMN_WINS, newValue);
-        } else if (homeTeamRuns>awayTeamRuns) {
-            valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_LOSSES);
-            newValue = mCursor.getInt(valueIndex) + 1;
+        } else if (homeTeamRuns > awayTeamRuns) {
+            valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_LOSSES);
+            newValue = playerCursor.getInt(valueIndex) + 1;
             values.put(StatsEntry.COLUMN_LOSSES, newValue);
         } else {
-            valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_TIES);
-            newValue = mCursor.getInt(valueIndex) + 1;
+            valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_TIES);
+            newValue = playerCursor.getInt(valueIndex) + 1;
             values.put(StatsEntry.COLUMN_TIES, newValue);
         }
-        valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_RUNSFOR);
-        newValue = mCursor.getInt(valueIndex) + awayTeamRuns;
+        valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_RUNSFOR);
+        newValue = playerCursor.getInt(valueIndex) + awayTeamRuns;
         values.put(StatsEntry.COLUMN_RUNSFOR, newValue);
 
-        valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_RUNSAGAINST);
-        newValue = mCursor.getInt(valueIndex) + homeTeamRuns;
+        valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_RUNSAGAINST);
+        newValue = playerCursor.getInt(valueIndex) + homeTeamRuns;
         values.put(StatsEntry.COLUMN_RUNSAGAINST, newValue);
 
-        getContentResolver().update(
-                StatsEntry.CONTENT_URI2,
-                values,
-                selection,
-                selectionArgsAway
-        );
-
+        getContentResolver().update(StatsEntry.CONTENT_URI2, values, selection, selectionArgsAway);
+        addStatsToPermanentDB();
 
         Intent finishGame = new Intent(GameActivity.this, MainActivity.class);
         startActivity(finishGame);
     }
 
+    private void addStatsToPermanentDB() {
+        ArrayList<String> playerList = new ArrayList<>();
+        String selection = StatsEntry.COLUMN_NAME + "=?";
 
-        //sets the textview displays with updated player/game data
+        playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI3, null,
+                null, null,  null);
+        playerCursor.moveToPosition(-1);
+        while (playerCursor.moveToNext()) {
+            String player = playerCursor.getString(nameIndex);
+            playerList.add(player);
+        }
+
+        for(String player : playerList) {
+            String[] selectionArgs = new String[] {player};
+
+            playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI3, null,
+                    selection, selectionArgs,  null);
+            playerCursor.moveToFirst();
+            int pRBI = playerCursor.getInt(rbiIndex);
+            int pRun = playerCursor.getInt(playerRunIndex);
+            int p1b = playerCursor.getInt(singleIndex);
+            int p2b = playerCursor.getInt(doubleIndex);
+            int p3b = playerCursor.getInt(tripleIndex);
+            int pHR = playerCursor.getInt(hrIndex);
+            int pOuts = playerCursor.getInt(playerOutIndex);
+            int pBB = playerCursor.getInt(bbIndex);
+            int pSF = playerCursor.getInt(sfIndex);
+
+            playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI1, null, selection, selectionArgs,  null);
+            playerCursor.moveToFirst();
+            int tRBI = playerCursor.getInt(rbiIndex);
+            int tRun = playerCursor.getInt(playerRunIndex);
+            int t1b = playerCursor.getInt(singleIndex);
+            int t2b = playerCursor.getInt(doubleIndex);
+            int t3b = playerCursor.getInt(tripleIndex);
+            int tHR = playerCursor.getInt(hrIndex);
+            int tOuts = playerCursor.getInt(playerOutIndex);
+            int tBB = playerCursor.getInt(bbIndex);
+            int tSF = playerCursor.getInt(sfIndex);
+            int gamesPlayedIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_G);
+            int games = playerCursor.getInt(gamesPlayedIndex);
+
+            ContentValues values = new ContentValues();
+            values.put(StatsEntry.COLUMN_1B, p1b + t1b);
+            values.put(StatsEntry.COLUMN_2B, p2b + t2b);
+            values.put(StatsEntry.COLUMN_3B, p3b + t3b);
+            values.put(StatsEntry.COLUMN_HR, pHR + tHR);
+            values.put(StatsEntry.COLUMN_RUN, pRun + tRun);
+            values.put(StatsEntry.COLUMN_RBI, pRBI + tRBI);
+            values.put(StatsEntry.COLUMN_BB, pBB + tBB);
+            values.put(StatsEntry.COLUMN_OUT, pOuts + tOuts);
+            values.put(StatsEntry.COLUMN_SF, pSF + tSF);
+            values.put(StatsEntry.COLUMN_G, games + 1);
+            getContentResolver().update(StatsEntry.CONTENT_URI1, values, selection, selectionArgs);
+        }
+
+
+
+
+
+
+
+
+    }
+
+
+    //sets the textview displays with updated player/game data
     public void setDisplays() {
         batterDisplay.setVisibility(View.VISIBLE);
 
-        int nameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
-        int hrIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_HR);
-        int rbiIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_RBI);
-        int runIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_RUN);
-        int singleIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_1B);
-        int doubleIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_2B);
-        int tripleIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_3B);
-        int outIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_OUT);
+        String name = playerCursor.getString(nameIndex);
 
-        String name = mCursor.getString(nameIndex);
-        int displayHR = mCursor.getInt(hrIndex);
-        int displayRBI = mCursor.getInt(rbiIndex);
-        int displayRun = mCursor.getInt(runIndex);
-        int singles = mCursor.getInt(singleIndex);
-        int doubles = mCursor.getInt(doubleIndex);
-        int triples = mCursor.getInt(tripleIndex);
-        int playerOuts = mCursor.getInt(outIndex);
+        int tHR = playerCursor.getInt(hrIndex);
+        int tRBI = playerCursor.getInt(rbiIndex);
+        int tRun = playerCursor.getInt(playerRunIndex);
+        int t1b = playerCursor.getInt(singleIndex);
+        int t2b = playerCursor.getInt(doubleIndex);
+        int t3b = playerCursor.getInt(tripleIndex);
+        int tOuts = playerCursor.getInt(playerOutIndex);
 
-        double avg = calculateAverage(singles, doubles, triples, displayHR, playerOuts, 0);
+        String selection = StatsEntry.COLUMN_NAME + "=?";
+        playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI1, null, selection, new String[]{name}, null);
+        playerCursor.moveToFirst();
 
-        nowBatting.setText("Now batting: " + name);
+        int pHR = playerCursor.getInt(hrIndex);
+        int pRBI = playerCursor.getInt(rbiIndex);
+        int pRun = playerCursor.getInt(playerRunIndex);
+        int p1b = playerCursor.getInt(singleIndex);
+        int p2b = playerCursor.getInt(doubleIndex);
+        int p3b = playerCursor.getInt(tripleIndex);
+        int pOuts = playerCursor.getInt(playerOutIndex);
+
+        int displayHR = tHR + pHR;
+        int displayRBI = tRBI + pRBI;
+        int displayRun = tRun + pRun;
+        int singles = t1b + p1b;
+        int doubles = t2b + p2b;
+        int triples = t3b + p3b;
+        int playerOuts = tOuts + pOuts;
+        double avg = calculateAverage(singles, doubles, triples, displayHR, playerOuts);
+
+        String nowBattingString = "Now batting: " + name;
+        nowBatting.setText(nowBattingString);
         String avgDisplayText = "AVG: " + formatter.format(avg);
         String hrDisplayText = "HR: " + displayHR;
         String rbiDisplayText = "RBI: " + displayRBI;
@@ -529,56 +674,56 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     }
 
     public void updatePlayerStats(String action) {
+        String selection = StatsEntry.COLUMN_NAME + "=?";
         String[] selectionArgs;
-        if(undoRedo) {
-            String selection = StatsEntry.COLUMN_NAME + "=?";
+        if (undoRedo) {
             selectionArgs = new String[]{tempBatter};
-            mCursor = getContentResolver().query(
-                    StatsEntry.CONTENT_URI1, null,
-                    selection, selectionArgs, null
-            );
+//            playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI3, null,
+//                    selection, selectionArgs, null);
         } else {
             selectionArgs = new String[]{currentBatter};
         }
-        mCursor.moveToFirst();
+        playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI3, null,
+                selection, selectionArgs, null);
+        playerCursor.moveToFirst();
         ContentValues values = new ContentValues();
         int valueIndex;
         int newValue;
 
         switch (action) {
             case "1b":
-                valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_1B);
-                newValue = mCursor.getInt(valueIndex) + 1;
+                valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_1B);
+                newValue = playerCursor.getInt(valueIndex) + 1;
                 values.put(StatsEntry.COLUMN_1B, newValue);
                 break;
             case "2b":
-                valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_2B);
-                newValue = mCursor.getInt(valueIndex) + 1;
+                valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_2B);
+                newValue = playerCursor.getInt(valueIndex) + 1;
                 values.put(StatsEntry.COLUMN_2B, newValue);
                 break;
             case "3b":
-                valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_3B);
-                newValue = mCursor.getInt(valueIndex) + 1;
+                valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_3B);
+                newValue = playerCursor.getInt(valueIndex) + 1;
                 values.put(StatsEntry.COLUMN_3B, newValue);
                 break;
             case "hr":
-                valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_HR);
-                newValue = mCursor.getInt(valueIndex) + 1;
+                valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_HR);
+                newValue = playerCursor.getInt(valueIndex) + 1;
                 values.put(StatsEntry.COLUMN_HR, newValue);
                 break;
             case "bb":
-                valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_BB);
-                newValue = mCursor.getInt(valueIndex) + 1;
+                valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_BB);
+                newValue = playerCursor.getInt(valueIndex) + 1;
                 values.put(StatsEntry.COLUMN_BB, newValue);
                 break;
             case "sf":
-                valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_SF);
-                newValue = mCursor.getInt(valueIndex) + 1;
+                valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_SF);
+                newValue = playerCursor.getInt(valueIndex) + 1;
                 values.put(StatsEntry.COLUMN_SF, newValue);
                 break;
             case "out":
-                valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_OUT);
-                newValue = mCursor.getInt(valueIndex) + 1;
+                valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_OUT);
+                newValue = playerCursor.getInt(valueIndex) + 1;
                 values.put(StatsEntry.COLUMN_OUT, newValue);
                 break;
             default:
@@ -586,23 +731,17 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                 break;
         }
 
-        int rbiCount = currentRunsLog.getRBICount();
+        int rbiCount = currentRunsLog.size();
         if (rbiCount > 0) {
-            valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_RBI);
-            newValue = mCursor.getInt(valueIndex) + rbiCount;
+            valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_RBI);
+            newValue = playerCursor.getInt(valueIndex) + rbiCount;
             values.put(StatsEntry.COLUMN_RBI, newValue);
         }
 
-        String selection = StatsEntry.COLUMN_NAME + "=?";
-        getContentResolver().update(
-                StatsEntry.CONTENT_URI1,
-                values,
-                selection,
-                selectionArgs
-        );
+        getContentResolver().update(StatsEntry.CONTENT_URI3, values, selection, selectionArgs);
 
-        if(rbiCount > 0) {
-            for(String player : currentRunsLog.getPlayersScored()) {
+        if (rbiCount > 0) {
+            for (String player : currentRunsLog) {
                 addRun(player);
             }
         }
@@ -617,48 +756,48 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         }
         String selection = StatsEntry.COLUMN_NAME + "=?";
         String[] selectionArgs = {tempBatter};
-        mCursor = getContentResolver().query(
-                StatsEntry.CONTENT_URI1, null,
-                selection, selectionArgs, null);
-        mCursor.moveToFirst();
+        playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI3, null,
+                selection, selectionArgs, null
+        );
+        playerCursor.moveToFirst();
         ContentValues values = new ContentValues();
         int valueIndex;
         int newValue;
 
         switch (action) {
             case "1b":
-                valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_1B);
-                newValue = mCursor.getInt(valueIndex) - 1;
+                valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_1B);
+                newValue = playerCursor.getInt(valueIndex) - 1;
                 values.put(StatsEntry.COLUMN_1B, newValue);
                 break;
             case "2b":
-                valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_2B);
-                newValue = mCursor.getInt(valueIndex) - 1;
+                valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_2B);
+                newValue = playerCursor.getInt(valueIndex) - 1;
                 values.put(StatsEntry.COLUMN_2B, newValue);
                 break;
             case "3b":
-                valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_3B);
-                newValue = mCursor.getInt(valueIndex) - 1;
+                valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_3B);
+                newValue = playerCursor.getInt(valueIndex) - 1;
                 values.put(StatsEntry.COLUMN_3B, newValue);
                 break;
             case "hr":
-                valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_HR);
-                newValue = mCursor.getInt(valueIndex) - 1;
+                valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_HR);
+                newValue = playerCursor.getInt(valueIndex) - 1;
                 values.put(StatsEntry.COLUMN_HR, newValue);
                 break;
             case "bb":
-                valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_BB);
-                newValue = mCursor.getInt(valueIndex) - 1;
+                valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_BB);
+                newValue = playerCursor.getInt(valueIndex) - 1;
                 values.put(StatsEntry.COLUMN_BB, newValue);
                 break;
             case "sf":
-                valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_SF);
-                newValue = mCursor.getInt(valueIndex) - 1;
+                valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_SF);
+                newValue = playerCursor.getInt(valueIndex) - 1;
                 values.put(StatsEntry.COLUMN_SF, newValue);
                 break;
             case "out":
-                valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_OUT);
-                newValue = mCursor.getInt(valueIndex) - 1;
+                valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_OUT);
+                newValue = playerCursor.getInt(valueIndex) - 1;
                 values.put(StatsEntry.COLUMN_OUT, newValue);
                 break;
             default:
@@ -666,24 +805,17 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                 break;
         }
 
-        int rbiCount = currentRunsLog.getRBICount();
+        int rbiCount = currentRunsLog.size();
         if (rbiCount > 0) {
-            valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_RBI);
-            newValue = mCursor.getInt(valueIndex) - rbiCount;
+            valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_RBI);
+            newValue = playerCursor.getInt(valueIndex) - rbiCount;
             values.put(StatsEntry.COLUMN_RBI, newValue);
         }
 
-/*        String selection = PlayervStatsEntry.COLUMN_NAME + "=?";
-        String[] selectionArgs = {currentBatter.getName()};*/
-        getContentResolver().update(
-                StatsEntry.CONTENT_URI1,
-                values,
-                selection,
-                selectionArgs
-        );
+        getContentResolver().update(StatsEntry.CONTENT_URI3, values, selection, selectionArgs);
 
-        if(rbiCount > 0) {
-            for(String player : currentRunsLog.getPlayersScored()) {
+        if (rbiCount > 0) {
+            for (String player : currentRunsLog) {
                 subtractRun(player);
             }
         }
@@ -694,56 +826,44 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     public void addRun(String player) {
         String selection = StatsEntry.COLUMN_NAME + "=?";
         String[] selectionArgs = {player};
-        mCursor = getContentResolver().query(
-                StatsEntry.CONTENT_URI1, null,
+        playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI3, null,
                 selection, selectionArgs, null
         );
-        mCursor.moveToNext();
+        playerCursor.moveToNext();
 
         ContentValues values = new ContentValues();
         int valueIndex;
         int newValue;
-        valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_RUN);
-        newValue = mCursor.getInt(valueIndex) + 1;
+        valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_RUN);
+        newValue = playerCursor.getInt(valueIndex) + 1;
         values.put(StatsEntry.COLUMN_RUN, newValue);
 
-        getContentResolver().update(
-                StatsEntry.CONTENT_URI1,
-                values,
-                selection,
-                selectionArgs
-        );
+        getContentResolver().update(StatsEntry.CONTENT_URI3, values, selection, selectionArgs);
         if (!undoRedo) {
             if (currentTeam == homeTeam) {
                 homeTeamRuns++;
             } else {
                 awayTeamRuns++;
-            };
+            }
         }
     }
 
     public void subtractRun(String player) {
         String selection = StatsEntry.COLUMN_NAME + "=?";
         String[] selectionArgs = {player};
-        mCursor = getContentResolver().query(
-                StatsEntry.CONTENT_URI1, null,
+        playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI3, null,
                 selection, selectionArgs, null
         );
-        mCursor.moveToNext();
+        if (playerCursor.moveToFirst()) {
+            ContentValues values = new ContentValues();
+            int newValue;
+            newValue = playerCursor.getInt(playerRunIndex) - 1;
+            values.put(StatsEntry.COLUMN_RUN, newValue);
 
-        ContentValues values = new ContentValues();
-        int valueIndex;
-        int newValue;
-        valueIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_RUN);
-        newValue = mCursor.getInt(valueIndex) - 1;
-        values.put(StatsEntry.COLUMN_RUN, newValue);
-
-        getContentResolver().update(
-                StatsEntry.CONTENT_URI1,
-                values,
-                selection,
-                selectionArgs
-        );
+            getContentResolver().update(StatsEntry.CONTENT_URI3, values, selection, selectionArgs);
+        } else {
+            Toast.makeText(GameActivity.this, "subtractRun logic is fucked up!!!", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void resetBases(BaseLog baseLog) {
@@ -753,18 +873,19 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         thirdDisplay.setText(bases[2]);
         batterDisplay.setVisibility(View.VISIBLE);
         batterMoved = false;
-        if(!undoRedo) {
-            currentRunsLog.resetPlayersScored();
+        if (!undoRedo) {
+            currentRunsLog.clear();
         }
-        if(tempRunsLog != null) {
-            tempRunsLog.resetPlayersScored();
+        if (!tempRunsLog.isEmpty()) {
+            tempRunsLog.clear();
         }
         submitPlay.setVisibility(View.INVISIBLE);
         resetBases.setVisibility(View.INVISIBLE);
         setBaseListeners();
         tempOuts = 0;
         tempRuns = 0;
-        outsDisplay.setText(gameOuts + "outs");
+        String outs = gameOuts + "outs";
+        outsDisplay.setText(outs);
         scoreboard.setText(awayTeamName + " " + awayTeamRuns + "    " + homeTeamName + " " + homeTeamRuns);
     }
 
@@ -774,35 +895,78 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         thirdDisplay.setText("");
     }
 
-    public double calculateAverage(int singles, int doubles, int triples, int hrs, int outs, int errors) {
+    public double calculateAverage(int singles, int doubles, int triples, int hrs, int outs) {
         double hits = (double) (singles + doubles + triples + hrs);
-        return (hits / (outs + errors + hits));
+        return (hits / (outs + hits));
     }
 
     public void onSubmit() {
-        if(undoRedo) {
-            gameHistory.updateGameLog(gameLogIndex);
+        if (undoRedo) {
+            gameCursor = getContentResolver().query(StatsEntry.CONTENT_URI4, null, null, null, null);
+            gameCursor.moveToPosition(gameLogIndex);
+            int id = gameCursor.getInt(idIndex);
+            Uri toDelete = ContentUris.withAppendedId(StatsEntry.CONTENT_URI4, id);
+            int playsDeleted = getContentResolver().delete(toDelete, null, null);
+            String deleteToast = "Deleted " + playsDeleted + " plays!";
+            Toast.makeText(GameActivity.this, deleteToast, Toast.LENGTH_SHORT).show();
             undoRedo = false;
             currentRunsLog = tempRunsLog;
         }
         updatePlayerStats(result);
         gameOuts += tempOuts;
         nextBatter();
-        outsDisplay.setText(gameOuts + "outs");
+        String outs = gameOuts + "outs";
+        outsDisplay.setText(outs);
+    }
+
+    public void getGameColumnIndeces(){
+        idIndex = gameCursor.getColumnIndex(StatsEntry._ID);
+        playIndex = gameCursor.getColumnIndex(StatsEntry.COLUMN_PLAY);
+        currentTeamIndex = gameCursor.getColumnIndex(StatsEntry.COLUMN_TEAM);
+        prevBatterIndex = gameCursor.getColumnIndex(StatsEntry.COLUMN_BATTER);
+        currentBatterIndex = gameCursor.getColumnIndex(StatsEntry.COLUMN_ONDECK);
+        firstIndex = gameCursor.getColumnIndex(StatsEntry.COLUMN_1B);
+        secondIndex = gameCursor.getColumnIndex(StatsEntry.COLUMN_2B);
+        thirdIndex = gameCursor.getColumnIndex(StatsEntry.COLUMN_3B);
+        gameOutIndex = gameCursor.getColumnIndex(StatsEntry.COLUMN_OUT);
+        awayRunsIndex = gameCursor.getColumnIndex(StatsEntry.COLUMN_AWAY_RUNS);
+        homeRunsIndex = gameCursor.getColumnIndex(StatsEntry.COLUMN_HOME_RUNS);
+        run1Index = gameCursor.getColumnIndex(StatsEntry.COLUMN_RUN1);
+        run2Index = gameCursor.getColumnIndex(StatsEntry.COLUMN_RUN2);
+        run3Index = gameCursor.getColumnIndex(StatsEntry.COLUMN_RUN3);
+        run4Index = gameCursor.getColumnIndex(StatsEntry.COLUMN_RUN4);
+        inningChangedIndex = gameCursor.getColumnIndex(StatsEntry.COLUMN_INNING_CHANGED);
+    }
+
+    public void getPlayerColumnIndeces(){
+        idIndex = playerCursor.getColumnIndex(StatsEntry._ID);
+        nameIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
+        teamIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_TEAM);
+        orderIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_ORDER);
+        singleIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_1B);
+        doubleIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_2B);
+        tripleIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_3B);
+        hrIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_HR);
+        bbIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_BB);
+        sfIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_SF);
+        playerOutIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_OUT);
+        playerRunIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_RUN);
+        rbiIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_RBI);
     }
 
     public void undoPlay() {
         String undoResult;
-        if(gameLogIndex > 0) {
+        if (gameLogIndex>0) {
+            gameCursor = getContentResolver().query(StatsEntry.CONTENT_URI4, null, null, null, null);
+            gameCursor.moveToPosition(gameLogIndex);
             undoRedo = true;
-            GameLog gameLog1 = gameHistory.getGameLog(gameLogIndex);
-            tempBatter = gameLog1.getPreviousBatter();
-            undoResult = gameLog1.getResult();
-            currentRunsLog = gameLog1.getRunsLog();
-            if (gameLog1.isInningChanged()){
+            tempBatter = gameCursor.getString(prevBatterIndex);
+            undoResult = gameCursor.getString(playIndex);
+            int inningChanged = gameCursor.getInt(inningChangedIndex);
+            if (inningChanged == 1) {
                 inningNumber--;
                 Toast.makeText(GameActivity.this, "inning subtracted " + inningNumber, Toast.LENGTH_LONG).show();
-                inningDisplay.setText(String.valueOf(inningNumber/2));
+                inningDisplay.setText(String.valueOf(inningNumber / 2));
             }
             gameLogIndex--;
             redoButton.setVisibility(View.VISIBLE);
@@ -810,76 +974,120 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             Toast.makeText(GameActivity.this, "This is the beginning of the game!", Toast.LENGTH_SHORT).show();
             return;
         }
-        GameLog gameLog2 = gameHistory.getGameLog(gameLogIndex);
-        BaseLog baseLogEnd = gameLog2.getBaseLogEnd();
-        currentBaseLogStart = baseLogEnd;
+        gameCursor.moveToPrevious();
+
+        reloadBaseLog();
         //undoRuns
-        awayTeamRuns = baseLogEnd.getAwayTeamRuns();
-        homeTeamRuns = baseLogEnd.getHomeTeamRuns();
-        if(tempRunsLog != null) {
-            tempRunsLog.resetPlayersScored();
+        awayTeamRuns = currentBaseLogStart.getAwayTeamRuns();
+        homeTeamRuns = currentBaseLogStart.getHomeTeamRuns();
+        if (!tempRunsLog.isEmpty()) {
+            tempRunsLog.clear();
         }
 
-        gameOuts = baseLogEnd.getOutCount();
-        currentTeam = baseLogEnd.getTeam();
-        currentBatter = baseLogEnd.getBatter();
+        gameOuts = currentBaseLogStart.getOutCount();
+        currentTeam = currentBaseLogStart.getTeam();
+        currentBatter = currentBaseLogStart.getBatter();
         setIndex(currentBatter);
-        resetBases(baseLogEnd);
+        resetBases(currentBaseLogStart);
         undoPlayerStats(undoResult);
         setDisplays();
     }
 
     public void redoPlay() {
-        if(gameLogIndex < gameHistory.getAllGameLogs().size() -1) {
+        gameCursor = getContentResolver().query(StatsEntry.CONTENT_URI4, null, null, null, null);
+
+        if (gameLogIndex < gameCursor.getCount() - 1) {
             undoRedo = true;
             gameLogIndex++;
-        }  else {
+        } else {
             redoButton.setVisibility(View.INVISIBLE);
             Toast.makeText(GameActivity.this, "Already caught up! \n gameindex =" + gameLogIndex, Toast.LENGTH_SHORT).show();
             return;
         }
-        GameLog gameLog = gameHistory.getGameLog(gameLogIndex);
-        currentRunsLog = gameLog.getRunsLog();
-        BaseLog baseLogEnd = gameLog.getBaseLogEnd();
-        currentBaseLogStart = baseLogEnd;
-        awayTeamRuns = baseLogEnd.getAwayTeamRuns();
-        homeTeamRuns = baseLogEnd.getHomeTeamRuns();
-        gameOuts = baseLogEnd.getOutCount();
-        currentTeam = baseLogEnd.getTeam();
-        currentBatter = baseLogEnd.getBatter();
-        tempBatter = gameLog.getPreviousBatter();
-        String redoResult = gameLog.getResult();
-        if(tempRunsLog != null) {
-            tempRunsLog.resetPlayersScored();
+        gameCursor.moveToPosition(gameLogIndex);
+
+        reloadRunsLog();
+        reloadBaseLog();
+        awayTeamRuns = currentBaseLogStart.getAwayTeamRuns();
+        homeTeamRuns = currentBaseLogStart.getHomeTeamRuns();
+        gameOuts = currentBaseLogStart.getOutCount();
+        currentTeam = currentBaseLogStart.getTeam();
+        currentBatter = currentBaseLogStart.getBatter();
+        tempBatter = gameCursor.getString(currentBatterIndex);
+        String redoResult = gameCursor.getString(playIndex);
+        if (!tempRunsLog.isEmpty()) {
+            tempRunsLog.clear();
         }
-        if(gameLog.isInningChanged()) {
+        inningChanged = gameCursor.getInt(inningChangedIndex);
+        if (inningChanged == 1) {
             inningNumber++;
             Toast.makeText(GameActivity.this, "inning added " + inningNumber, Toast.LENGTH_LONG).show();
-            if(currentTeam == awayTeam) {
+            if (currentTeam == awayTeam) {
                 homeTeamIndex++;
-            } else if (currentTeam == homeTeam){
+            } else if (currentTeam == homeTeam) {
                 awayTeamIndex++;
             } else {
                 Toast.makeText(GameActivity.this, "inningChanged logic is fucked up!!!", Toast.LENGTH_SHORT).show();
             }
-            inningDisplay.setText(String.valueOf(inningNumber/2));
-            inningChanged = false;
+            inningDisplay.setText(String.valueOf(inningNumber / 2));
+            inningChanged = 0;
         }
         setIndex(currentBatter);
-        resetBases(baseLogEnd);
+        resetBases(currentBaseLogStart);
         updatePlayerStats(redoResult);
         setDisplays();
+    }
+
+    private void reloadBaseLog() {
+        int outs = gameCursor.getInt(gameOutIndex);
+        int awayruns = gameCursor.getInt(awayRunsIndex);
+        int homeruns = gameCursor.getInt(homeRunsIndex);
+        String batter = gameCursor.getString(currentBatterIndex);
+        int team = gameCursor.getInt(currentTeamIndex);
+        String first = gameCursor.getString(firstIndex);
+        String second = gameCursor.getString(secondIndex);
+        String third = gameCursor.getString(thirdIndex);
+        List<String> teamLineup;
+        if (team == 0){
+            teamLineup = awayTeam;
+        } else if (team == 1){
+            teamLineup = homeTeam;
+        } else {
+            Toast.makeText(GameActivity.this, "FUKUP FUKUP with teamLINEUP!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        currentBaseLogStart = new BaseLog(teamLineup, batter, first, second, third, outs, awayruns, homeruns);
+    }
+
+    private void reloadRunsLog() {
+        currentRunsLog.clear();
+        String run1 = gameCursor.getString(run1Index);
+        String run2 = gameCursor.getString(run2Index);
+        String run3 = gameCursor.getString(run3Index);
+        String run4 = gameCursor.getString(run4Index);
+        if (run1 == null) {
+            return;
+        }
+        currentRunsLog.add(run1);
+        if (run2 == null) {
+            return;
+        }
+        currentRunsLog.add(run2);
+        if (run3 == null) {
+            return;
+        }
+        currentRunsLog.add(run3);
+        if (run4 == null) {
+            return;
+        }
+        currentRunsLog.add(run4);
     }
 
     private class MyDragListener implements View.OnDragListener {
 
         @Override
         public boolean onDrag(View v, DragEvent event) {
-            if(undoRedo) {
-                if (tempRunsLog == null || tempRunsLog.getRBICount() == 0) {
-                tempRunsLog = new RunsLog();
-                }
-            }
+            //if (undoRedo) {if (tempRunsLog == null || tempRunsLog.getRBICount() == 0) {tempRunsLog = new RunsLog();}}
             int action = event.getAction();
             TextView dropPoint = null;
             if (v.getId() != R.id.trash) {
@@ -902,7 +1110,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                     break;
                 case DragEvent.ACTION_DROP:
                     String movedPlayer = "";
-                    //check later whether can shorten this section
+                    //TODO: check later whether can shorten this section
                     if (v.getId() == R.id.trash) {
                         if (eventView instanceof TextView) {
                             TextView draggedView = (TextView) eventView;
@@ -910,7 +1118,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                         } else {
                             batterDisplay.setVisibility(View.INVISIBLE);
                             batterMoved = true;
-                            if(playEntered) {
+                            if (playEntered) {
                                 submitPlay.setVisibility(View.VISIBLE);
                             }
                         }
@@ -927,7 +1135,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                             dropPoint.setText(currentBatter);
                             batterDisplay.setVisibility(View.INVISIBLE);
                             batterMoved = true;
-                            if(playEntered) {
+                            if (playEntered) {
                                 submitPlay.setVisibility(View.VISIBLE);
                             }
                         }
@@ -935,13 +1143,17 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                     v.setBackgroundColor(Color.TRANSPARENT);
                     if (dropPoint == homeDisplay) {
                         if (eventView instanceof TextView) {
-                            if(undoRedo) {
-                                tempRunsLog.addPlayerScored(movedPlayer);
-                            } else {currentRunsLog.addPlayerScored(movedPlayer);}
+                            if (undoRedo) {
+                                tempRunsLog.add(movedPlayer);
+                            } else {
+                                currentRunsLog.add(movedPlayer);
+                            }
                         } else {
-                            if(undoRedo) {
-                                tempRunsLog.addPlayerScored(currentBatter);
-                            } else {currentRunsLog.addPlayerScored(currentBatter);}
+                            if (undoRedo) {
+                                tempRunsLog.add(currentBatter);
+                            } else {
+                                currentRunsLog.add(currentBatter);
+                            }
                         }
                         homeDisplay.setText("");
                         tempRuns++;
@@ -1029,7 +1241,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             }
         } else if (currentTeam == homeTeam) {
             homeTeamIndex++;
-            if(homeTeamIndex >= homeTeam.size()) {
+            if (homeTeamIndex >= homeTeam.size()) {
                 homeTeamIndex = 0;
             }
         } else {
@@ -1057,20 +1269,4 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             Toast.makeText(GameActivity.this, "SOMETHING WENT WRONG WITH THE INDEXES!!!", Toast.LENGTH_LONG).show();
         }
     }
-
-    public void subtractOut() {
-        gameOuts--;
-    }
-    public int getGameOuts() {
-        return gameOuts;
-    }
-    public void setGameOuts(int gameOuts) {
-        this.gameOuts = gameOuts;
-    }
-    public int getInningNumber() {return inningNumber;}
-    public void setInningNumber(int inningNumber) {this.inningNumber = inningNumber;}
-    public void increaseInningNumber() {
-        this.inningNumber++;
-    }
-    public void decreaseInningNumber() {this.inningNumber--;}
 }

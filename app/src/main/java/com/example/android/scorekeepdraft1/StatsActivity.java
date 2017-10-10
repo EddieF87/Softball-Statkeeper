@@ -270,6 +270,7 @@ public class StatsActivity extends AppCompatActivity implements LoaderManager.Lo
             int rbiIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_RBI);
             int runIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_RUN);
             int sfIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_SF);
+            int gameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_G);
 
             String player = mCursor.getString(nameIndex);
             String team = mCursor.getString(teamIndex);
@@ -282,8 +283,9 @@ public class StatsActivity extends AppCompatActivity implements LoaderManager.Lo
             int rbi = mCursor.getInt(rbiIndex);
             int run = mCursor.getInt(runIndex);
             int sf = mCursor.getInt(sfIndex);
+            int g = mCursor.getInt(gameIndex);
 
-            players.add(new Player(player, team, sgl, dbl, tpl, hr, bb, run, rbi, out, sf));
+            players.add(new Player(player, team, sgl, dbl, tpl, hr, bb, run, rbi, out, sf, g));
         }
         if (players.isEmpty()) {
                 rv.setVisibility(View.GONE);

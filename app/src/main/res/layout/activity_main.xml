@@ -86,4 +86,14 @@
         android:text="Update"
         app:layout_constraintLeft_toRightOf="@+id/testplayers"
         app:layout_constraintTop_toTopOf="@+id/testplayers" />
+
+    <Button
+        android:id="@+id/tempdelete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:text="DELETETEMP"
+        app:layout_constraintLeft_toRightOf="@+id/testupdate"
+        app:layout_constraintTop_toTopOf="@+id/testupdate" />
 </android.support.constraint.ConstraintLayout>

@@ -1,5 +1,7 @@
 package com.example.android.scorekeepdraft1;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -23,6 +25,7 @@ import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.example.android.scorekeepdraft1.R.string.team;
 import static java.lang.reflect.Array.getInt;
 
 public class SetTeamsActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
@@ -135,6 +138,7 @@ public class SetTeamsActivity extends AppCompatActivity implements AdapterView.O
                     Toast.makeText(SetTeamsActivity.this, "Add more players to " + homeTeamSelection + " lineup first.", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                setLineupsToDB();
                 Intent intent = new Intent(SetTeamsActivity.this, GameActivity.class);
                 Bundle b = new Bundle();
                 b.putString("awayteam", awayTeamSelection);
@@ -144,6 +148,28 @@ public class SetTeamsActivity extends AppCompatActivity implements AdapterView.O
                 finish();
             }
         });
+    }
+
+    private void setLineupsToDB() {
+        ContentResolver contentResolver = getContentResolver();
+        List<String> awayLineup = getLineup(awayTeamSelection);
+        List<String> homeLineup = getLineup(homeTeamSelection);
+        for(int i = 0; i < awayLineup.size(); i++) {
+            String player = awayLineup.get(i);
+            ContentValues values = new ContentValues();
+            values.put(StatsEntry.COLUMN_NAME, player);
+            values.put(StatsEntry.COLUMN_TEAM, awayTeamSelection);
+            values.put(StatsEntry.COLUMN_ORDER,i+1);
+            contentResolver.insert(StatsEntry.CONTENT_URI3, values);
+        }
+        for(int i = 0; i < homeLineup.size(); i++) {
+            String player = homeLineup.get(i);
+            ContentValues values = new ContentValues();
+            values.put(StatsEntry.COLUMN_NAME, player);
+            values.put(StatsEntry.COLUMN_TEAM, homeTeamSelection);
+            values.put(StatsEntry.COLUMN_ORDER,i+1);
+            contentResolver.insert(StatsEntry.CONTENT_URI3, values);
+        }
     }
 
     @Override
@@ -160,28 +186,7 @@ public class SetTeamsActivity extends AppCompatActivity implements AdapterView.O
         } else {
             Toast.makeText(this, "woops I DID SOMETHIGN WRONG ", Toast.LENGTH_SHORT).show();
         }
-        playerList = new ArrayList<>();
-
-        try {
-            String[] projection = new String[]{StatsContract.StatsEntry._ID, StatsContract.StatsEntry.COLUMN_ORDER, StatsEntry.COLUMN_NAME};
-            String selection = StatsContract.StatsEntry.COLUMN_TEAM + "=?";
-            String[] selectionArgs = new String[]{team};
-            String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
-
-            mCursor = getContentResolver().query(StatsEntry.CONTENT_URI1, projection,
-                    selection, selectionArgs, sortOrder);
-            while (mCursor.moveToNext()) {
-                int nameIndex = mCursor.getColumnIndex(StatsContract.StatsEntry.COLUMN_NAME);
-                int orderIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_ORDER);
-                String playerName = mCursor.getString(nameIndex);
-                int order = mCursor.getInt(orderIndex);
-                if (order < 50) {
-                    playerList.add(playerName);
-                }
-            }
-        } catch (Exception e) {
-            Toast.makeText(this, "woops  " + e, Toast.LENGTH_SHORT).show();
-        }
+        playerList = getLineup(team);
 
         SharedPreferences.Editor editor;
         SharedPreferences spinnersaving;
@@ -201,7 +206,33 @@ public class SetTeamsActivity extends AppCompatActivity implements AdapterView.O
         }
         editor = spinnersaving.edit();
         editor.putInt("spinnerPos", position);
-        editor.commit();
+        editor.apply();
+    }
+
+    private ArrayList<String> getLineup(String team){
+        ArrayList<String> lineup = new ArrayList<>();
+        try {
+            String[] projection = new String[]{StatsContract.StatsEntry._ID, StatsContract.StatsEntry.COLUMN_ORDER, StatsEntry.COLUMN_NAME};
+            String selection = StatsContract.StatsEntry.COLUMN_TEAM + "=?";
+            String[] selectionArgs = new String[]{team};
+            String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
+
+            mCursor = getContentResolver().query(StatsEntry.CONTENT_URI1, projection,
+                    selection, selectionArgs, sortOrder);
+            while (mCursor.moveToNext()) {
+                int nameIndex = mCursor.getColumnIndex(StatsContract.StatsEntry.COLUMN_NAME);
+                int orderIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_ORDER);
+                String playerName = mCursor.getString(nameIndex);
+                int order = mCursor.getInt(orderIndex);
+                if (order < 50) {
+                    lineup.add(playerName);
+                }
+            }
+            return lineup;
+        } catch (Exception e) {
+            Toast.makeText(this, "woops  " + e, Toast.LENGTH_SHORT).show();
+            return null;
+        }
     }
 
     public TeamListAdapter getLeftListAdapter() {
