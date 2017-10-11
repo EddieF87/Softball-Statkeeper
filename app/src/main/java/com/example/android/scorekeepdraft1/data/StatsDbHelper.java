@@ -95,8 +95,6 @@ public class StatsDbHelper extends SQLiteOpenHelper {
                         StatsEntry.COLUMN_AWAY_RUNS + " INTEGER, " +
                         StatsEntry.COLUMN_HOME_RUNS + " INTEGER, " +
 
-                        //StatsEntry.COLUMN_TEAM_END + " TEXT, " +
-
                         //RunsLogs
                         StatsEntry.COLUMN_RUN1 + " TEXT, " +
                         StatsEntry.COLUMN_RUN2 + " TEXT, " +

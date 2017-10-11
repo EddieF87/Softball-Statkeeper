@@ -5,9 +5,11 @@
  */
 package com.example.android.scorekeepdraft1;
 
+import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -28,7 +30,6 @@ import com.example.android.scorekeepdraft1.undoredo.BaseLog;
 import com.example.android.scorekeepdraft1.undoredo.GameHistory;
 
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
-import com.example.android.scorekeepdraft1.undoredo.RunsLog;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -153,28 +154,6 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         awayTeam = new ArrayList<>();
         homeTeam = new ArrayList<>();
 
-        String selection = StatsEntry.COLUMN_TEAM + "=?";
-        String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
-        String[] selectionArgs = new String[]{awayTeamName};
-
-        playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI3, null,
-                selection, selectionArgs, sortOrder);
-        int nameIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
-        while (playerCursor.moveToNext()) {
-            String playerName = playerCursor.getString(nameIndex);
-            awayTeam.add(playerName);
-        }
-
-        selectionArgs = new String[]{homeTeamName};
-        playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI3, null,
-                selection, selectionArgs, sortOrder);
-        while (playerCursor.moveToNext()) {
-            String playerName = playerCursor.getString(nameIndex);
-            homeTeam.add(playerName);
-        }
-        playerCursor.moveToFirst();
-        getPlayerColumnIndeces();
-
         scoreboard = (TextView) findViewById(R.id.scoreboard);
         nowBatting = (TextView) findViewById(R.id.nowbatting);
         outsDisplay = (TextView) findViewById(R.id.num_of_outs);
@@ -205,7 +184,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         });
         resetBases.setVisibility(View.INVISIBLE);
 
-        //temporary?
+        //TODO temporary?
         undoButton = (Button) findViewById(R.id.undobutton);
         undoButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -213,7 +192,6 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                 undoPlay();
             }
         });
-
         redoButton = (Button) findViewById(R.id.redobutton);
         redoButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -229,14 +207,35 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         thirdDisplay = (TextView) findViewById(R.id.third_display);
         homeDisplay = (TextView) findViewById(R.id.home_display);
         outTrash = (ImageView) findViewById(R.id.trash);
-
         batterDisplay.setOnLongClickListener(new MyClickListener());
-
         firstDisplay.setOnDragListener(new MyDragListener());
         secondDisplay.setOnDragListener(new MyDragListener());
         thirdDisplay.setOnDragListener(new MyDragListener());
         homeDisplay.setOnDragListener(new MyDragListener());
         outTrash.setOnDragListener(new MyDragListener());
+
+        String selection = StatsEntry.COLUMN_TEAM + "=?";
+        String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
+        String[] selectionArgs = new String[]{awayTeamName};
+
+        playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI3, null,
+                selection, selectionArgs, sortOrder);
+        int nameIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
+        while (playerCursor.moveToNext()) {
+            String playerName = playerCursor.getString(nameIndex);
+            awayTeam.add(playerName);
+        }
+
+        selectionArgs = new String[]{homeTeamName};
+        playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI3, null,
+                selection, selectionArgs, sortOrder);
+        while (playerCursor.moveToNext()) {
+            String playerName = playerCursor.getString(nameIndex);
+            homeTeam.add(playerName);
+        }
+        playerCursor.moveToFirst();
+        getPlayerColumnIndeces();
+
 
         finalInning = false;
 
@@ -337,28 +336,21 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         awayTeamRuns = 0;
         homeTeamRuns = 0;
 
-        //gameHistory = new GameHistory();
         currentTeam = awayTeam;
         currentBatter = awayTeam.get(0);
         currentRunsLog = new ArrayList<>();
         tempRunsLog = new ArrayList<>();
         currentBaseLogStart = new BaseLog(currentTeam, currentBatter, "", "", "", 0, 0, 0);
 
-        //gameHistory.addGameLog(new GameLog(currentBaseLogStart, currentRunsLog, "start", null, inningNumber, false));
         scoreboard.setText(awayTeamName + " " + awayTeamRuns + "    " + homeTeamName + " " + homeTeamRuns);
 
         ContentValues values = new ContentValues();
-        //currentBaseLogStart
         values.put(StatsEntry.COLUMN_ONDECK, currentBatter);
         values.put(StatsEntry.COLUMN_TEAM, 0);
         values.put(StatsEntry.COLUMN_OUT, 0);
         values.put(StatsEntry.COLUMN_AWAY_RUNS, 0);
         values.put(StatsEntry.COLUMN_HOME_RUNS, 0);
-        //currentRunsLog
-        //result
         values.put(StatsEntry.COLUMN_PLAY, "start");
-        //previousBatter
-        //isInningChanged
         values.put(StatsEntry.COLUMN_INNING_CHANGED, 0);
         gameUri = getContentResolver().insert(StatsEntry.CONTENT_URI4, values);
         gameCursor = getContentResolver().query(StatsEntry.CONTENT_URI4, null,
@@ -375,17 +367,23 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
 
     public void nextBatter() {
         if (currentTeam == homeTeam && finalInning && homeTeamRuns > awayTeamRuns) {
-            endGame();
+            showEndGameConfirmationDialog();
+            return;
         }
         if (gameOuts >= 3) {
             if (currentTeam == homeTeam && finalInning && awayTeamRuns > homeTeamRuns) {
-                endGame();
+                showEndGameConfirmationDialog();
+                return;
             } else {
                 nextInning();
             }
         } else {
             increaseIndex();
         }
+        updateGameLogs();
+    }
+
+    private void updateGameLogs(){
         String previousBatterName = currentBatter;
         currentBatter = currentTeam.get(getIndex());
 
@@ -397,7 +395,6 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                 secondDisplay.getText().toString(), thirdDisplay.getText().toString(),
                 gameOuts, awayTeamRuns, homeTeamRuns
         );
-        //gameHistory.addGameLog(new GameLog(currentBaseLogEnd, currentRunsLog, result, previousBatterName, inningNumber, inningChanged));
         gameLogIndex++;
 
         int team;
@@ -468,7 +465,8 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         increaseIndex();
         if (currentTeam == awayTeam) {
             if (finalInning && homeTeamRuns > awayTeamRuns) {
-                endGame();
+                showEndGameConfirmationDialog();
+                return;
             }
             currentTeam = homeTeam;
         } else {
@@ -557,6 +555,27 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         startActivity(finishGame);
     }
 
+    private void showEndGameConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.delete_team_msg);
+        builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                endGame();
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                updateGameLogs();
+                undoPlay();
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
     private void addStatsToPermanentDB() {
         ArrayList<String> playerList = new ArrayList<>();
         String selection = StatsEntry.COLUMN_NAME + "=?";
@@ -612,14 +631,6 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             values.put(StatsEntry.COLUMN_G, games + 1);
             getContentResolver().update(StatsEntry.CONTENT_URI1, values, selection, selectionArgs);
         }
-
-
-
-
-
-
-
-
     }
 
 
@@ -678,8 +689,6 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         String[] selectionArgs;
         if (undoRedo) {
             selectionArgs = new String[]{tempBatter};
-//            playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI3, null,
-//                    selection, selectionArgs, null);
         } else {
             selectionArgs = new String[]{currentBatter};
         }
@@ -910,7 +919,10 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             String deleteToast = "Deleted " + playsDeleted + " plays!";
             Toast.makeText(GameActivity.this, deleteToast, Toast.LENGTH_SHORT).show();
             undoRedo = false;
-            currentRunsLog = tempRunsLog;
+            currentRunsLog.clear();
+            for (String player : tempRunsLog) {
+                currentRunsLog.add(player);
+            }
         }
         updatePlayerStats(result);
         gameOuts += tempOuts;
@@ -974,8 +986,8 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             Toast.makeText(GameActivity.this, "This is the beginning of the game!", Toast.LENGTH_SHORT).show();
             return;
         }
+        reloadRunsLog();
         gameCursor.moveToPrevious();
-
         reloadBaseLog();
         //undoRuns
         awayTeamRuns = currentBaseLogStart.getAwayTeamRuns();
@@ -1013,7 +1025,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         gameOuts = currentBaseLogStart.getOutCount();
         currentTeam = currentBaseLogStart.getTeam();
         currentBatter = currentBaseLogStart.getBatter();
-        tempBatter = gameCursor.getString(currentBatterIndex);
+        tempBatter = gameCursor.getString(prevBatterIndex);
         String redoResult = gameCursor.getString(playIndex);
         if (!tempRunsLog.isEmpty()) {
             tempRunsLog.clear();
@@ -1087,7 +1099,6 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
 
         @Override
         public boolean onDrag(View v, DragEvent event) {
-            //if (undoRedo) {if (tempRunsLog == null || tempRunsLog.getRBICount() == 0) {tempRunsLog = new RunsLog();}}
             int action = event.getAction();
             TextView dropPoint = null;
             if (v.getId() != R.id.trash) {
@@ -1180,7 +1191,6 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     }
 
     //TODO: LOOK into performance issues of making new onclick/ondrag listeners each time as opposed to perhaps recycling the same one?
-    // This defines your touch listener
     private final class MyClickListener implements View.OnLongClickListener {
         @Override
         public boolean onLongClick(View view) {
