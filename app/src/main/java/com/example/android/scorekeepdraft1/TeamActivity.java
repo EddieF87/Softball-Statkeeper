@@ -20,16 +20,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.PlayerStatsAdapter;
-import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.drm.DrmStore.DrmObjectType.CONTENT;
-import static com.example.android.scorekeepdraft1.R.string.g;
 
 public class TeamActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -79,7 +73,7 @@ public class TeamActivity extends AppCompatActivity implements LoaderManager.Loa
             String[] selectionArgs = new String[]{"Waivers"};
             return new CursorLoader(
                     this,
-                    StatsEntry.CONTENT_URI2,
+                    StatsEntry.CONTENT_URI_TEAMS,
                     null,
                     selection,
                     selectionArgs,

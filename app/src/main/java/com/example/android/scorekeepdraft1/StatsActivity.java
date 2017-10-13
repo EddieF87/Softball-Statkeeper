@@ -64,7 +64,7 @@ public class StatsActivity extends AppCompatActivity implements LoaderManager.Lo
         findViewById(R.id.tpl_title).setOnClickListener(this);
         findViewById(R.id.bb_title).setOnClickListener(this);
 
-        mCursor = getContentResolver().query(StatsEntry.CONTENT_URI2,
+        mCursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
                 new String[]{StatsEntry.COLUMN_NAME}, null, null, null);
 
         teams = new ArrayList<>();

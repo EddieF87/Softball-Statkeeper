@@ -19,8 +19,6 @@ import com.example.android.scorekeepdraft1.adapters_listeners_etc.StandingsCurso
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 
-import static android.R.attr.id;
-
 public class StandingsActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, View.OnClickListener {
 
     private String[] projection = new String[]{"*, (CAST ((" + StatsEntry.COLUMN_WINS + ") AS FLOAT) / (" + StatsEntry.COLUMN_WINS + " + "
@@ -45,7 +43,7 @@ public class StandingsActivity extends AppCompatActivity implements LoaderManage
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 Intent intent = new Intent(StandingsActivity.this, TeamActivity.class);
-                Uri currentTeamUri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI2, id);
+                Uri currentTeamUri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_TEAMS, id);
                 intent.setData(currentTeamUri);
                 startActivity(intent);
             }
@@ -81,7 +79,7 @@ public class StandingsActivity extends AppCompatActivity implements LoaderManage
 
         return new CursorLoader(
                 this,
-                StatsContract.StatsEntry.CONTENT_URI2,
+                StatsContract.StatsEntry.CONTENT_URI_TEAMS,
                 projection,
                 selection,
                 selectionArgs,

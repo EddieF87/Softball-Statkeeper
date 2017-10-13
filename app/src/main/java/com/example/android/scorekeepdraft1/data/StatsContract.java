@@ -36,9 +36,9 @@ public class StatsContract {
 
         /* The base CONTENT_URI1 used to query the Weather table from the content provider */
         public static final Uri CONTENT_URI1 = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_PLAYERS);
-        public static final Uri CONTENT_URI2 = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_TEAMS);
-        public static final Uri CONTENT_URI3 = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_TEMP);
-        public static final Uri CONTENT_URI4 = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_GAME);
+        public static final Uri CONTENT_URI_TEAMS = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_TEAMS);
+        public static final Uri CONTENT_URI_TEMP = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_TEMP);
+        public static final Uri CONTENT_URI_GAMELOG = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_GAME);
 
 
         /* Used internally as the name of our weather table. */
@@ -108,6 +108,7 @@ public class StatsContract {
         public static final String COLUMN_RUN3 = "runc";
         public static final String COLUMN_RUN4 = "rund";
         public static final String COLUMN_INNING_CHANGED = "innchange";
+        public static final String COLUMN_LOG_INDEX = "logindex";
     }
 
 }

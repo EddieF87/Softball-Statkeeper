@@ -52,4 +52,7 @@
     <string name="choose_team_title">Choose Team</string>
     <string name="ab">AB</string>
     <string name="g">G</string>
+    <string name="undo">Undo</string>
+    <string name="end_game_msg">This game is over. Would you like to finish?</string>
+    <string name="end_msg">Finish</string>
 </resources>

@@ -1,7 +1,4 @@
-package com.example.android.scorekeepdraft1.undoredo;
-
-import com.example.android.scorekeepdraft1.Player;
-import com.example.android.scorekeepdraft1.Team;
+package com.example.android.scorekeepdraft1.gamelog;
 
 import java.util.List;
 
@@ -48,5 +45,9 @@ public class BaseLog {
 
     public List<String> getTeam() {
         return team;
+    }
+
+    public void reload(){
+
     }
 }

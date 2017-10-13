@@ -9,7 +9,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -24,9 +23,6 @@ import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.example.android.scorekeepdraft1.R.string.team;
-import static java.lang.reflect.Array.getInt;
 
 public class SetTeamsActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
@@ -64,7 +60,7 @@ public class SetTeamsActivity extends AppCompatActivity implements AdapterView.O
         String selection = StatsContract.StatsEntry.COLUMN_LEAGUE + "=?";
         String league = "ISL";
         String[] selectionArgs = new String[]{league};
-        mCursor = getContentResolver().query(StatsContract.StatsEntry.CONTENT_URI2, projection,
+        mCursor = getContentResolver().query(StatsContract.StatsEntry.CONTENT_URI_TEAMS, projection,
                 selection, selectionArgs, null);
         SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, R.layout.spinner_layout, mCursor,
                 new String[]{StatsContract.StatsEntry.COLUMN_NAME},
@@ -140,10 +136,6 @@ public class SetTeamsActivity extends AppCompatActivity implements AdapterView.O
                 }
                 setLineupsToDB();
                 Intent intent = new Intent(SetTeamsActivity.this, GameActivity.class);
-                Bundle b = new Bundle();
-                b.putString("awayteam", awayTeamSelection);
-                b.putString("hometeam", homeTeamSelection);
-                intent.putExtras(b);
                 startActivity(intent);
                 finish();
             }
@@ -160,7 +152,7 @@ public class SetTeamsActivity extends AppCompatActivity implements AdapterView.O
             values.put(StatsEntry.COLUMN_NAME, player);
             values.put(StatsEntry.COLUMN_TEAM, awayTeamSelection);
             values.put(StatsEntry.COLUMN_ORDER,i+1);
-            contentResolver.insert(StatsEntry.CONTENT_URI3, values);
+            contentResolver.insert(StatsEntry.CONTENT_URI_TEMP, values);
         }
         for(int i = 0; i < homeLineup.size(); i++) {
             String player = homeLineup.get(i);
@@ -168,7 +160,7 @@ public class SetTeamsActivity extends AppCompatActivity implements AdapterView.O
             values.put(StatsEntry.COLUMN_NAME, player);
             values.put(StatsEntry.COLUMN_TEAM, homeTeamSelection);
             values.put(StatsEntry.COLUMN_ORDER,i+1);
-            contentResolver.insert(StatsEntry.CONTENT_URI3, values);
+            contentResolver.insert(StatsEntry.CONTENT_URI_TEMP, values);
         }
     }
 

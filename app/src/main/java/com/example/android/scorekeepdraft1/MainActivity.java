@@ -52,8 +52,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, SetTeamsActivity.class);
-                getContentResolver().delete(StatsEntry.CONTENT_URI3, null, null);
-                getContentResolver().delete(StatsEntry.CONTENT_URI4, null, null);
+                getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, null, null);
+                getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, null, null);
                 startActivity(intent);
             }
         });
@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
                     values.put(StatsEntry.COLUMN_TIES, 0);
                     values.put(StatsEntry.COLUMN_RUNSFOR, 0);
                     values.put(StatsEntry.COLUMN_RUNSAGAINST, 0);
-                    getContentResolver().insert(StatsEntry.CONTENT_URI2, values);
+                    getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
                 }
             }
         });
@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
                     values.put(StatsEntry.COLUMN_TIES, ties);
                     values.put(StatsEntry.COLUMN_RUNSFOR, runsfor);
                     values.put(StatsEntry.COLUMN_RUNSAGAINST, runsagainst);
-                    getContentResolver().update(StatsEntry.CONTENT_URI2, values,
+                    getContentResolver().update(StatsEntry.CONTENT_URI_TEAMS, values,
                             StatsEntry.COLUMN_NAME + "=?", new String[] {team});
                 }
             }
@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Cursor cursor = getContentResolver().query(
-                        StatsEntry.CONTENT_URI2, null,
+                        StatsEntry.CONTENT_URI_TEAMS, null,
                         null, null, null
                 );
                 while (cursor.moveToNext()) {

@@ -199,7 +199,7 @@ public class StatsProvider extends ContentProvider {
                 throw new IllegalArgumentException("Team requires a name");
             }
             String[] projection = new String[] {StatsEntry.COLUMN_NAME};
-            Cursor cursor = query(StatsEntry.CONTENT_URI2, projection, null, null, null);
+            Cursor cursor = query(StatsEntry.CONTENT_URI_TEAMS, projection, null, null, null);
             while (cursor.moveToNext()) {
                 int nameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_NAME);
                 String teamName = cursor.getString(nameIndex);
@@ -268,7 +268,7 @@ public class StatsProvider extends ContentProvider {
                 // Delete a single row given by the ID in the URI
                 selection = StatsEntry._ID + ">?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
-                //Cursor cursor = query(StatsEntry.CONTENT_URI4, null, selection, selectionArgs, null);
+                //Cursor cursor = query(StatsEntry.CONTENT_URI_GAMELOG, null, selection, selectionArgs, null);
 
                 rowsDeleted = database.delete(StatsEntry.GAME_TABLE_NAME, selection, selectionArgs);
                 break;

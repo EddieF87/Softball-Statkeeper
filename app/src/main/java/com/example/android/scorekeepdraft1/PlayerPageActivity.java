@@ -1,6 +1,5 @@
 package com.example.android.scorekeepdraft1;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.LoaderManager;
@@ -16,27 +15,19 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
-import android.os.Build;
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
-
-import static android.R.attr.data;
-import static android.R.attr.id;
-import static com.example.android.scorekeepdraft1.R.string.team;
 
 
 public class PlayerPageActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -238,7 +229,7 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
     private void changeTeamDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        Cursor mCursor = getContentResolver().query(StatsEntry.CONTENT_URI2,
+        Cursor mCursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
                 new String[]{StatsEntry.COLUMN_NAME}, null, null, null);
         ArrayList<String> teams = new ArrayList<>();
         while (mCursor.moveToNext()) {
@@ -313,11 +304,11 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
 
             String selection = StatsEntry.COLUMN_NAME + "=?";
             String[] selectionArgs = new String[]{teamString};
-            Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI2,
+            Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
                     null, selection, selectionArgs, null);
             if (cursor.moveToFirst()) {
                 int playerId = cursor.getInt(cursor.getColumnIndex(StatsEntry._ID));
-                Uri teamUri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI2, playerId);
+                Uri teamUri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_TEAMS, playerId);
                 intent.setData(teamUri);
             }
             startActivity(intent);

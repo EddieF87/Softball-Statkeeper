@@ -101,7 +101,8 @@ public class StatsDbHelper extends SQLiteOpenHelper {
                         StatsEntry.COLUMN_RUN3 + " TEXT, " +
                         StatsEntry.COLUMN_RUN4 + " TEXT, " +
 
-                        StatsEntry.COLUMN_INNING_CHANGED + " INTEGER" +
+                        StatsEntry.COLUMN_INNING_CHANGED + " INTEGER, " +
+                        StatsEntry.COLUMN_LOG_INDEX + " INTEGER" +
                         ");";
 
         db.execSQL(SQL_CREATE_PLAYERSTATS_TABLE);

@@ -25,7 +25,7 @@ public class ChangeTeamDialogFragment extends DialogFragment {
 //
 //    @Override
 //    public Dialog onCreateDialog(Bundle savedInstanceState) {
-//        Cursor mCursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI2,
+//        Cursor mCursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
 //                new String[]{StatsEntry.COLUMN_NAME}, null, null, null);
 //        teams = new ArrayList<>();
 //        teams.add("All Teams");
