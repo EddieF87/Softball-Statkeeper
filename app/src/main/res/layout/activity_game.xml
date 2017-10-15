@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.android.scorekeepdraft1.GameActivity">
+    tools:context="com.example.android.scorekeepdraft1.GameActivity"
+    android:padding="8dp">
 
     <TextView
         android:id="@+id/second_text"

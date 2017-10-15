@@ -33,14 +33,14 @@ public class StandingsCursorAdapter extends CursorAdapter {
 
     @Override
     public void bindView(View view, Context context, Cursor data) {
-            TextView teamV = (TextView) view.findViewById(R.id.name);
-            TextView winV = (TextView) view.findViewById(R.id.win);
-            TextView lossV = (TextView) view.findViewById(R.id.loss);
-            TextView tieV = (TextView) view.findViewById(R.id.tie);
-            TextView winPctV = (TextView) view.findViewById(R.id.winpct);
-            TextView runsFV = (TextView) view.findViewById(R.id.runsfor);
-            TextView runsAV = (TextView) view.findViewById(R.id.runsagainst);
-            TextView runDV = (TextView) view.findViewById(R.id.rundiff);
+            TextView teamV = view.findViewById(R.id.name);
+            TextView winV = view.findViewById(R.id.win);
+            TextView lossV = view.findViewById(R.id.loss);
+            TextView tieV = view.findViewById(R.id.tie);
+            TextView winPctV = view.findViewById(R.id.winpct);
+            TextView runsFV = view.findViewById(R.id.runsfor);
+            TextView runsAV = view.findViewById(R.id.runsagainst);
+            TextView runDV = view.findViewById(R.id.rundiff);
 
             int teamIndex = data.getColumnIndexOrThrow(StatsEntry.COLUMN_NAME);
             int winIndex = data.getColumnIndexOrThrow(StatsEntry.COLUMN_WINS);

@@ -1,5 +1,6 @@
 package com.example.android.scorekeepdraft1.adapters_listeners_etc;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 
 import com.example.android.scorekeepdraft1.Player;
 import com.example.android.scorekeepdraft1.R;
+import com.example.android.scorekeepdraft1.TeamActivity;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -26,11 +28,16 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
 
     private List<Player> players;
     private final NumberFormat formatter = new DecimalFormat("#.000");
+    private int visibility;
 
-
-    public PlayerStatsAdapter(List<Player> players) {
+    public PlayerStatsAdapter(List<Player> players, Context context) {
         super();
         this.players = players;
+        if (context instanceof TeamActivity){
+            visibility = View.GONE;
+        } else {
+            visibility = View.VISIBLE;
+        }
     }
 
     @Override
@@ -42,22 +49,22 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
     @Override
     public void onBindViewHolder(PlayerStatsAdapter.ListViewHolder holder, int position) {
         LinearLayout linearLayout = holder.linearLayout;
-        TextView nameView = (TextView) linearLayout.findViewById(R.id.name);
-        TextView teamView = (TextView) linearLayout.findViewById(R.id.team_abv);
-        TextView abView = (TextView) linearLayout.findViewById(R.id.ab);
-        TextView hitView = (TextView) linearLayout.findViewById(R.id.hit);
-        TextView hrView = (TextView) linearLayout.findViewById(R.id.hr);
-        TextView rbiView = (TextView) linearLayout.findViewById(R.id.rbi);
-        TextView runView = (TextView) linearLayout.findViewById(R.id.run);
-        TextView avgView = (TextView) linearLayout.findViewById(R.id.avg);
-        TextView obpView = (TextView) linearLayout.findViewById(R.id.obp);
-        TextView slgView = (TextView) linearLayout.findViewById(R.id.slg);
-        TextView opsView = (TextView) linearLayout.findViewById(R.id.ops);
-        TextView sglView = (TextView) linearLayout.findViewById(R.id.sgl);
-        TextView dblView = (TextView) linearLayout.findViewById(R.id.dbl);
-        TextView tplView = (TextView) linearLayout.findViewById(R.id.tpl);
-        TextView bbView = (TextView) linearLayout.findViewById(R.id.bb);
-        TextView gameView = (TextView) linearLayout.findViewById(R.id.game);
+        TextView nameView = linearLayout.findViewById(R.id.name);
+        TextView teamView = linearLayout.findViewById(R.id.team_abv);
+        TextView abView = linearLayout.findViewById(R.id.ab);
+        TextView hitView = linearLayout.findViewById(R.id.hit);
+        TextView hrView = linearLayout.findViewById(R.id.hr);
+        TextView rbiView = linearLayout.findViewById(R.id.rbi);
+        TextView runView = linearLayout.findViewById(R.id.run);
+        TextView avgView = linearLayout.findViewById(R.id.avg);
+        TextView obpView = linearLayout.findViewById(R.id.obp);
+        TextView slgView = linearLayout.findViewById(R.id.slg);
+        TextView opsView = linearLayout.findViewById(R.id.ops);
+        TextView sglView = linearLayout.findViewById(R.id.sgl);
+        TextView dblView = linearLayout.findViewById(R.id.dbl);
+        TextView tplView = linearLayout.findViewById(R.id.tpl);
+        TextView bbView = linearLayout.findViewById(R.id.bb);
+        TextView gameView = linearLayout.findViewById(R.id.game);
 
         if (position % 2 == 1) {linearLayout.setBackgroundColor(Color.parseColor("#dfdfdf"));}
 
@@ -102,6 +109,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             opsView.setText(String.valueOf(formatter.format(player.getOPS())));
         }
         linearLayout.setTag(position);
+        teamView.setVisibility(visibility);
     }
 
     @Override

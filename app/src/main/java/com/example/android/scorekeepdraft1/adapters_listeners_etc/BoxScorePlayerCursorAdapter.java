@@ -6,11 +6,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.android.scorekeepdraft1.GameActivity;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
+
+import static android.icu.lang.UCharacter.GraphemeClusterBreak.V;
 
 
 /**
@@ -25,18 +29,19 @@ public class BoxScorePlayerCursorAdapter extends CursorAdapter {
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        return LayoutInflater.from(context).inflate(R.layout.item_boxscore_player, parent, false);
+         return LayoutInflater.from(context).inflate(R.layout.item_boxscore_player, parent, false);
     }
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        TextView nameV = (TextView) view.findViewById(R.id.name);
-        TextView abV = (TextView) view.findViewById(R.id.ab);
-        TextView rV = (TextView) view.findViewById(R.id.run);
-        TextView hV = (TextView) view.findViewById(R.id.hit);
-        TextView rbiV = (TextView) view.findViewById(R.id.rbi);
-        TextView hrFV = (TextView) view.findViewById(R.id.hr);
-        TextView bbV = (TextView) view.findViewById(R.id.bb);
+
+        TextView nameV = view.findViewById(R.id.name);
+        TextView abV = view.findViewById(R.id.ab);
+        TextView rV = view.findViewById(R.id.run);
+        TextView hV = view.findViewById(R.id.hit);
+        TextView rbiV = view.findViewById(R.id.rbi);
+        TextView hrFV = view.findViewById(R.id.hr);
+        TextView bbV = view.findViewById(R.id.bb);
 
         int nameIndex = cursor.getColumnIndexOrThrow(StatsContract.StatsEntry.COLUMN_NAME);
         int rIndex = cursor.getColumnIndexOrThrow(StatsEntry.COLUMN_RUN);

@@ -91,7 +91,7 @@ public class StatsActivity extends AppCompatActivity implements LoaderManager.Lo
     private void initRecyclerView() {
         rv.setLayoutManager(new LinearLayoutManager(
                 this, LinearLayoutManager.VERTICAL, false));
-        rvAdapter = new PlayerStatsAdapter(players);
+        rvAdapter = new PlayerStatsAdapter(players, this);
         rv.setAdapter(rvAdapter);
     }
 

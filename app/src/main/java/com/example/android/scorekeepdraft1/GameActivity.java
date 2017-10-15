@@ -532,7 +532,6 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             currentTeam = awayTeam;
         }
         inningNumber++;
-        Toast.makeText(GameActivity.this, "Inning: " + inningNumber/2, Toast.LENGTH_LONG).show();
 
         setInningDisplay();
         inningChanged = 1;
@@ -743,18 +742,37 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     }
 
     private void setInningDisplay() {
+        String topOrBottom;
         if(inningNumber % 2 == 0) {
             inningTopArrow.setBackgroundColor(Color.parseColor("#50e931"));
             inningTopArrow.setAlpha(1f);
             inningBottomArrow.setBackgroundColor(Color.WHITE);
             inningBottomArrow.setAlpha(.2f);
+            topOrBottom = "Top";
         } else {
             inningTopArrow.setBackgroundColor(Color.WHITE);
             inningTopArrow.setAlpha(.2f);
             inningBottomArrow.setBackgroundColor(Color.parseColor("#50e931"));
             inningBottomArrow.setAlpha(1f);
+            topOrBottom = "Bottom";
         }
         inningDisplay.setText(String.valueOf(inningNumber / 2));
+
+        String indicator;
+        switch (inningNumber / 2) {
+            case 1:
+                indicator = "st";
+                break;
+            case 2:
+                indicator = "nd";
+                break;
+            case 3:
+                indicator = "rd";
+                break;
+            default:
+                indicator = "th";
+        }
+        Toast.makeText(GameActivity.this, topOrBottom + " of the " + inningNumber/2 + indicator, Toast.LENGTH_LONG).show();
     }
 
     private void updatePlayerStats(String action, int n) {
@@ -946,7 +964,6 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             int inningChanged = gameCursor.getInt(inningChangedIndex);
             if (inningChanged == 1) {
                 inningNumber--;
-                Toast.makeText(GameActivity.this, "Inning: " + inningNumber/2, Toast.LENGTH_LONG).show();
                 setInningDisplay();
             }
             gameLogIndex--;
@@ -1000,13 +1017,12 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         inningChanged = gameCursor.getInt(inningChangedIndex);
         if (inningChanged == 1) {
             inningNumber++;
-            Toast.makeText(GameActivity.this, "Inning: " + inningNumber/2, Toast.LENGTH_LONG).show();
             if (currentTeam == awayTeam) {
                 homeTeamIndex++;
             } else if (currentTeam == homeTeam) {
                 awayTeamIndex++;
             } else {
-                Toast.makeText(GameActivity.this, "inningChanged logic is fucked up!!!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(GameActivity.this, "inningChanged logic error!", Toast.LENGTH_SHORT).show();
             }
             setInningDisplay();
             inningChanged = 0;
@@ -1274,6 +1290,10 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                 break;
             case R.id.action_goto_stats:
                 Intent intent = new Intent(GameActivity.this, BoxScoreActivity.class);
+                Bundle b = new Bundle();
+                b.putString("awayTeam", awayTeamName);
+                b.putString("homeTeam", homeTeamName);
+                intent.putExtras(b);
                 startActivity(intent);
                 break;
             case R.id.action_quit_game:

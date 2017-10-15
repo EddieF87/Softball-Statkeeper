@@ -51,7 +51,7 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
             playerString = b.getString("player");
         }
         nameChanged = false;
-        teamView = (TextView) findViewById(R.id.player_team);
+        teamView = findViewById(R.id.player_team);
 
         String title = "Player Bio: " + playerString;
         setTitle(title);
