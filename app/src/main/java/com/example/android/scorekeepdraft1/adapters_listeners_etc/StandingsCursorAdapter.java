@@ -14,8 +14,6 @@ import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
-import static com.example.android.scorekeepdraft1.R.id.runsFor_title;
-
 /**
  * Created by Eddie on 04/09/2017.
  */
@@ -35,14 +33,14 @@ public class StandingsCursorAdapter extends CursorAdapter {
 
     @Override
     public void bindView(View view, Context context, Cursor data) {
-            TextView teamV = (TextView) view.findViewById(R.id.team_title);
-            TextView winV = (TextView) view.findViewById(R.id.wins_title);
-            TextView lossV = (TextView) view.findViewById(R.id.losses_title);
-            TextView tieV = (TextView) view.findViewById(R.id.ties_title);
-            TextView winPctV = (TextView) view.findViewById(R.id.winPCT_title);
-            TextView runsFV = (TextView) view.findViewById(runsFor_title);
-            TextView runsAV = (TextView) view.findViewById(R.id.runsAgainst_title);
-            TextView runDV = (TextView) view.findViewById(R.id.runDiff_title);
+            TextView teamV = (TextView) view.findViewById(R.id.name);
+            TextView winV = (TextView) view.findViewById(R.id.win);
+            TextView lossV = (TextView) view.findViewById(R.id.loss);
+            TextView tieV = (TextView) view.findViewById(R.id.tie);
+            TextView winPctV = (TextView) view.findViewById(R.id.winpct);
+            TextView runsFV = (TextView) view.findViewById(R.id.runsfor);
+            TextView runsAV = (TextView) view.findViewById(R.id.runsagainst);
+            TextView runDV = (TextView) view.findViewById(R.id.rundiff);
 
             int teamIndex = data.getColumnIndexOrThrow(StatsEntry.COLUMN_NAME);
             int winIndex = data.getColumnIndexOrThrow(StatsEntry.COLUMN_WINS);

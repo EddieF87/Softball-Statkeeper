@@ -8,7 +8,7 @@
 
 
     <TextView
-        android:id="@+id/team_title"
+        android:id="@+id/name_title"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -19,92 +19,92 @@
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@+id/wins_title"
+        app:layout_constraintRight_toLeftOf="@+id/win_title"
         app:layout_constraintTop_toBottomOf="@+id/standings_title" />
 
     <TextView
-        android:id="@+id/wins_title"
+        android:id="@+id/win_title"
         android:layout_width="30dp"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="W"
         android:textSize="16sp"
         android:textStyle="bold"
-        app:layout_constraintLeft_toRightOf="@+id/team_title"
-        app:layout_constraintRight_toLeftOf="@+id/losses_title"
-        app:layout_constraintTop_toTopOf="@+id/team_title" />
+        app:layout_constraintLeft_toRightOf="@+id/name_title"
+        app:layout_constraintRight_toLeftOf="@+id/loss_title"
+        app:layout_constraintTop_toTopOf="@+id/name_title" />
 
     <TextView
-        android:id="@+id/losses_title"
+        android:id="@+id/loss_title"
         android:layout_width="30dp"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="L"
         android:textSize="16sp"
         android:textStyle="bold"
-        app:layout_constraintLeft_toRightOf="@+id/wins_title"
-        app:layout_constraintRight_toLeftOf="@+id/ties_title"
-        app:layout_constraintTop_toTopOf="@+id/wins_title" />
+        app:layout_constraintLeft_toRightOf="@+id/win_title"
+        app:layout_constraintRight_toLeftOf="@+id/tie_title"
+        app:layout_constraintTop_toTopOf="@+id/win_title" />
 
     <TextView
-        android:id="@+id/ties_title"
+        android:id="@+id/tie_title"
         android:layout_width="30dp"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="T"
         android:textSize="16sp"
         android:textStyle="bold"
-        app:layout_constraintLeft_toRightOf="@+id/losses_title"
-        app:layout_constraintRight_toLeftOf="@+id/winPCT_title"
-        app:layout_constraintTop_toTopOf="@+id/losses_title" />
+        app:layout_constraintLeft_toRightOf="@+id/loss_title"
+        app:layout_constraintRight_toLeftOf="@+id/winpct_title"
+        app:layout_constraintTop_toTopOf="@+id/loss_title" />
 
     <TextView
-        android:id="@+id/winPCT_title"
+        android:id="@+id/winpct_title"
         android:layout_width="50dp"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="Win%"
         android:textSize="16sp"
         android:textStyle="bold"
-        app:layout_constraintLeft_toRightOf="@+id/ties_title"
-        app:layout_constraintRight_toLeftOf="@+id/runsFor_title"
-        app:layout_constraintTop_toTopOf="@+id/ties_title" />
+        app:layout_constraintLeft_toRightOf="@+id/tie_title"
+        app:layout_constraintRight_toLeftOf="@+id/runsfor_title"
+        app:layout_constraintTop_toTopOf="@+id/tie_title" />
 
     <TextView
-        android:id="@+id/runsFor_title"
+        android:id="@+id/runsfor_title"
         android:layout_width="36dp"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="Runs Scored"
         android:textSize="10sp"
         android:textStyle="bold"
-        app:layout_constraintLeft_toRightOf="@+id/winPCT_title"
-        app:layout_constraintRight_toLeftOf="@+id/runsAgainst_title"
-        app:layout_constraintTop_toTopOf="@+id/winPCT_title" />
+        app:layout_constraintLeft_toRightOf="@+id/winpct_title"
+        app:layout_constraintRight_toLeftOf="@+id/runsagainst_title"
+        app:layout_constraintTop_toTopOf="@+id/winpct_title" />
 
     <TextView
-        android:id="@+id/runsAgainst_title"
+        android:id="@+id/runsagainst_title"
         android:layout_width="40dp"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="Runs Allowed"
         android:textSize="10sp"
         android:textStyle="bold"
-        app:layout_constraintLeft_toRightOf="@+id/runsFor_title"
-        app:layout_constraintRight_toLeftOf="@+id/runDiff_title"
-        app:layout_constraintTop_toTopOf="@+id/runsFor_title" />
+        app:layout_constraintLeft_toRightOf="@+id/runsfor_title"
+        app:layout_constraintRight_toLeftOf="@+id/rundiff_title"
+        app:layout_constraintTop_toTopOf="@+id/runsfor_title" />
 
     <TextView
-        android:id="@+id/runDiff_title"
+        android:id="@+id/rundiff_title"
         android:layout_width="36dp"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="Run Diff."
         android:textSize="10sp"
         android:textStyle="bold"
-        app:layout_constraintLeft_toRightOf="@+id/runsAgainst_title"
+        app:layout_constraintLeft_toRightOf="@+id/runsagainst_title"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/runsAgainst_title" />
+        app:layout_constraintTop_toTopOf="@+id/runsagainst_title" />
 
     <TextView
         android:id="@+id/standings_title"
@@ -170,7 +170,7 @@
         android:layout_marginLeft="8dp"
         android:layout_marginTop="16dp"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/team_title"
+        app:layout_constraintTop_toBottomOf="@+id/name_title"
         android:layout_marginStart="8dp" />
 
     <TextView

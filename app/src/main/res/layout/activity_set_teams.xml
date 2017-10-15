@@ -45,7 +45,6 @@
             android:layout_height="match_parent"
             android:layout_weight="2"
             android:gravity="bottom"
-            android:text="AwayTeam"
             android:textAlignment="center"
             android:textSize="20sp"
             android:textStyle="bold" />
@@ -67,7 +66,6 @@
             android:layout_height="match_parent"
             android:layout_weight="2"
             android:gravity="bottom"
-            android:text="HomeTeam"
             android:textAlignment="center"
             android:textSize="20sp"
             android:textStyle="bold" />
@@ -94,7 +92,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="2"
-            android:text="Edit Lineup" />
+            android:text="@string/edit_lineup" />
 
 
         <Button
@@ -102,7 +100,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="2"
-            android:text="Edit Lineup" />
+            android:text="@string/edit_lineup" />
 
     </LinearLayout>
 

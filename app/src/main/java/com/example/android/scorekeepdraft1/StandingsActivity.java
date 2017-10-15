@@ -29,7 +29,7 @@ public class StandingsActivity extends AppCompatActivity implements LoaderManage
     private static final int STANDINGS_LOADER = 3;
 
 
-    StandingsCursorAdapter mAdapter;
+    private StandingsCursorAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,14 +54,14 @@ public class StandingsActivity extends AppCompatActivity implements LoaderManage
         TextView title = (TextView) findViewById(R.id.standings_title);
         String titleString = selectionArgs[0] + " Standings";
         title.setText(titleString);
-        findViewById(R.id.team_title).setOnClickListener(this);
-        findViewById(R.id.wins_title).setOnClickListener(this);
-        findViewById(R.id.losses_title).setOnClickListener(this);
-        findViewById(R.id.ties_title).setOnClickListener(this);
-        findViewById(R.id.winPCT_title).setOnClickListener(this);
-        findViewById(R.id.runsFor_title).setOnClickListener(this);
-        findViewById(R.id.runsAgainst_title).setOnClickListener(this);
-        findViewById(R.id.runDiff_title).setOnClickListener(this);
+        findViewById(R.id.name_title).setOnClickListener(this);
+        findViewById(R.id.win_title).setOnClickListener(this);
+        findViewById(R.id.loss_title).setOnClickListener(this);
+        findViewById(R.id.tie_title).setOnClickListener(this);
+        findViewById(R.id.winpct_title).setOnClickListener(this);
+        findViewById(R.id.runsfor_title).setOnClickListener(this);
+        findViewById(R.id.runsagainst_title).setOnClickListener(this);
+        findViewById(R.id.rundiff_title).setOnClickListener(this);
 
         getLoaderManager().initLoader(STANDINGS_LOADER, null, this);
     }
@@ -100,36 +100,36 @@ public class StandingsActivity extends AppCompatActivity implements LoaderManage
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.team_title:
+            case R.id.name_title:
                 statToSortBy = StatsEntry.COLUMN_NAME;
                 projection = null;
                 break;
-            case R.id.wins_title:
+            case R.id.win_title:
                 statToSortBy = StatsEntry.COLUMN_WINS;
                 projection = null;
                 break;
-            case R.id.losses_title:
+            case R.id.loss_title:
                 statToSortBy = StatsEntry.COLUMN_LOSSES;
                 projection = null;
                 break;
-            case R.id.ties_title:
+            case R.id.tie_title:
                 statToSortBy = StatsEntry.COLUMN_TIES;
                 projection = null;
                 break;
-            case R.id.winPCT_title:
+            case R.id.winpct_title:
                 statToSortBy = "winpct";
                 projection = new String[]{"*, (CAST ((" + StatsEntry.COLUMN_WINS + ") AS FLOAT) / (" + StatsEntry.COLUMN_WINS + " + "
                         + StatsEntry.COLUMN_LOSSES + ")) AS winpct"};
                 break;
-            case R.id.runsFor_title:
+            case R.id.runsfor_title:
                 statToSortBy = StatsEntry.COLUMN_RUNSFOR;
                 projection = null;
                 break;
-            case R.id.runsAgainst_title:
+            case R.id.runsagainst_title:
                 statToSortBy = StatsEntry.COLUMN_RUNSAGAINST;
                 projection = null;
                 break;
-            case R.id.runDiff_title:
+            case R.id.rundiff_title:
                 statToSortBy = "rundiff";
                 projection = new String[]{"*, (" + StatsEntry.COLUMN_RUNSFOR + " - " + StatsEntry.COLUMN_RUNSAGAINST + ") AS rundiff"};
                 break;

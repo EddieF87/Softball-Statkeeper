@@ -55,4 +55,14 @@
     <string name="undo">Undo</string>
     <string name="end_game_msg">This game is over. Would you like to finish?</string>
     <string name="end_msg">Finish</string>
+    <string name="edit_photo">Edit Photo</string>
+    <string name="edit_name">Edit Name</string>
+    <string name="edit_team">Change Team</string>
+    <string name="delete_player">Delete Player</string>
+    <string name="delete_team">Delete Team</string>
+    <string name="edit_lineup">Edit Lineup</string>
+    <string name="quit">Quit</string>
+    <string name="redo_play">Redo Play</string>
+    <string name="undo_play">Undo Play</string>
+    <string name="stats">Stats</string>
 </resources>

@@ -5,6 +5,7 @@
  */
 package com.example.android.scorekeepdraft1;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ContentUris;
@@ -19,6 +20,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.DragEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -36,8 +39,6 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.example.android.scorekeepdraft1.R.id.reset;
 
 /**
  * @author Eddie
@@ -67,7 +68,6 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     private String result;
 
     private ImageView batterDisplay;
-    private ImageView outTrash;
     private TextView firstDisplay;
     private TextView secondDisplay;
     private TextView thirdDisplay;
@@ -83,8 +83,8 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     private int homeTeamIndex;
 
     //temporary buttonw?
-    private Button undoButton;
-    private Button redoButton;
+//    private Button undoButton;
+//    private Button redoButton;
 
     private String tempBatter;
     private int inningChanged = 0;
@@ -99,11 +99,11 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
 
     private NumberFormat formatter = new DecimalFormat("#.000");
     private BaseLog currentBaseLogStart;
-    private BaseLog currentBaseLogEnd;
     private ArrayList<String> currentRunsLog;
     private ArrayList<String> tempRunsLog;
 
     private int gameLogIndex = 0;
+    private int highestIndex = 0;
     private boolean undoRedo = false;
 
     private boolean finalInning;
@@ -203,7 +203,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         });
         submitPlay.setVisibility(View.INVISIBLE);
 
-        resetBases = (Button) findViewById(reset);
+        resetBases = (Button) findViewById(R.id.reset);
         resetBases.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -213,28 +213,28 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         resetBases.setVisibility(View.INVISIBLE);
 
         //TODO temporary?
-        undoButton = (Button) findViewById(R.id.undobutton);
-        undoButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                undoPlay();
-            }
-        });
-        redoButton = (Button) findViewById(R.id.redobutton);
-        redoButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                redoPlay();
-            }
-        });
-        redoButton.setVisibility(View.INVISIBLE);
+//        undoButton = (Button) findViewById(R.id.undobutton);
+//        undoButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                undoPlay();
+//            }
+//        });
+//        redoButton = (Button) findViewById(R.id.redobutton);
+//        redoButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                redoPlay();
+//            }
+//        });
+//        redoButton.setVisibility(View.INVISIBLE);
 
         batterDisplay = (ImageView) findViewById(R.id.batter);
         firstDisplay = (TextView) findViewById(R.id.first_display);
         secondDisplay = (TextView) findViewById(R.id.second_display);
         thirdDisplay = (TextView) findViewById(R.id.third_display);
         homeDisplay = (TextView) findViewById(R.id.home_display);
-        outTrash = (ImageView) findViewById(R.id.trash);
+        ImageView outTrash = (ImageView) findViewById(R.id.trash);
         batterDisplay.setOnTouchListener(new MyTouchListener());
         firstDisplay.setOnDragListener(new MyDragListener());
         secondDisplay.setOnDragListener(new MyDragListener());
@@ -246,10 +246,11 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         playerCursor.getCount();
         if (gameCursor.moveToFirst()){
             SharedPreferences shared = getSharedPreferences("info",MODE_PRIVATE);
-            gameLogIndex = shared.getInt("index", 0);
-            inningNumber = shared.getInt("inning", 2);
-            awayTeamIndex = shared.getInt("awayIndex", 0);
-            homeTeamIndex = shared.getInt("homeIndex", 0);
+            gameLogIndex = shared.getInt("gameLogIndex", 0);
+            highestIndex = shared.getInt("highestIndex", 0);
+            inningNumber = shared.getInt("inningNumber", 2);
+            awayTeamIndex = shared.getInt("awayTeamIndex", 0);
+            homeTeamIndex = shared.getInt("homeTeamIndex", 0);
             undoRedo = shared.getBoolean("undoRedo", false);
             resumeGame();
             return;
@@ -265,12 +266,12 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         int i = gameCursor.getCount();
         SharedPreferences pref = getSharedPreferences("info", MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
-        editor.putInt("index", gameLogIndex);
-        editor.putInt("inning", inningNumber);
-        editor.putInt("awayIndex", awayTeamIndex);
-        editor.putInt("homeIndex", homeTeamIndex);
+        editor.putInt("gameLogIndex", gameLogIndex);
+        editor.putInt("highestIndex", highestIndex);
+        editor.putInt("inningNumber", inningNumber);
+        editor.putInt("awayTeamIndex", awayTeamIndex);
+        editor.putInt("homeTeamIndex", homeTeamIndex);
         editor.putBoolean("undoRedo",undoRedo);
-        //finally, when you are done saving the values, call the commit() method.
         editor.commit();
     }
 
@@ -443,7 +444,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         String previousBatterName = currentBatter;
         currentBatter = currentTeam.get(getIndex());
 
-        currentBaseLogEnd = new BaseLog(currentTeam, currentBatter, firstDisplay.getText().toString(),
+        BaseLog currentBaseLogEnd = new BaseLog(currentTeam, currentBatter, firstDisplay.getText().toString(),
                 secondDisplay.getText().toString(), thirdDisplay.getText().toString(),
                 gameOuts, awayTeamRuns, homeTeamRuns
         );
@@ -452,6 +453,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                 gameOuts, awayTeamRuns, homeTeamRuns
         );
         gameLogIndex++;
+        highestIndex = gameLogIndex;
 
         int team;
         if (currentTeam == awayTeam) {
@@ -516,7 +518,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         gameOuts = 0;
         emptyBases();
 
-        if (inningNumber / 2 > 2) {
+        if (inningNumber / 2 > 0) {
             finalInning = true;
         }
         increaseLineupIndex();
@@ -948,7 +950,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                 setInningDisplay();
             }
             gameLogIndex--;
-            redoButton.setVisibility(View.VISIBLE);
+            //redoButton.setVisibility(View.VISIBLE);
         } else {
             Toast.makeText(GameActivity.this, "This is the beginning of the game!", Toast.LENGTH_SHORT).show();
             return;
@@ -978,7 +980,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             undoRedo = true;
             gameLogIndex++;
         } else {
-            redoButton.setVisibility(View.INVISIBLE);
+            //redoButton.setVisibility(View.INVISIBLE);
             return;
         }
         gameCursor.moveToPosition(gameLogIndex);
@@ -1077,6 +1079,9 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
 
             switch (action) {
                 case DragEvent.ACTION_DRAG_STARTED:
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                        v.setBackgroundColor(Color.LTGRAY);
+                    }
                     break;
                 case DragEvent.ACTION_DRAG_ENTERED:
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -1157,12 +1162,6 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                     break;
             }
             return true;
-        }
-    }
-
-    private void setVisibility(View v, boolean droppedIn){
-        if (!droppedIn) {
-            v.setAlpha(1);
         }
     }
 
@@ -1256,5 +1255,50 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         } else {
             Toast.makeText(GameActivity.this, "SOMETHING WENT WRONG WITH THE INDEXES!!!", Toast.LENGTH_LONG).show();
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_game, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_undo_play:
+                undoPlay();
+                break;
+            case R.id.action_redo_play:
+                redoPlay();
+                break;
+            case R.id.action_goto_stats:
+                Intent intent = new Intent(GameActivity.this, BoxScoreActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.action_quit_game:
+                //showQuitConfirmationDialog();
+                break;
+            default:
+                Toast.makeText(GameActivity.this, "Error with menu", Toast.LENGTH_SHORT).show();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem menuItem = menu.findItem(R.id.action_undo_play);
+        if(gameLogIndex <= 0) {
+            menuItem.setVisible(false);
+        } else {
+            menuItem.setVisible(true);
+        }
+        menuItem = menu.findItem(R.id.action_redo_play);
+        if(gameLogIndex >= highestIndex) {
+            menuItem.setVisible(false);
+        } else {
+            menuItem.setVisible(true);
+        }
+        return true;
     }
 }

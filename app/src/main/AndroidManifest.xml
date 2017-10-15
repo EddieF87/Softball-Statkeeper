@@ -47,7 +47,8 @@
             android:parentActivityName=".StatsActivity" />
         />
         <activity android:name=".LeagueActivity" />
-        <activity android:name=".TeamActivity"></activity>
+        <activity android:name=".TeamActivity" />
+        <activity android:name=".BoxScoreActivity"></activity>
     </application>
 
 </manifest>

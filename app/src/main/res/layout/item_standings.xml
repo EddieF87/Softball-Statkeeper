@@ -11,7 +11,7 @@
     android:paddingBottom="16dp">
 
     <TextView
-        android:id="@+id/team_title"
+        android:id="@+id/name"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:gravity="start"
@@ -21,7 +21,7 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@+id/wins_title"
+        app:layout_constraintRight_toLeftOf="@+id/win"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_goneMarginEnd="8dp"
         app:layout_goneMarginRight="8dp"
@@ -29,92 +29,92 @@
         />
 
     <TextView
-        android:id="@+id/wins_title"
+        android:id="@+id/win"
         android:layout_width="30dp"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textAlignment="center"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toRightOf="@+id/team_title"
-        app:layout_constraintRight_toLeftOf="@+id/losses_title"
+        app:layout_constraintLeft_toRightOf="@+id/name"
+        app:layout_constraintRight_toLeftOf="@+id/loss"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="7" />
 
     <TextView
-        android:id="@+id/losses_title"
+        android:id="@+id/loss"
         android:layout_width="30dp"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textAlignment="center"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toRightOf="@+id/wins_title"
-        app:layout_constraintRight_toLeftOf="@+id/ties_title"
+        app:layout_constraintLeft_toRightOf="@+id/win"
+        app:layout_constraintRight_toLeftOf="@+id/tie"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="2" />
 
     <TextView
-        android:id="@+id/ties_title"
+        android:id="@+id/tie"
         android:layout_width="30dp"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textAlignment="center"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toRightOf="@+id/losses_title"
-        app:layout_constraintRight_toLeftOf="@+id/winPCT_title"
+        app:layout_constraintLeft_toRightOf="@+id/loss"
+        app:layout_constraintRight_toLeftOf="@+id/winpct"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="0" />
 
     <TextView
-        android:id="@+id/winPCT_title"
+        android:id="@+id/winpct"
         android:layout_width="50dp"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textAlignment="center"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toRightOf="@+id/ties_title"
-        app:layout_constraintRight_toLeftOf="@+id/runsFor_title"
+        app:layout_constraintLeft_toRightOf="@+id/tie"
+        app:layout_constraintRight_toLeftOf="@+id/runsfor"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="1.555" />
 
     <TextView
-        android:id="@+id/runsFor_title"
+        android:id="@+id/runsfor"
         android:layout_width="36dp"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textAlignment="textEnd"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toRightOf="@+id/winPCT_title"
-        app:layout_constraintRight_toLeftOf="@+id/runsAgainst_title"
+        app:layout_constraintLeft_toRightOf="@+id/winpct"
+        app:layout_constraintRight_toLeftOf="@+id/runsagainst"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="444" />
 
     <TextView
-        android:id="@+id/runsAgainst_title"
+        android:id="@+id/runsagainst"
         android:layout_width="36dp"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textAlignment="textEnd"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toRightOf="@+id/runsFor_title"
-        app:layout_constraintRight_toLeftOf="@+id/runDiff_title"
+        app:layout_constraintLeft_toRightOf="@+id/runsfor"
+        app:layout_constraintRight_toLeftOf="@+id/rundiff"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="144" />
 
     <TextView
-        android:id="@+id/runDiff_title"
+        android:id="@+id/rundiff"
         android:layout_width="36dp"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textAlignment="viewEnd"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toRightOf="@+id/runsAgainst_title"
+        app:layout_constraintLeft_toRightOf="@+id/runsagainst"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.571"

@@ -3,25 +3,26 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".PlayerPageActivity">
+    tools:context=".GameActivity">
 
     <item
-        android:id="@+id/action_change_name"
-        android:title="@string/edit_name"
+        android:id="@+id/action_undo_play"
+        android:title="@string/undo_play"
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_edit_photo"
-        android:title="@string/edit_photo"
+        android:id="@+id/action_redo_play"
+        android:title="@string/redo_play"
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_change_team"
-        android:title="@string/edit_team"
+        android:id="@+id/action_goto_stats"
+        android:title="@string/stats"
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_delete_player"
-        android:title="@string/delete_player"
+        android:id="@+id/action_quit_game"
+        android:title="@string/quit"
         app:showAsAction="never" />
+
 </menu>

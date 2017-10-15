@@ -46,8 +46,4 @@ public class BaseLog {
     public List<String> getTeam() {
         return team;
     }
-
-    public void reload(){
-
-    }
 }
