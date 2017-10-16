@@ -81,11 +81,11 @@ public class SetTeamsActivity extends AppCompatActivity implements AdapterView.O
         homeTeamSpinner.setSelection(homeIndex);
 
 
-        rvLeft = (RecyclerView) findViewById(R.id.rv_left_team);
-        rvRight = (RecyclerView) findViewById(R.id.rv_right_team);
+        rvLeft = findViewById(R.id.rv_left_team);
+        rvRight = findViewById(R.id.rv_right_team);
 
-        editAwayLineup = (Button) findViewById(R.id.edit_away_team_button);
-        editHomeLineup = (Button) findViewById(R.id.edit_home_team_button);
+        editAwayLineup = findViewById(R.id.edit_away_team_button);
+        editHomeLineup = findViewById(R.id.edit_home_team_button);
         editAwayLineup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

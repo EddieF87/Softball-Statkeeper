@@ -5,7 +5,6 @@
  */
 package com.example.android.scorekeepdraft1;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ContentUris;
@@ -144,6 +143,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     private int playerOutIndex;
     private int playerRunIndex;
     private int rbiIndex;
+    private int totalInnings = 9;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -180,14 +180,14 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             homeTeam.add(playerName);
         }
 
-        scoreboard = (TextView) findViewById(R.id.scoreboard);
-        nowBatting = (TextView) findViewById(R.id.nowbatting);
-        outsDisplay = (TextView) findViewById(R.id.num_of_outs);
-        avgDisplay = (TextView) findViewById(R.id.avgdisplay);
-        rbiDisplay = (TextView) findViewById(R.id.rbidisplay);
-        runDisplay = (TextView) findViewById(R.id.rundisplay);
-        hrDisplay = (TextView) findViewById(R.id.hrdisplay);
-        inningDisplay = (TextView) findViewById(R.id.inning);
+        scoreboard = findViewById(R.id.scoreboard);
+        nowBatting = findViewById(R.id.nowbatting);
+        outsDisplay = findViewById(R.id.num_of_outs);
+        avgDisplay = findViewById(R.id.avgdisplay);
+        rbiDisplay = findViewById(R.id.rbidisplay);
+        runDisplay = findViewById(R.id.rundisplay);
+        hrDisplay = findViewById(R.id.hrdisplay);
+        inningDisplay = findViewById(R.id.inning);
         inningTopArrow = (ImageView) findViewById(R.id.inning_top_arrow);
         inningBottomArrow = (ImageView) findViewById(R.id.inning_bottom_arrow);
 
@@ -230,10 +230,10 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
 //        redoButton.setVisibility(View.INVISIBLE);
 
         batterDisplay = (ImageView) findViewById(R.id.batter);
-        firstDisplay = (TextView) findViewById(R.id.first_display);
-        secondDisplay = (TextView) findViewById(R.id.second_display);
-        thirdDisplay = (TextView) findViewById(R.id.third_display);
-        homeDisplay = (TextView) findViewById(R.id.home_display);
+        firstDisplay = findViewById(R.id.first_display);
+        secondDisplay = findViewById(R.id.second_display);
+        thirdDisplay = findViewById(R.id.third_display);
+        homeDisplay = findViewById(R.id.home_display);
         ImageView outTrash = (ImageView) findViewById(R.id.trash);
         batterDisplay.setOnTouchListener(new MyTouchListener());
         firstDisplay.setOnDragListener(new MyDragListener());
@@ -518,7 +518,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         gameOuts = 0;
         emptyBases();
 
-        if (inningNumber / 2 > 0) {
+        if (inningNumber / 2 >= totalInnings) {
             finalInning = true;
         }
         increaseLineupIndex();
@@ -1293,14 +1293,13 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                 Bundle b = new Bundle();
                 b.putString("awayTeam", awayTeamName);
                 b.putString("homeTeam", homeTeamName);
+                b.putInt("totalInnings", totalInnings);
                 intent.putExtras(b);
                 startActivity(intent);
                 break;
             case R.id.action_quit_game:
                 //showQuitConfirmationDialog();
                 break;
-            default:
-                Toast.makeText(GameActivity.this, "Error with menu", Toast.LENGTH_SHORT).show();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -1320,5 +1319,15 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             menuItem.setVisible(true);
         }
         return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        //showQuitConfirmationDialog();
+    }
+
+    public void showQuitConfirmationDialog() {
+
+
     }
 }

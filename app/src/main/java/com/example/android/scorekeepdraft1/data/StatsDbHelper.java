@@ -82,7 +82,6 @@ public class StatsDbHelper extends SQLiteOpenHelper {
                 "CREATE TABLE " + StatsEntry.GAME_TABLE_NAME + " (" +
                         StatsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
 
-                        //StatsEntry.COLUMN_ORDER + " INTEGER, " +
                         StatsEntry.COLUMN_PLAY + " TEXT, " +
                         StatsEntry.COLUMN_TEAM + " INTEGER, " +
                         StatsEntry.COLUMN_BATTER + " TEXT, " +

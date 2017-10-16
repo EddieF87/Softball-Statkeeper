@@ -24,7 +24,7 @@ import static com.example.android.scorekeepdraft1.R.string.team;
  * Created by Eddie on 03/09/2017.
  */
 
-public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.ListViewHolder> {
+public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.PlayerStatsListViewHolder> {
 
     private List<Player> players;
     private final NumberFormat formatter = new DecimalFormat("#.000");
@@ -41,13 +41,14 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
     }
 
     @Override
-    public PlayerStatsAdapter.ListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        LinearLayout linearLayout = (LinearLayout) LayoutInflater.from(parent.getContext()).inflate(R.layout.item_stats, parent, false);
-        return new ListViewHolder(linearLayout);
+    public PlayerStatsAdapter.PlayerStatsListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        LinearLayout linearLayout = (LinearLayout) LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_stats, parent, false);
+        return new PlayerStatsListViewHolder(linearLayout);
     }
 
     @Override
-    public void onBindViewHolder(PlayerStatsAdapter.ListViewHolder holder, int position) {
+    public void onBindViewHolder(PlayerStatsAdapter.PlayerStatsListViewHolder holder, int position) {
         LinearLayout linearLayout = holder.linearLayout;
         TextView nameView = linearLayout.findViewById(R.id.name);
         TextView teamView = linearLayout.findViewById(R.id.team_abv);
@@ -117,10 +118,10 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
         return players.size();
     }
 
-    static class ListViewHolder extends RecyclerView.ViewHolder{
+    static class PlayerStatsListViewHolder extends RecyclerView.ViewHolder{
         LinearLayout linearLayout;
 
-        ListViewHolder(View itemView) {
+        PlayerStatsListViewHolder(View itemView) {
             super(itemView);
             linearLayout = (LinearLayout) itemView;
         }

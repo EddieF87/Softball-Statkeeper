@@ -18,37 +18,46 @@
         </activity>
         <activity
             android:name=".GameActivity"
-            android:parentActivityName=".SetTeamsActivity" />
-
-        <provider
-            android:name=".data.StatsProvider"
-            android:authorities="com.example.android.scorekeepdraft1"
-            android:exported="false" />
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait"/>
 
         <activity
             android:name=".StandingsActivity"
             android:label="STANDINGS"
             android:parentActivityName=".MainActivity" />
-        />
+
         <activity
             android:name=".StatsActivity"
             android:label="PLAYER STATS"
             android:parentActivityName=".MainActivity" />
+
         <activity
             android:name=".SetLineupActivity"
             android:label="Lineup Editor"
-            android:parentActivityName=".SetTeamsActivity" />
+            android:parentActivityName=".SetTeamsActivity"
+            android:screenOrientation="portrait"/>
+
         <activity
             android:name=".SetTeamsActivity"
             android:label="Matchup Selector"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait"/>
+
         <activity
             android:name=".PlayerPageActivity"
             android:parentActivityName=".StatsActivity" />
-        />
-        <activity android:name=".LeagueActivity" />
+
         <activity android:name=".TeamActivity" />
-        <activity android:name=".BoxScoreActivity"></activity>
+
+        <activity android:name=".BoxScoreActivity"
+            android:label="Box Score"
+            android:parentActivityName=".GameActivity"
+            android:screenOrientation="portrait"/>
+
+        <provider
+            android:name=".data.StatsProvider"
+            android:authorities="com.example.android.scorekeepdraft1"
+            android:exported="false" />
     </application>
 
 </manifest>

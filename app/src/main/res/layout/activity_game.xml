@@ -369,24 +369,4 @@
         app:layout_constraintRight_toRightOf="@+id/trash"
         app:layout_constraintHorizontal_bias="0.5" />
 
-    <Button
-        android:id="@+id/redobutton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginRight="0dp"
-        android:layout_marginTop="0dp"
-        android:text="Redo"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/undobutton" />
-
-    <Button
-        android:id="@+id/undobutton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginRight="0dp"
-        android:layout_marginTop="16dp"
-        android:text="Undo"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rundisplay" />
-
 </android.support.constraint.ConstraintLayout>

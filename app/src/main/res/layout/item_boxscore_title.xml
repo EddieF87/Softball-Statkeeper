@@ -12,10 +12,10 @@
         android:layout_weight="3"
         android:layout_height="wrap_content"
         android:maxLines="1"
-        android:textAlignment="center"
         android:layout_gravity="center_vertical"
-        android:textSize="24sp"
+        android:textSize="22sp"
         android:textStyle="bold"
+        android:layout_marginBottom="2dp"
         android:autoSizeTextType="uniform"
         android:autoSizeMinTextSize="12sp"/>
 
@@ -26,7 +26,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="@string/ab"
-        android:textSize="18sp"
+        android:textSize="16sp"
         android:textStyle="bold" />
 
     <TextView
@@ -36,7 +36,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="@string/r"
-        android:textSize="18sp"
+        android:textSize="16sp"
         android:textStyle="bold" />
 
     <TextView
@@ -46,7 +46,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="@string/h"
-        android:textSize="18sp"
+        android:textSize="16sp"
         android:textStyle="bold" />
 
     <TextView
@@ -56,7 +56,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="@string/rbi"
-        android:textSize="18sp"
+        android:textSize="16sp"
         android:textStyle="bold" />
 
     <TextView
@@ -66,7 +66,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="@string/hr"
-        android:textSize="18sp"
+        android:textSize="16sp"
         android:textStyle="bold" />
 
     <TextView
@@ -76,6 +76,6 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="@string/bb"
-        android:textSize="18sp"
+        android:textSize="16sp"
         android:textStyle="bold" />
 </LinearLayout>

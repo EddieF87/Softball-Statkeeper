@@ -16,7 +16,7 @@
         android:paddingBottom="4dp"
         android:maxLines="1"
         android:text="@string/name"
-        android:textSize="20sp"
+        android:textSize="16sp"
         android:textStyle="bold"
         android:textAlignment="textStart"
         android:gravity="start"
@@ -32,7 +32,7 @@
         android:paddingBottom="5dp"
         android:paddingTop="2dp"
         android:text="@string/ab"
-        android:textSize="18sp" />
+        android:textSize="14sp" />
 
     <TextView
         android:id="@+id/run"
@@ -44,7 +44,7 @@
         android:paddingBottom="5dp"
         android:paddingTop="2dp"
         android:text="@string/r"
-        android:textSize="18sp" />
+        android:textSize="14sp" />
 
     <TextView
         android:id="@+id/hit"
@@ -56,7 +56,7 @@
         android:paddingBottom="5dp"
         android:paddingTop="2dp"
         android:text="@string/h"
-        android:textSize="18sp" />
+        android:textSize="14sp" />
 
     <TextView
         android:id="@+id/rbi"
@@ -68,7 +68,7 @@
         android:paddingBottom="5dp"
         android:paddingTop="2dp"
         android:text="@string/rbi"
-        android:textSize="18sp" />
+        android:textSize="14sp" />
 
     <TextView
         android:id="@+id/hr"
@@ -80,7 +80,7 @@
         android:paddingBottom="5dp"
         android:paddingTop="2dp"
         android:text="@string/hr"
-        android:textSize="18sp" />
+        android:textSize="14sp" />
 
     <TextView
         android:id="@+id/bb"
@@ -92,5 +92,5 @@
         android:paddingBottom="5dp"
         android:paddingTop="2dp"
         android:text="@string/bb"
-        android:textSize="18sp" />
+        android:textSize="14sp" />
 </LinearLayout>

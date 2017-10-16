@@ -20,7 +20,7 @@ import java.util.List;
  * Created by Eddie on 02/09/2017.
  */
 
-public class LineupListAdapter extends RecyclerView.Adapter<LineupListAdapter.ListViewHolder>
+public class LineupListAdapter extends RecyclerView.Adapter<LineupListAdapter.LineupListViewHolder>
         implements View.OnTouchListener {
 
     private List<String> list;
@@ -35,19 +35,21 @@ public class LineupListAdapter extends RecyclerView.Adapter<LineupListAdapter.Li
     }
 
     @Override
-    public LineupListAdapter.ListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        FrameLayout frameLayout = (FrameLayout) LayoutInflater.from(parent.getContext()).inflate(R.layout.item_lineup, parent, false);
+    public LineupListAdapter.LineupListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        FrameLayout frameLayout = (FrameLayout) LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_lineup, parent, false);
 
-        return new ListViewHolder(frameLayout);
+        return new LineupListViewHolder(frameLayout);
     }
 
     @Override
-    public void onBindViewHolder(LineupListAdapter.ListViewHolder holder, int position) {
+    public void onBindViewHolder(LineupListAdapter.LineupListViewHolder holder, int position) {
         FrameLayout frameLayout = holder.mFrameLayout;
         TextView textView = (TextView) frameLayout.findViewById(R.id.lineup_text);
 
         if(isBench) {
-            textView.setText("B:   " + list.get(position));
+            String benchPlayer = "B:   " + list.get(position);
+            textView.setText(benchPlayer);
         } else {
             textView.setText((position + 1) + ". " + list.get(position));
         }
@@ -83,23 +85,6 @@ public class LineupListAdapter extends RecyclerView.Adapter<LineupListAdapter.Li
     }
 
 
-
-    /*
-    public List<Player> getLineupList(){
-        return lineupList;
-    }
-
-    public List<Player> getBenchList() {
-        return benchList;
-    }
-
-    public void updateLineupList(List<Player> list) {
-        this.lineupList = list;
-    }
-    public void updateBenchList(List<Player> list) {
-        this.benchList = list;
-    }
-*/
     public DragListener getDragInstance() {
         if (listener != null) {
             return new DragListener(listener);
@@ -109,11 +94,11 @@ public class LineupListAdapter extends RecyclerView.Adapter<LineupListAdapter.Li
         }
     }
 
-    static class ListViewHolder extends RecyclerView.ViewHolder {
+    static class LineupListViewHolder extends RecyclerView.ViewHolder {
 
         FrameLayout mFrameLayout;
 
-         ListViewHolder(View itemView) {
+         LineupListViewHolder(View itemView) {
             super(itemView);
             mFrameLayout = (FrameLayout) itemView;
         }
