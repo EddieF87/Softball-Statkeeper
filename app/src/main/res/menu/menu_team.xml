@@ -16,13 +16,13 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_change_team"
+        android:id="@+id/action_edit_lineup"
         android:title="@string/edit_lineup"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/action_remove_players"
-        android:title="Remove Players"
+        android:title="@string/remove_all_players"
         app:showAsAction="never" />
 
     <item

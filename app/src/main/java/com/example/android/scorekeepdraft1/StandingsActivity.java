@@ -51,7 +51,7 @@ public class StandingsActivity extends AppCompatActivity implements LoaderManage
         View emptyView = findViewById(R.id.empty_text);
         listView.setEmptyView(emptyView);
 
-        TextView title = (TextView) findViewById(R.id.standings_title);
+        TextView title = findViewById(R.id.standings_title);
         String titleString = selectionArgs[0] + " Standings";
         title.setText(titleString);
         findViewById(R.id.name_title).setOnClickListener(this);

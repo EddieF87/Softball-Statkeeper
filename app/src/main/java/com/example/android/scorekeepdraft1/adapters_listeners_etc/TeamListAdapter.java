@@ -33,7 +33,7 @@ public class TeamListAdapter extends RecyclerView.Adapter<TeamListAdapter.ListVi
     @Override
     public void onBindViewHolder(ListViewHolder holder, int position) {
         FrameLayout frameLayout = holder.mFrameLayout;
-        TextView textView = (TextView) frameLayout.findViewById(R.id.team_text);
+        TextView textView = frameLayout.findViewById(R.id.team_text);
 
         textView.setText((position + 1) + ". " + list.get(position));
         frameLayout.setTag(position);

@@ -45,7 +45,7 @@ public class LineupListAdapter extends RecyclerView.Adapter<LineupListAdapter.Li
     @Override
     public void onBindViewHolder(LineupListAdapter.LineupListViewHolder holder, int position) {
         FrameLayout frameLayout = holder.mFrameLayout;
-        TextView textView = (TextView) frameLayout.findViewById(R.id.lineup_text);
+        TextView textView = frameLayout.findViewById(R.id.lineup_text);
 
         if(isBench) {
             String benchPlayer = "B:   " + list.get(position);

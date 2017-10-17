@@ -34,11 +34,10 @@
         <activity
             android:name=".SetLineupActivity"
             android:label="Lineup Editor"
-            android:parentActivityName=".SetTeamsActivity"
             android:screenOrientation="portrait"/>
 
         <activity
-            android:name=".SetTeamsActivity"
+            android:name=".MatchupActivity"
             android:label="Matchup Selector"
             android:parentActivityName=".MainActivity"
             android:screenOrientation="portrait"/>

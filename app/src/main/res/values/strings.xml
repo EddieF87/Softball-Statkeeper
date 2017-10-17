@@ -66,4 +66,12 @@
     <string name="undo_play">Undo Play</string>
     <string name="stats">Stats</string>
     <string name="total">Total</string>
+    <string name="game_completed">Game is completed</string>
+    <string name="bench">Bench</string>
+    <string name="edit_team_name">Edit team\'s name:</string>
+    <string name="remove_all_players">Remove All Players</string>
+    <string name="remove_all_free_agents">Remove all free agents from league?</string>
+    <string name="send_all_to_waivers">Send team\'s players to waivers?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>

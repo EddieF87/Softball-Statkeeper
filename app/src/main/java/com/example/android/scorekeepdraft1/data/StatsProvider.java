@@ -3,6 +3,7 @@ package com.example.android.scorekeepdraft1.data;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -60,11 +61,8 @@ public class StatsProvider extends ContentProvider {
     @Nullable
     @Override
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
-// Get readable database
         SQLiteDatabase database = mOpenHelper.getReadableDatabase();
-        // This cursor will hold the result of the query
         Cursor cursor;
-        // Figure out if the URI matcher can match the URI to a specific code
         int match = sUriMatcher.match(uri);
         switch (match) {
             case PLAYERS:
@@ -128,97 +126,33 @@ public class StatsProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
+        String table;
         final int match = sUriMatcher.match(uri);
         switch (match) {
             case PLAYERS:
-                return insertPlayer(uri, values);
+                if (containsName(StatsEntry.CONTENT_URI_PLAYERS, values)){return null;}
+                table = StatsEntry.PLAYERS_TABLE_NAME;
+                break;
             case TEAMS:
-                return insertTeam(uri, values);
+                if (containsName(StatsEntry.CONTENT_URI_TEAMS, values)){return null;}
+                table = StatsEntry.TEAMS_TABLE_NAME;
+                break;
             case TEMP:
-                return insertTempPlayer(uri, values);
+                table = StatsEntry.TEMPPLAYERS_TABLE_NAME;
+                break;
             case GAME:
-                return insertGamePlay(uri, values);
+                table = StatsEntry.GAME_TABLE_NAME;
+                break;
             default:
                 throw new IllegalArgumentException("Insertion is not supported for " + uri);
-        }    }
-
-    private Uri insertGamePlay(Uri uri, ContentValues values) {
+        }
         SQLiteDatabase database = mOpenHelper.getWritableDatabase();
-        // Insert the new play with the given values
-        long id = database.insert(StatsEntry.GAME_TABLE_NAME, null, values);
-        // If the ID is -1, then the insertion failed. Log an error and return null.
+        long id = database.insert(table, null, values);
         if (id == -1) {
             Log.e(LOG_TAG, "Failed to insert row for " + uri);
             return null;
         }
         getContext().getContentResolver().notifyChange(uri, null);
-        // Return the new URI with the ID (of the newly inserted row) appended at the end
-        return ContentUris.withAppendedId(uri, id);
-    }
-
-    private Uri insertTempPlayer (Uri uri, ContentValues values) {
-        SQLiteDatabase database = mOpenHelper.getWritableDatabase();
-        // Insert the new play with the given values
-        long id = database.insert(StatsEntry.TEMPPLAYERS_TABLE_NAME, null, values);
-        // If the ID is -1, then the insertion failed. Log an error and return null.
-        if (id == -1) {
-            Log.e(LOG_TAG, "Failed to insert row for " + uri);
-            return null;
-        }
-        getContext().getContentResolver().notifyChange(uri, null);
-        // Return the new URI with the ID (of the newly inserted row) appended at the end
-        return ContentUris.withAppendedId(uri, id);
-    }
-
-    private Uri insertPlayer (Uri uri, ContentValues values) {
-        // Check that the name is not null
-        if (values.containsKey(StatsEntry.COLUMN_NAME)) {
-            String name = values.getAsString(StatsEntry.COLUMN_NAME);
-            if (name == null) {
-                throw new IllegalArgumentException("Player requires a name");
-            }
-        }
-        SQLiteDatabase database = mOpenHelper.getWritableDatabase();
-        // Insert the new pet with the given values
-        long id = database.insert(StatsEntry.PLAYERS_TABLE_NAME, null, values);
-        // If the ID is -1, then the insertion failed. Log an error and return null.
-        if (id == -1) {
-            Log.e(LOG_TAG, "Failed to insert row for " + uri);
-            return null;
-        }
-        getContext().getContentResolver().notifyChange(uri, null);
-        // Return the new URI with the ID (of the newly inserted row) appended at the end
-        return ContentUris.withAppendedId(uri, id);
-    }
-
-    private Uri insertTeam (Uri uri, ContentValues values) {
-        // Check that the name is not null
-        if (values.containsKey(StatsEntry.COLUMN_NAME)) {
-            String name = values.getAsString(StatsEntry.COLUMN_NAME);
-            if (name == null) {
-                throw new IllegalArgumentException("Team requires a name");
-            }
-            String[] projection = new String[] {StatsEntry.COLUMN_NAME};
-            Cursor cursor = query(StatsEntry.CONTENT_URI_TEAMS, projection, null, null, null);
-            while (cursor.moveToNext()) {
-                int nameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_NAME);
-                String teamName = cursor.getString(nameIndex);
-                if (teamName.equals(name)) {
-                    Toast.makeText(getContext(), "This team already exists!", Toast.LENGTH_SHORT).show();
-                    return null;
-                }
-            }
-        }
-        SQLiteDatabase database = mOpenHelper.getWritableDatabase();
-        // Insert the new pet with the given values
-        long id = database.insert(StatsEntry.TEAMS_TABLE_NAME, null, values);
-        // If the ID is -1, then the insertion failed. Log an error and return null.
-        if (id == -1) {
-            Log.e(LOG_TAG, "Failed to insert row for " + uri);
-            return null;
-        }
-        getContext().getContentResolver().notifyChange(uri, null);
-        // Return the new URI with the ID (of the newly inserted row) appended at the end
         return ContentUris.withAppendedId(uri, id);
     }
 
@@ -236,14 +170,12 @@ public class StatsProvider extends ContentProvider {
                 break;
 
             case PLAYERS_ID:
-                // Delete a single row given by the ID in the URI
                 selection = StatsEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 rowsDeleted = database.delete(StatsEntry.PLAYERS_TABLE_NAME, selection, selectionArgs);
                 break;
 
             case TEAMS_ID:
-                // Delete a single row given by the ID in the URI
                 selection = StatsEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 rowsDeleted = database.delete(StatsEntry.TEAMS_TABLE_NAME, selection, selectionArgs);
@@ -254,7 +186,6 @@ public class StatsProvider extends ContentProvider {
                 break;
 
             case TEMP_ID:
-                // Delete a single row given by the ID in the URI
                 selection = StatsEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 rowsDeleted = database.delete(StatsEntry.TEMPPLAYERS_TABLE_NAME, selection, selectionArgs);
@@ -265,11 +196,8 @@ public class StatsProvider extends ContentProvider {
                 break;
 
             case GAME_ID:
-                // Delete a single row given by the ID in the URI
                 selection = StatsEntry._ID + ">?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
-                //Cursor cursor = query(StatsEntry.CONTENT_URI_GAMELOG, null, selection, selectionArgs, null);
-
                 rowsDeleted = database.delete(StatsEntry.GAME_TABLE_NAME, selection, selectionArgs);
                 break;
 
@@ -282,70 +210,73 @@ public class StatsProvider extends ContentProvider {
 
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
+        String table;
         final int match = sUriMatcher.match(uri);
         switch (match) {
             case PLAYERS:
-                return updatePlayer(uri, values, selection, selectionArgs);
+                table = StatsEntry.PLAYERS_TABLE_NAME;
+                break;
             case PLAYERS_ID:
                 selection = StatsEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
-                return updatePlayer(uri, values, selection, selectionArgs);
-
+                table = StatsEntry.PLAYERS_TABLE_NAME;
+                if (containsName(StatsEntry.CONTENT_URI_PLAYERS, values)){return -1;}
+                break;
             case TEAMS:
-                return updateTeam(uri, values, selection, selectionArgs);
-
+                table = StatsEntry.TEAMS_TABLE_NAME;
+                break;
+            case TEAMS_ID:
+                selection = StatsEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                table = StatsEntry.TEAMS_TABLE_NAME;
+                if (containsName(StatsEntry.CONTENT_URI_TEAMS, values)){return -1;}
+                break;
             case TEMP:
-                return updateTempPlayer(uri, values, selection, selectionArgs);
+                table = StatsEntry.TEMPPLAYERS_TABLE_NAME;
+                break;
             case TEMP_ID:
                 selection = StatsEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
-                return updateTempPlayer(uri, values, selection, selectionArgs);
-
+                table = StatsEntry.TEMPPLAYERS_TABLE_NAME;
+                break;
             case GAME:
-                return updateGame(uri, values, selection, selectionArgs);
+                table = StatsEntry.GAME_TABLE_NAME;
+                break;
             case GAME_ID:
                 selection = StatsEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
-                return updateGame(uri, values, selection, selectionArgs);
-
+                table = StatsEntry.GAME_TABLE_NAME;
+                break;
             default:
                 throw new IllegalArgumentException("Update is not supported for " + uri);
         }
-    }
-
-    private int updateTempPlayer(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         SQLiteDatabase database = mOpenHelper.getWritableDatabase();
-        // Perform the update on the database and get the number of rows affected
-        int rowsUpdated = database.update(StatsEntry.TEMPPLAYERS_TABLE_NAME, values, selection, selectionArgs);
-        // If 1 or more rows were updated, then notify all listeners that the data at the given URI has changed
+        int rowsUpdated = database.update(table, values, selection, selectionArgs);
         if (rowsUpdated != 0) {getContext().getContentResolver().notifyChange(uri, null);}
         return rowsUpdated;
     }
 
-    private int updatePlayer(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
-        SQLiteDatabase database = mOpenHelper.getWritableDatabase();
-        // Perform the update on the database and get the number of rows affected
-        int rowsUpdated = database.update(StatsEntry.PLAYERS_TABLE_NAME, values, selection, selectionArgs);
-        // If 1 or more rows were updated, then notify all listeners that the data at the given URI has changed
-        if (rowsUpdated != 0) {getContext().getContentResolver().notifyChange(uri, null);}
-        return rowsUpdated;
-    }
+    public boolean containsName(Uri uri, ContentValues values) {
+        if (values.containsKey(StatsEntry.COLUMN_NAME)) {
+            String name = values.getAsString(StatsEntry.COLUMN_NAME);
+            if (name == null || name.trim().isEmpty()) {
+                Toast.makeText(getContext(), "Please enter a name first!", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+            String[] projection = new String[] {StatsEntry.COLUMN_NAME};
+            Cursor cursor = query(uri, projection, null, null, null);
+            while (cursor.moveToNext()) {
+                int nameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_NAME);
+                String teamName = cursor.getString(nameIndex);
+                if (teamName.equals(name)) {
+                    Toast.makeText(getContext(), "This name already exists!", Toast.LENGTH_SHORT).show();
+                    cursor.close();
+                    return true;
+                }
+            }
+            cursor.close();
+        }
 
-    private int updateTeam(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
-        SQLiteDatabase database = mOpenHelper.getWritableDatabase();
-        // Perform the update on the database and get the number of rows affected
-        int rowsUpdated = database.update(StatsEntry.TEAMS_TABLE_NAME, values, selection, selectionArgs);
-        // If 1 or more rows were updated, then notify all listeners that the data at the given URI has changed
-        if (rowsUpdated != 0) {getContext().getContentResolver().notifyChange(uri, null);}
-        return rowsUpdated;
-    }
-
-    private int updateGame(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
-        SQLiteDatabase database = mOpenHelper.getWritableDatabase();
-        // Perform the update on the database and get the number of rows affected
-        int rowsUpdated = database.update(StatsEntry.GAME_TABLE_NAME, values, selection, selectionArgs);
-        // If 1 or more rows were updated, then notify all listeners that the data at the given URI has changed
-        if (rowsUpdated != 0) {getContext().getContentResolver().notifyChange(uri, null);}
-        return rowsUpdated;
+        return false;
     }
 }

@@ -70,10 +70,10 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
         Bundle b = getIntent().getExtras();
         if(b != null) {
             mTeam = b.getString("team");
-        } else {mTeam = "Purptopes";}
+        } else {finish();}
 
-        rvLeftLineup = (RecyclerView) findViewById(R.id.rvLeft);
-        rvRightLineup = (RecyclerView) findViewById(R.id.rvRight);
+        rvLeftLineup = findViewById(R.id.rvLeft);
+        rvRightLineup = findViewById(R.id.rvRight);
         mLineup = new ArrayList<>();
         mBench = new ArrayList<>();
 
@@ -81,7 +81,7 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
         String selection = StatsEntry.COLUMN_TEAM + "=?";
         String[] selectionArgs = new String[]{mTeam};
         String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
-        mCursor = getContentResolver().query(StatsEntry.CONTENT_URI1, projection,
+        mCursor = getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS, projection,
                 selection, selectionArgs, sortOrder);
 
         while (mCursor.moveToNext()){
@@ -96,7 +96,7 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
         initLeftRecyclerView();
         initRightRecyclerView();
 
-        lineupSubmitButton = (Button) findViewById(R.id.lineup_submit);
+        lineupSubmitButton = findViewById(R.id.lineup_submit);
         lineupSubmitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -104,11 +104,11 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
             }
         });
 
-        TextView teamName = (TextView) findViewById(R.id.team_name_display);
+        TextView teamName = findViewById(R.id.team_name_display);
         teamName.setText(mTeam);
 
-        addPlayerButton = (Button) findViewById(R.id.add_player_submit);
-        addPlayerText = (EditText) findViewById(R.id.add_player_text);
+        addPlayerButton = findViewById(R.id.add_player_submit);
+        addPlayerText = findViewById(R.id.add_player_text);
         addPlayerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -163,7 +163,7 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
             values.put(StatsContract.StatsEntry.COLUMN_OUT, 0);
             values.put(StatsEntry.COLUMN_RUN, 0);
             values.put(StatsEntry.COLUMN_RBI, 0);
-            getContentResolver().insert(StatsEntry.CONTENT_URI1, values);
+            getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
             mBench.add(playerName);
             initRightRecyclerView();
         }
@@ -180,7 +180,7 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
             selectionArgs = new String[]{player};
             ContentValues values = new ContentValues();
             values.put(StatsEntry.COLUMN_ORDER, i);
-            getContentResolver().update(StatsEntry.CONTENT_URI1, values,
+            getContentResolver().update(StatsEntry.CONTENT_URI_PLAYERS, values,
                     selection, selectionArgs);
             i++;
         }
@@ -191,12 +191,10 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
             selectionArgs = new String[]{player};
             ContentValues values = new ContentValues();
             values.put(StatsContract.StatsEntry.COLUMN_ORDER, i);
-            getContentResolver().update(StatsContract.StatsEntry.CONTENT_URI1, values,
+            getContentResolver().update(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, values,
                     selection, selectionArgs);
         }
-
-        Intent intent = new Intent(SetLineupActivity.this, SetTeamsActivity.class);
-        startActivity(intent);
+        finish();
     }
 
     @Override

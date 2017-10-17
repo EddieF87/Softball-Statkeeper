@@ -1,28 +1,31 @@
 package com.example.android.scorekeepdraft1;
 
+import android.app.LoaderManager;
 import android.content.ContentValues;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
 import android.database.Cursor;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 
 import java.util.Random;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     private Random randomizer = new Random();
+    private Button continueGame;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button testStat = (Button) findViewById(R.id.teststats);
-        testStat.setOnClickListener(new View.OnClickListener() {
+        Button stats = findViewById(R.id.statistics);
+        stats.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, StatsActivity.class);
@@ -30,8 +33,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Button testStand = (Button) findViewById(R.id.teststand);
-        testStand.setOnClickListener(new View.OnClickListener() {
+        Button standings = findViewById(R.id.standings);
+        standings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, StandingsActivity.class);
@@ -39,46 +42,28 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Button title = (Button) findViewById(R.id.testtitle);
-        title.setOnClickListener(new View.OnClickListener() {
+        Button newGame = findViewById(R.id.new_game);
+        newGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                setTitle("Bbbbbbb");
-            }
-        });
-
-        Button test2 = (Button) findViewById(R.id.testbut2);
-        test2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, SetTeamsActivity.class);
+                Intent intent = new Intent(MainActivity.this, MatchupActivity.class);
                 getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, null, null);
                 getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, null, null);
                 startActivity(intent);
             }
         });
 
-        Button testAdd = (Button) findViewById(R.id.test_add);
-        testAdd.setOnClickListener(new View.OnClickListener() {
+        continueGame = findViewById(R.id.continue_game);
+        continueGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String[] listOfTeams = {"Purptopes", "Rigtopes", "Goon Nation", "Boogeymen"};
-                for (String team : listOfTeams) {
-                    ContentValues values = new ContentValues();
-                    values.put(StatsEntry.COLUMN_NAME, team);
-                    values.put(StatsEntry.COLUMN_LEAGUE, "ISL");
-                    values.put(StatsEntry.COLUMN_WINS, 0);
-                    values.put(StatsEntry.COLUMN_LOSSES, 0);
-                    values.put(StatsEntry.COLUMN_TIES, 0);
-                    values.put(StatsEntry.COLUMN_RUNSFOR, 0);
-                    values.put(StatsEntry.COLUMN_RUNSAGAINST, 0);
-                    getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
-                }
+                Intent intent = new Intent(MainActivity.this, GameActivity.class);
+                startActivity(intent);
             }
         });
 
-        Button testUpdate = (Button) findViewById(R.id.testupdate);
-        testUpdate.setOnClickListener(new View.OnClickListener() {
+        Button randomize = findViewById(R.id.randomize_team_stats);
+        randomize.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String[] listOfTeams = {"Purptopes", "Rigtopes", "Goon Nation", "Boogeymen"};
@@ -103,67 +88,60 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Button testQuery = (Button) findViewById(R.id.testquery);
-        testQuery.setOnClickListener(new View.OnClickListener() {
+        Button dummyData = findViewById(R.id.dummy_data);
+        dummyData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Cursor cursor = getContentResolver().query(
-                        StatsEntry.CONTENT_URI_TEAMS, null,
-                        null, null, null
-                );
-                while (cursor.moveToNext()) {
-                    int nameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_NAME);
-                    String name = cursor.getString(nameIndex);
-                    Toast.makeText(MainActivity.this, "Team: " + name, Toast.LENGTH_SHORT).show();
-                }
-                Toast.makeText(MainActivity.this, "all done", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        Button testPlayers = (Button) findViewById(R.id.testplayers);
-        testPlayers.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String[] listOfPlayers = {"Purp1", "Purp2", "Purp3", "Purp4", "Purp5"};
+                String[] listOfPlayers = {"Purp1", "Purp2", "Purp3", "Purp4", "Purp5",
+                        "Purp6", "Purp7", "Purp8", "Purp9", "Purp10"};
 
                 for (String player : listOfPlayers) {
                     ContentValues values = new ContentValues();
                     values.put(StatsEntry.COLUMN_NAME, player);
                     values.put(StatsEntry.COLUMN_TEAM, "Purptopes");
-      //              values.put(StatsEntry.COLUMN_ORDER, "null");
-//                    values.put(StatsEntry.COLUMN_1B, 0);
-//                    values.put(StatsEntry.COLUMN_2B, 0);
-//                    values.put(StatsEntry.COLUMN_3B, 0);
-//                    values.put(StatsEntry.COLUMN_HR, 0);
-//                    values.put(StatsEntry.COLUMN_BB, 0);
-//                    values.put(StatsEntry.COLUMN_SF, 0);
-//                    values.put(StatsEntry.COLUMN_OUT, 0);
-//                    values.put(StatsEntry.COLUMN_RUN, 0);
-//                    values.put(StatsEntry.COLUMN_RBI, 0);
-//                    values.put(StatsEntry.COLUMN_G, 0);
-                    getContentResolver().insert(StatsEntry.CONTENT_URI1, values);
+                    getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
                 }
 
-                String[] listOfPlayers2 = {"Goon1", "Goon2", "Goon3", "Goon4", "Goon5"};
+                String[] listOfPlayers2 = {"Goon1", "Goon2", "Goon3", "Goon4", "Goon5",
+                        "Goon6", "Goon7", "Goon8", "Goon9", "Goon10"};
 
                 for (String player : listOfPlayers2) {
                     ContentValues values = new ContentValues();
                     values.put(StatsEntry.COLUMN_NAME, player);
                     values.put(StatsEntry.COLUMN_TEAM, "Goon Nation");
-                    //              values.put(StatsEntry.COLUMN_ORDER, "null");
-                    values.put(StatsEntry.COLUMN_1B, 0);
-                    values.put(StatsEntry.COLUMN_2B, 0);
-                    values.put(StatsEntry.COLUMN_3B, 0);
-                    values.put(StatsEntry.COLUMN_HR, 0);
-                    values.put(StatsEntry.COLUMN_BB, 0);
-                    values.put(StatsEntry.COLUMN_SF, 0);
-                    values.put(StatsEntry.COLUMN_OUT, 0);
-                    values.put(StatsEntry.COLUMN_RUN, 0);
-                    values.put(StatsEntry.COLUMN_RBI, 0);
-                    getContentResolver().insert(StatsEntry.CONTENT_URI1, values);
+                    getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
+                }
+
+                String[] listOfTeams = {"Purptopes", "Rigtopes", "Goon Nation", "Boogeymen"};
+                for (String team : listOfTeams) {
+                    ContentValues values = new ContentValues();
+                    values.put(StatsEntry.COLUMN_NAME, team);
+                    values.put(StatsEntry.COLUMN_LEAGUE, "ISL");
+                    getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
                 }
             }
         });
+
+        getLoaderManager().initLoader(44, null, this);
+
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        return new CursorLoader(this, StatsEntry.CONTENT_URI_GAMELOG, null, null, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        if(cursor.moveToFirst()){
+            continueGame.setVisibility(View.VISIBLE);
+        } else {
+            continueGame.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
 
     }
 }

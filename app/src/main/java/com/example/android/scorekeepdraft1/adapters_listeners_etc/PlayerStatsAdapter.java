@@ -1,7 +1,11 @@
 package com.example.android.scorekeepdraft1.adapters_listeners_etc;
 
+import android.content.ContentUris;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Typeface;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,11 +16,15 @@ import android.widget.TextView;
 import com.example.android.scorekeepdraft1.Player;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.TeamActivity;
+import com.example.android.scorekeepdraft1.data.StatsContract;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.HashMap;
 import java.util.List;
 
+import static android.R.attr.id;
+import static android.support.v4.content.ContextCompat.startActivity;
 import static com.example.android.scorekeepdraft1.R.id.linearLayout;
 import static com.example.android.scorekeepdraft1.R.string.team;
 
@@ -29,14 +37,19 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
     private List<Player> players;
     private final NumberFormat formatter = new DecimalFormat("#.000");
     private int visibility;
+    private boolean isTeam = false;
+    private Context context;
 
     public PlayerStatsAdapter(List<Player> players, Context context) {
         super();
         this.players = players;
+        this.context = context;
         if (context instanceof TeamActivity){
             visibility = View.GONE;
+            isTeam = true;
         } else {
             visibility = View.VISIBLE;
+            isTeam = false;
         }
     }
 
@@ -51,7 +64,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
     public void onBindViewHolder(PlayerStatsAdapter.PlayerStatsListViewHolder holder, int position) {
         LinearLayout linearLayout = holder.linearLayout;
         TextView nameView = linearLayout.findViewById(R.id.name);
-        TextView teamView = linearLayout.findViewById(R.id.team_abv);
+        final TextView teamView = linearLayout.findViewById(R.id.team_abv);
         TextView abView = linearLayout.findViewById(R.id.ab);
         TextView hitView = linearLayout.findViewById(R.id.hit);
         TextView hrView = linearLayout.findViewById(R.id.hr);
@@ -79,7 +92,23 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
         } else {
             teamabv = ("" + team.charAt(0)).toUpperCase();
         }
-
+        int id = player.getTeamId();
+        teamView.setTag(id);
+        if(!isTeam) {
+            teamView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(context, TeamActivity.class);
+                    int id = (int) teamView.getTag();
+                    Uri currentTeamUri = null;
+                    if(id != -1) {
+                        currentTeamUri = ContentUris.withAppendedId(StatsContract.StatsEntry.CONTENT_URI_TEAMS, id);
+                    }
+                    intent.setData(currentTeamUri);
+                    startActivity(context, intent, null);
+                }
+            });
+        }
         nameView.setText(player.getName());
         teamView.setText(teamabv);
         int ab = player.getABs();
@@ -111,6 +140,22 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
         }
         linearLayout.setTag(position);
         teamView.setVisibility(visibility);
+        if(isTeam && position == players.size() - 1) {
+            abView.setTypeface(Typeface.DEFAULT_BOLD);
+            hitView.setTypeface(Typeface.DEFAULT_BOLD);
+            hrView.setTypeface(Typeface.DEFAULT_BOLD);
+            rbiView.setTypeface(Typeface.DEFAULT_BOLD);
+            runView.setTypeface(Typeface.DEFAULT_BOLD);
+            sglView.setTypeface(Typeface.DEFAULT_BOLD);
+            dblView.setTypeface(Typeface.DEFAULT_BOLD);
+            tplView.setTypeface(Typeface.DEFAULT_BOLD);
+            gameView.setTypeface(Typeface.DEFAULT_BOLD);
+            bbView.setTypeface(Typeface.DEFAULT_BOLD);
+            avgView.setTypeface(Typeface.DEFAULT_BOLD);
+            obpView.setTypeface(Typeface.DEFAULT_BOLD);
+            slgView.setTypeface(Typeface.DEFAULT_BOLD);
+            opsView.setTypeface(Typeface.DEFAULT_BOLD);
+        }
     }
 
     @Override

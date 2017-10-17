@@ -50,9 +50,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
-            <include layout="@layout/item_team_title"
-                android:id="@+id/team_stats_totals"
-                />
         </LinearLayout>
     </HorizontalScrollView>
 

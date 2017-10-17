@@ -26,6 +26,7 @@ public class Player {
     private int outs;
     private int sacFlies;
     private int games;
+    private int teamId;
     private final NumberFormat formatter = new DecimalFormat("#.000");
 
     public Player(String name) {
@@ -58,7 +59,23 @@ public class Player {
         this.games = games;
     }
 
-    public double getAVG() {
+    public Player(String name, String team, int singles, int doubles, int triples, int hrs, int walks, int runs, int rbis, int outs, int sacFlies, int games, int teamId) {
+        this.name = name;
+        this.team = team;
+        this.singles = singles;
+        this.doubles = doubles;
+        this.triples = triples;
+        this.hrs = hrs;
+        this.walks = walks;
+        this.runs = runs;
+        this.rbis = rbis;
+        this.outs = outs;
+        this.sacFlies = sacFlies;
+        this.games = games;
+        this.teamId = teamId;
+    }
+
+        public double getAVG() {
         if (getABs() == 0) {return .000;}
         return ((double) getHits()) / getABs();
     }
@@ -119,6 +136,7 @@ public class Player {
     public int getSacFlies() {
         return sacFlies;
     }
+    public int getTeamId() {return teamId;}
 
     public void setName(String name) {
         this.name = name;

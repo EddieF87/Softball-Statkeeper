@@ -46,7 +46,6 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
 
     private Cursor playerCursor;
     private Cursor gameCursor;
-    private Uri gameUri;
 
     private TextView scoreboard;
     private TextView nowBatting;
@@ -80,10 +79,6 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     private int homeTeamRuns;
     private int awayTeamIndex;
     private int homeTeamIndex;
-
-    //temporary buttonw?
-//    private Button undoButton;
-//    private Button redoButton;
 
     private String tempBatter;
     private int inningChanged = 0;
@@ -157,7 +152,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         awayTeamName = playerCursor.getString(teamIndex);
         playerCursor.moveToLast();
         homeTeamName = playerCursor.getString(teamIndex);
-
+        setTitle(awayTeamName + " @ " + homeTeamName);
         awayTeam = new ArrayList<>();
         homeTeam = new ArrayList<>();
 
@@ -188,13 +183,13 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         runDisplay = findViewById(R.id.rundisplay);
         hrDisplay = findViewById(R.id.hrdisplay);
         inningDisplay = findViewById(R.id.inning);
-        inningTopArrow = (ImageView) findViewById(R.id.inning_top_arrow);
-        inningBottomArrow = (ImageView) findViewById(R.id.inning_bottom_arrow);
+        inningTopArrow = findViewById(R.id.inning_top_arrow);
+        inningBottomArrow = findViewById(R.id.inning_bottom_arrow);
 
-        group1 = (RadioGroup) findViewById(R.id.group1);
-        group2 = (RadioGroup) findViewById(R.id.group2);
+        group1 = findViewById(R.id.group1);
+        group2 = findViewById(R.id.group2);
 
-        submitPlay = (Button) findViewById(R.id.submit);
+        submitPlay = findViewById(R.id.submit);
         submitPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -203,7 +198,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         });
         submitPlay.setVisibility(View.INVISIBLE);
 
-        resetBases = (Button) findViewById(R.id.reset);
+        resetBases = findViewById(R.id.reset);
         resetBases.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -212,29 +207,12 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         });
         resetBases.setVisibility(View.INVISIBLE);
 
-        //TODO temporary?
-//        undoButton = (Button) findViewById(R.id.undobutton);
-//        undoButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                undoPlay();
-//            }
-//        });
-//        redoButton = (Button) findViewById(R.id.redobutton);
-//        redoButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                redoPlay();
-//            }
-//        });
-//        redoButton.setVisibility(View.INVISIBLE);
-
-        batterDisplay = (ImageView) findViewById(R.id.batter);
+        batterDisplay = findViewById(R.id.batter);
         firstDisplay = findViewById(R.id.first_display);
         secondDisplay = findViewById(R.id.second_display);
         thirdDisplay = findViewById(R.id.third_display);
         homeDisplay = findViewById(R.id.home_display);
-        ImageView outTrash = (ImageView) findViewById(R.id.trash);
+        ImageView outTrash = findViewById(R.id.trash);
         batterDisplay.setOnTouchListener(new MyTouchListener());
         firstDisplay.setOnDragListener(new MyDragListener());
         secondDisplay.setOnDragListener(new MyDragListener());
@@ -386,7 +364,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         values.put(StatsEntry.COLUMN_PLAY, "start");
         values.put(StatsEntry.COLUMN_INNING_CHANGED, 0);
         values.put(StatsEntry.COLUMN_LOG_INDEX, gameLogIndex);
-        gameUri = getContentResolver().insert(StatsEntry.CONTENT_URI_GAMELOG, values);
+        getContentResolver().insert(StatsEntry.CONTENT_URI_GAMELOG, values);
         gameCursor = getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG, null,
                 null, null, null);
         getGameColumnIndeces();
@@ -497,7 +475,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                     break;
             }
         }
-        gameUri = getContentResolver().insert(StatsEntry.CONTENT_URI_GAMELOG, values);
+        getContentResolver().insert(StatsEntry.CONTENT_URI_GAMELOG, values);
 
         startCursor();
         setDisplays();
@@ -654,7 +632,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             int pBB = playerCursor.getInt(bbIndex);
             int pSF = playerCursor.getInt(sfIndex);
 
-            playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI1, null, selection, selectionArgs,  null);
+            playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS, null, selection, selectionArgs,  null);
             playerCursor.moveToFirst();
             int tRBI = playerCursor.getInt(rbiIndex);
             int tRun = playerCursor.getInt(playerRunIndex);
@@ -679,7 +657,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             values.put(StatsEntry.COLUMN_OUT, pOuts + tOuts);
             values.put(StatsEntry.COLUMN_SF, pSF + tSF);
             values.put(StatsEntry.COLUMN_G, games + 1);
-            getContentResolver().update(StatsEntry.CONTENT_URI1, values, selection, selectionArgs);
+            getContentResolver().update(StatsEntry.CONTENT_URI_PLAYERS, values, selection, selectionArgs);
         }
     }
 
@@ -706,7 +684,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         int tOuts = playerCursor.getInt(playerOutIndex);
 
         String selection = StatsEntry.COLUMN_NAME + "=?";
-        playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI1, null, selection, new String[]{name}, null);
+        playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS, null, selection, new String[]{name}, null);
         playerCursor.moveToFirst();
 
         int pHR = playerCursor.getInt(hrIndex);
@@ -1298,8 +1276,11 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                 startActivity(intent);
                 break;
             case R.id.action_quit_game:
-                //showQuitConfirmationDialog();
+                showQuitConfirmationDialog();
                 break;
+            case android.R.id.home:
+                showQuitConfirmationDialog();
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -1323,11 +1304,35 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
 
     @Override
     public void onBackPressed() {
-        //showQuitConfirmationDialog();
+        showQuitConfirmationDialog();
     }
 
-    public void showQuitConfirmationDialog() {
-
-
+    private void showQuitConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int i) {
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+            }
+        });
+        builder.setNeutralButton(R.string.game_completed, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int i) {
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+                endGame();
+            }
+        });
+        builder.setPositiveButton(R.string.quit, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int i) {
+                finish();
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
     }
 }

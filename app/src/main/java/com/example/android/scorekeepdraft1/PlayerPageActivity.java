@@ -66,7 +66,7 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
 
         return new CursorLoader(
                 this,
-                StatsContract.StatsEntry.CONTENT_URI1,
+                StatsContract.StatsEntry.CONTENT_URI_PLAYERS,
                 null,
                 selection,
                 new String[]{playerString},
@@ -106,7 +106,7 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
             int g = cursor.getInt(gameIndex);
 
             int playerId = cursor.getInt(cursor.getColumnIndex(StatsEntry._ID));
-            mCurrentPlayerUri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI1, playerId);
+            mCurrentPlayerUri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_PLAYERS, playerId);
 
             Player player = new Player(playerName, teamString, sgl, dbl, tpl, hr, bb, run, rbi, out, sf, g);
             TextView hitView = (TextView) findViewById(R.id.playerboard_hit);
@@ -289,7 +289,7 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
     private boolean nameAlreadyInDB(String playerName) {
         String selection = StatsEntry.COLUMN_NAME + " = '" + playerName + "' COLLATE NOCASE";
 
-        Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI1, null, selection, null, null);
+        Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS, null, selection, null, null);
         if (cursor.getCount() <= 0) {
             cursor.close();
             return false;

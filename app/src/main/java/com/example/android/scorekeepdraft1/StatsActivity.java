@@ -22,7 +22,10 @@ import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+
+import static android.R.attr.id;
 
 public class StatsActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemSelectedListener, View.OnClickListener {
 
@@ -38,15 +41,15 @@ public class StatsActivity extends AppCompatActivity implements LoaderManager.Lo
     private List<Player> players;
     private List<String> teams;
     private static final int STATS_LOADER = 4;
-
+    private HashMap<String, Integer> teamIDs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stats);
 
-        rv = (RecyclerView) findViewById(R.id.rv_stats);
-        emptyView = (TextView) findViewById(R.id.empty_stats_view);
+        rv = findViewById(R.id.rv_stats);
+        emptyView = findViewById(R.id.empty_stats_view);
 
         findViewById(R.id.name_title).setOnClickListener(this);
         findViewById(R.id.team_abv_title).setOnClickListener(this);
@@ -65,17 +68,21 @@ public class StatsActivity extends AppCompatActivity implements LoaderManager.Lo
         findViewById(R.id.bb_title).setOnClickListener(this);
 
         mCursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
-                new String[]{StatsEntry.COLUMN_NAME}, null, null, null);
+                new String[]{StatsEntry._ID, StatsEntry.COLUMN_NAME}, null, null, null);
 
         teams = new ArrayList<>();
         teams.add("All Teams");
+        teamIDs = new HashMap<>();
         while (mCursor.moveToNext()) {
             int teamNameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
             String teamName = mCursor.getString(teamNameIndex);
+            int idIndex = mCursor.getColumnIndex(StatsEntry._ID);
+            int id = mCursor.getInt(idIndex);
+            teamIDs.put(teamName, id);
             teams.add(teamName);
         }
         teams.add("Free Agent");
-        teamSpinner = (Spinner) findViewById(R.id.spinner_stats_teams);
+        teamSpinner = findViewById(R.id.spinner_stats_teams);
 
         ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(this,
                 R.layout.spinner_layout, teams);
@@ -245,7 +252,7 @@ public class StatsActivity extends AppCompatActivity implements LoaderManager.Lo
 
         return new CursorLoader(
                 this,
-                StatsContract.StatsEntry.CONTENT_URI1,
+                StatsContract.StatsEntry.CONTENT_URI_PLAYERS,
                 projection,
                 selection,
                 selectionArgs,
@@ -284,8 +291,13 @@ public class StatsActivity extends AppCompatActivity implements LoaderManager.Lo
             int run = mCursor.getInt(runIndex);
             int sf = mCursor.getInt(sfIndex);
             int g = mCursor.getInt(gameIndex);
-
-            players.add(new Player(player, team, sgl, dbl, tpl, hr, bb, run, rbi, out, sf, g));
+            int id;
+            if(team.equals("Free Agent")) {
+                id = -1;
+            } else {
+                id = teamIDs.get(team);
+            }
+            players.add(new Player(player, team, sgl, dbl, tpl, hr, bb, run, rbi, out, sf, g, id));
         }
         if (players.isEmpty()) {
                 rv.setVisibility(View.GONE);
@@ -300,6 +312,33 @@ public class StatsActivity extends AppCompatActivity implements LoaderManager.Lo
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mCursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
+                new String[]{StatsEntry._ID, StatsEntry.COLUMN_NAME}, null, null, null);
+
+        teams = new ArrayList<>();
+        teams.add("All Teams");
+        teamIDs = new HashMap<>();
+        while (mCursor.moveToNext()) {
+            int teamNameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
+            String teamName = mCursor.getString(teamNameIndex);
+            int idIndex = mCursor.getColumnIndex(StatsEntry._ID);
+            int id = mCursor.getInt(idIndex);
+            teamIDs.put(teamName, id);
+            teams.add(teamName);
+        }
+        teams.add("Free Agent");
+        teamSpinner = findViewById(R.id.spinner_stats_teams);
+
+        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(this,
+                R.layout.spinner_layout, teams);
+
+        teamSpinner.setAdapter(spinnerArrayAdapter);
+        teamSpinner.setOnItemSelectedListener(this);
     }
 
     @Override
@@ -328,7 +367,7 @@ public class StatsActivity extends AppCompatActivity implements LoaderManager.Lo
         }
         int savedId = savedInstanceState.getInt("tV");
         if (savedId != 0) {
-            colorView = (TextView) findViewById(savedId);
+            colorView = findViewById(savedId);
             colorView.setBackgroundColor(Color.parseColor("#0098cc"));
         }
     }
