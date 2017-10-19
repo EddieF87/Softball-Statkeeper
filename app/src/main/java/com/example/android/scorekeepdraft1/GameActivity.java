@@ -659,6 +659,8 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             values.put(StatsEntry.COLUMN_G, games + 1);
             getContentResolver().update(StatsEntry.CONTENT_URI_PLAYERS, values, selection, selectionArgs);
         }
+        getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, null, null);
+        getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, null, null);
     }
 
     private void startCursor() {
@@ -1324,6 +1326,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                     dialog.dismiss();
                 }
                 endGame();
+                finish();
             }
         });
         builder.setPositiveButton(R.string.quit, new DialogInterface.OnClickListener() {

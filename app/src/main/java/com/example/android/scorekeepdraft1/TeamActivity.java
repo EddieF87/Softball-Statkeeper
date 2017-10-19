@@ -233,7 +233,6 @@ public class TeamActivity extends AppCompatActivity implements LoaderManager.Loa
                 Intent intent = new Intent(TeamActivity.this, SetLineupActivity.class);
                 Bundle b = new Bundle();
                 b.putString("team", teamSelected);
-                b.putString("activity", "matchup");
                 intent.putExtras(b);
                 startActivity(intent);
                 return true;

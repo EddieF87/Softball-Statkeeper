@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -27,24 +28,23 @@ import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.example.android.scorekeepdraft1.R.id.out;
+import static com.example.android.scorekeepdraft1.R.string.team;
+
 public class MatchupActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemSelectedListener {
 
     private TeamListAdapter leftListAdapter;
     private TeamListAdapter rightListAdapter;
-    private Button startGame;
-    private Button editAwayLineup;
-    private Button editHomeLineup;
     private Spinner awayTeamSpinner;
     private Spinner homeTeamSpinner;
-    private Cursor mCursor;
 
     private RecyclerView rvLeft;
     private RecyclerView rvRight;
 
-    private List<String> playerList;
-    private List<String> benchList;
     private String awayTeamSelection;
     private String homeTeamSelection;
+    private int awayIndex;
+    private int homeIndex;
     private static final int MATCHUP_LOADER = 5;
 
 
@@ -61,8 +61,8 @@ public class MatchupActivity extends AppCompatActivity implements LoaderManager.
         rvLeft = findViewById(R.id.rv_left_team);
         rvRight = findViewById(R.id.rv_right_team);
 
-        editAwayLineup = findViewById(R.id.edit_away_team_button);
-        editHomeLineup = findViewById(R.id.edit_home_team_button);
+        Button editAwayLineup = findViewById(R.id.edit_away_team_button);
+        Button editHomeLineup = findViewById(R.id.edit_home_team_button);
         editAwayLineup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -72,7 +72,6 @@ public class MatchupActivity extends AppCompatActivity implements LoaderManager.
                 Intent intent = new Intent(MatchupActivity.this, SetLineupActivity.class);
                 Bundle b = new Bundle();
                 b.putString("team", awayTeamSelection);
-                b.putString("activity", "matchup");
                 intent.putExtras(b);
                 startActivity(intent);
             }
@@ -86,13 +85,12 @@ public class MatchupActivity extends AppCompatActivity implements LoaderManager.
                 Intent intent = new Intent(MatchupActivity.this, SetLineupActivity.class);
                 Bundle b = new Bundle();
                 b.putString("team", homeTeamSelection);
-                b.putString("activity", "matchup");
                 intent.putExtras(b);
                 startActivity(intent);
             }
         });
 
-        startGame = findViewById(R.id.start_game);
+        Button startGame = findViewById(R.id.start_game);
         startGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -156,9 +154,9 @@ public class MatchupActivity extends AppCompatActivity implements LoaderManager.
         } else if (parent.getId() == R.id.hometeam_spinner) {
             homeTeamSelection = team;
         } else {
-            Toast.makeText(this, "woops I DID SOMETHIGN WRONG ", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MatchupActivity.this, "onItemSelected error ", Toast.LENGTH_SHORT).show();
         }
-        playerList = getLineup(team);
+        List<String> playerList = getLineup(team);
 
         SharedPreferences.Editor editor;
         SharedPreferences spinnersaving;
@@ -181,29 +179,56 @@ public class MatchupActivity extends AppCompatActivity implements LoaderManager.
         editor.apply();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+//        Spinner spinnerAway = findViewById(R.id.awayteam_spinner);
+//        Spinner spinnerHome = findViewById(R.id.hometeam_spinner);
+        if (awayTeamSpinner.getSelectedItem() == null || homeTeamSpinner.getSelectedItem() == null) {return;}
+//        SharedPreferences awaySpinnerSave = getSharedPreferences("awayspinnerstate", 0);
+//        SharedPreferences homeSpinnerSave = getSharedPreferences("homespinnerstate", 0);
+//
+//        onItemSelected(spinnerAway, View view, awayIndex, 0)
+//        awayTeamSelection = spinnerAway.getSelectedItem().toString();
+//        homeTeamSelection = spinnerHome.getSelectedItem().toString();
+
+        List<String> awayList = getLineup(awayTeamSelection);
+        List<String> homeList = getLineup(homeTeamSelection);
+
+        rvLeft.setLayoutManager(new LinearLayoutManager(
+                this, LinearLayoutManager.VERTICAL, false));
+        leftListAdapter = new TeamListAdapter(awayList);
+        rvLeft.setAdapter(leftListAdapter);
+        rvRight.setLayoutManager(new LinearLayoutManager(
+                this, LinearLayoutManager.VERTICAL, false));
+        rightListAdapter = new TeamListAdapter(homeList);
+        rvRight.setAdapter(rightListAdapter);
+    }
+
     private ArrayList<String> getLineup(String team){
         ArrayList<String> lineup = new ArrayList<>();
-        benchList = new ArrayList<>();
+        List<String> benchList = new ArrayList<>();
         try {
             String[] projection = new String[]{StatsContract.StatsEntry._ID, StatsContract.StatsEntry.COLUMN_ORDER, StatsEntry.COLUMN_NAME};
             String selection = StatsContract.StatsEntry.COLUMN_TEAM + "=?";
             String[] selectionArgs = new String[]{team};
             String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
 
-            mCursor = getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS, projection,
+            Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS, projection,
                     selection, selectionArgs, sortOrder);
-            while (mCursor.moveToNext()) {
-                int nameIndex = mCursor.getColumnIndex(StatsContract.StatsEntry.COLUMN_NAME);
-                int orderIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_ORDER);
-                String playerName = mCursor.getString(nameIndex);
-                int order = mCursor.getInt(orderIndex);
+            while (cursor.moveToNext()) {
+                int nameIndex = cursor.getColumnIndex(StatsContract.StatsEntry.COLUMN_NAME);
+                int orderIndex = cursor.getColumnIndex(StatsEntry.COLUMN_ORDER);
+                String playerName = cursor.getString(nameIndex);
+                int order = cursor.getInt(orderIndex);
                 if (order < 50) {
                     lineup.add(playerName);
                 } else {
                     benchList.add(playerName);
                 }
             }
-            addToBench(team);
+            addToBench(benchList, team);
             return lineup;
         } catch (Exception e) {
             Toast.makeText(this, "woops  " + e, Toast.LENGTH_SHORT).show();
@@ -211,21 +236,23 @@ public class MatchupActivity extends AppCompatActivity implements LoaderManager.
         }
     }
 
-    private void addToBench(String team) {
+    private void addToBench(List<String> benchList, String team) {
         TextView benchView;
-        if (team == awayTeamSelection) {
-            benchView = findViewById(R.id.bench_away);
-        } else if (team == homeTeamSelection) {
-            benchView = findViewById(R.id.bench_home);
-        } else {
-            return;
+        if (team.equals(awayTeamSelection) || team.equals(homeTeamSelection)) {
+            StringBuilder builder = new StringBuilder();
+            for (String player : benchList) {
+                String string = player + "  ";
+                builder.append(string);
+            }
+            if (team.equals(awayTeamSelection)){
+                benchView = findViewById(R.id.bench_away);
+                benchView.setText(builder.toString());
+            }
+            if (team.equals(homeTeamSelection)){
+                benchView = findViewById(R.id.bench_home);
+                benchView.setText(builder.toString());
+            }
         }
-        StringBuilder builder = new StringBuilder();
-        for (String player : benchList) {
-            String string = player + "  ";
-            builder.append(string);
-        }
-        benchView.setText(builder.toString());
     }
 
     public TeamListAdapter getLeftListAdapter() {
@@ -244,11 +271,18 @@ public class MatchupActivity extends AppCompatActivity implements LoaderManager.
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt("awaySpinner", awayTeamSpinner.getSelectedItemPosition());
-        outState.putInt("homeSpinner", homeTeamSpinner.getSelectedItemPosition());
+        outState.putString("awayTeam", awayTeamSelection);
+        outState.putString("homeTeam", homeTeamSelection);
     }
 
-    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        awayTeamSelection = savedInstanceState.getString("awayTeam");
+        homeTeamSelection = savedInstanceState.getString("homeTeam");
+    }
+
+
+        @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         String[] projection = new String[]{StatsContract.StatsEntry._ID, StatsEntry.COLUMN_NAME};
         String selection = StatsContract.StatsEntry.COLUMN_LEAGUE + "=?";
@@ -271,8 +305,8 @@ public class MatchupActivity extends AppCompatActivity implements LoaderManager.
         homeTeamSpinner.setAdapter(adapter);
         awayTeamSpinner.setOnItemSelectedListener(this);
         homeTeamSpinner.setOnItemSelectedListener(this);
-        int awayIndex = awaySpinnerSave.getInt("spinnerPos", 0);
-        int homeIndex = homeSpinnerSave.getInt("spinnerPos", 1);
+        awayIndex = awaySpinnerSave.getInt("spinnerPos", 0);
+        homeIndex = homeSpinnerSave.getInt("spinnerPos", 1);
         if (awayIndex >= numberOfTeams) {awayIndex = 0;}
         if (homeIndex >= numberOfTeams) {homeIndex = 0;}
         awayTeamSpinner.setSelection(awayIndex);
@@ -281,6 +315,5 @@ public class MatchupActivity extends AppCompatActivity implements LoaderManager.
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-
     }
 }
