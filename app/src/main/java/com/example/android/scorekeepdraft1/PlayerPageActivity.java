@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,6 +30,8 @@ import android.widget.Toast;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 
+import static com.example.android.scorekeepdraft1.R.string.team;
+
 
 public class PlayerPageActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -36,47 +39,35 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
     private NumberFormat formatter = new DecimalFormat("#.000");
     private static final int EXISTING_PLAYER_LOADER = 0;
     private Uri mCurrentPlayerUri;
-    private boolean nameChanged;
     private String teamString;
-    private TextView teamView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player_page);
-        Bundle b = getIntent().getExtras();
-        if (savedInstanceState != null) {
-            playerString = savedInstanceState.getString("player");
-        } else if (b != null) {
-            playerString = b.getString("player");
-        }
-        nameChanged = false;
-        teamView = findViewById(R.id.player_team);
 
-        String title = "Player Bio: " + playerString;
-        setTitle(title);
+        Intent intent = getIntent();
+        mCurrentPlayerUri = intent.getData();
+
         getLoaderManager().initLoader(EXISTING_PLAYER_LOADER, null, this);
     }
 
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-
-        String selection = StatsEntry.COLUMN_NAME + "=?";
-
         return new CursorLoader(
                 this,
-                StatsContract.StatsEntry.CONTENT_URI_PLAYERS,
+                mCurrentPlayerUri,
                 null,
-                selection,
-                new String[]{playerString},
+                null,
+                null,
                 null
         );
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        TextView nameView = (TextView) findViewById(R.id.player_name);
+        TextView nameView = findViewById(R.id.player_name);
 
         if (cursor.moveToFirst()) {
             int nameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_NAME);
@@ -92,7 +83,7 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
             int sfIndex = cursor.getColumnIndex(StatsEntry.COLUMN_SF);
             int gameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_G);
 
-            String playerName = cursor.getString(nameIndex);
+            playerString = cursor.getString(nameIndex);
             teamString = cursor.getString(teamIndex);
             int hr = cursor.getInt(hrIndex);
             int tpl = cursor.getInt(tripleIndex);
@@ -105,41 +96,40 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
             int sf = cursor.getInt(sfIndex);
             int g = cursor.getInt(gameIndex);
 
-            int playerId = cursor.getInt(cursor.getColumnIndex(StatsEntry._ID));
-            mCurrentPlayerUri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_PLAYERS, playerId);
+            Player player = new Player(playerString, teamString, sgl, dbl, tpl, hr, bb, run, rbi, out, sf, g, 0);
+            TextView hitView = findViewById(R.id.playerboard_hit);
+            TextView hrView = findViewById(R.id.player_hr);
+            TextView rbiView = findViewById(R.id.player_rbi);
+            TextView runView = findViewById(R.id.player_runs);
+            TextView avgView = findViewById(R.id.player_avg);
+            TextView obpView = findViewById(R.id.playerboard_obp);
+            TextView slgView = findViewById(R.id.player_slg);
+            TextView opsView = findViewById(R.id.player_ops);
+            TextView sglView = findViewById(R.id.playerboard_1b);
+            TextView dblView = findViewById(R.id.playerboard_2b);
+            TextView tplView = findViewById(R.id.playerboard_3b);
+            TextView bbView = findViewById(R.id.playerboard_bb);
+            TextView teamView = findViewById(R.id.player_team);
 
-            Player player = new Player(playerName, teamString, sgl, dbl, tpl, hr, bb, run, rbi, out, sf, g);
-            TextView hitView = (TextView) findViewById(R.id.playerboard_hit);
-            TextView hrView = (TextView) findViewById(R.id.player_hr);
-            TextView rbiView = (TextView) findViewById(R.id.player_rbi);
-            TextView runView = (TextView) findViewById(R.id.player_runs);
-            TextView avgView = (TextView) findViewById(R.id.player_avg);
-            TextView obpView = (TextView) findViewById(R.id.playerboard_obp);
-            TextView slgView = (TextView) findViewById(R.id.player_slg);
-            TextView opsView = (TextView) findViewById(R.id.player_ops);
-            TextView sglView = (TextView) findViewById(R.id.playerboard_1b);
-            TextView dblView = (TextView) findViewById(R.id.playerboard_2b);
-            TextView tplView = (TextView) findViewById(R.id.playerboard_3b);
-            TextView bbView = (TextView) findViewById(R.id.playerboard_bb);
 
             nameView.setText(player.getName());
             teamView.setText(teamString);
             hitView.setText(String.valueOf(player.getHits()));
-            hrView.setText(String.valueOf(player.getHrs()));
-            rbiView.setText(String.valueOf(player.getRbis()));
-            runView.setText(String.valueOf(player.getRuns()));
+            hrView.setText(String.valueOf(hr));
+            rbiView.setText(String.valueOf(rbi));
+            runView.setText(String.valueOf(run));
+            sglView.setText(String.valueOf(sgl));
+            dblView.setText(String.valueOf(dbl));
+            tplView.setText(String.valueOf(tpl));
+            bbView.setText(String.valueOf(bb));
             avgView.setText(String.valueOf(formatter.format(player.getAVG())));
             obpView.setText(String.valueOf(formatter.format(player.getOBP())));
             slgView.setText(String.valueOf(formatter.format(player.getSLG())));
             opsView.setText(String.valueOf(formatter.format(player.getOPS())));
-            sglView.setText(String.valueOf(player.getSingles()));
-            dblView.setText(String.valueOf(player.getDoubles()));
-            tplView.setText(String.valueOf(player.getTriples()));
-            bbView.setText(String.valueOf(player.getWalks()));
-        } else if (nameChanged) {
-            nameView.setText(playerString);
-        } else {
-            finish();
+
+            String title = "Player Bio: " + playerString;
+            setTitle(title);
+
         }
     }
 
@@ -280,12 +270,6 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
         getContentResolver().update(mCurrentPlayerUri, contentValues, null, null);
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putString("player", playerString);
-    }
-
     private boolean nameAlreadyInDB(String playerName) {
         String selection = StatsEntry.COLUMN_NAME + " = '" + playerName + "' COLLATE NOCASE";
 
@@ -313,7 +297,7 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
             }
             startActivity(intent);
         } else {
-            Toast.makeText(PlayerPageActivity.this, "gosogsogogogoog", Toast.LENGTH_SHORT).show();
+            Log.v("PlayerPageActivity", "Error going to team page");
         }
     }
 }

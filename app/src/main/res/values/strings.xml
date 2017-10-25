@@ -74,4 +74,8 @@
     <string name="send_all_to_waivers">Send team\'s players to waivers?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="out">Out</string>
+    <string name="error">Error</string>
+    <string name="sf">SF</string>
+    <string name="fc">FC</string>
 </resources>

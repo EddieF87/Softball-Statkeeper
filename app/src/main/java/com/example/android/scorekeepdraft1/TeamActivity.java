@@ -144,6 +144,7 @@ public class TeamActivity extends AppCompatActivity implements LoaderManager.Loa
         int runIndex = cursor.getColumnIndex(StatsEntry.COLUMN_RUN);
         int sfIndex = cursor.getColumnIndex(StatsEntry.COLUMN_SF);
         int gameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_G);
+        int idIndex = cursor.getColumnIndex(StatsEntry._ID);
 
         int sumHr = 0;
         int sumTpl = 0;
@@ -179,9 +180,10 @@ public class TeamActivity extends AppCompatActivity implements LoaderManager.Loa
             sumSf += sf;
             int g = cursor.getInt(gameIndex);
 
-            players.add(new Player(player, teamSelected, sgl, dbl, tpl, hr, bb, run, rbi, out, sf, g));
+            int playerId = cursor.getInt(idIndex);
+            players.add(new Player(player, teamSelected, sgl, dbl, tpl, hr, bb, run, rbi, out, sf, g, playerId));
         }
-        players.add(new Player("Total", teamSelected, sumSgl, sumDbl, sumTpl, sumHr, sumBb, sumRun, sumRbi, sumOut, sumSf, sumG));
+        players.add(new Player("Total", teamSelected, sumSgl, sumDbl, sumTpl, sumHr, sumBb, sumRun, sumRbi, sumOut, sumSf, sumG, 0));
 
         initRecyclerView();
     }
@@ -192,15 +194,15 @@ public class TeamActivity extends AppCompatActivity implements LoaderManager.Loa
 
     }
 
-    public void goToPlayerPage(View v) {
-        Intent intent = new Intent(TeamActivity.this, PlayerPageActivity.class);
-        TextView textView = (TextView) v;
-        String player = textView.getText().toString();
-        Bundle b = new Bundle();
-        b.putString("player", player);
-        intent.putExtras(b);
-        startActivity(intent);
-    }
+//    public void goToPlayerPage(View v) {
+//        Intent intent = new Intent(TeamActivity.this, PlayerPageActivity.class);
+//        TextView textView = (TextView) v;
+//        String player = textView.getText().toString();
+//        Bundle b = new Bundle();
+//        b.putString("player", player);
+//        intent.putExtras(b);
+//        startActivity(intent);
+//    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

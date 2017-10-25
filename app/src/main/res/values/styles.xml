@@ -8,4 +8,29 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="RadioButtonStyle">
+        <item name="android:onClick">onRadioButtonClicked</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:background">@drawable/custom_radio_button_bg</item>
+        <item name="android:button">@android:color/transparent</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="ScoreboardStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">#FFD600</item>
+    </style>
+
+    <style name="BaseStyle">
+        <item name="android:layout_width">90dp</item>
+        <item name="android:layout_height">90dp</item>
+        <item name="android:layout_above">@id/infield</item>
+        <item name="android:background">@drawable/base</item>
+        <item name="android:gravity">center_vertical|center</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
 </resources>

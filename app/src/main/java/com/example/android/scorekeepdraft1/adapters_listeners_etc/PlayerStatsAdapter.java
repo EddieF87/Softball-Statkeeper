@@ -12,8 +12,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.Player;
+import com.example.android.scorekeepdraft1.PlayerPageActivity;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.TeamActivity;
 import com.example.android.scorekeepdraft1.data.StatsContract;
@@ -44,7 +46,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
         super();
         this.players = players;
         this.context = context;
-        if (context instanceof TeamActivity){
+        if (context instanceof TeamActivity) {
             visibility = View.GONE;
             isTeam = true;
         } else {
@@ -63,7 +65,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
     @Override
     public void onBindViewHolder(PlayerStatsAdapter.PlayerStatsListViewHolder holder, int position) {
         LinearLayout linearLayout = holder.linearLayout;
-        TextView nameView = linearLayout.findViewById(R.id.name);
+        final TextView nameView = linearLayout.findViewById(R.id.name);
         final TextView teamView = linearLayout.findViewById(R.id.team_abv);
         TextView abView = linearLayout.findViewById(R.id.ab);
         TextView hitView = linearLayout.findViewById(R.id.hit);
@@ -80,29 +82,46 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
         TextView bbView = linearLayout.findViewById(R.id.bb);
         TextView gameView = linearLayout.findViewById(R.id.game);
 
-        if (position % 2 == 1) {linearLayout.setBackgroundColor(Color.parseColor("#dfdfdf"));}
+        if (position % 2 == 1) {
+            linearLayout.setBackgroundColor(Color.parseColor("#dfdfdf"));
+        }
 
         Player player = players.get(position);
         String team = player.getTeam();
         String teamabv;
         if (team == null || team.equals("Free Agent")) {
             teamabv = "FA";
-        } else if (team.length()>2){
+        } else if (team.length() > 2) {
             teamabv = ("" + team.charAt(0) + team.charAt(1) + team.charAt(2)).toUpperCase();
         } else {
             teamabv = ("" + team.charAt(0)).toUpperCase();
         }
-        int id = player.getTeamId();
-        teamView.setTag(id);
-        if(!isTeam) {
+
+        int playerId = player.getPlayerId();
+        nameView.setTag(playerId);
+        nameView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(context, PlayerPageActivity.class);
+                int playerId = (int) nameView.getTag();
+                Uri playerUri = ContentUris.withAppendedId(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, playerId);
+                intent.setData(playerUri);
+                startActivity(context, intent, null);
+            }
+        });
+
+
+        int teamId = player.getTeamId();
+        teamView.setTag(teamId);
+        if (!isTeam) {
             teamView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     Intent intent = new Intent(context, TeamActivity.class);
-                    int id = (int) teamView.getTag();
+                    int teamId = (int) teamView.getTag();
                     Uri currentTeamUri = null;
-                    if(id != -1) {
-                        currentTeamUri = ContentUris.withAppendedId(StatsContract.StatsEntry.CONTENT_URI_TEAMS, id);
+                    if (teamId != -1) {
+                        currentTeamUri = ContentUris.withAppendedId(StatsContract.StatsEntry.CONTENT_URI_TEAMS, teamId);
                     }
                     intent.setData(currentTeamUri);
                     startActivity(context, intent, null);
@@ -140,7 +159,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
         }
         linearLayout.setTag(position);
         teamView.setVisibility(visibility);
-        if(isTeam && position == players.size() - 1) {
+        if (isTeam && position == players.size() - 1) {
             abView.setTypeface(Typeface.DEFAULT_BOLD);
             hitView.setTypeface(Typeface.DEFAULT_BOLD);
             hrView.setTypeface(Typeface.DEFAULT_BOLD);
@@ -163,7 +182,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
         return players.size();
     }
 
-    static class PlayerStatsListViewHolder extends RecyclerView.ViewHolder{
+    static class PlayerStatsListViewHolder extends RecyclerView.ViewHolder {
         LinearLayout linearLayout;
 
         PlayerStatsListViewHolder(View itemView) {

@@ -27,6 +27,7 @@ public class Player {
     private int sacFlies;
     private int games;
     private int teamId;
+    private int playerId;
     private final NumberFormat formatter = new DecimalFormat("#.000");
 
     public Player(String name) {
@@ -44,7 +45,7 @@ public class Player {
         this.team = "Free Agent";
     }
 
-    public Player(String name, String team, int singles, int doubles, int triples, int hrs, int walks, int runs, int rbis, int outs, int sacFlies, int games) {
+    public Player(String name, String team, int singles, int doubles, int triples, int hrs, int walks, int runs, int rbis, int outs, int sacFlies, int games, int playerId) {
         this.name = name;
         this.team = team;
         this.singles = singles;
@@ -57,9 +58,10 @@ public class Player {
         this.outs = outs;
         this.sacFlies = sacFlies;
         this.games = games;
+        this.playerId = playerId;
     }
 
-    public Player(String name, String team, int singles, int doubles, int triples, int hrs, int walks, int runs, int rbis, int outs, int sacFlies, int games, int teamId) {
+    public Player(String name, String team, int singles, int doubles, int triples, int hrs, int walks, int runs, int rbis, int outs, int sacFlies, int games, int teamId, int playerId) {
         this.name = name;
         this.team = team;
         this.singles = singles;
@@ -73,6 +75,7 @@ public class Player {
         this.sacFlies = sacFlies;
         this.games = games;
         this.teamId = teamId;
+        this.playerId = playerId;
     }
 
         public double getAVG() {
@@ -151,6 +154,7 @@ public class Player {
         this.sacFlies = sacFlies;
     }
     public void setGames(int games) {this.games = games;}
+    public int getPlayerId() {return playerId;}
 
     @Override
     public String toString() {

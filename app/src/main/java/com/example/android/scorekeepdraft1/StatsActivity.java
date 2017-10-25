@@ -216,15 +216,15 @@ public class StatsActivity extends AppCompatActivity implements LoaderManager.Lo
         getLoaderManager().restartLoader(STATS_LOADER, null, this);
     }
 
-    public void goToPlayerPage(View v) {
-        Intent intent = new Intent(StatsActivity.this, PlayerPageActivity.class);
-        TextView textView = (TextView) v;
-        String player = textView.getText().toString();
-        Bundle b = new Bundle();
-        b.putString("player", player);
-        intent.putExtras(b);
-        startActivity(intent);
-    }
+//    public void goToPlayerPage(View v) {
+//        Intent intent = new Intent(StatsActivity.this, PlayerPageActivity.class);
+//        TextView textView = (TextView) v;
+//        String player = textView.getText().toString();
+//        Bundle b = new Bundle();
+//        b.putString("player", player);
+//        intent.putExtras(b);
+//        startActivity(intent);
+//    }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -278,6 +278,7 @@ public class StatsActivity extends AppCompatActivity implements LoaderManager.Lo
             int runIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_RUN);
             int sfIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_SF);
             int gameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_G);
+            int idIndex = mCursor.getColumnIndex(StatsEntry._ID);
 
             String player = mCursor.getString(nameIndex);
             String team = mCursor.getString(teamIndex);
@@ -291,13 +292,14 @@ public class StatsActivity extends AppCompatActivity implements LoaderManager.Lo
             int run = mCursor.getInt(runIndex);
             int sf = mCursor.getInt(sfIndex);
             int g = mCursor.getInt(gameIndex);
-            int id;
+            int teamId;
             if(team.equals("Free Agent")) {
-                id = -1;
+                teamId = -1;
             } else {
-                id = teamIDs.get(team);
+                teamId = teamIDs.get(team);
             }
-            players.add(new Player(player, team, sgl, dbl, tpl, hr, bb, run, rbi, out, sf, g, id));
+            int playerId = mCursor.getInt(idIndex);
+            players.add(new Player(player, team, sgl, dbl, tpl, hr, bb, run, rbi, out, sf, g, teamId, playerId));
         }
         if (players.isEmpty()) {
                 rv.setVisibility(View.GONE);
@@ -327,8 +329,8 @@ public class StatsActivity extends AppCompatActivity implements LoaderManager.Lo
             int teamNameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
             String teamName = mCursor.getString(teamNameIndex);
             int idIndex = mCursor.getColumnIndex(StatsEntry._ID);
-            int id = mCursor.getInt(idIndex);
-            teamIDs.put(teamName, id);
+            int teamId = mCursor.getInt(idIndex);
+            teamIDs.put(teamName, teamId);
             teams.add(teamName);
         }
         teams.add("Free Agent");

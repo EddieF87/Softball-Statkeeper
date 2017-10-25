@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#000"
+    android:padding="8dp">
+
+    <TextView
+        android:id="@+id/scoreboard"
+        style="@style/ScoreboardStyle"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        tools:text="@string/scoreboard"
+        android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+        android:textSize="18sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/nowbatting"
+        style="@style/ScoreboardStyle"
+        android:layout_marginTop="16dp"
+        android:maxLines="1"
+        android:text="@string/nowbatting"
+        android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+        android:textSize="18sp"
+        app:layout_constraintLeft_toLeftOf="@+id/scoreboard"
+        app:layout_constraintTop_toBottomOf="@+id/scoreboard" />
+
+    <ImageView
+        android:id="@+id/inning_top_arrow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="32dp"
+        android:layout_marginStart="32dp"
+        android:background="#FFD600"
+        app:layout_constraintLeft_toRightOf="@+id/scoreboard"
+        app:layout_constraintTop_toTopOf="@+id/scoreboard"
+        app:srcCompat="@android:drawable/arrow_up_float" />
+
+    <ImageView
+        android:id="@+id/inning_bottom_arrow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="#00000000"
+        app:layout_constraintLeft_toLeftOf="@+id/inning"
+        app:layout_constraintRight_toRightOf="@+id/inning"
+        app:layout_constraintTop_toBottomOf="@+id/inning"
+        app:srcCompat="@android:drawable/arrow_down_float" />
+
+    <TextView
+        android:id="@+id/inning"
+        style="@style/ScoreboardStyle"
+        android:layout_marginTop="8dp"
+        tools:text="1"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toLeftOf="@+id/inning_top_arrow"
+        app:layout_constraintRight_toRightOf="@+id/inning_top_arrow"
+        app:layout_constraintTop_toBottomOf="@+id/inning_top_arrow" />
+
+    <TextView
+        android:id="@+id/num_of_outs"
+        style="@style/ScoreboardStyle"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="24dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="24dp"
+        tools:text="0 outs"
+        app:layout_constraintLeft_toRightOf="@+id/inning"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/inning" />
+
+    <TextView
+        android:id="@+id/hrdisplay"
+        style="@style/ScoreboardStyle"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        tools:text="playerHR"
+        app:layout_constraintLeft_toRightOf="@+id/avgdisplay"
+        app:layout_constraintTop_toTopOf="@+id/avgdisplay" />
+
+    <TextView
+        android:id="@+id/rbidisplay"
+        style="@style/ScoreboardStyle"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        tools:text="playerRBI"
+        app:layout_constraintLeft_toRightOf="@+id/hrdisplay"
+        app:layout_constraintTop_toTopOf="@+id/hrdisplay" />
+
+    <TextView
+        android:id="@+id/rundisplay"
+        style="@style/ScoreboardStyle"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        tools:text="playerRuns"
+        app:layout_constraintLeft_toRightOf="@+id/rbidisplay"
+        app:layout_constraintTop_toTopOf="@+id/rbidisplay" />
+
+    <TextView
+        android:id="@+id/avgdisplay"
+        style="@style/ScoreboardStyle"
+        android:layout_marginTop="16dp"
+        tools:text=".XXX"
+        app:layout_constraintLeft_toLeftOf="@+id/nowbatting"
+        app:layout_constraintTop_toBottomOf="@+id/nowbatting" />
+
+</android.support.constraint.ConstraintLayout>

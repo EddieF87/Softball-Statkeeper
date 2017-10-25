@@ -17,7 +17,9 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.DragEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -38,6 +40,9 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.R.attr.id;
+import static android.webkit.ConsoleMessage.MessageLevel.LOG;
 
 /**
  * @author Eddie
@@ -128,7 +133,6 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     private int idIndex;
     private int nameIndex;
     private int teamIndex;
-    private int orderIndex;
     private int singleIndex;
     private int doubleIndex;
     private int tripleIndex;
@@ -140,9 +144,19 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     private int rbiIndex;
     private int totalInnings = 9;
 
+    private static final String KEY_GAMELOGINDEX = "keyGameLogIndex";
+    private static final String KEY_HIGHESTINDEX = "keyHighestIndex";
+    private static final String KEY_INNINGNUMBER = "keyInningNumber";
+    private static final String KEY_AWAYTEAMNDEX = "keyAwayTeamIndex";
+    private static final String KEY_HOMETEAMINDEX = "keyHomeTeamIndex";
+    private static final String KEY_UNDOREDO = "keyUndoRedo";
+    private static final String TAG = "GameActivity: ";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.v(TAG, "onCreate");
+
         setContentView(R.layout.activity_game);
 
         playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEMP, null,
@@ -212,6 +226,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         secondDisplay = findViewById(R.id.second_display);
         thirdDisplay = findViewById(R.id.third_display);
         homeDisplay = findViewById(R.id.home_display);
+        homeDisplay.bringToFront();
         ImageView outTrash = findViewById(R.id.trash);
         batterDisplay.setOnTouchListener(new MyTouchListener());
         firstDisplay.setOnDragListener(new MyDragListener());
@@ -221,15 +236,19 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         outTrash.setOnDragListener(new MyDragListener());
 
         gameCursor = getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG, null, null, null, null);
-        playerCursor.getCount();
         if (gameCursor.moveToFirst()){
             SharedPreferences shared = getSharedPreferences("info",MODE_PRIVATE);
-            gameLogIndex = shared.getInt("gameLogIndex", 0);
-            highestIndex = shared.getInt("highestIndex", 0);
-            inningNumber = shared.getInt("inningNumber", 2);
-            awayTeamIndex = shared.getInt("awayTeamIndex", 0);
-            homeTeamIndex = shared.getInt("homeTeamIndex", 0);
-            undoRedo = shared.getBoolean("undoRedo", false);
+            gameLogIndex = shared.getInt(KEY_GAMELOGINDEX, 0);
+            highestIndex = shared.getInt(KEY_HIGHESTINDEX, 0);
+            inningNumber = shared.getInt(KEY_INNINGNUMBER, 2);
+            awayTeamIndex = shared.getInt(KEY_AWAYTEAMNDEX, 0);
+            homeTeamIndex = shared.getInt(KEY_HOMETEAMINDEX, 0);
+            undoRedo = shared.getBoolean(KEY_UNDOREDO, false);
+
+            Log.v(TAG, "getting DATA" +         " gameLogIndex"+ gameLogIndex+ "   highestIndex"+ highestIndex+
+                    "   inningNumber"+ inningNumber+        "   awayTeamIndex"+ awayTeamIndex+
+                    "   homeTeamIndex"+ homeTeamIndex+ "   undoRedo"+undoRedo);
+
             resumeGame();
             return;
         }
@@ -238,20 +257,6 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         startGame();
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        int i = gameCursor.getCount();
-        SharedPreferences pref = getSharedPreferences("info", MODE_PRIVATE);
-        SharedPreferences.Editor editor = pref.edit();
-        editor.putInt("gameLogIndex", gameLogIndex);
-        editor.putInt("highestIndex", highestIndex);
-        editor.putInt("inningNumber", inningNumber);
-        editor.putInt("awayTeamIndex", awayTeamIndex);
-        editor.putInt("homeTeamIndex", homeTeamIndex);
-        editor.putBoolean("undoRedo",undoRedo);
-        editor.commit();
-    }
 
     public void onRadioButtonClicked(View view) {
         // Is the button now checked?
@@ -373,7 +378,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             startCursor();
             setDisplays();
         } catch (Exception e) {
-            Toast.makeText(GameActivity.this, "Error with startCursor() or setDisplays()!", Toast.LENGTH_LONG).show();
+            Log.v(TAG, "Error with startCursor() or setDisplays()!");
         }
     }
 
@@ -476,6 +481,11 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             }
         }
         getContentResolver().insert(StatsEntry.CONTENT_URI_GAMELOG, values);
+        Log.v(TAG, "inserting DATA" +         " gameLogIndex"+ gameLogIndex+ "   highestIndex"+ highestIndex+
+                "   inningNumber"+ inningNumber+        "   awayTeamIndex"+ awayTeamIndex+
+                "   homeTeamIndex"+ homeTeamIndex+ "   undoRedo"+undoRedo);
+
+        saveGameState();
 
         startCursor();
         setDisplays();
@@ -490,6 +500,27 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         playEntered = false;
         batterMoved = false;
         inningChanged = 0;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        saveGameState();
+        Log.v(TAG, "saving DATA" +         " gameLogIndex"+ gameLogIndex+ "   highestIndex"+ highestIndex+
+                "   inningNumber"+ inningNumber+        "   awayTeamIndex"+ awayTeamIndex+
+                "   homeTeamIndex"+ homeTeamIndex+ "   undoRedo"+undoRedo);
+    }
+
+    private void saveGameState(){
+        SharedPreferences pref = getSharedPreferences("info", MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putInt(KEY_GAMELOGINDEX, gameLogIndex);
+        editor.putInt(KEY_HIGHESTINDEX, highestIndex);
+        editor.putInt(KEY_INNINGNUMBER, inningNumber);
+        editor.putInt(KEY_AWAYTEAMNDEX, awayTeamIndex);
+        editor.putInt(KEY_HOMETEAMINDEX, homeTeamIndex);
+        editor.putBoolean(KEY_UNDOREDO,undoRedo);
+        editor.commit();
     }
 
     private void nextInning() {
@@ -724,7 +755,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     private void setInningDisplay() {
         String topOrBottom;
         if(inningNumber % 2 == 0) {
-            inningTopArrow.setBackgroundColor(Color.parseColor("#50e931"));
+            inningTopArrow.setBackgroundColor(Color.parseColor("#FFD600"));
             inningTopArrow.setAlpha(1f);
             inningBottomArrow.setBackgroundColor(Color.WHITE);
             inningBottomArrow.setAlpha(.2f);
@@ -732,7 +763,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         } else {
             inningTopArrow.setBackgroundColor(Color.WHITE);
             inningTopArrow.setAlpha(.2f);
-            inningBottomArrow.setBackgroundColor(Color.parseColor("#50e931"));
+            inningBottomArrow.setBackgroundColor(Color.parseColor("#FFD600"));
             inningBottomArrow.setAlpha(1f);
             topOrBottom = "Bottom";
         }
@@ -799,7 +830,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                 values.put(StatsEntry.COLUMN_OUT, newValue);
                 break;
             default:
-                Toast.makeText(GameActivity.this, "Wrong action entered.", Toast.LENGTH_LONG).show();
+                Log.v(TAG, "Wrong action entered.");
                 break;
         }
 
@@ -832,7 +863,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             values.put(StatsEntry.COLUMN_RUN, newValue);
             getContentResolver().update(StatsEntry.CONTENT_URI_TEMP, values, selection, selectionArgs);
         } else {
-            Toast.makeText(GameActivity.this, "Error with updating player runs.", Toast.LENGTH_SHORT).show();
+            Log.v(TAG, "Error with updating player runs.");
         }
         if (!undoRedo) {
             if (currentTeam == homeTeam) {
@@ -921,7 +952,6 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         idIndex = playerCursor.getColumnIndex(StatsEntry._ID);
         nameIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
         teamIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_TEAM);
-        orderIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_ORDER);
         singleIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_1B);
         doubleIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_2B);
         tripleIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_3B);
@@ -949,7 +979,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             gameLogIndex--;
             //redoButton.setVisibility(View.VISIBLE);
         } else {
-            Toast.makeText(GameActivity.this, "This is the beginning of the game!", Toast.LENGTH_SHORT).show();
+            Log.v(TAG, "This is the beginning of the game!");
             return;
         }
         reloadRunsLog();
@@ -1002,7 +1032,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             } else if (currentTeam == homeTeam) {
                 awayTeamIndex++;
             } else {
-                Toast.makeText(GameActivity.this, "inningChanged logic error!", Toast.LENGTH_SHORT).show();
+                Log.v(TAG, "inningChanged logic error!");
             }
             setInningDisplay();
             inningChanged = 0;
@@ -1034,7 +1064,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         } else if (team == 1){
             teamLineup = homeTeam;
         } else {
-            Toast.makeText(GameActivity.this, "Error with reloading BaseLog.", Toast.LENGTH_SHORT).show();
+            Log.v(TAG, "Error with reloading BaseLog.");
             return;
         }
         currentBaseLogStart = new BaseLog(teamLineup, batter, first, second, third, outs, awayruns, homeruns);
@@ -1075,22 +1105,32 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
 
             switch (action) {
                 case DragEvent.ACTION_DRAG_STARTED:
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                        v.setBackgroundColor(Color.LTGRAY);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        if (v.getId() == R.id.home_display) {
+                            v.setBackground(getDrawable(R.drawable.homeplate2));
+                        } else {
+                            v.setBackground(getDrawable(R.drawable.base2));
+                        }
                     }
                     break;
                 case DragEvent.ACTION_DRAG_ENTERED:
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                        v.setBackgroundColor(Color.LTGRAY);
-                    }
                     break;
                 case DragEvent.ACTION_DRAG_EXITED:
-                    v.setBackgroundColor(Color.TRANSPARENT);
+//                    v.setBackgroundColor(Color.TRANSPARENT);
                     break;
                 case DragEvent.ACTION_DRAG_LOCATION:
                     break;
                 case DragEvent.ACTION_DROP:
                     String movedPlayer = "";
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        if (v.getId() == R.id.home_display) {
+                            v.setBackground(getDrawable(R.drawable.homeplate));
+                        } else if (v.getId() == R.id.trash) {
+                            v.setBackgroundResource(0);
+                        } else {
+                            v.setBackground(getDrawable(R.drawable.base));
+                        }
+                    }
                     //TODO: check later whether can shorten this section
                     if (v.getId() == R.id.trash) {
                         if (eventView instanceof TextView) {
@@ -1112,6 +1152,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                             movedPlayer = draggedView.getText().toString();
                             dropPoint.setText(movedPlayer);
                             draggedView.setText("");
+                            draggedView.setAlpha(1);
                         } else {
                             dropPoint.setText(currentBatter);
                             batterDisplay.setVisibility(View.INVISIBLE);
@@ -1120,9 +1161,10 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                                 submitPlay.setVisibility(View.VISIBLE);
                             }
                         }
+                        dropPoint.setAlpha(1);
                     }
-                    v.setBackgroundColor(Color.TRANSPARENT);
                     if (dropPoint == homeDisplay) {
+                        homeDisplay.bringToFront();
                         if (eventView instanceof TextView) {
                             if (undoRedo) {
                                 tempRunsLog.add(movedPlayer);
@@ -1148,11 +1190,15 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                     setBaseListeners();
                     break;
                 case DragEvent.ACTION_DRAG_ENDED:
-                    v.setBackgroundColor(Color.TRANSPARENT);
-                    if (eventView instanceof TextView) {
-                        eventView.setBackgroundColor(Color.TRANSPARENT);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        if (v.getId() == R.id.home_display) {
+                            v.setBackground(getDrawable(R.drawable.homeplate));
+                        } else if (v.getId() == R.id.trash) {
+                            v.setBackgroundResource(0);
+                        } else {
+                            v.setBackground(getDrawable(R.drawable.base));
+                        }
                     }
-                    eventView.setAlpha(1);
                     break;
                 default:
                     break;
@@ -1199,7 +1245,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                         secondDisplay.setOnDragListener(null);
                         break;
                     default:
-                        Toast.makeText(GameActivity.this, "SOMETHING WENT WRONG WITH THE SWITCH", Toast.LENGTH_LONG).show();
+                        Log.v(TAG, "SOMETHING WENT WRONG WITH THE SWITCH");
                         break;
                 }
 
@@ -1210,7 +1256,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                 } else {
                     view.startDrag(data, shadowBuilder, view, 0);
                 }
-                view.setAlpha(.2f);
+//                view.setAlpha(.2f);
             }
             return true;
         }
@@ -1228,7 +1274,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                 homeTeamIndex = 0;
             }
         } else {
-            Toast.makeText(GameActivity.this, "SOMETHING WENT WRONG WITH THE INDEXES!!!", Toast.LENGTH_LONG).show();
+            Log.v(TAG, "SOMETHING WENT WRONG WITH THE INDEXES!!!");
         }
     }
 
@@ -1238,7 +1284,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         } else if (currentTeam == homeTeam) {
             return homeTeamIndex;
         } else {
-            Toast.makeText(GameActivity.this, "SOMETHING WENT WRONG WITH THE INDEXES!!!", Toast.LENGTH_LONG).show();
+            Log.v(TAG, "SOMETHING WENT WRONG WITH THE INDEXES!!!");
         }
         return 0;
     }
@@ -1249,7 +1295,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         } else if (currentTeam == homeTeam) {
             homeTeamIndex = homeTeam.indexOf(player);
         } else {
-            Toast.makeText(GameActivity.this, "SOMETHING WENT WRONG WITH THE INDEXES!!!", Toast.LENGTH_LONG).show();
+            Log.v(TAG, "SOMETHING WENT WRONG WITH THE INDEXES!!!");
         }
     }
 
