@@ -126,15 +126,20 @@ public class StatsProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
+        if (sqlSafeguard(values)){
+            Toast.makeText(getContext(), "Please only enter letters, numbers, -, and _", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+
         String table;
         final int match = sUriMatcher.match(uri);
         switch (match) {
             case PLAYERS:
-                if (containsName(StatsEntry.CONTENT_URI_PLAYERS, values)){return null;}
+                if (containsName(StatsEntry.CONTENT_URI_PLAYERS, values, false)){return null;}
                 table = StatsEntry.PLAYERS_TABLE_NAME;
                 break;
             case TEAMS:
-                if (containsName(StatsEntry.CONTENT_URI_TEAMS, values)){return null;}
+                if (containsName(StatsEntry.CONTENT_URI_TEAMS, values, true)){return null;}
                 table = StatsEntry.TEAMS_TABLE_NAME;
                 break;
             case TEMP:
@@ -210,6 +215,10 @@ public class StatsProvider extends ContentProvider {
 
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
+        if (sqlSafeguard(values)){
+            Toast.makeText(getContext(), "Please only enter letters, numbers, -, and _", Toast.LENGTH_SHORT).show();
+            return -1;
+        }
         String table;
         final int match = sUriMatcher.match(uri);
         switch (match) {
@@ -220,7 +229,7 @@ public class StatsProvider extends ContentProvider {
                 selection = StatsEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 table = StatsEntry.PLAYERS_TABLE_NAME;
-                if (containsName(StatsEntry.CONTENT_URI_PLAYERS, values)){return -1;}
+                if (containsName(StatsEntry.CONTENT_URI_PLAYERS, values, false)){return -1;}
                 break;
             case TEAMS:
                 table = StatsEntry.TEAMS_TABLE_NAME;
@@ -229,7 +238,7 @@ public class StatsProvider extends ContentProvider {
                 selection = StatsEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 table = StatsEntry.TEAMS_TABLE_NAME;
-                if (containsName(StatsEntry.CONTENT_URI_TEAMS, values)){return -1;}
+                if (containsName(StatsEntry.CONTENT_URI_TEAMS, values, true)){return -1;}
                 break;
             case TEMP:
                 table = StatsEntry.TEMPPLAYERS_TABLE_NAME;
@@ -256,7 +265,7 @@ public class StatsProvider extends ContentProvider {
         return rowsUpdated;
     }
 
-    public boolean containsName(Uri uri, ContentValues values) {
+    public boolean containsName(Uri uri, ContentValues values, boolean isTeam) {
         if (values.containsKey(StatsEntry.COLUMN_NAME)) {
             String name = values.getAsString(StatsEntry.COLUMN_NAME);
             if (name == null || name.trim().isEmpty()) {
@@ -269,7 +278,11 @@ public class StatsProvider extends ContentProvider {
                 int nameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_NAME);
                 String teamName = cursor.getString(nameIndex);
                 if (teamName.equals(name)) {
-                    Toast.makeText(getContext(), "This name already exists!", Toast.LENGTH_SHORT).show();
+                    if(isTeam) {
+                        Toast.makeText(getContext(), "This team already exists!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getContext(), "This player already exists!", Toast.LENGTH_SHORT).show();
+                    }
                     cursor.close();
                     return true;
                 }
@@ -278,5 +291,17 @@ public class StatsProvider extends ContentProvider {
         }
 
         return false;
+    }
+
+    public boolean sqlSafeguard(ContentValues values) {
+        if (!values.containsKey(StatsEntry.COLUMN_NAME)) {
+            return false;
+        }
+        String name = values.getAsString(StatsEntry.COLUMN_NAME);
+        if (name.matches("^['\\s\\)\\(a-zA-Z0-9_-]+$")) {
+            return false;
+        } else {
+            return true;
+        }
     }
 }

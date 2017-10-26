@@ -20,160 +20,83 @@
         android:text="@string/name"
         android:textAlignment="textStart"
         android:textSize="20sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:background="@color/stat_title"
+        android:textColor="#FFFFFF"/>
 
     <TextView
         android:id="@+id/game_title"
-        android:layout_width="50dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLines="1"
-        android:paddingBottom="4dp"
-        android:text="@string/g"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+        style="@style/StatsTitleStyle"
+        android:text="@string/g"/>
 
     <TextView
         android:id="@+id/ab_title"
-        android:layout_width="50dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLines="1"
-        android:paddingBottom="4dp"
-        android:text="@string/ab"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+        style="@style/StatsTitleStyle"
+        android:text="@string/ab" />
 
     <TextView
         android:id="@+id/hit_title"
-        android:layout_width="50dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLines="1"
-        android:paddingBottom="4dp"
-        android:text="@string/h"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+        style="@style/StatsTitleStyle"
+        android:text="@string/h" />
 
     <TextView
         android:id="@+id/hr_title"
-        android:layout_width="50dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLines="1"
-        android:paddingBottom="4dp"
-        android:text="@string/hr"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+        style="@style/StatsTitleStyle"
+        android:text="@string/hr" />
 
     <TextView
         android:id="@+id/run_title"
-        android:layout_width="50dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLines="1"
-        android:paddingBottom="4dp"
-        android:text="@string/r"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+        style="@style/StatsTitleStyle"
+        android:text="@string/r" />
 
     <TextView
         android:id="@+id/rbi_title"
-        android:layout_width="50dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLines="1"
-        android:paddingBottom="4dp"
-        android:text="@string/rbi"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+        style="@style/StatsTitleStyle"
+        android:text="@string/rbi" />
 
     <TextView
         android:id="@+id/avg_title"
         android:layout_width="70dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLines="1"
-        android:paddingBottom="4dp"
-        android:text="@string/avg"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+        style="@style/StatsTitleStyle"
+        android:text="@string/avg" />
 
     <TextView
         android:id="@+id/obp_title"
         android:layout_width="70dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLines="1"
-        android:paddingBottom="4dp"
-        android:text="@string/obp"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+        style="@style/StatsTitleStyle"
+        android:text="@string/obp" />
 
     <TextView
         android:id="@+id/slg_title"
         android:layout_width="70dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLines="1"
-        android:paddingBottom="4dp"
-        android:text="@string/slg"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+        style="@style/StatsTitleStyle"
+        android:text="@string/slg" />
 
     <TextView
         android:id="@+id/ops_title"
         android:layout_width="70dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLines="1"
-        android:paddingBottom="4dp"
-        android:text="@string/ops"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+        style="@style/StatsTitleStyle"
+        android:text="@string/ops" />
 
     <TextView
         android:id="@+id/sgl_title"
-        android:layout_width="50dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLines="1"
-        android:paddingBottom="4dp"
-        android:text="@string/_1b"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+        style="@style/StatsTitleStyle"
+        android:text="@string/_1b"/>
 
     <TextView
         android:id="@+id/dbl_title"
-        android:layout_width="50dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLines="1"
-        android:paddingBottom="4dp"
-        android:text="@string/_2b"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+        style="@style/StatsTitleStyle"
+        android:text="@string/_2b"/>
 
     <TextView
         android:id="@+id/tpl_title"
         android:layout_width="50dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLines="1"
-        android:paddingBottom="4dp"
-        android:text="@string/_3b"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+        style="@style/StatsTitleStyle"
+        android:text="@string/_3b" />
 
     <TextView
         android:id="@+id/bb_title"
-        android:layout_width="50dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLines="1"
-        android:paddingBottom="4dp"
-        android:text="@string/bb"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+        style="@style/StatsTitleStyle"
+        android:text="@string/bb" />
 
 </LinearLayout>

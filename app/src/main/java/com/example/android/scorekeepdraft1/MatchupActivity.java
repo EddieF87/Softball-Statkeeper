@@ -49,7 +49,7 @@ public class MatchupActivity extends AppCompatActivity implements LoaderManager.
 
 
     //TODO add menu options so I can put "Create new team there" and have more space
-    //TODO add bench spots (gridview?)
+    //TODO fix bench/lineup text overlap
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

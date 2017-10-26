@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.app.LoaderManager;
 import android.content.Loader;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -66,6 +67,7 @@ public class StatsActivity extends AppCompatActivity implements LoaderManager.Lo
         findViewById(R.id.dbl_title).setOnClickListener(this);
         findViewById(R.id.tpl_title).setOnClickListener(this);
         findViewById(R.id.bb_title).setOnClickListener(this);
+        findViewById(R.id.game_title).setOnClickListener(this);
 
         mCursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
                 new String[]{StatsEntry._ID, StatsEntry.COLUMN_NAME}, null, null, null);
@@ -119,11 +121,11 @@ public class StatsActivity extends AppCompatActivity implements LoaderManager.Lo
     @Override
     public void onClick(View v) {
         if (colorView != null) {
-            colorView.setBackgroundColor(Color.parseColor("#7fdfff"));
+            colorView.setBackgroundColor(ContextCompat.getColor(this,R.color.stat_title));
         }
         TextView textView = (TextView) v;
-        textView.setBackgroundColor(Color.parseColor("#0098cc"));
         colorView = textView;
+        colorView.setBackgroundColor(ContextCompat.getColor(this, R.color.stat_selected));
 
         switch (v.getId()) {
             case R.id.name_title:
@@ -206,8 +208,8 @@ public class StatsActivity extends AppCompatActivity implements LoaderManager.Lo
                 statSort = StatsEntry.COLUMN_3B;
                 projection = null;
                 break;
-            case R.id.bb_title:
-                statSort = StatsEntry.COLUMN_BB;
+            case R.id.game_title:
+                statSort = StatsEntry.COLUMN_G;
                 projection = null;
                 break;
             default:
@@ -236,7 +238,7 @@ public class StatsActivity extends AppCompatActivity implements LoaderManager.Lo
                 sortOrder = statSort + " DESC";
             }
         } else {
-            sortOrder = StatsEntry.COLUMN_NAME + " COLLATE NOCASE ASC";
+            sortOrder = StatsEntry.COLUMN_G + " DESC";
         }
 
         String selection;
@@ -370,7 +372,7 @@ public class StatsActivity extends AppCompatActivity implements LoaderManager.Lo
         int savedId = savedInstanceState.getInt("tV");
         if (savedId != 0) {
             colorView = findViewById(savedId);
-            colorView.setBackgroundColor(Color.parseColor("#0098cc"));
+            colorView.setBackgroundColor(ContextCompat.getColor(this, R.color.stat_selected));
         }
     }
 }

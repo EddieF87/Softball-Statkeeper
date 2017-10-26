@@ -47,8 +47,6 @@
         <item>Ten</item>
     </array>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="choose_team_title">Choose Team</string>
     <string name="ab">AB</string>
     <string name="g">G</string>
@@ -78,4 +76,10 @@
     <string name="error">Error</string>
     <string name="sf">SF</string>
     <string name="fc">FC</string>
+    <string name="exit">Exit</string>
+    <string name="finish">Finish</string>
+    <string name="league_standings">LEAGUE STANDINGS</string>
+    <string name="w">W</string>
+    <string name="l">L</string>
+    <string name="t">T</string>
 </resources>

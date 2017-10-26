@@ -8,185 +8,85 @@
         android:id="@+id/name"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
-        android:paddingRight="20dp"
+        android:gravity="start"
+        android:maxLines="1"
+        android:paddingBottom="4dp"
         android:paddingEnd="20dp"
         android:paddingLeft="8dp"
+        android:paddingRight="20dp"
         android:paddingStart="8dp"
-        android:paddingBottom="4dp"
-        android:maxLines="1"
-        android:text="@string/name"
+        android:textAlignment="textStart"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:textAlignment="textStart"
-        android:gravity="start"
-        android:onClick="goToPlayerPage"
+        android:autoSizeMinTextSize="10sp"
+        android:autoSizeTextType="uniform"
         />
 
     <TextView
         android:id="@+id/team_abv"
+        style="@style/StatsStyle"
         android:layout_width="60dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLines="1"
-        android:paddingBottom="5dp"
         android:paddingRight="10dp"
-        android:paddingTop="2dp"
-        android:text="@string/team"
-        android:textSize="18sp"
-        android:textStyle="italic"/>
+        android:textStyle="italic" />
 
     <TextView
         android:id="@+id/game"
-        android:layout_width="50dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLines="1"
-        android:paddingBottom="5dp"
-        android:paddingTop="2dp"
-        android:text="@string/g"
-        android:textSize="18sp" />
+        style="@style/StatsStyle" />
 
     <TextView
         android:id="@+id/ab"
-        android:layout_width="50dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLines="1"
-        android:paddingBottom="5dp"
-        android:paddingTop="2dp"
-        android:text="@string/ab"
-        android:textSize="18sp" />
+        style="@style/StatsStyle" />
 
     <TextView
         android:id="@+id/hit"
-        android:layout_width="50dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLines="1"
-        android:paddingBottom="5dp"
-        android:paddingTop="2dp"
-        android:text="@string/h"
-        android:textSize="18sp" />
+        style="@style/StatsStyle" />
 
     <TextView
         android:id="@+id/hr"
-        android:layout_width="50dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLines="1"
-        android:paddingBottom="5dp"
-        android:paddingTop="2dp"
-        android:text="@string/hr"
-        android:textSize="18sp" />
+        style="@style/StatsStyle" />
 
     <TextView
         android:id="@+id/run"
-        android:layout_width="50dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLines="1"
-        android:paddingBottom="5dp"
-        android:paddingTop="2dp"
-        android:text="@string/r"
-        android:textSize="18sp" />
+        style="@style/StatsStyle" />
 
     <TextView
         android:id="@+id/rbi"
-        android:layout_width="50dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLines="1"
-        android:paddingBottom="5dp"
-        android:paddingTop="2dp"
-        android:text="@string/rbi"
-        android:textSize="18sp" />
+        style="@style/StatsStyle" />
 
     <TextView
         android:id="@+id/avg"
-        android:layout_width="70dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLines="1"
-        android:paddingBottom="5dp"
-        android:paddingTop="2dp"
-        android:text="@string/avg"
-        android:textSize="18sp" />
+        style="@style/StatsStyle"
+        android:layout_width="70dp" />
 
     <TextView
         android:id="@+id/obp"
-        android:layout_width="70dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLines="1"
-        android:paddingBottom="5dp"
-        android:paddingTop="2dp"
-        android:text="@string/obp"
-        android:textSize="18sp" />
+        style="@style/StatsStyle"
+        android:layout_width="70dp"/>
 
     <TextView
         android:id="@+id/slg"
-        android:layout_width="70dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLines="1"
-        android:paddingBottom="5dp"
-        android:paddingTop="2dp"
-        android:text="@string/slg"
-        android:textSize="18sp" />
+        style="@style/StatsStyle"
+        android:layout_width="70dp" />
 
     <TextView
         android:id="@+id/ops"
-        android:layout_width="70dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLines="1"
-        android:paddingBottom="5dp"
-        android:paddingTop="2dp"
-        android:text="@string/ops"
-        android:textSize="18sp" />
+        style="@style/StatsStyle"
+        android:layout_width="70dp" />
 
     <TextView
         android:id="@+id/sgl"
-        android:layout_width="50dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLines="1"
-        android:paddingBottom="5dp"
-        android:paddingTop="2dp"
-        android:text="@string/_1b"
-        android:textSize="18sp" />
+        style="@style/StatsStyle"/>
 
     <TextView
         android:id="@+id/dbl"
-        android:layout_width="50dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLines="1"
-        android:paddingBottom="5dp"
-        android:paddingTop="2dp"
-        android:text="@string/_2b"
-        android:textSize="18sp" />
+        style="@style/StatsStyle" />
 
     <TextView
         android:id="@+id/tpl"
-        android:layout_width="50dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLines="1"
-        android:paddingBottom="5dp"
-        android:paddingTop="2dp"
-        android:text="@string/_3b"
-        android:textSize="18sp" />
+        style="@style/StatsStyle" />
 
     <TextView
         android:id="@+id/bb"
-        android:layout_width="50dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLines="1"
-        android:paddingBottom="5dp"
-        android:paddingTop="2dp"
-        android:text="@string/bb"
-        android:textSize="18sp" />
+        style="@style/StatsStyle" />
 
 </LinearLayout>

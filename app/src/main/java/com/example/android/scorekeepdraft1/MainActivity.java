@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -49,6 +50,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 Intent intent = new Intent(MainActivity.this, MatchupActivity.class);
                 getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, null, null);
                 getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, null, null);
+                SharedPreferences savedGamePreferences = getSharedPreferences("info", MODE_PRIVATE);
+                SharedPreferences.Editor editor = savedGamePreferences.edit();
+                editor.clear();
+                editor.commit();
                 startActivity(intent);
             }
         });

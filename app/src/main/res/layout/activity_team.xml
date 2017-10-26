@@ -11,29 +11,28 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/teamName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginLeft="8dp"
-        android:textSize="48sp"/>
+        <TextView
+            android:id="@+id/teamName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:textSize="48sp" />
 
-    <TextView
-        android:id="@+id/teamRecord"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginLeft="8dp"
-        android:textSize="24sp"/>
+        <TextView
+            android:id="@+id/teamRecord"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:textSize="24sp" />
     </LinearLayout>
 
 
     <HorizontalScrollView
         android:id="@+id/scrollView1"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
+        android:layout_height="match_parent">
 
         <LinearLayout xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="wrap_content"
@@ -41,9 +40,9 @@
             android:orientation="vertical"
             tools:context="com.example.android.scorekeepdraft1.StatsActivity">
 
-            <include layout="@layout/item_team_title"
+            <include
                 android:id="@+id/team_stats_titles"
-                />
+                layout="@layout/item_team_title" />
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/rv_players"

@@ -23,6 +23,8 @@
         android:layout_height="70dp"
         android:layout_above="@id/infield"
 
+        android:autoSizeMinTextSize="10sp"
+        android:autoSizeTextType="uniform"
         android:background="@drawable/homeplate"
         app:layout_constraintBottom_toBottomOf="@+id/infield"
         app:layout_constraintLeft_toLeftOf="@+id/infield"

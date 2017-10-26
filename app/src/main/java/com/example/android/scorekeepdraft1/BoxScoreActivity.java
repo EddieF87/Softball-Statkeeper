@@ -114,7 +114,6 @@ public class BoxScoreActivity extends AppCompatActivity implements LoaderManager
                 homeAdapter.swapCursor(data);
                 break;
             case SCORE_LOADER:
-                //// TODO: 15/10/2017
                 List<InningScore> list = new ArrayList<>();
                 int runIndex1 = data.getColumnIndex(StatsEntry.COLUMN_RUN1);
                 int runIndex2 = data.getColumnIndex(StatsEntry.COLUMN_RUN2);

@@ -20,6 +20,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -62,15 +63,16 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
 
 
     //TODO add player from free agency/other teams
-    //TODO figure out how to always update bench immediately
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lineup);
         Bundle b = getIntent().getExtras();
-        if(b != null) {
+        if (b != null) {
             mTeam = b.getString("team");
-        } else {finish();}
+        } else {
+            finish();
+        }
 
         rvLeftLineup = findViewById(R.id.rvLeft);
         rvRightLineup = findViewById(R.id.rvRight);
@@ -84,13 +86,16 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
         mCursor = getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS, projection,
                 selection, selectionArgs, sortOrder);
 
-        while (mCursor.moveToNext()){
+        while (mCursor.moveToNext()) {
             int nameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
             int orderIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_ORDER);
             String playerName = mCursor.getString(nameIndex);
             int playerOrder = mCursor.getInt(orderIndex);
-            if (playerOrder > 50) {mBench.add(playerName);
-            } else {mLineup.add(playerName);}
+            if (playerOrder > 50) {
+                mBench.add(playerName);
+            } else {
+                mLineup.add(playerName);
+            }
         }
 
         initLeftRecyclerView();
@@ -135,7 +140,7 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
         rvRightLineup.setOnDragListener(rightListAdapter.getDragInstance());
     }
 
-    public void addPlayer(){
+    public void addPlayer() {
         InputMethodManager inputManager = (InputMethodManager)
                 getSystemService(Context.INPUT_METHOD_SERVICE);
 
@@ -143,27 +148,19 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
                 InputMethodManager.HIDE_NOT_ALWAYS);
 
         String playerName = addPlayerText.getText().toString();
-        if (playerName.isEmpty()) {
-            Toast.makeText(SetLineupActivity.this, "Please type a player's name first",
-                    Toast.LENGTH_SHORT).show();
-        } else if (mBench.contains(playerName) || mLineup.contains(playerName)) {
-            Toast.makeText(SetLineupActivity.this, playerName + " is already on" + mTeam,
-                    Toast.LENGTH_SHORT).show();
-        } else {
-            ContentValues values = new ContentValues();
-            values.put(StatsEntry.COLUMN_NAME, playerName);
-            values.put(StatsEntry.COLUMN_TEAM, mTeam);
-            values.put(StatsEntry.COLUMN_ORDER, 99);
-            values.put(StatsEntry.COLUMN_1B, 0);
-            values.put(StatsEntry.COLUMN_2B, 0);
-            values.put(StatsContract.StatsEntry.COLUMN_3B, 0);
-            values.put(StatsContract.StatsEntry.COLUMN_HR, 0);
-            values.put(StatsContract.StatsEntry.COLUMN_BB, 0);
-            values.put(StatsEntry.COLUMN_SF, 0);
-            values.put(StatsContract.StatsEntry.COLUMN_OUT, 0);
-            values.put(StatsEntry.COLUMN_RUN, 0);
-            values.put(StatsEntry.COLUMN_RBI, 0);
-            getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
+//        if (playerName.isEmpty()) {
+//            Toast.makeText(SetLineupActivity.this, "Please type a player's name first",
+//                    Toast.LENGTH_SHORT).show();
+//        } else if (mBench.contains(playerName) || mLineup.contains(playerName)) {
+//            Toast.makeText(SetLineupActivity.this, playerName + " is already on" + mTeam,
+//                    Toast.LENGTH_SHORT).show();
+//        } else {
+        ContentValues values = new ContentValues();
+        values.put(StatsEntry.COLUMN_NAME, playerName);
+        values.put(StatsEntry.COLUMN_TEAM, mTeam);
+        values.put(StatsEntry.COLUMN_ORDER, 99);
+        Uri uri = getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
+        if(uri != null) {
             mBench.add(playerName);
             initRightRecyclerView();
         }
@@ -198,9 +195,13 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
     }
 
     @Override
-    public void setEmptyListTop(boolean visibility) {}
+    public void setEmptyListTop(boolean visibility) {
+    }
+
     @Override
-    public void setEmptyListBottom(boolean visibility) {}
+    public void setEmptyListBottom(boolean visibility) {
+    }
+
     public LineupListAdapter getLeftListAdapter() {
         return leftListAdapter;
     }

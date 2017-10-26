@@ -13,11 +13,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.RequiresApi;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.DragEvent;
@@ -40,9 +39,6 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.R.attr.id;
-import static android.webkit.ConsoleMessage.MessageLevel.LOG;
 
 /**
  * @author Eddie
@@ -252,6 +248,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             resumeGame();
             return;
         }
+        setInningDisplay();
         finalInning = false;
 
         startGame();
@@ -755,16 +752,16 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     private void setInningDisplay() {
         String topOrBottom;
         if(inningNumber % 2 == 0) {
-            inningTopArrow.setBackgroundColor(Color.parseColor("#FFD600"));
-            inningTopArrow.setAlpha(1f);
-            inningBottomArrow.setBackgroundColor(Color.WHITE);
-            inningBottomArrow.setAlpha(.2f);
+            inningTopArrow.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.color_arrow));
+//            inningTopArrow.setAlpha(1f);
+            inningBottomArrow.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.cardview_dark_background));
+//            inningBottomArrow.setAlpha(.2f);
             topOrBottom = "Top";
         } else {
-            inningTopArrow.setBackgroundColor(Color.WHITE);
-            inningTopArrow.setAlpha(.2f);
-            inningBottomArrow.setBackgroundColor(Color.parseColor("#FFD600"));
-            inningBottomArrow.setAlpha(1f);
+            inningTopArrow.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.cardview_dark_background));
+//            inningTopArrow.setAlpha(.2f);
+            inningBottomArrow.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.color_arrow));
+//            inningBottomArrow.setAlpha(1f);
             topOrBottom = "Bottom";
         }
         inningDisplay.setText(String.valueOf(inningNumber / 2));
@@ -1207,7 +1204,6 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         }
     }
 
-    //TODO: LOOK into performance issues of making new onclick/ondrag listeners each time as opposed to perhaps recycling the same one?
     private final class MyTouchListener implements View.OnTouchListener {
         @Override
         public boolean onTouch(View view, MotionEvent event) {
@@ -1258,6 +1254,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                 }
 //                view.setAlpha(.2f);
             }
+            view.performClick();
             return true;
         }
     }
@@ -1323,40 +1320,48 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                 intent.putExtras(b);
                 startActivity(intent);
                 break;
-            case R.id.action_quit_game:
-                showQuitConfirmationDialog();
+            case R.id.action_exit_game:
+                finish();
                 break;
-            case android.R.id.home:
-                showQuitConfirmationDialog();
-                return true;
+            case R.id.action_finish_game:
+                showFinishConfirmationDialog();
+                break;
+//            case android.R.id.home:
+//                showQuitConfirmationDialog();
         }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        MenuItem menuItem = menu.findItem(R.id.action_undo_play);
+        MenuItem undoItem = menu.findItem(R.id.action_undo_play);
+        MenuItem finishItem = menu.findItem(R.id.action_finish_game);
+        MenuItem redoItem = menu.findItem(R.id.action_redo_play);
+
         if(gameLogIndex <= 0) {
-            menuItem.setVisible(false);
+            undoItem.setVisible(false);
         } else {
-            menuItem.setVisible(true);
+            undoItem.setVisible(true);
         }
-        menuItem = menu.findItem(R.id.action_redo_play);
+
         if(gameLogIndex >= highestIndex) {
-            menuItem.setVisible(false);
+            redoItem.setVisible(false);
+            finishItem.setVisible(true);
         } else {
-            menuItem.setVisible(true);
+            redoItem.setVisible(true);
+            finishItem.setVisible(false);
         }
         return true;
     }
 
-    @Override
-    public void onBackPressed() {
-        showQuitConfirmationDialog();
-    }
+//    @Override
+//    public void onBackPressed() {
+//        showQuitConfirmationDialog();
+//    }
 
-    private void showQuitConfirmationDialog() {
+    private void showFinishConfirmationDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Complete game and update stats?");
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int i) {
@@ -1365,19 +1370,13 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                 }
             }
         });
-        builder.setNeutralButton(R.string.game_completed, new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int i) {
                 if (dialog != null) {
                     dialog.dismiss();
                 }
                 endGame();
-                finish();
-            }
-        });
-        builder.setPositiveButton(R.string.quit, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int i) {
                 finish();
             }
         });

@@ -21,8 +21,13 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_quit_game"
-        android:title="@string/quit"
+        android:id="@+id/action_exit_game"
+        android:title="@string/exit"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_finish_game"
+        android:title="@string/finish"
         app:showAsAction="never" />
 
 </menu>
