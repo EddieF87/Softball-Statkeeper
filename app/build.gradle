@@ -2,10 +2,10 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 26
-    buildToolsVersion "26.0.2"
+    buildToolsVersion '26.0.2'
     defaultConfig {
         applicationId "com.example.android.scorekeepdraft1"
-        minSdkVersion 15
+        minSdkVersion 16
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
@@ -17,21 +17,33 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    productFlavors {
+    }
 }
 
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support:appcompat-v7:26.0.2'
+    compile 'com.android.support:appcompat-v7:26.0.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile 'com.android.support:recyclerview-v7:26.0.2'
-    compile 'com.android.support:cardview-v7:26.0.2'
-    compile 'com.android.support:support-v4:26.0.2'
-    compile 'com.google.firebase:firebase-core:11.4.2'
-    compile 'com.google.firebase:firebase-database:11.4.2'
+    compile 'com.android.support:recyclerview-v7:26.0.1'
+    compile 'com.android.support:cardview-v7:26.0.1'
+    compile 'com.android.support:support-v4:26.0.1'
+
+    // Firestore
+    compile 'com.google.firebase:firebase-firestore:11.4.2'
+
+    // Other Firebase/Play services deps
+    compile 'com.google.firebase:firebase-auth:11.4.2'
+    compile 'com.google.android.gms:play-services-auth:11.4.2'
+
+    // FirebaseUI (for authentication)
+    compile 'com.firebaseui:firebase-ui-auth:2.3.0'
+
     testCompile 'junit:junit:4.12'
 }
+
 apply plugin: 'com.google.gms.google-services'

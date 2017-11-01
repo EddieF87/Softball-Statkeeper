@@ -9,7 +9,6 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
 /**
- *
  * @author Eddie
  */
 public class Player {
@@ -30,8 +29,12 @@ public class Player {
     private int playerId;
     private final NumberFormat formatter = new DecimalFormat("#.000");
 
-    public Player(String name) {
+    public Player() {
+    }
+
+    public Player(String name, int id) {
         this.name = name;
+        this.playerId = id;
         this.singles = 0;
         this.doubles = 0;
         this.triples = 0;
@@ -43,6 +46,22 @@ public class Player {
         this.sacFlies = 0;
         this.games = 0;
         this.team = "Free Agent";
+    }
+
+    public Player(String name, String team, int id) {
+        this.name = name;
+        this.playerId = id;
+        this.singles = 0;
+        this.doubles = 0;
+        this.triples = 0;
+        this.hrs = 0;
+        this.walks = 0;
+        this.runs = 0;
+        this.rbis = 0;
+        this.outs = 0;
+        this.sacFlies = 0;
+        this.games = 0;
+        this.team = team;
     }
 
     public Player(String name, String team, int singles, int doubles, int triples, int hrs, int walks, int runs, int rbis, int outs, int sacFlies, int games, int playerId) {
@@ -78,19 +97,25 @@ public class Player {
         this.playerId = playerId;
     }
 
-        public double getAVG() {
-        if (getABs() == 0) {return .000;}
+    public double getAVG() {
+        if (getABs() == 0) {
+            return .000;
+        }
         return ((double) getHits()) / getABs();
     }
 
     public double getOBP() {
-        if (getABs() + getWalks() == 0) {return .000;}
+        if (getABs() + getWalks() == 0) {
+            return .000;
+        }
         return ((double) (getHits() + this.walks))
                 / (getABs() + this.walks + this.sacFlies);
     }
 
     public double getSLG() {
-        if (getABs() == 0) {return .000;}
+        if (getABs() == 0) {
+            return .000;
+        }
         return (this.singles + this.doubles * 2 + this.triples * 3 + this.hrs * 4)
                 / ((double) getABs());
     }
@@ -99,62 +124,126 @@ public class Player {
         return getOBP() + getSLG();
     }
 
-    public int getGames() {return games;}
+    public int getGames() {
+        return games;
+    }
+
     public int getHits() {
         return this.singles + this.doubles + this.triples + this.hrs;
     }
+
     public int getABs() {
         return getHits() + this.outs;
     }
+
     public String getName() {
         return name;
     }
+
     public String getTeam() {
         return team;
     }
+
     public int getSingles() {
         return singles;
     }
+
     public int getDoubles() {
         return doubles;
     }
+
     public int getTriples() {
         return triples;
     }
+
     public int getHrs() {
         return hrs;
     }
+
     public int getWalks() {
         return walks;
     }
+
     public int getRbis() {
         return rbis;
     }
+
     public int getRuns() {
         return runs;
     }
+
     public int getOuts() {
         return outs;
     }
+
     public int getSacFlies() {
         return sacFlies;
     }
-    public int getTeamId() {return teamId;}
+
+    public int getTeamId() {
+        return teamId;
+    }
+
+    public int getPlayerId() {
+        return playerId;
+    }
+
 
     public void setName(String name) {
         this.name = name;
     }
+
     public void setTeam(String team) {
         this.team = team;
     }
+
+    public void setGames(int games) {
+        this.games = games;
+    }
+
     public void setOuts(int outs) {
         this.outs = outs;
     }
+
     public void setSacFlies(int sacFlies) {
         this.sacFlies = sacFlies;
     }
-    public void setGames(int games) {this.games = games;}
-    public int getPlayerId() {return playerId;}
+
+    public void setPlayerId(int playerId) {
+        this.playerId = playerId;
+    }
+
+    public void setRbis(int rbis) {
+        this.rbis = rbis;
+    }
+
+    public void setRuns(int runs) {
+        this.runs = runs;
+    }
+
+    public void setSingles(int singles) {
+        this.singles = singles;
+    }
+
+    public void setDoubles(int doubles) {
+        this.doubles = doubles;
+    }
+
+    public void setTriples(int triples) {
+        this.triples = triples;
+    }
+
+    public void setHrs(int hrs) {
+        this.hrs = hrs;
+    }
+
+    public void setWalks(int walks) {
+        this.walks = walks;
+    }
+
+    public void setTeamId(int teamId) {
+        this.teamId = teamId;
+    }
 
     @Override
     public String toString() {

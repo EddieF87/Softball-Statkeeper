@@ -29,7 +29,6 @@ public class BoxScoreActivity extends AppCompatActivity implements LoaderManager
     private static final int SCORE_LOADER = 9;
     private BoxScorePlayerCursorAdapter awayAdapter;
     private BoxScorePlayerCursorAdapter homeAdapter;
-    private BoxScoreArrayAdapter scoreAdapter;
     private String awayTeam;
     private String homeTeam;
     private int totalInnings;
@@ -170,7 +169,7 @@ public class BoxScoreActivity extends AppCompatActivity implements LoaderManager
                 bottomTotalView.setTypeface(null, Typeface.BOLD);
                 titleTotalView.setTypeface(null, Typeface.BOLD);
 
-                scoreAdapter = new BoxScoreArrayAdapter(list);
+                BoxScoreArrayAdapter scoreAdapter = new BoxScoreArrayAdapter(list);
                 RecyclerView boxScoreGrid = findViewById(R.id.boxscore_grid);
                 boxScoreGrid.setLayoutManager(new LinearLayoutManager(
                         this, LinearLayoutManager.HORIZONTAL, false));

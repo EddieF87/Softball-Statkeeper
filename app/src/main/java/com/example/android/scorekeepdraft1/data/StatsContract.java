@@ -80,6 +80,7 @@ public class StatsContract {
         public static final String COLUMN_RUN4 = "rund";
         public static final String COLUMN_INNING_CHANGED = "innchange";
         public static final String COLUMN_LOG_INDEX = "logindex";
+        public static final String COLUMN_PLAYERID = "playerid";
     }
 
 }

@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#8BC34A</color>
-    <color name="colorPrimaryDark">#33691E</color>
-    <color name="colorAccent">#FFE082</color>
-    <color name="app_color">#00C853</color>
+    <color name="colorPrimaryDark">#689F38</color>
+    <color name="colorPrimaryLight">#DCEDC8</color>
+    <color name="colorAccent">#FFC107</color>
+    <color name="app_color">#8BC34A</color>
     <color name="list_item_background">#EEFF41</color>
     <color name="color_arrow">#FFD600</color>
     <color name="stat_title">#8BC34A</color>
-    <color name="stat_selected">#00C853</color>
+    <color name="stat_selected">#689F38</color>
 
 </resources>

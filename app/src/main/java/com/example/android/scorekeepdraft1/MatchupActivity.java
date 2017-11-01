@@ -43,8 +43,6 @@ public class MatchupActivity extends AppCompatActivity implements LoaderManager.
 
     private String awayTeamSelection;
     private String homeTeamSelection;
-    private int awayIndex;
-    private int homeIndex;
     private static final int MATCHUP_LOADER = 5;
 
 
@@ -121,23 +119,22 @@ public class MatchupActivity extends AppCompatActivity implements LoaderManager.
     }
 
     private void setLineupsToDB() {
+        addTeamToTempDB(awayTeamSelection);
+        addTeamToTempDB(homeTeamSelection);
+    }
+
+    private void addTeamToTempDB(String teamSelection){
+        List<Player> lineup = getLineup(teamSelection);
         ContentResolver contentResolver = getContentResolver();
-        List<String> awayLineup = getLineup(awayTeamSelection);
-        List<String> homeLineup = getLineup(homeTeamSelection);
-        for(int i = 0; i < awayLineup.size(); i++) {
-            String player = awayLineup.get(i);
+        for(int i = 0; i < lineup.size(); i++) {
+            Player player = lineup.get(i);
+            int playerId = player.getPlayerId();
+            String playerName = player.getName();
             ContentValues values = new ContentValues();
-            values.put(StatsEntry.COLUMN_NAME, player);
-            values.put(StatsEntry.COLUMN_TEAM, awayTeamSelection);
-            values.put(StatsEntry.COLUMN_ORDER,i+1);
-            contentResolver.insert(StatsEntry.CONTENT_URI_TEMP, values);
-        }
-        for(int i = 0; i < homeLineup.size(); i++) {
-            String player = homeLineup.get(i);
-            ContentValues values = new ContentValues();
-            values.put(StatsEntry.COLUMN_NAME, player);
-            values.put(StatsEntry.COLUMN_TEAM, homeTeamSelection);
-            values.put(StatsEntry.COLUMN_ORDER,i+1);
+            values.put(StatsEntry.COLUMN_PLAYERID, playerId);
+            values.put(StatsEntry.COLUMN_NAME, playerName);
+            values.put(StatsEntry.COLUMN_TEAM, teamSelection);
+            values.put(StatsEntry.COLUMN_ORDER, i+1);
             contentResolver.insert(StatsEntry.CONTENT_URI_TEMP, values);
         }
     }
@@ -156,7 +153,7 @@ public class MatchupActivity extends AppCompatActivity implements LoaderManager.
         } else {
             Toast.makeText(MatchupActivity.this, "onItemSelected error ", Toast.LENGTH_SHORT).show();
         }
-        List<String> playerList = getLineup(team);
+        List<Player> playerList = getLineup(team);
 
         SharedPreferences.Editor editor;
         SharedPreferences spinnersaving;
@@ -193,8 +190,8 @@ public class MatchupActivity extends AppCompatActivity implements LoaderManager.
 //        awayTeamSelection = spinnerAway.getSelectedItem().toString();
 //        homeTeamSelection = spinnerHome.getSelectedItem().toString();
 
-        List<String> awayList = getLineup(awayTeamSelection);
-        List<String> homeList = getLineup(homeTeamSelection);
+        List<Player> awayList = getLineup(awayTeamSelection);
+        List<Player> homeList = getLineup(homeTeamSelection);
 
         rvLeft.setLayoutManager(new LinearLayoutManager(
                 this, LinearLayoutManager.VERTICAL, false));
@@ -206,9 +203,9 @@ public class MatchupActivity extends AppCompatActivity implements LoaderManager.
         rvRight.setAdapter(rightListAdapter);
     }
 
-    private ArrayList<String> getLineup(String team){
-        ArrayList<String> lineup = new ArrayList<>();
-        List<String> benchList = new ArrayList<>();
+    private ArrayList<Player> getLineup(String team){
+        ArrayList<Player> lineup = new ArrayList<>();
+        List<Player> benchList = new ArrayList<>();
         try {
             String[] projection = new String[]{StatsContract.StatsEntry._ID, StatsContract.StatsEntry.COLUMN_ORDER, StatsEntry.COLUMN_NAME};
             String selection = StatsContract.StatsEntry.COLUMN_TEAM + "=?";
@@ -220,12 +217,14 @@ public class MatchupActivity extends AppCompatActivity implements LoaderManager.
             while (cursor.moveToNext()) {
                 int nameIndex = cursor.getColumnIndex(StatsContract.StatsEntry.COLUMN_NAME);
                 int orderIndex = cursor.getColumnIndex(StatsEntry.COLUMN_ORDER);
+                int idIndex = cursor.getColumnIndex(StatsEntry._ID);
                 String playerName = cursor.getString(nameIndex);
+                int id = cursor.getInt(idIndex);
                 int order = cursor.getInt(orderIndex);
                 if (order < 50) {
-                    lineup.add(playerName);
+                    lineup.add(new Player(playerName, team, id));
                 } else {
-                    benchList.add(playerName);
+                    benchList.add(new Player(playerName, team, id));
                 }
             }
             addToBench(benchList, team);
@@ -236,12 +235,12 @@ public class MatchupActivity extends AppCompatActivity implements LoaderManager.
         }
     }
 
-    private void addToBench(List<String> benchList, String team) {
+    private void addToBench(List<Player> benchList, String team) {
         TextView benchView;
         if (team.equals(awayTeamSelection) || team.equals(homeTeamSelection)) {
             StringBuilder builder = new StringBuilder();
-            for (String player : benchList) {
-                String string = player + "  ";
+            for (Player player : benchList) {
+                String string = player.getName() + "  ";
                 builder.append(string);
             }
             if (team.equals(awayTeamSelection)){
@@ -305,10 +304,12 @@ public class MatchupActivity extends AppCompatActivity implements LoaderManager.
         homeTeamSpinner.setAdapter(adapter);
         awayTeamSpinner.setOnItemSelectedListener(this);
         homeTeamSpinner.setOnItemSelectedListener(this);
-        awayIndex = awaySpinnerSave.getInt("spinnerPos", 0);
-        homeIndex = homeSpinnerSave.getInt("spinnerPos", 1);
-        if (awayIndex >= numberOfTeams) {awayIndex = 0;}
-        if (homeIndex >= numberOfTeams) {homeIndex = 0;}
+        int awayIndex = awaySpinnerSave.getInt("spinnerPos", 0);
+        int homeIndex = homeSpinnerSave.getInt("spinnerPos", 1);
+        if (awayIndex >= numberOfTeams) {
+            awayIndex = 0;}
+        if (homeIndex >= numberOfTeams) {
+            homeIndex = 0;}
         awayTeamSpinner.setSelection(awayIndex);
         homeTeamSpinner.setSelection(homeIndex);
     }

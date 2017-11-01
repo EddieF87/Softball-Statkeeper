@@ -1,5 +1,7 @@
 package com.example.android.scorekeepdraft1.gamelog;
 
+import com.example.android.scorekeepdraft1.Player;
+
 import java.util.List;
 
 /**
@@ -7,14 +9,14 @@ import java.util.List;
  */
 
 public class BaseLog {
-    private List<String> team;
-    private String batter;
+    private List<Player> team;
+    private Player batter;
     private String[] basepositions;
     private int outCount;
     private int awayTeamRuns;
     private int homeTeamRuns;
 
-    public BaseLog(List<String> team, String batter, String first, String second, String third, int outs, int awayTeamRuns, int homeTeamRuns) {
+    public BaseLog(List<Player> team, Player batter, String first, String second, String third, int outs, int awayTeamRuns, int homeTeamRuns) {
         this.team = team;
         this.batter = batter;
         this.basepositions =  new String[]{first, second, third};
@@ -39,11 +41,11 @@ public class BaseLog {
         return homeTeamRuns;
     }
 
-    public String getBatter() {
+    public Player getBatter() {
         return batter;
     }
 
-    public List<String> getTeam() {
+    public List<Player> getTeam() {
         return team;
     }
 }

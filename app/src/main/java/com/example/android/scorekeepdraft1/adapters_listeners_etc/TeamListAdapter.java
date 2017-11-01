@@ -18,9 +18,9 @@ import java.util.List;
 
 public class TeamListAdapter extends RecyclerView.Adapter<TeamListAdapter.ListViewHolder> {
 
-    private List<String> list;
+    private List<Player> list;
 
-    public TeamListAdapter(List<String> list) {
+    public TeamListAdapter(List<Player> list) {
         this.list = list;
     }
 
@@ -34,8 +34,8 @@ public class TeamListAdapter extends RecyclerView.Adapter<TeamListAdapter.ListVi
     public void onBindViewHolder(ListViewHolder holder, int position) {
         FrameLayout frameLayout = holder.mFrameLayout;
         TextView textView = frameLayout.findViewById(R.id.team_text);
-
-        textView.setText((position + 1) + ". " + list.get(position));
+        String player = (position + 1) + ". " + list.get(position).getName();
+        textView.setText(player);
         frameLayout.setTag(position);
     }
 

@@ -9,22 +9,22 @@
     tools:context="com.example.android.scorekeepdraft1.GameActivity">
 
 
-    <include layout="@layout/scoreboard_table"
+    <include
         android:id="@+id/sb_table"
-        app:layout_constraintTop_toTopOf="parent"
+        layout="@layout/scoreboard_table"
         app:layout_constraintRight_toRightOf="parent"
-    />
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <include layout="@layout/diamond"
+    <include
         android:id="@+id/diamond"
-        app:layout_constraintTop_toBottomOf="@id/sb_table"
-        app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginRight="16dp"
-        android:layout_marginTop="16dp"
+        layout="@layout/diamond"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="16dp"
         app:layout_constraintBottom_toTopOf="@id/submit"
-        />
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sb_table" />
 
     <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/group1"
@@ -136,16 +136,18 @@
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginTop="16dp"
-        app:layout_constraintRight_toRightOf="@id/diamond"
         app:layout_constraintBottom_toBottomOf="@id/diamond"
+        app:layout_constraintRight_toRightOf="@id/diamond"
         app:srcCompat="@drawable/trash" />
 
     <TextView
         android:id="@+id/outText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
         android:text="Out"
-        app:layout_constraintBottom_toTopOf="@+id/trash"
+        android:textColor="#ffffff"
+        app:layout_constraintBottom_toBottomOf="@+id/trash"
         app:layout_constraintLeft_toLeftOf="@+id/trash"
         app:layout_constraintRight_toRightOf="@+id/trash" />
 

@@ -13,17 +13,23 @@ import android.view.View;
 import android.widget.Button;
 
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     private Random randomizer = new Random();
     private Button continueGame;
+    private FirebaseFirestore mFirestore;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mFirestore = FirebaseFirestore.getInstance();
 
         Button stats = findViewById(R.id.statistics);
         stats.setOnClickListener(new View.OnClickListener() {
@@ -97,25 +103,58 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         dummyData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                CollectionReference players = mFirestore.collection("players");
+
+
                 String[] listOfPlayers = {"Purp1", "Purp2", "Purp3", "Purp4", "Purp5",
                         "Purp6", "Purp7", "Purp8", "Purp9", "Purp10"};
+                int i = 0;
 
-                for (String player : listOfPlayers) {
+                for (String playerName : listOfPlayers) {
                     ContentValues values = new ContentValues();
-                    values.put(StatsEntry.COLUMN_NAME, player);
+                    values.put(StatsEntry.COLUMN_NAME, playerName);
                     values.put(StatsEntry.COLUMN_TEAM, "Purptopes");
                     getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
+                    Player player = new Player(playerName, "Purptopes", i);
+                    players.document(playerName).set(player);
+                    i++;
                 }
 
                 String[] listOfPlayers2 = {"Goon1", "Goon2", "Goon3", "Goon4", "Goon5",
                         "Goon6", "Goon7", "Goon8", "Goon9", "Goon10"};
 
-                for (String player : listOfPlayers2) {
+                for (String playerName : listOfPlayers2) {
                     ContentValues values = new ContentValues();
-                    values.put(StatsEntry.COLUMN_NAME, player);
+                    values.put(StatsEntry.COLUMN_NAME, playerName);
                     values.put(StatsEntry.COLUMN_TEAM, "Goon Nation");
                     getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
+                    Player player = new Player(playerName, "Goon Nation", i);
+                    players.document(playerName).set(player);
+                    i++;
                 }
+
+
+
+                String[] listOfPlayers3 = {"Rig1", "Rig2", "Rig3", "Rig4", "Rig5",
+                        "Rig6", "Rig7", "Rig8", "Rig9", "Rig10"};
+
+                for (String playerName : listOfPlayers3) {
+                    ContentValues values = new ContentValues();
+                    values.put(StatsEntry.COLUMN_NAME, playerName);
+                    values.put(StatsEntry.COLUMN_TEAM, "Rigtopes");
+                    getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
+                }
+
+                String[] listOfPlayers4 = {"Boog1", "Boog2", "Boog3", "Boog4", "Boog5",
+                        "Boog6", "Boog7", "Boog8", "Boog9", "Boog10"};
+
+                for (String playerName : listOfPlayers4) {
+                    ContentValues values = new ContentValues();
+                    values.put(StatsEntry.COLUMN_NAME, playerName);
+                    values.put(StatsEntry.COLUMN_TEAM, "Boogeymen");
+                    getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
+                }
+
 
                 String[] listOfTeams = {"Purptopes", "Rigtopes", "Goon Nation", "Boogeymen"};
                 for (String team : listOfTeams) {

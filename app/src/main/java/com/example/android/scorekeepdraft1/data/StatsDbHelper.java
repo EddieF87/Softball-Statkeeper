@@ -47,6 +47,7 @@ public class StatsDbHelper extends SQLiteOpenHelper {
         final String SQL_CREATE_TEMPPLAYERSTATS_TABLE =
                 "CREATE TABLE " + StatsEntry.TEMPPLAYERS_TABLE_NAME + " (" +
                         StatsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        StatsEntry.COLUMN_PLAYERID + " INTEGER NOT NULL, " +
                         StatsEntry.COLUMN_NAME + " TEXT NOT NULL, " +
                         StatsEntry.COLUMN_TEAM + " TEXT DEFAULT 'Free Agent', " +
                         StatsEntry.COLUMN_ORDER + " INTEGER, " +
