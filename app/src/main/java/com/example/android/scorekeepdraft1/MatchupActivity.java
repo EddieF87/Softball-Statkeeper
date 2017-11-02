@@ -128,7 +128,7 @@ public class MatchupActivity extends AppCompatActivity implements LoaderManager.
         ContentResolver contentResolver = getContentResolver();
         for(int i = 0; i < lineup.size(); i++) {
             Player player = lineup.get(i);
-            int playerId = player.getPlayerId();
+            long playerId = player.getPlayerId();
             String playerName = player.getName();
             ContentValues values = new ContentValues();
             values.put(StatsEntry.COLUMN_PLAYERID, playerId);

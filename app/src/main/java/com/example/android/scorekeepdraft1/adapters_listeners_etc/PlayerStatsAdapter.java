@@ -97,13 +97,13 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             teamabv = ("" + team.charAt(0)).toUpperCase();
         }
 
-        int playerId = player.getPlayerId();
+        long playerId = player.getPlayerId();
         nameView.setTag(playerId);
         nameView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(context, PlayerPageActivity.class);
-                int playerId = (int) nameView.getTag();
+                long playerId = (long) nameView.getTag();
                 Uri playerUri = ContentUris.withAppendedId(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, playerId);
                 intent.setData(playerUri);
                 startActivity(context, intent, null);

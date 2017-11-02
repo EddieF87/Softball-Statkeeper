@@ -65,6 +65,21 @@ public class StatsDbHelper extends SQLiteOpenHelper {
                         StatsEntry.COLUMN_RBI + " INTEGER DEFAULT 0" +
                         ");";
 
+        final String SQL_CREATE_BACKUP_PLAYERSTATS_TABLE =
+                "CREATE TABLE " + StatsEntry.BACKUP_PLAYERS_TABLE_NAME + " (" +
+                        StatsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        StatsEntry.COLUMN_PLAYERID + " INTEGER NOT NULL, " +
+                        StatsEntry.COLUMN_1B + " INTEGER DEFAULT 0, " +
+                        StatsEntry.COLUMN_2B + " INTEGER DEFAULT 0, " +
+                        StatsEntry.COLUMN_3B + " INTEGER DEFAULT 0, " +
+                        StatsEntry.COLUMN_HR + " INTEGER DEFAULT 0, " +
+                        StatsEntry.COLUMN_BB + " INTEGER DEFAULT 0, " +
+                        StatsEntry.COLUMN_SF + " INTEGER DEFAULT 0, " +
+                        StatsEntry.COLUMN_OUT + " INTEGER DEFAULT 0, " +
+                        StatsEntry.COLUMN_RUN + " INTEGER DEFAULT 0, " +
+                        StatsEntry.COLUMN_RBI + " INTEGER DEFAULT 0" +
+                        ");";
+
         final String SQL_CREATE_TEAMSTATS_TABLE =
                 "CREATE TABLE " + StatsEntry.TEAMS_TABLE_NAME + " (" +
                         StatsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -75,6 +90,17 @@ public class StatsDbHelper extends SQLiteOpenHelper {
                         StatsEntry.COLUMN_LOSSES + " INTEGER DEFAULT 0, " +
                         StatsEntry.COLUMN_TIES + " INTEGER DEFAULT 0, " +
 
+                        StatsEntry.COLUMN_RUNSFOR + " INTEGER DEFAULT 0, " +
+                        StatsEntry.COLUMN_RUNSAGAINST + " INTEGER DEFAULT 0" +
+                        ");";
+
+        final String SQL_CREATE_BACKUP_TEAMSTATS_TABLE =
+                "CREATE TABLE " + StatsEntry.BACKUP_TEAMS_TABLE_NAME + " (" +
+                        StatsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        StatsEntry.COLUMN_TEAM_ID + " INTEGER NOT NULL, " +
+                        StatsEntry.COLUMN_WINS + " INTEGER DEFAULT 0, " +
+                        StatsEntry.COLUMN_LOSSES + " INTEGER DEFAULT 0, " +
+                        StatsEntry.COLUMN_TIES + " INTEGER DEFAULT 0, " +
                         StatsEntry.COLUMN_RUNSFOR + " INTEGER DEFAULT 0, " +
                         StatsEntry.COLUMN_RUNSAGAINST + " INTEGER DEFAULT 0" +
                         ");";
@@ -109,6 +135,8 @@ public class StatsDbHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_TEAMSTATS_TABLE);
         db.execSQL(SQL_CREATE_TEMPPLAYERSTATS_TABLE);
         db.execSQL(SQL_CREATE_GAMESTATS_TABLE);
+        db.execSQL(SQL_CREATE_BACKUP_PLAYERSTATS_TABLE);
+        db.execSQL(SQL_CREATE_BACKUP_TEAMSTATS_TABLE);
 
     }
 
@@ -118,6 +146,8 @@ public class StatsDbHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + StatsEntry.TEAMS_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + StatsEntry.TEMPPLAYERS_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + StatsEntry.GAME_TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + StatsEntry.BACKUP_PLAYERS_TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + StatsEntry.BACKUP_TEAMS_TABLE_NAME);
         onCreate(db);
     }
 }

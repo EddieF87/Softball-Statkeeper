@@ -13,13 +13,24 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.android.scorekeepdraft1.Player;
+import com.example.android.scorekeepdraft1.Team;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Transaction;
 
 /**
  * Created by Eddie on 16/08/2017.
  */
 
 public class StatsProvider extends ContentProvider {
+
+    private FirebaseFirestore mFirestore;
 
     public static final String LOG_TAG = StatsProvider.class.getSimpleName();
 
@@ -31,6 +42,11 @@ public class StatsProvider extends ContentProvider {
     public static final int TEMP_ID = 301;
     public static final int GAME = 400;
     public static final int GAME_ID = 401;
+    public static final int BACKUP_PLAYERS = 500;
+    public static final int BACKUP_PLAYERS_ID = 501;
+    public static final int BACKUP_TEAMS = 600;
+    public static final int BACKUP_TEAMS_ID = 601;
+
 
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     private StatsDbHelper mOpenHelper;
@@ -47,6 +63,10 @@ public class StatsProvider extends ContentProvider {
         matcher.addURI(authority, StatsContract.PATH_TEMP + "/#", TEMP_ID);
         matcher.addURI(authority, StatsContract.PATH_GAME, GAME);
         matcher.addURI(authority, StatsContract.PATH_GAME + "/#", GAME_ID);
+        matcher.addURI(authority, StatsContract.PATH_BACKUP_PLAYERS, BACKUP_PLAYERS);
+        matcher.addURI(authority, StatsContract.PATH_BACKUP_PLAYERS + "/#", BACKUP_PLAYERS_ID);
+        matcher.addURI(authority, StatsContract.PATH_BACKUP_TEAMS, BACKUP_TEAMS);
+        matcher.addURI(authority, StatsContract.PATH_BACKUP_TEAMS + "/#", BACKUP_TEAMS_ID);
 
         return matcher;
     }
@@ -102,6 +122,12 @@ public class StatsProvider extends ContentProvider {
                 cursor = database.query(StatsEntry.GAME_TABLE_NAME, projection, selection, selectionArgs,
                         null, null, sortOrder);
                 break;
+            case BACKUP_PLAYERS:
+                cursor = database.query(StatsEntry.BACKUP_PLAYERS_TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
+                break;
+            case BACKUP_TEAMS:
+                cursor = database.query(StatsEntry.BACKUP_TEAMS_TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
+                break;
             default:
                 throw new IllegalArgumentException("Cannot query unknown URI " + uri);
         }
@@ -145,6 +171,12 @@ public class StatsProvider extends ContentProvider {
             case TEMP:
                 table = StatsEntry.TEMPPLAYERS_TABLE_NAME;
                 break;
+            case BACKUP_PLAYERS:
+                table = StatsEntry.BACKUP_PLAYERS_TABLE_NAME;
+                break;
+            case BACKUP_TEAMS:
+                table = StatsEntry.BACKUP_TEAMS_TABLE_NAME;
+                break;
             case GAME:
                 table = StatsEntry.GAME_TABLE_NAME;
                 break;
@@ -156,6 +188,30 @@ public class StatsProvider extends ContentProvider {
         if (id == -1) {
             Log.e(LOG_TAG, "Failed to insert row for " + uri);
             return null;
+        }
+        switch (match) {
+            case PLAYERS:
+                mFirestore = FirebaseFirestore.getInstance();
+                CollectionReference players = mFirestore.collection("players");
+                String playerName = values.getAsString(StatsEntry.COLUMN_NAME);
+                Player player;
+                if (values.containsKey(StatsEntry.COLUMN_TEAM)) {
+                    String teamName = values.getAsString(StatsEntry.COLUMN_TEAM);
+                    player = new Player(playerName, teamName, id);
+                } else {
+                    player = new Player(playerName, id);
+                }
+                players.document(String.valueOf(id)).set(player);
+                break;
+            case TEAMS:
+                mFirestore = FirebaseFirestore.getInstance();
+                CollectionReference teams = mFirestore.collection("teams");
+                String teamName = values.getAsString(StatsEntry.COLUMN_NAME);
+                Team team = new Team(teamName, id);
+                teams.document(String.valueOf(id)).set(team);
+                break;
+            default:
+                break;
         }
         getContext().getContentResolver().notifyChange(uri, null);
         return ContentUris.withAppendedId(uri, id);
@@ -206,6 +262,18 @@ public class StatsProvider extends ContentProvider {
                 rowsDeleted = database.delete(StatsEntry.GAME_TABLE_NAME, selection, selectionArgs);
                 break;
 
+            case BACKUP_PLAYERS_ID:
+                selection = StatsEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                rowsDeleted = database.delete(StatsEntry.BACKUP_PLAYERS_TABLE_NAME, selection, selectionArgs);
+                break;
+
+            case BACKUP_TEAMS_ID:
+                selection = StatsEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                rowsDeleted = database.delete(StatsEntry.BACKUP_TEAMS_TABLE_NAME, selection, selectionArgs);
+                break;
+
             default:
                 throw new IllegalArgumentException("Deletion is not supported for " + uri);
         }
@@ -227,7 +295,8 @@ public class StatsProvider extends ContentProvider {
                 break;
             case PLAYERS_ID:
                 selection = StatsEntry._ID + "=?";
-                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                long id = ContentUris.parseId(uri);
+                selectionArgs = new String[]{String.valueOf(id)};
                 table = StatsEntry.PLAYERS_TABLE_NAME;
                 if (containsName(StatsEntry.CONTENT_URI_PLAYERS, values, false)){return -1;}
                 break;
@@ -264,6 +333,7 @@ public class StatsProvider extends ContentProvider {
         if (rowsUpdated != 0) {getContext().getContentResolver().notifyChange(uri, null);}
         return rowsUpdated;
     }
+
 
     public boolean containsName(Uri uri, ContentValues values, boolean isTeam) {
         if (values.containsKey(StatsEntry.COLUMN_NAME)) {

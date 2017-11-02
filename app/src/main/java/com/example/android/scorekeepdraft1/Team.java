@@ -14,100 +14,43 @@ import java.util.List;
  */
 public class Team {
 
-    private List<Player> roster = new ArrayList<>();
-    private List<Player> lineup = new ArrayList<>();
-    private List<Player> bench = new ArrayList<>();
+    private long teamId;
     private String name;
-    private int totalRunsScored = 0;
-    private int totalRunsAgainst = 0;
-    private int currentRuns = 0;
-    private int index = 0;
+    private int wins;
+    private int losses;
+    private int ties;
+    private int totalRunsScored;
+    private int totalRunsAllowed;
 
-    public Team(String name) {
+    public Team() {
+    }
+
+    public Team(String name, long teamId) {
         this.name = name;
+        this.teamId = teamId;
+        this.totalRunsScored = 0;
+        this.totalRunsAllowed = 0;
+        this.wins = 0;
+        this.losses = 0;
+        this.ties = 0;
     }
 
-    public void addPlayer(Player player) {
-        player.setTeam(getName());
-        roster.add(player);
-    }
-
-    public Player getPlayer(int index) {
-        return roster.get(index);
-    }
     public String getName() {
         return name;
     }
+    public int getTotalRunsScored() {return totalRunsScored;}
+    public int getTotalRunsAllowed() {return totalRunsAllowed;}
+    public int getWins() {return wins;}
+    public int getLosses() {return losses;}
+    public int getTies() {return ties;}
+    public long getTeamId() {return teamId;}
 
-    public List<Player> getRoster() {
-        return roster;
-    }
-    public List<Player> getBench() {
-        return bench;
-    }
-    public List<Player> getLineup() {return lineup;}
-
-    public void putOnBench(Player player) {
-        if(lineup.contains(player)) {lineup.remove(player);}
-        if(bench.contains(player)) {return;}
-        bench.add(player);
-    }
-
-    public void putInLineup(Player player) {
-        if(bench.contains(player)) {bench.remove(player);}
-        if(lineup.contains(player)) {return;}
-        lineup.add(player);
-    }
-
-    public int getRosterSize(){return roster.size();}
-    public int getLineupSize(){return lineup.size();}
-    public int getBenchSize(){return bench.size();}
-
-    public void addRun() {
-        currentRuns++;
-    }
-
-    public void subtractRun() {
-        currentRuns--;
-    }
-
-    public int getCurrentRuns() {
-        return currentRuns;
-    }
-
-    public void setCurrentRuns(int currentRuns) {
-        this.currentRuns = currentRuns;
-    }
-
-    public void decreaseIndex() {
-        this.index--;
-    }
-
-    public void increaseIndex() {
-        this.index++;
-        if(index >= roster.size()) {
-            index = 0;
-        }
-    }
-
-    public boolean isOnRoster(String playerName) {
-        for (Player player : roster) {
-            if (player.getName().equals(playerName)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public void setIndex(int index) {
-        this.index = index;
-    }
-
-    public void setIndex(Player player) {
-        this.index = roster.indexOf(player);
-    }
-
-    public int getIndex() {
-        return index;
-    }
+    public void setName(String name) {this.name = name;}
+    public void setTeamId(long teamId) {this.teamId = teamId;}
+    public void setLosses(int losses) {this.losses = losses;}
+    public void setTies(int ties) {this.ties = ties;}
+    public void setTotalRunsAllowed(int totalRunsAllowed) {this.totalRunsAllowed = totalRunsAllowed;}
+    public void setTotalRunsScored(int totalRunsScored) {this.totalRunsScored = totalRunsScored;}
+    public void setWins(int wins) {this.wins = wins;}
 }
+

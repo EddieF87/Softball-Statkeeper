@@ -547,7 +547,8 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
 
     private void endGame() {
         mFirestore = FirebaseFirestore.getInstance();
-        addTeamStatsToDB();
+        addTeamStatsToDB(homeTeamName, homeTeamRuns, awayTeamRuns);
+        addTeamStatsToDB(awayTeamName, awayTeamRuns, homeTeamRuns);
         addPlayerStatsToDB();
         getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, null, null);
         getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, null, null);
@@ -577,83 +578,126 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         alertDialog.show();
     }
 
-    private void addTeamStatsToDB() {
-        int valueIndex;
-        int newValue;
+
+    private void addTeamStatsToDB(String teamName, final int teamRuns, final int otherTeamRuns) {
+
         String selection = StatsEntry.COLUMN_NAME + "=?";
-        String[] selectionArgsHome = {homeTeamName};
+        String[] selectionArgs = {teamName};
         playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS, null,
-                selection, selectionArgsHome, null
+                selection, selectionArgs, null
         );
         playerCursor.moveToFirst();
+        final long teamId = playerCursor.getLong(playerCursor.getColumnIndex(StatsEntry._ID));
         ContentValues values = new ContentValues();
-        if (homeTeamRuns > awayTeamRuns) {
-            valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_WINS);
-            newValue = playerCursor.getInt(valueIndex) + 1;
+        final int gameResult;
+        if (teamRuns > otherTeamRuns) {
+            int valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_WINS);
+            int newValue = playerCursor.getInt(valueIndex) + 1;
             values.put(StatsEntry.COLUMN_WINS, newValue);
-        } else if (awayTeamRuns > homeTeamRuns) {
-            valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_LOSSES);
-            newValue = playerCursor.getInt(valueIndex) + 1;
+            gameResult = 0;
+        } else if (otherTeamRuns > teamRuns) {
+            int valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_LOSSES);
+            int newValue = playerCursor.getInt(valueIndex) + 1;
             values.put(StatsEntry.COLUMN_LOSSES, newValue);
+            gameResult = 1;
         } else {
-            valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_TIES);
-            newValue = playerCursor.getInt(valueIndex) + 1;
+            int valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_TIES);
+            int newValue = playerCursor.getInt(valueIndex) + 1;
             values.put(StatsEntry.COLUMN_TIES, newValue);
+            gameResult = 2;
         }
-        valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_RUNSFOR);
-        newValue = playerCursor.getInt(valueIndex) + homeTeamRuns;
+        int valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_RUNSFOR);
+        int newValue = playerCursor.getInt(valueIndex) + teamRuns;
         values.put(StatsEntry.COLUMN_RUNSFOR, newValue);
 
         valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_RUNSAGAINST);
-        newValue = playerCursor.getInt(valueIndex) + awayTeamRuns;
+        newValue = playerCursor.getInt(valueIndex) + otherTeamRuns;
         values.put(StatsEntry.COLUMN_RUNSAGAINST, newValue);
 
-        getContentResolver().update(StatsEntry.CONTENT_URI_TEAMS, values, selection, selectionArgsHome);
+        getContentResolver().update(StatsEntry.CONTENT_URI_TEAMS, values, selection, selectionArgs);
 
-        String[] selectionArgsAway = {awayTeamName};
-        playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS, null,
-                selection, selectionArgsAway, null
-        );
-        playerCursor.moveToFirst();
-        values = new ContentValues();
-        if (awayTeamRuns > homeTeamRuns) {
-            valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_WINS);
-            newValue = playerCursor.getInt(valueIndex) + 1;
-            values.put(StatsEntry.COLUMN_WINS, newValue);
-        } else if (homeTeamRuns > awayTeamRuns) {
-            valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_LOSSES);
-            newValue = playerCursor.getInt(valueIndex) + 1;
-            values.put(StatsEntry.COLUMN_LOSSES, newValue);
-        } else {
-            valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_TIES);
-            newValue = playerCursor.getInt(valueIndex) + 1;
-            values.put(StatsEntry.COLUMN_TIES, newValue);
-        }
-        valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_RUNSFOR);
-        newValue = playerCursor.getInt(valueIndex) + awayTeamRuns;
-        values.put(StatsEntry.COLUMN_RUNSFOR, newValue);
+        final DocumentReference docRef = mFirestore.collection("teams").document(String.valueOf(teamId));
+        mFirestore.runTransaction(new Transaction.Function<Void>() {
+            @Nullable
+            @Override
+            public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                Team team = transaction.get(docRef).toObject(Team.class);
+                int wins = team.getWins();
+                int losses = team.getLosses();
+                int ties = team.getTies();
+                int runsScored = team.getTotalRunsScored();
+                int runsAllowed = team.getTotalRunsAllowed();
 
-        valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_RUNSAGAINST);
-        newValue = playerCursor.getInt(valueIndex) + homeTeamRuns;
-        values.put(StatsEntry.COLUMN_RUNSAGAINST, newValue);
+                switch (gameResult) {
+                    case 0:
+                        team.setWins(wins + 1);
+                        break;
+                    case 1:
+                        team.setLosses(losses + 1);
+                        break;
+                    case 2:
+                        team.setTies(ties + 1);
+                        break;
+                }
+                team.setTotalRunsScored(runsScored + teamRuns);
+                team.setTotalRunsAllowed(runsAllowed + otherTeamRuns);
 
-        getContentResolver().update(StatsEntry.CONTENT_URI_TEAMS, values, selection, selectionArgsAway);
+                transaction.set(docRef, team);
+
+                return null;
+            }
+        }).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d(TAG, "Transaction success!");
+            }
+        })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        ContentValues backupValues = new ContentValues();
+                        int wins = 0;
+                        int ties = 0;
+                        int losses = 0;
+                        switch (gameResult) {
+                            case 0:
+                                backupValues.put(StatsEntry.COLUMN_WINS, wins);
+                                break;
+                            case 1:
+                                backupValues.put(StatsEntry.COLUMN_LOSSES, losses);
+                                break;
+                            case 2:
+                                backupValues.put(StatsEntry.COLUMN_TIES, ties);
+                                break;
+                        }
+                        backupValues.put(StatsEntry.COLUMN_TEAM_ID, teamId);
+                        backupValues.put(StatsEntry.COLUMN_WINS, wins);
+                        backupValues.put(StatsEntry.COLUMN_LOSSES, losses);
+                        backupValues.put(StatsEntry.COLUMN_TIES, ties);
+                        backupValues.put(StatsEntry.COLUMN_RUNSFOR, teamRuns);
+                        backupValues.put(StatsEntry.COLUMN_RUNSAGAINST, otherTeamRuns);
+
+                        getContentResolver().insert(StatsEntry.CONTENT_URI_BACKUP_TEAMS,  backupValues);
+                        Log.w(TAG, "Transaction failure.", e);
+                    }
+                });
+
     }
 
     private void addPlayerStatsToDB() {
-        ArrayList<String> playerList = new ArrayList<>();
-        String selection = StatsEntry.COLUMN_NAME + "=?";
+        ArrayList<Long> playerList = new ArrayList<>();
+        String selection = StatsEntry.COLUMN_PLAYERID + "=?";
 
         playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEMP, null,
                 null, null, null);
         playerCursor.moveToPosition(-1);
         while (playerCursor.moveToNext()) {
-            String player = playerCursor.getString(nameIndex);
-            playerList.add(player);
+            long playerId = playerCursor.getLong(playerIdIndex);
+            playerList.add(playerId);
         }
 
-        for (String playerName : playerList) {
-            String[] selectionArgs = new String[]{playerName};
+        for (long playerId : playerList) {
+            String[] selectionArgs = new String[]{String.valueOf(playerId)};
 
             playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEMP, null,
                     selection, selectionArgs, null);
@@ -669,12 +713,11 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             final int tSF = playerCursor.getInt(sfIndex);
 
 
-            final DocumentReference docRef = mFirestore.collection("players").document(playerName);
+            final DocumentReference docRef = mFirestore.collection("players").document(String.valueOf(playerId));
             mFirestore.runTransaction(new Transaction.Function<Void>() {
                 @Nullable
                 @Override
                 public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
-//                    docRef = mFirestore.collection("players").document("Purp1");
                     Player player = transaction.get(docRef).toObject(Player.class);
                     int games = player.getGames() + 1;
                     int rbi = player.getRbis() + tRBI;
@@ -711,48 +754,61 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
+                            ContentValues backupValues = new ContentValues();
+                             backupValues.put(StatsEntry.COLUMN_1B, t1b);
+                             backupValues.put(StatsEntry.COLUMN_2B, t2b);
+                             backupValues.put(StatsEntry.COLUMN_3B, t3b);
+                             backupValues.put(StatsEntry.COLUMN_HR, tHR);
+                             backupValues.put(StatsEntry.COLUMN_RUN, tRun);
+                             backupValues.put(StatsEntry.COLUMN_RBI, tRBI);
+                             backupValues.put(StatsEntry.COLUMN_BB, tBB);
+                             backupValues.put(StatsEntry.COLUMN_OUT, tOuts);
+                             backupValues.put(StatsEntry.COLUMN_SF, tSF);
+                             backupValues.put(StatsEntry.COLUMN_G, 1);
+                            getContentResolver().insert(StatsEntry.CONTENT_URI_BACKUP_PLAYERS,  backupValues);
                             Log.w(TAG, "Transaction failure.", e);
                         }
                     });
 
-//            playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS, null, selection, selectionArgs, null);
-//            playerCursor.moveToFirst();
-//            int pRBIIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_RBI);
-//            int pRBI = playerCursor.getInt(pRBIIndex);
-//            int pRunIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_RUN);
-//            int pRun = playerCursor.getInt(pRunIndex);
-//            int p1bIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_1B);
-//            int p1b = playerCursor.getInt(p1bIndex);
-//            int p2bIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_2B);
-//            int p2b = playerCursor.getInt(p2bIndex);
-//            int p3bIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_3B);
-//            int p3b = playerCursor.getInt(p3bIndex);
-//            int pHRIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_HR);
-//            int pHR = playerCursor.getInt(pHRIndex);
-//            int pOutsIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_OUT);
-//            int pOuts = playerCursor.getInt(pOutsIndex);
-//            int pBBIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_BB);
-//            int pBB = playerCursor.getInt(pBBIndex);
-//            int pSFIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_SF);
-//            int pSF = playerCursor.getInt(pSFIndex);
-//            int gamesPlayedIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_G);
-//            int games = playerCursor.getInt(gamesPlayedIndex);
-//
-//            ContentValues values = new ContentValues();
-//            values.put(StatsEntry.COLUMN_1B, p1b + t1b);
-//            values.put(StatsEntry.COLUMN_2B, p2b + t2b);
-//            values.put(StatsEntry.COLUMN_3B, p3b + t3b);
-//            values.put(StatsEntry.COLUMN_HR, pHR + tHR);
-//            values.put(StatsEntry.COLUMN_RUN, pRun + tRun);
-//            values.put(StatsEntry.COLUMN_RBI, pRBI + tRBI);
-//            values.put(StatsEntry.COLUMN_BB, pBB + tBB);
-//            values.put(StatsEntry.COLUMN_OUT, pOuts + tOuts);
-//            values.put(StatsEntry.COLUMN_SF, pSF + tSF);
-//            values.put(StatsEntry.COLUMN_G, games + 1);
-//            getContentResolver().update(StatsEntry.CONTENT_URI_PLAYERS, values, selection, selectionArgs);
-//        }
+            Uri playerUri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_PLAYERS, playerId);
+            playerCursor = getContentResolver().query(playerUri, null, null, null, null);
+            playerCursor.moveToFirst();
+            int pRBIIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_RBI);
+            int pRBI = playerCursor.getInt(pRBIIndex);
+            int pRunIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_RUN);
+            int pRun = playerCursor.getInt(pRunIndex);
+            int p1bIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_1B);
+            int p1b = playerCursor.getInt(p1bIndex);
+            int p2bIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_2B);
+            int p2b = playerCursor.getInt(p2bIndex);
+            int p3bIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_3B);
+            int p3b = playerCursor.getInt(p3bIndex);
+            int pHRIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_HR);
+            int pHR = playerCursor.getInt(pHRIndex);
+            int pOutsIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_OUT);
+            int pOuts = playerCursor.getInt(pOutsIndex);
+            int pBBIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_BB);
+            int pBB = playerCursor.getInt(pBBIndex);
+            int pSFIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_SF);
+            int pSF = playerCursor.getInt(pSFIndex);
+            int gamesPlayedIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_G);
+            int games = playerCursor.getInt(gamesPlayedIndex);
+
+            ContentValues values = new ContentValues();
+            values.put(StatsEntry.COLUMN_1B, p1b + t1b);
+            values.put(StatsEntry.COLUMN_2B, p2b + t2b);
+            values.put(StatsEntry.COLUMN_3B, p3b + t3b);
+            values.put(StatsEntry.COLUMN_HR, pHR + tHR);
+            values.put(StatsEntry.COLUMN_RUN, pRun + tRun);
+            values.put(StatsEntry.COLUMN_RBI, pRBI + tRBI);
+            values.put(StatsEntry.COLUMN_BB, pBB + tBB);
+            values.put(StatsEntry.COLUMN_OUT, pOuts + tOuts);
+            values.put(StatsEntry.COLUMN_SF, pSF + tSF);
+            values.put(StatsEntry.COLUMN_G, games + 1);
+            getContentResolver().update(playerUri, values, null, null);
         }
-    }
+        }
+
 
     private void startCursor() {
         String selection = StatsEntry.COLUMN_NAME + "=?";

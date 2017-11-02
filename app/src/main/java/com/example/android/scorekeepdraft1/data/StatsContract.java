@@ -14,9 +14,10 @@ public class StatsContract {
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
     public static final String PATH_PLAYERS = "players";
     public static final String PATH_TEAMS = "teams";
-    public static final String PATH_TEMP = "temp";
+    public static final String PATH_TEMP = "temps";
     public static final String PATH_GAME = "game";
-
+    public static final String PATH_BACKUP_PLAYERS = "backupplayers";
+    public static final String PATH_BACKUP_TEAMS = "backupteams";
     public StatsContract() {
     }
 
@@ -24,13 +25,17 @@ public class StatsContract {
 
         public static final Uri CONTENT_URI_PLAYERS = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_PLAYERS);
         public static final Uri CONTENT_URI_TEAMS = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_TEAMS);
+        public static final Uri CONTENT_URI_BACKUP_PLAYERS = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_BACKUP_PLAYERS);
+        public static final Uri CONTENT_URI_BACKUP_TEAMS = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_BACKUP_TEAMS);
         public static final Uri CONTENT_URI_TEMP = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_TEMP);
         public static final Uri CONTENT_URI_GAMELOG = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_GAME);
 
 
         public static final String PLAYERS_TABLE_NAME = "players";
         public static final String TEAMS_TABLE_NAME = "teams";
-        public static final String TEMPPLAYERS_TABLE_NAME = "temp";
+        public static final String BACKUP_PLAYERS_TABLE_NAME = "backupplayers";
+        public static final String BACKUP_TEAMS_TABLE_NAME = "backupteams";
+        public static final String TEMPPLAYERS_TABLE_NAME = "temps";
         public static final String GAME_TABLE_NAME = "game";
 
 
@@ -81,6 +86,7 @@ public class StatsContract {
         public static final String COLUMN_INNING_CHANGED = "innchange";
         public static final String COLUMN_LOG_INDEX = "logindex";
         public static final String COLUMN_PLAYERID = "playerid";
+        public static final String COLUMN_TEAM_ID = "teamid";
     }
 
 }

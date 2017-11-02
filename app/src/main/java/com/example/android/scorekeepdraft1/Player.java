@@ -26,13 +26,13 @@ public class Player {
     private int sacFlies;
     private int games;
     private int teamId;
-    private int playerId;
+    private long playerId;
     private final NumberFormat formatter = new DecimalFormat("#.000");
 
     public Player() {
     }
 
-    public Player(String name, int id) {
+    public Player(String name, long id) {
         this.name = name;
         this.playerId = id;
         this.singles = 0;
@@ -48,7 +48,7 @@ public class Player {
         this.team = "Free Agent";
     }
 
-    public Player(String name, String team, int id) {
+    public Player(String name, String team, long id) {
         this.name = name;
         this.playerId = id;
         this.singles = 0;
@@ -64,7 +64,7 @@ public class Player {
         this.team = team;
     }
 
-    public Player(String name, String team, int singles, int doubles, int triples, int hrs, int walks, int runs, int rbis, int outs, int sacFlies, int games, int playerId) {
+    public Player(String name, String team, int singles, int doubles, int triples, int hrs, int walks, int runs, int rbis, int outs, int sacFlies, int games, long playerId) {
         this.name = name;
         this.team = team;
         this.singles = singles;
@@ -80,7 +80,7 @@ public class Player {
         this.playerId = playerId;
     }
 
-    public Player(String name, String team, int singles, int doubles, int triples, int hrs, int walks, int runs, int rbis, int outs, int sacFlies, int games, int teamId, int playerId) {
+    public Player(String name, String team, int singles, int doubles, int triples, int hrs, int walks, int runs, int rbis, int outs, int sacFlies, int games, int teamId, long playerId) {
         this.name = name;
         this.team = team;
         this.singles = singles;
@@ -184,7 +184,7 @@ public class Player {
         return teamId;
     }
 
-    public int getPlayerId() {
+    public long getPlayerId() {
         return playerId;
     }
 
@@ -209,7 +209,7 @@ public class Player {
         this.sacFlies = sacFlies;
     }
 
-    public void setPlayerId(int playerId) {
+    public void setPlayerId(long playerId) {
         this.playerId = playerId;
     }
 
