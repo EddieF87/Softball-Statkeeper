@@ -3,14 +3,11 @@ package com.example.android.scorekeepdraft1;
 import android.app.LoaderManager;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -19,35 +16,41 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
+import com.example.android.scorekeepdraft1.gamelog.PlayerLog;
+import com.example.android.scorekeepdraft1.gamelog.TeamLog;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.CollectionReference;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Transaction;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     private Random randomizer = new Random();
     private Button continueGame;
+    private Button syncStats;
     private FirebaseFirestore mFirestore;
     private static final int TEMP_LOADER = 44;
     private static final int BACKUP_PLAYER_LOADER = 45;
     private static final int BACKUP_TEAM_LOADER = 46;
     private static final String TAG = "MainActivity: ";
+    private int transactionCounter = 0;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        mFirestore = FirebaseFirestore.getInstance();
 
         Button stats = findViewById(R.id.statistics);
         stats.setOnClickListener(new View.OnClickListener() {
@@ -67,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             }
         });
 
-        Button newGame = findViewById(R.id.new_game);
+        final Button newGame = findViewById(R.id.new_game);
         newGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -91,23 +94,78 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             }
         });
 
-        Button randomize = findViewById(R.id.randomize_team_stats);
-        randomize.setOnClickListener(new View.OnClickListener() {
-            CollectionReference players = mFirestore.collection("players");
+        syncStats = findViewById(R.id.randomize_team_stats);
+        syncStats.setOnClickListener(new View.OnClickListener() {
+
 
             @Override
             public void onClick(View view) {
-                if (players.document("19").get().isSuccessful()) {
-                    Toast.makeText(MainActivity.this, "FOUND", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(MainActivity.this, "LOST", Toast.LENGTH_SHORT).show();
+                syncStats.setVisibility(View.GONE);
+                WriteBatch batch = mFirestore.batch();
+
+                Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, null, null, null, null);
+                while (cursor.moveToNext()) {
+                    long logId = cursor.getLong(cursor.getColumnIndex(StatsEntry.COLUMN_LOG_ID));
+                    long playerId = cursor.getLong(cursor.getColumnIndex(StatsEntry.COLUMN_PLAYERID));
+                    int gameRBI = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_RBI));
+                    int gameRun = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_RUN));
+                    int game1b = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_1B));
+                    int game2b = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_2B));
+                    int game3b = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_3B));
+                    int gameHR = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_HR));
+                    int gameOuts = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_OUT));
+                    int gameBB = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_BB));
+                    int gameSF = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_SF));
+
+
+                    final DocumentReference docRef = mFirestore.collection("players").document(String.valueOf(playerId))
+                            .collection("playerlogs").document(String.valueOf(logId));
+
+                    PlayerLog playerLog = new PlayerLog(playerId, gameRBI, gameRun, game1b, game2b, game3b, gameHR, gameOuts, gameBB, gameSF);
+                    batch.set(docRef, playerLog);
                 }
+
+                cursor.close();
+
+                cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_TEAMS, null, null, null, null);
+                while (cursor.moveToNext()) {
+                    long logId = cursor.getLong(cursor.getColumnIndex(StatsEntry.COLUMN_LOG_ID));
+                    long teamId = cursor.getLong(cursor.getColumnIndex(StatsEntry.COLUMN_TEAM_ID));
+                    int gameWins = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_WINS));
+                    int gameLosses = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_LOSSES));
+                    int gameTies = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_TIES));
+                    int gameRunsScored = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_RUNSFOR));
+                    int gameRunsAllowed = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_RUNSAGAINST));
+
+                    final DocumentReference docRef = mFirestore.collection("teams").document(String.valueOf(teamId))
+                            .collection("teamlogs").document(String.valueOf(logId));
+
+                    TeamLog teamLog = new TeamLog(teamId, gameWins, gameLosses, gameTies, gameRunsScored, gameRunsAllowed);
+                    batch.set(docRef, teamLog);
+                }
+
+                batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Log.d(TAG, "Transaction success!");
+                        getContentResolver().delete(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, null, null);
+                        getContentResolver().delete(StatsEntry.CONTENT_URI_BACKUP_TEAMS, null, null);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Transaction failure.", e);
+                    }
+                });
+                cursor.close();
             }
         });
 
 
         Button dummyData = findViewById(R.id.dummy_data);
-        dummyData.setOnClickListener(new View.OnClickListener() {
+        dummyData.setOnClickListener(new View.OnClickListener()
+
+        {
             @Override
             public void onClick(View view) {
 
@@ -166,10 +224,252 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             }
         });
 
-        getLoaderManager().initLoader(TEMP_LOADER, null, this);
-        getLoaderManager().initLoader(BACKUP_PLAYER_LOADER, null, this);
-        getLoaderManager().initLoader(BACKUP_TEAM_LOADER, null, this);
+    }
 
+
+    public void SyncPlayers(final View v) {
+
+        mFirestore.collection("players")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (DocumentSnapshot document : task.getResult()) {
+                                Log.d(TAG, document.getId() + " => " + document.getData());
+                                final Player player = document.toObject(Player.class);
+                                final String playerIdString = document.getId();
+
+                                mFirestore.collection("players").document(playerIdString).collection("playerlogs")
+                                        .get()
+                                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                if (task.isSuccessful()) {
+                                                    Log.d(TAG, "Query successful for " + playerIdString);
+
+                                                    final QuerySnapshot querySnapshot = task.getResult();
+                                                    int games = 0;
+                                                    int rbi = 0;
+                                                    int runs = 0;
+                                                    int singles = 0;
+                                                    int doubles = 0;
+                                                    int triples = 0;
+                                                    int hrs = 0;
+                                                    int walks = 0;
+                                                    int outs = 0;
+                                                    int sfs = 0;
+                                                    for (DocumentSnapshot document : task.getResult()) {
+                                                        Log.d(TAG, document.getId() + " => " + document.getData());
+                                                        PlayerLog playerLog = document.toObject(PlayerLog.class);
+                                                        games++;
+                                                        rbi += playerLog.getRbi();
+                                                        runs += playerLog.getRuns();
+                                                        singles += playerLog.getSingles();
+                                                        doubles += playerLog.getDoubles();
+                                                        triples += playerLog.getTriples();
+                                                        hrs += playerLog.getHrs();
+                                                        walks += playerLog.getWalks();
+                                                        outs += playerLog.getOuts();
+                                                        sfs += playerLog.getSacfly();
+                                                    }
+                                                    final PlayerLog finalLog = new PlayerLog(0, rbi, runs, singles, doubles, triples, hrs, outs, walks, sfs);
+                                                    final int finalGames = games;
+
+                                                    mFirestore.runTransaction(new Transaction.Function<DocumentReference>() {
+                                                        @Nullable
+                                                        @Override
+                                                        public DocumentReference apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                                                            final DocumentReference docRef = mFirestore.collection("players").document(playerIdString);
+
+                                                            int totalGames = player.getGames() + finalGames;
+                                                            int totalSingles = player.getSingles() + finalLog.getSingles();
+                                                            int totalDoubles = player.getDoubles() + finalLog.getDoubles();
+                                                            int totalTriples = player.getTriples() + finalLog.getTriples();
+                                                            int totalHrs = player.getHrs() + finalLog.getHrs();
+                                                            int totalWalks = player.getWalks() + finalLog.getWalks();
+                                                            int totalOuts = player.getOuts() + finalLog.getOuts();
+                                                            int totalRbis = player.getRbis() + finalLog.getRbi();
+                                                            int totalRuns = player.getRuns() + finalLog.getRuns();
+                                                            int totalSFs = player.getSacFlies() + finalLog.getSacfly();
+
+                                                            player.setGames(totalGames);
+                                                            player.setSingles(totalSingles);
+                                                            player.setDoubles(totalDoubles);
+                                                            player.setTriples(totalTriples);
+                                                            player.setHrs(totalHrs);
+                                                            player.setWalks(totalWalks);
+                                                            player.setOuts(totalOuts);
+                                                            player.setRbis(totalRbis);
+                                                            player.setRuns(totalRuns);
+                                                            player.setSacFlies(totalSFs);
+
+                                                            transaction.set(docRef, player);
+                                                            return docRef;
+                                                        }
+                                                    }).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                                        @Override
+                                                        public void onSuccess(DocumentReference documentReference) {
+                                                            Log.d(TAG, "Update successful for " + playerIdString);
+                                                            //delete GameLogs
+                                                            WriteBatch batch = mFirestore.batch();
+                                                            for (DocumentSnapshot snapshot : querySnapshot) {
+                                                                batch.delete(snapshot.getReference());
+                                                            }
+                                                            batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                @Override
+                                                                public void onComplete(@NonNull Task<Void> task) {
+                                                                    Log.d(TAG, "Deletion successful for " + playerIdString);
+                                                                }
+                                                            });
+                                                            ContentValues values = new ContentValues();
+                                                            values.put(StatsEntry.COLUMN_1B, player.getSingles());
+                                                            values.put(StatsEntry.COLUMN_2B, player.getDoubles());
+                                                            values.put(StatsEntry.COLUMN_3B, player.getTriples());
+                                                            values.put(StatsEntry.COLUMN_HR, player.getHrs());
+                                                            values.put(StatsEntry.COLUMN_RUN,player.getRuns());
+                                                            values.put(StatsEntry.COLUMN_RBI,player.getRbis());
+                                                            values.put(StatsEntry.COLUMN_BB, player.getWalks());
+                                                            values.put(StatsEntry.COLUMN_OUT,player.getOuts());
+                                                            values.put(StatsEntry.COLUMN_SF, player.getSacFlies());
+                                                            values.put(StatsEntry.COLUMN_G, player.getGames());
+                                                            String selection = StatsEntry.COLUMN_NAME + "=?";
+                                                            int rowsUpdated = getContentResolver().update(StatsEntry.CONTENT_URI_PLAYERS, values, selection, new String[] {playerIdString});
+                                                            if(rowsUpdated < 1) {
+                                                                values.put("sync", 0);
+                                                                values.put(StatsEntry.COLUMN_NAME, player.getName());
+                                                                values.put(StatsEntry.COLUMN_TEAM, player.getTeam());
+                                                                Log.d(TAG,"Insert attempt for player " + playerIdString + player.getName());
+                                                                getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
+                                                            }
+                                                        }
+                                                    });
+
+                                                } else {
+                                                    Log.d(TAG, "Error getting documents: ", task.getException());
+                                                }
+                                            }
+                                        });
+
+
+                            }
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+
+        mFirestore.collection("teams")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (DocumentSnapshot document : task.getResult()) {
+                                Log.d(TAG, document.getId() + " => " + document.getData());
+                                final Team team = document.toObject(Team.class);
+                                final String teamIdString = document.getId();
+
+                                mFirestore.collection("teams").document(teamIdString).collection("teamlogs")
+                                        .get()
+                                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                if (task.isSuccessful()) {
+                                                    Log.d(TAG, "Query successful for team " + teamIdString);
+
+                                                    final QuerySnapshot querySnapshot = task.getResult();
+                                                    int wins = 0;
+                                                    int losses = 0;
+                                                    int ties = 0;
+                                                    int runsScored = 0;
+                                                    int runsAllowed = 0;
+
+                                                    for (DocumentSnapshot document : task.getResult()) {
+                                                        Log.d(TAG, document.getId() + " => " + document.getData());
+                                                        TeamLog teamLog = document.toObject(TeamLog.class);
+                                                        wins += teamLog.getWins();
+                                                        losses += teamLog.getLosses();
+                                                        ties += teamLog.getTies();
+                                                        runsScored += teamLog.getRunsScored();
+                                                        runsAllowed += teamLog.getRunsAllowed();
+                                                    }
+                                                    final TeamLog finalLog = new TeamLog(0, wins, losses, ties, runsScored, runsAllowed);
+
+                                                    mFirestore.runTransaction(new Transaction.Function<DocumentReference>() {
+                                                        @Nullable
+                                                        @Override
+                                                        public DocumentReference apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
+                                                            final DocumentReference docRef = mFirestore.collection("teams").document(teamIdString);
+
+                                                            int totalWins = team.getWins() + finalLog.getWins();
+                                                            int totalLosses = team.getLosses() + finalLog.getLosses();
+                                                            int totalTies = team.getTies() + finalLog.getTies();
+                                                            int totalRunsScored = team.getTotalRunsScored() + finalLog.getRunsScored();
+                                                            int totalRunsAllowed = team.getTotalRunsAllowed() + finalLog.getRunsAllowed();
+
+                                                            team.setWins(totalWins);
+                                                            team.setLosses(totalLosses);
+                                                            team.setTies(totalTies);
+                                                            team.setTotalRunsScored(totalRunsScored);
+                                                            team.setTotalRunsAllowed(totalRunsAllowed);
+
+                                                            transaction.set(docRef, team);
+                                                            return docRef;
+                                                        }
+                                                    }).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                                        @Override
+                                                        public void onSuccess(DocumentReference documentReference) {
+                                                            Log.d(TAG, "Update successful for team " + teamIdString);
+                                                            //delete GameLogs
+                                                            WriteBatch batch = mFirestore.batch();
+                                                            for (DocumentSnapshot snapshot : querySnapshot) {
+                                                                batch.delete(snapshot.getReference());
+                                                            }
+                                                            batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                @Override
+                                                                public void onComplete(@NonNull Task<Void> task) {
+                                                                    Log.d(TAG, "Deletion successful for team " + teamIdString);
+                                                                }
+                                                            });
+                                                            ContentValues values = new ContentValues();
+                                                            values.put(StatsEntry.COLUMN_WINS, team.getWins());
+                                                            values.put(StatsEntry.COLUMN_LOSSES, team.getLosses());
+                                                            values.put(StatsEntry.COLUMN_TIES, team.getTies());
+                                                            values.put(StatsEntry.COLUMN_RUNSFOR, team.getTotalRunsScored());
+                                                            values.put(StatsEntry.COLUMN_RUNSAGAINST, team.getTotalRunsAllowed());
+                                                            String selection = StatsEntry.COLUMN_NAME + "=?";
+                                                            int rowsUpdated = getContentResolver().update(StatsEntry.CONTENT_URI_TEAMS, values, selection, new String[] {teamIdString});
+                                                            if(rowsUpdated < 1) {
+                                                                values.put("sync", 0);
+                                                                values.put(StatsEntry.COLUMN_LEAGUE, "ISL");
+                                                                values.put(StatsEntry.COLUMN_NAME, team.getName());
+                                                                Log.d(TAG,"Insert attempt for team " + teamIdString + team.getName());
+                                                                getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
+                                                            }
+                                                        }
+                                                    });
+
+                                                } else {
+                                                    Log.d(TAG, "Error getting documents: ", task.getException());
+                                                }
+                                            }
+                                        });
+                            }
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mFirestore = FirebaseFirestore.getInstance();
+        getLoaderManager().restartLoader(TEMP_LOADER, null, this);
+        getLoaderManager().restartLoader(BACKUP_PLAYER_LOADER, null, this);
+        getLoaderManager().restartLoader(BACKUP_TEAM_LOADER, null, this);
     }
 
     @Override
@@ -199,10 +499,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        ConnectivityManager connManager;
-        NetworkInfo mWifi;
         switch (loader.getId()) {
             case TEMP_LOADER:
+                continueGame = findViewById(R.id.continue_game);
                 if (cursor.moveToFirst()) {
                     continueGame.setVisibility(View.VISIBLE);
                 } else {
@@ -210,115 +509,18 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 }
                 break;
             case BACKUP_PLAYER_LOADER:
-                cursor.moveToPosition(-1);
-                while (cursor.moveToNext()) {
-                    final int playerId = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_PLAYERID));
-                    final int tRBI = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_RBI));
-                    final int tRun = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_RUN));
-                    final int t1b = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_1B));
-                    final int t2b = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_2B));
-                    final int t3b = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_3B));
-                    final int tHR = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_HR));
-                    final int tOuts = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_OUT));
-                    final int tBB = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_BB));
-                    final int tSF = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_SF));
-
-
-                    final DocumentReference docRef = mFirestore.collection("players").document(String.valueOf(playerId));
-                    mFirestore.runTransaction(new Transaction.Function<Void>() {
-                        @Nullable
-                        @Override
-                        public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
-                            Player player = transaction.get(docRef).toObject(Player.class);
-                            int games = player.getGames() + 1;
-                            int rbi = player.getRbis() + tRBI;
-                            int runs = player.getRuns() + tRun;
-                            int singles = player.getSingles() + t1b;
-                            int doubles = player.getDoubles() + t2b;
-                            int triples = player.getTriples() + t3b;
-                            int hrs = player.getHrs() + tHR;
-                            int outs = player.getOuts() + tOuts;
-                            int walks = player.getWalks() + tBB;
-                            int sacfly = player.getSacFlies() + tSF;
-
-                            player.setGames(games);
-                            player.setRbis(rbi);
-                            player.setRuns(runs);
-                            player.setSingles(singles);
-                            player.setDoubles(doubles);
-                            player.setTriples(triples);
-                            player.setHrs(hrs);
-                            player.setOuts(outs);
-                            player.setWalks(walks);
-                            player.setSacFlies(sacfly);
-
-                            transaction.set(docRef, player);
-                            return null;
-                        }
-                    }).addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Uri uri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, playerId);
-                            getContentResolver().delete(uri, null, null);
-                            Log.d(TAG, "Transaction success!");
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(MainActivity.this, "Transaction failure.", Toast.LENGTH_SHORT).show();
-                            Log.w(TAG, "Transaction failure.", e);
-                        }
-                    });
+                if (cursor.moveToFirst()) {
+                    syncStats.setVisibility(View.VISIBLE);
+                } else {
+                    syncStats.setVisibility(View.GONE);
                 }
                 break;
             case BACKUP_TEAM_LOADER:
-                int i = cursor.getCount();
-                cursor.moveToPosition(-1);
-                while (cursor.moveToNext()) {
-                    final int teamId = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_TEAM_ID));
-                    final int tWins = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_WINS));
-                    final int tLosses = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_LOSSES));
-                    final int tTies = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_TIES));
-                    final int tRunsScored = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_RUNSFOR));
-                    final int tRunsAllowed = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_RUNSAGAINST));
-
-                    final DocumentReference docRef = mFirestore.collection("teams").document(String.valueOf(teamId));
-                    mFirestore.runTransaction(new Transaction.Function<Void>() {
-                        @Nullable
-                        @Override
-                        public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
-                            Team team = transaction.get(docRef).toObject(Team.class);
-                            int wins = team.getWins();
-                            int losses = team.getLosses();
-                            int ties = team.getTies();
-                            int runsScored = team.getTotalRunsScored();
-                            int runsAllowed = team.getTotalRunsAllowed();
-
-                            team.setWins(wins + tWins);
-                            team.setLosses(losses + tLosses);
-                            team.setTies(ties + tTies);
-                            team.setTotalRunsScored(runsScored + tRunsScored);
-                            team.setTotalRunsAllowed(runsAllowed + tRunsAllowed);
-
-                            transaction.set(docRef, team);
-                            return null;
-                        }
-                    }).addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Uri uri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_BACKUP_TEAMS, teamId);
-                            getContentResolver().delete(uri, null, null);
-                            Log.d(TAG, "Transaction success!");
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(MainActivity.this, "Transaction failure.", Toast.LENGTH_SHORT).show();
-                            Log.w(TAG, "Transaction failure.", e);
-                        }
-                    });
+                if (cursor.moveToFirst()) {
+                    syncStats.setVisibility(View.VISIBLE);
+                } else {
+                    syncStats.setVisibility(View.GONE);
                 }
-
                 break;
             default:
                 Log.v(TAG, "ERROR WITH CURSORLOADER.");

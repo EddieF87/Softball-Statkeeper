@@ -24,6 +24,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Transaction;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by Eddie on 16/08/2017.
  */
@@ -156,17 +159,26 @@ public class StatsProvider extends ContentProvider {
             Toast.makeText(getContext(), "Please only enter letters, numbers, -, and _", Toast.LENGTH_SHORT).show();
             return null;
         }
-
+        boolean sync = false;
         String table;
         final int match = sUriMatcher.match(uri);
+
         switch (match) {
             case PLAYERS:
                 if (containsName(StatsEntry.CONTENT_URI_PLAYERS, values, false)){return null;}
                 table = StatsEntry.PLAYERS_TABLE_NAME;
+                if (values.containsKey("sync")) {
+                    sync = true;
+                    values.remove("sync");
+                }
                 break;
             case TEAMS:
                 if (containsName(StatsEntry.CONTENT_URI_TEAMS, values, true)){return null;}
                 table = StatsEntry.TEAMS_TABLE_NAME;
+                if (values.containsKey("sync")) {
+                    sync = true;
+                    values.remove("sync");
+                }
                 break;
             case TEMP:
                 table = StatsEntry.TEMPPLAYERS_TABLE_NAME;
@@ -188,27 +200,32 @@ public class StatsProvider extends ContentProvider {
         if (id == -1) {
             Log.e(LOG_TAG, "Failed to insert row for " + uri);
             return null;
+        } else {
+            Log.e(LOG_TAG, "Insert row for " + values.getAsString(StatsEntry.COLUMN_NAME) + "  " + uri);
         }
         switch (match) {
             case PLAYERS:
+                if(sync) {break;}
                 mFirestore = FirebaseFirestore.getInstance();
                 CollectionReference players = mFirestore.collection("players");
                 String playerName = values.getAsString(StatsEntry.COLUMN_NAME);
-                Player player;
+                Map<String, Object> player = new HashMap<>();
                 if (values.containsKey(StatsEntry.COLUMN_TEAM)) {
                     String teamName = values.getAsString(StatsEntry.COLUMN_TEAM);
-                    player = new Player(playerName, teamName, id);
+                    player.put("team", teamName);
                 } else {
-                    player = new Player(playerName, id);
+                    player.put("team", "Free Agent");
                 }
-                players.document(String.valueOf(id)).set(player);
+                player.put("name", playerName);
+                players.document(playerName).set(player);
                 break;
             case TEAMS:
+                if(sync) {break;}
                 mFirestore = FirebaseFirestore.getInstance();
                 CollectionReference teams = mFirestore.collection("teams");
                 String teamName = values.getAsString(StatsEntry.COLUMN_NAME);
                 Team team = new Team(teamName, id);
-                teams.document(String.valueOf(id)).set(team);
+                teams.document(teamName).set(team);
                 break;
             default:
                 break;
@@ -216,6 +233,7 @@ public class StatsProvider extends ContentProvider {
         getContext().getContentResolver().notifyChange(uri, null);
         return ContentUris.withAppendedId(uri, id);
     }
+
 
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
@@ -262,10 +280,18 @@ public class StatsProvider extends ContentProvider {
                 rowsDeleted = database.delete(StatsEntry.GAME_TABLE_NAME, selection, selectionArgs);
                 break;
 
+            case BACKUP_PLAYERS:
+                rowsDeleted = database.delete(StatsEntry.BACKUP_PLAYERS_TABLE_NAME, selection, selectionArgs);
+                break;
+
             case BACKUP_PLAYERS_ID:
                 selection = StatsEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 rowsDeleted = database.delete(StatsEntry.BACKUP_PLAYERS_TABLE_NAME, selection, selectionArgs);
+                break;
+
+            case BACKUP_TEAMS:
+                rowsDeleted = database.delete(StatsEntry.BACKUP_TEAMS_TABLE_NAME, selection, selectionArgs);
                 break;
 
             case BACKUP_TEAMS_ID:
@@ -277,12 +303,18 @@ public class StatsProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Deletion is not supported for " + uri);
         }
+        if (rowsDeleted < 1) {
+            Log.e(LOG_TAG, "Failed to delete row for " + uri);
+        } else {
+            Log.e(LOG_TAG, "Deleted row for " + uri);
+        }
         getContext().getContentResolver().notifyChange(uri, null);
         return rowsDeleted;
     }
 
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
+        Log.e(LOG_TAG, "Update attempt for " + uri + "  " + values.getAsString(StatsEntry.COLUMN_NAME));
         if (sqlSafeguard(values)){
             Toast.makeText(getContext(), "Please only enter letters, numbers, -, and _", Toast.LENGTH_SHORT).show();
             return -1;

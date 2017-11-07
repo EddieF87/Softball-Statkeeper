@@ -6,6 +6,15 @@
     android:orientation="vertical"
     android:padding="16dp">
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+
+
+    </RelativeLayout>
+
     <LinearLayout
         android:id="@+id/boxscore_header"
         android:orientation="horizontal"
@@ -23,6 +32,7 @@
             android:layout_height="wrap_content" />
 
     </LinearLayout>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
