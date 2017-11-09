@@ -1,6 +1,6 @@
 package com.example.android.scorekeepdraft1.gamelog;
 
-import com.example.android.scorekeepdraft1.Player;
+import com.example.android.scorekeepdraft1.objects.Player;
 
 import java.util.List;
 

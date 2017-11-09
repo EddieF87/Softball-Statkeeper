@@ -31,11 +31,13 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapter;
 import com.example.android.scorekeepdraft1.gamelog.BaseLog;
 
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.gamelog.PlayerLog;
 import com.example.android.scorekeepdraft1.gamelog.TeamLog;
+import com.example.android.scorekeepdraft1.objects.Player;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -550,7 +552,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         addPlayerStatsToDB();
         getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, null, null);
         getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, null, null);
-        Intent finishGame = new Intent(GameActivity.this, MainActivity.class);
+        Intent finishGame = new Intent(GameActivity.this, LeagueActivity.class);
         startActivity(finishGame);
     }
 
@@ -600,8 +602,8 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         TeamLog teamLog = new TeamLog(teamId, teamRuns, otherTeamRuns);
         backupValues.put(StatsEntry.COLUMN_TEAM_ID, teamId);
 
-        final DocumentReference docRef = mFirestore.collection("teams").document(teamName)
-                .collection("teamlogs").document(String.valueOf(logId));
+        final DocumentReference docRef = mFirestore.collection(FirestoreAdapter.LEAGUE_COLLECTION).document().collection(FirestoreAdapter.TEAMS_COLLECTION).document(teamName)
+                .collection(FirestoreAdapter.TEAM_LOGS).document(String.valueOf(logId));
 
         if (teamRuns > otherTeamRuns) {
             int valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_WINS);
@@ -681,8 +683,8 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             } else {
                 logId = System.currentTimeMillis();
             }
-            final DocumentReference docRef = mFirestore.collection("players").document(name)
-                    .collection("playerlogs").document(String.valueOf(logId));
+            final DocumentReference docRef = mFirestore.collection(FirestoreAdapter.LEAGUE_COLLECTION).document().collection(FirestoreAdapter.PLAYERS_COLLECTION).document(name)
+                    .collection(FirestoreAdapter.PLAYER_LOGS).document(String.valueOf(logId));
 
             PlayerLog playerLog = new PlayerLog(playerId, gameRBI, gameRun, game1b, game2b, game3b, gameHR, gameOuts, gameBB, gameSF);
             playerBatch.set(docRef, playerLog);
@@ -767,7 +769,6 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             }
         });
     }
-
 
     private void startCursor() {
         String selection = StatsEntry.COLUMN_NAME + "=?";
@@ -1440,7 +1441,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                 startActivity(intent);
                 break;
             case R.id.action_exit_game:
-                intent = new Intent(GameActivity.this, MainActivity.class);
+                intent = new Intent(GameActivity.this, LeagueActivity.class);
                 startActivity(intent);
                 finish();
                 break;

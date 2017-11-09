@@ -3,14 +3,12 @@ package com.example.android.scorekeepdraft1;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.app.LoaderManager;
 import android.content.Loader;
-import android.graphics.Color;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -19,19 +17,19 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.PlayerStatsAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
+import com.example.android.scorekeepdraft1.objects.Player;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class TeamActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class TeamPageActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private Uri mCurrentTeamUri;
     private static final int EXISTING_TEAM_LOADER = 3;
@@ -195,7 +193,7 @@ public class TeamActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
 //    public void goToPlayerPage(View v) {
-//        Intent intent = new Intent(TeamActivity.this, PlayerPageActivity.class);
+//        Intent intent = new Intent(TeamPageActivity.this, PlayerPageActivity.class);
 //        TextView textView = (TextView) v;
 //        String player = textView.getText().toString();
 //        Bundle b = new Bundle();
@@ -232,7 +230,7 @@ public class TeamActivity extends AppCompatActivity implements LoaderManager.Loa
 
                 return true;
             case R.id.action_edit_lineup:
-                Intent intent = new Intent(TeamActivity.this, SetLineupActivity.class);
+                Intent intent = new Intent(TeamPageActivity.this, SetLineupActivity.class);
                 Bundle b = new Bundle();
                 b.putString("team", teamSelected);
                 intent.putExtras(b);
@@ -253,7 +251,7 @@ public class TeamActivity extends AppCompatActivity implements LoaderManager.Loa
         builder.setMessage(R.string.delete_team_msg);
         builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                AlertDialog.Builder choice = new AlertDialog.Builder(TeamActivity.this);
+                AlertDialog.Builder choice = new AlertDialog.Builder(TeamPageActivity.this);
                 choice.setMessage(R.string.delete_or_freeagency_msg);
                 choice.setPositiveButton(R.string.waivers, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {

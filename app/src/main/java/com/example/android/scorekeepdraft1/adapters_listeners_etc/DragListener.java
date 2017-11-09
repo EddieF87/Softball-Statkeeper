@@ -4,7 +4,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.DragEvent;
 import android.view.View;
 
-import com.example.android.scorekeepdraft1.Player;
 import com.example.android.scorekeepdraft1.R;
 
 import java.util.List;
@@ -32,27 +31,21 @@ public class DragListener implements View.OnDragListener {
                 View viewSource = (View) event.getLocalState();
                 int viewId = v.getId();
                 final int flItem = R.id.lineup_item_layout;
-                //final int tvEmptyListTop = R.id.tvEmptyListTop;
-                //final int tvEmptyListBottom = R.id.tvEmptyListBottom;
                 final int rvLeft = R.id.rvLeft;
                 final int rvRight = R.id.rvRight;
 
                 switch (viewId) {
                     case flItem:
-//                        case tvEmptyListTop:
-//                        case tvEmptyListBottom:
                     case rvLeft:
                     case rvRight:
 
                         RecyclerView target;
                         switch (viewId) {
-                            //case tvEmptyListTop:
                             case rvLeft:
-                                target = (RecyclerView) v.getRootView().findViewById(rvLeft);
+                                target = v.getRootView().findViewById(rvLeft);
                                 break;
-                            //case tvEmptyListBottom:
                             case rvRight:
-                                target = (RecyclerView) v.getRootView().findViewById(rvRight);
+                                target = v.getRootView().findViewById(rvRight);
                                 break;
                             default:
                                 target = (RecyclerView) v.getParent();
@@ -82,19 +75,6 @@ public class DragListener implements View.OnDragListener {
                             }
                             adapterTarget.updateList(customListTarget);
                             adapterTarget.notifyDataSetChanged();
-
-/*                                if (sourceId == rvRight && adapterSource.getItemCount() < 1) {
-                                    listener.setEmptyListBottom(true);
-                                }
-                                if (viewId == tvEmptyListBottom) {
-                                    listener.setEmptyListBottom(false);
-                                }
-                                if (sourceId == rvLeft && adapterSource.getItemCount() < 1) {
-                                    listener.setEmptyListTop(true);
-                                }
-                                if (viewId == tvEmptyListTop) {
-                                    listener.setEmptyListTop(false);
-                                }*/
                         }
                         break;
                 }

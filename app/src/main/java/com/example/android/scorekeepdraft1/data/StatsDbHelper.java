@@ -25,6 +25,7 @@ public class StatsDbHelper extends SQLiteOpenHelper {
         final String SQL_CREATE_PLAYERSTATS_TABLE =
                 "CREATE TABLE " + StatsEntry.PLAYERS_TABLE_NAME + " (" +
                         StatsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        StatsEntry.COLUMN_FIRESTORE_ID + " TEXT, " +
                         StatsEntry.COLUMN_NAME + " TEXT NOT NULL, " +
                         StatsEntry.COLUMN_TEAM + " TEXT DEFAULT 'Free Agent', " +
                         StatsEntry.COLUMN_ORDER + " INTEGER, " +
@@ -84,6 +85,7 @@ public class StatsDbHelper extends SQLiteOpenHelper {
         final String SQL_CREATE_TEAMSTATS_TABLE =
                 "CREATE TABLE " + StatsEntry.TEAMS_TABLE_NAME + " (" +
                         StatsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        StatsEntry.COLUMN_FIRESTORE_ID + " TEXT, " +
                         StatsEntry.COLUMN_NAME + " TEXT NOT NULL, " +
                         StatsEntry.COLUMN_LEAGUE + " TEXT, " +
 
@@ -123,7 +125,6 @@ public class StatsDbHelper extends SQLiteOpenHelper {
                         StatsEntry.COLUMN_AWAY_RUNS + " INTEGER, " +
                         StatsEntry.COLUMN_HOME_RUNS + " INTEGER, " +
 
-                        //RunsLogs
                         StatsEntry.COLUMN_RUN1 + " TEXT, " +
                         StatsEntry.COLUMN_RUN2 + " TEXT, " +
                         StatsEntry.COLUMN_RUN3 + " TEXT, " +

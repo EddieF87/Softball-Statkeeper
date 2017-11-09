@@ -27,10 +27,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
-
-import static com.example.android.scorekeepdraft1.R.string.team;
+import com.example.android.scorekeepdraft1.objects.Player;
 
 
 public class PlayerPageActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -51,7 +49,6 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
 
         getLoaderManager().initLoader(EXISTING_PLAYER_LOADER, null, this);
     }
-
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -284,7 +281,7 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
 
     public void goToTeamPage(View v) {
         if (teamString != null) {
-            Intent intent = new Intent(PlayerPageActivity.this, TeamActivity.class);
+            Intent intent = new Intent(PlayerPageActivity.this, TeamPageActivity.class);
 
             String selection = StatsEntry.COLUMN_NAME + "=?";
             String[] selectionArgs = new String[]{teamString};

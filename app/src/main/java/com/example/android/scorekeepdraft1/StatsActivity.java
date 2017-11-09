@@ -1,9 +1,7 @@
 package com.example.android.scorekeepdraft1;
 
 import android.content.CursorLoader;
-import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.app.LoaderManager;
 import android.content.Loader;
 import android.support.v4.content.ContextCompat;
@@ -11,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -21,15 +20,15 @@ import android.widget.Toast;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.PlayerStatsAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
+import com.example.android.scorekeepdraft1.objects.Player;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static android.R.attr.id;
-
 public class StatsActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemSelectedListener, View.OnClickListener {
 
+    private static final String TAG = "StatActivity: ";
     private RecyclerView rv;
     private TextView emptyView;
     private PlayerStatsAdapter rvAdapter;
@@ -295,10 +294,15 @@ public class StatsActivity extends AppCompatActivity implements LoaderManager.Lo
             int sf = mCursor.getInt(sfIndex);
             int g = mCursor.getInt(gameIndex);
             int teamId;
-            if(team.equals("Free Agent")) {
+            if(team.equals("Free Agent") || team.equals("")) {
                 teamId = -1;
             } else {
-                teamId = teamIDs.get(team);
+                try {
+                    teamId = teamIDs.get(team);
+                } catch (Exception e) {
+                    teamId = -1;
+                    Log.e(TAG, " error with teamIDs.get(team)");
+                }
             }
             int playerId = mCursor.getInt(idIndex);
             players.add(new Player(player, team, sgl, dbl, tpl, hr, bb, run, rbi, out, sf, g, teamId, playerId));

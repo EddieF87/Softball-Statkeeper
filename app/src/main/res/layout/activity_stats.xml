@@ -155,7 +155,6 @@
                     android:id="@+id/bb_title"
                     style="@style/StatsTitleStyle"
                     android:text="@string/bb" />
-
             </LinearLayout>
 
             <android.support.v7.widget.RecyclerView

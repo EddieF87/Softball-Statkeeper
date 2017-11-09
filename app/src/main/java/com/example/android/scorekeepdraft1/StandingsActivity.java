@@ -42,7 +42,7 @@ public class StandingsActivity extends AppCompatActivity implements LoaderManage
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                Intent intent = new Intent(StandingsActivity.this, TeamActivity.class);
+                Intent intent = new Intent(StandingsActivity.this, TeamPageActivity.class);
                 Uri currentTeamUri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_TEAMS, id);
                 intent.setData(currentTeamUri);
                 startActivity(intent);

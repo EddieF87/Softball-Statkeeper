@@ -3,7 +3,6 @@ package com.example.android.scorekeepdraft1.data;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -13,16 +12,10 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.example.android.scorekeepdraft1.Player;
-import com.example.android.scorekeepdraft1.Team;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.Transaction;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -159,7 +152,6 @@ public class StatsProvider extends ContentProvider {
             Toast.makeText(getContext(), "Please only enter letters, numbers, -, and _", Toast.LENGTH_SHORT).show();
             return null;
         }
-        boolean sync = false;
         String table;
         final int match = sUriMatcher.match(uri);
 
@@ -168,17 +160,35 @@ public class StatsProvider extends ContentProvider {
                 if (containsName(StatsEntry.CONTENT_URI_PLAYERS, values, false)){return null;}
                 table = StatsEntry.PLAYERS_TABLE_NAME;
                 if (values.containsKey("sync")) {
-                    sync = true;
                     values.remove("sync");
+                    break;
                 }
+                mFirestore = FirebaseFirestore.getInstance();
+                DocumentReference playerDoc = mFirestore.collection("players").document();
+                String playerName = values.getAsString(StatsEntry.COLUMN_NAME);
+                Map<String, Object> player = new HashMap<>();
+                if (values.containsKey(StatsEntry.COLUMN_TEAM)) {
+                    String teamName = values.getAsString(StatsEntry.COLUMN_TEAM);
+                    player.put("team", teamName);
+                } else {
+                    player.put("team", "Free Agent");
+                }
+                player.put("name", playerName);
+                playerDoc.set(player, SetOptions.merge());
+                values.put(StatsEntry.COLUMN_FIRESTORE_ID, playerDoc.getId());
                 break;
             case TEAMS:
                 if (containsName(StatsEntry.CONTENT_URI_TEAMS, values, true)){return null;}
                 table = StatsEntry.TEAMS_TABLE_NAME;
                 if (values.containsKey("sync")) {
-                    sync = true;
                     values.remove("sync");
+                    break;
                 }
+                mFirestore = FirebaseFirestore.getInstance();
+                DocumentReference teamDoc = mFirestore.collection("teams").document();
+                String teamName = values.getAsString(StatsEntry.COLUMN_NAME);
+                teamDoc.update("name", teamName);
+                values.put(StatsEntry.COLUMN_FIRESTORE_ID, teamDoc.getId());
                 break;
             case TEMP:
                 table = StatsEntry.TEMPPLAYERS_TABLE_NAME;
@@ -202,33 +212,6 @@ public class StatsProvider extends ContentProvider {
             return null;
         } else {
             Log.e(LOG_TAG, "Insert row for " + values.getAsString(StatsEntry.COLUMN_NAME) + "  " + uri);
-        }
-        switch (match) {
-            case PLAYERS:
-                if(sync) {break;}
-                mFirestore = FirebaseFirestore.getInstance();
-                CollectionReference players = mFirestore.collection("players");
-                String playerName = values.getAsString(StatsEntry.COLUMN_NAME);
-                Map<String, Object> player = new HashMap<>();
-                if (values.containsKey(StatsEntry.COLUMN_TEAM)) {
-                    String teamName = values.getAsString(StatsEntry.COLUMN_TEAM);
-                    player.put("team", teamName);
-                } else {
-                    player.put("team", "Free Agent");
-                }
-                player.put("name", playerName);
-                players.document(playerName).set(player);
-                break;
-            case TEAMS:
-                if(sync) {break;}
-                mFirestore = FirebaseFirestore.getInstance();
-                CollectionReference teams = mFirestore.collection("teams");
-                String teamName = values.getAsString(StatsEntry.COLUMN_NAME);
-                Team team = new Team(teamName, id);
-                teams.document(teamName).set(team);
-                break;
-            default:
-                break;
         }
         getContext().getContentResolver().notifyChange(uri, null);
         return ContentUris.withAppendedId(uri, id);
@@ -321,6 +304,8 @@ public class StatsProvider extends ContentProvider {
         }
         String table;
         final int match = sUriMatcher.match(uri);
+        String firestoreID;
+        DocumentReference documentReference;
         switch (match) {
             case PLAYERS:
                 table = StatsEntry.PLAYERS_TABLE_NAME;
@@ -331,6 +316,15 @@ public class StatsProvider extends ContentProvider {
                 selectionArgs = new String[]{String.valueOf(id)};
                 table = StatsEntry.PLAYERS_TABLE_NAME;
                 if (containsName(StatsEntry.CONTENT_URI_PLAYERS, values, false)){return -1;}
+                firestoreID = values.getAsString(StatsEntry.COLUMN_FIRESTORE_ID);
+                documentReference = mFirestore.collection("players").document(firestoreID);
+                if (values.containsKey(StatsEntry.COLUMN_NAME)) {
+                    String playerName = values.getAsString(StatsEntry.COLUMN_NAME);
+                    documentReference.update("name", playerName);
+                } else if (values.containsKey(StatsEntry.COLUMN_TEAM)) {
+                    String teamName = values.getAsString(StatsEntry.COLUMN_TEAM);
+                    documentReference.update("team", teamName);
+                }
                 break;
             case TEAMS:
                 table = StatsEntry.TEAMS_TABLE_NAME;
@@ -340,6 +334,12 @@ public class StatsProvider extends ContentProvider {
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 table = StatsEntry.TEAMS_TABLE_NAME;
                 if (containsName(StatsEntry.CONTENT_URI_TEAMS, values, true)){return -1;}
+                if (values.containsKey(StatsEntry.COLUMN_NAME)) {
+                    firestoreID = values.getAsString(StatsEntry.COLUMN_FIRESTORE_ID);
+                    documentReference = mFirestore.collection("teams").document(firestoreID);
+                    String teamName = values.getAsString(StatsEntry.COLUMN_NAME);
+                    documentReference.update("name", teamName);
+                }
                 break;
             case TEMP:
                 table = StatsEntry.TEMPPLAYERS_TABLE_NAME;

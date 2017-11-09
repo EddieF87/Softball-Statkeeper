@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import com.example.android.scorekeepdraft1.Player;
+import com.example.android.scorekeepdraft1.objects.Player;
 import com.example.android.scorekeepdraft1.R;
 
 import java.util.List;

@@ -4,94 +4,186 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="8dp"
     tools:context="com.example.android.scorekeepdraft1.MainActivity">
 
-    <ImageView
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:src="@drawable/baseballfield_background"
-        android:scaleType="centerCrop"
-        />
 
-    <Button
-        android:id="@+id/new_game"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
-        android:text="New Game"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:elevation="5dp"
-        android:stateListAnimator="@null"
-        />
-
-    <Button
-        android:id="@+id/dummy_data"
+    <TextView
+        android:id="@+id/welcome_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:text="add players"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginBottom="8dp" />
-
-    <Button
-        android:id="@+id/statistics"
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
-        android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
-        android:text="Stats"
-        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:text="Welcome to ScoreKeep!"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/standings"
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
-        android:layout_marginRight="8dp"
+    <FrameLayout
+        android:id="@+id/leagueFrameLayout"
+        android:layout_width="300dp"
+        android:layout_height="120dp"
+        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="standings"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/statistics" />
+        app:layout_constraintBottom_toTopOf="@+id/guideline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/current_leagues_title">
 
-    <Button
-        android:id="@+id/randomize_team_stats"
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_main"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:layout_editor_absoluteX="8dp"
+            tools:layout_editor_absoluteY="151dp" />
+
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="0dp"
-        android:layout_marginTop="0dp"
-        android:text="Update"
-        app:layout_constraintLeft_toRightOf="@+id/dummy_data"
-        app:layout_constraintTop_toTopOf="@+id/dummy_data" />
-
-    <Button
-        android:id="@+id/continue_game"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="0dp"
-        android:layout_marginTop="8dp"
-        android:text="Continue Game"
-        android:visibility="gone"
-        app:layout_constraintLeft_toLeftOf="@+id/new_game"
-        app:layout_constraintTop_toBottomOf="@+id/new_game" />
-
-    <Button
-        android:id="@+id/sync"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:layout_marginEnd="4dp"
-        android:text="Sync"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:text="Keep stats for yourself, your team, or an entire league!"
+        android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
-        android:onClick="SyncPlayers"/>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/welcome_title" />
+
+    <TextView
+        android:id="@+id/current_leagues_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:text="Your Leagues, Teams, &amp; Players"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView4" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="215dp" />
+
+    <TextView
+        android:id="@+id/textview_players_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Players"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/textview_teams_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textview_join_or_create"
+        app:layout_constraintTop_toTopOf="@+id/guideline" />
+
+    <TextView
+        android:id="@+id/textview_leagues_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Leagues"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/textview_teams_title"
+        app:layout_constraintTop_toBottomOf="@+id/textview_teams_title" />
+
+    <TextView
+        android:id="@+id/textview_teams_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Teams"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/textview_leagues_title"
+        app:layout_constraintStart_toStartOf="@+id/textview_players_title"
+        app:layout_constraintTop_toBottomOf="@+id/textview_players_title" />
+
+    <TextView
+        android:id="@+id/textview_join_or_create"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Join or Create..."
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.4"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guideline" />
+
+    <TextView
+        android:id="@+id/textview_players_description"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Manage &amp; view your individual stats"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toStartOf="@+id/guideline2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textview_players_title" />
+
+    <TextView
+        android:id="@+id/textview_teams_description"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="36dp"
+        android:text="Manage, view, &amp; share stats &amp; scores of your team"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toStartOf="@+id/guideline2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textview_teams_title" />
+
+    <TextView
+        android:id="@+id/textview_leagues_description"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Manage, view, &amp; share stats, scores, &amp; standings of an entire league"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toStartOf="@+id/guideline2"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textview_leagues_title" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="332dp"
+        android:layout_marginStart="347dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintGuide_begin="196dp"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/btn_create_plyr"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:clickable="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/guideline2"
+        app:layout_constraintTop_toTopOf="@+id/textview_players_title"
+        app:srcCompat="@android:drawable/ic_input_add" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/btn_create_join_tm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:clickable="true"
+        app:layout_constraintStart_toStartOf="@+id/btn_create_plyr"
+        app:layout_constraintTop_toTopOf="@+id/textview_teams_title"
+        app:srcCompat="@android:drawable/ic_input_add" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/btn_create_join_lg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:clickable="true"
+        app:layout_constraintStart_toStartOf="@+id/btn_create_join_tm"
+        app:layout_constraintTop_toTopOf="@+id/textview_leagues_title"
+        app:srcCompat="@android:drawable/ic_input_add" />
 
 </android.support.constraint.ConstraintLayout>

@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -24,12 +23,10 @@ import android.widget.Toast;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.TeamListAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
+import com.example.android.scorekeepdraft1.objects.Player;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.example.android.scorekeepdraft1.R.id.out;
-import static com.example.android.scorekeepdraft1.R.string.team;
 
 public class MatchupActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemSelectedListener {
 

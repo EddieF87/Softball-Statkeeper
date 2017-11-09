@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.example.android.scorekeepdraft1;
+package com.example.android.scorekeepdraft1.objects;
 
 import java.util.ArrayList;
 import java.util.List;

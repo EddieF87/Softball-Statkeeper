@@ -12,23 +12,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.example.android.scorekeepdraft1.Player;
+import com.example.android.scorekeepdraft1.TeamPageActivity;
+import com.example.android.scorekeepdraft1.objects.Player;
 import com.example.android.scorekeepdraft1.PlayerPageActivity;
 import com.example.android.scorekeepdraft1.R;
-import com.example.android.scorekeepdraft1.TeamActivity;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.HashMap;
 import java.util.List;
 
-import static android.R.attr.id;
 import static android.support.v4.content.ContextCompat.startActivity;
-import static com.example.android.scorekeepdraft1.R.id.linearLayout;
-import static com.example.android.scorekeepdraft1.R.string.team;
 
 /**
  * Created by Eddie on 03/09/2017.
@@ -46,7 +41,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
         super();
         this.players = players;
         this.context = context;
-        if (context instanceof TeamActivity) {
+        if (context instanceof TeamPageActivity) {
             visibility = View.GONE;
             isTeam = true;
         } else {
@@ -117,7 +112,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             teamView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent intent = new Intent(context, TeamActivity.class);
+                    Intent intent = new Intent(context, TeamPageActivity.class);
                     int teamId = (int) teamView.getTag();
                     Uri currentTeamUri = null;
                     if (teamId != -1) {

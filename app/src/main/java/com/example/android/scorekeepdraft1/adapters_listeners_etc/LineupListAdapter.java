@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import com.example.android.scorekeepdraft1.Player;
 import com.example.android.scorekeepdraft1.R;
 
 import java.util.List;
@@ -51,7 +50,8 @@ public class LineupListAdapter extends RecyclerView.Adapter<LineupListAdapter.Li
             String benchPlayer = "B:   " + list.get(position);
             textView.setText(benchPlayer);
         } else {
-            textView.setText((position + 1) + ". " + list.get(position));
+            String positionText = (position + 1) + ". " + list.get(position);
+            textView.setText(positionText);
         }
         frameLayout.setTag(position);
         frameLayout.setOnTouchListener(this);
