@@ -1,4 +1,4 @@
-package com.example.android.scorekeepdraft1;
+package com.example.android.scorekeepdraft1.activities;
 
 /*
  * Copyright (C) 2015 Paul Burke
@@ -33,6 +33,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.LineupListAdapter;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.Listener;
 import com.example.android.scorekeepdraft1.data.StatsContract;

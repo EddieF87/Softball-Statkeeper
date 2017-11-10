@@ -6,15 +6,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 
-import com.example.android.scorekeepdraft1.GameActivity;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
-
-import static android.icu.lang.UCharacter.GraphemeClusterBreak.V;
 
 
 /**

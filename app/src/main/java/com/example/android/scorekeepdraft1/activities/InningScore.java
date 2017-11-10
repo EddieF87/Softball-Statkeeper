@@ -1,4 +1,4 @@
-package com.example.android.scorekeepdraft1;
+package com.example.android.scorekeepdraft1.activities;
 
 /**
  * Created by Eddie on 15/10/2017.

@@ -13,9 +13,9 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.example.android.scorekeepdraft1.TeamPageActivity;
+import com.example.android.scorekeepdraft1.activities.TeamPageActivity;
 import com.example.android.scorekeepdraft1.objects.Player;
-import com.example.android.scorekeepdraft1.PlayerPageActivity;
+import com.example.android.scorekeepdraft1.activities.PlayerPageActivity;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 

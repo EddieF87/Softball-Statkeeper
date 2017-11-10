@@ -1,9 +1,7 @@
 package com.example.android.scorekeepdraft1.adapters_listeners_etc;
 
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,10 +9,9 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import com.example.android.scorekeepdraft1.LeagueActivity;
+import com.example.android.scorekeepdraft1.activities.LeagueActivity;
+import com.example.android.scorekeepdraft1.activities.MyApp;
 import com.example.android.scorekeepdraft1.R;
-import com.example.android.scorekeepdraft1.TeamPageActivity;
-import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 
 import java.util.List;
@@ -30,9 +27,9 @@ public class MainPageAdapter extends RecyclerView.Adapter<MainPageAdapter.MainPa
 
     private List<MainPageSelection> mList;
     private Context mContext;
-    private static final int LEAGUE = 0;
-    private static final int TEAM = 1;
-    private static final int PLAYER = 2;
+    private static final String LEAGUE = "League";
+    private static final String TEAM = "Team";
+    private static final String PLAYER = "Player";
 
     public MainPageAdapter(List<MainPageSelection> list, Context context) {
         this.mList = list;
@@ -51,27 +48,31 @@ public class MainPageAdapter extends RecyclerView.Adapter<MainPageAdapter.MainPa
     public void onBindViewHolder(MainPageViewHolder holder, int position) {
         FrameLayout frameLayout = holder.mFrameLayout;
         TextView textView = frameLayout.findViewById(R.id.team_text);
-        MainPageSelection mainPageSelection = mList.get(position);
+        final MainPageSelection mainPageSelection = mList.get(position);
         String name = mainPageSelection.getName();
         textView.setText(name);
-        final String id = mainPageSelection.getId();
-        final int type = mainPageSelection.getType();
+        final String type = mainPageSelection.getType();
         textView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
                 Intent intent;
-
-                if(type == LEAGUE) {
-                    intent = new Intent(mContext, LeagueActivity.class);
-                } else if (type == TEAM) {
-                    intent = new Intent(mContext, LeagueActivity.class);
-                } else if (type == PLAYER) {
-                    intent = new Intent(mContext, LeagueActivity.class);
-                } else {
-                    return;
+                switch (type) {
+                    case LEAGUE:
+                        intent = new Intent(mContext, LeagueActivity.class);
+                        break;
+                    case TEAM:
+                        //TODO fix/implement intents for player/team
+                        intent = new Intent(mContext, LeagueActivity.class);
+                        break;
+                    case PLAYER:
+                        intent = new Intent(mContext, LeagueActivity.class);
+                        break;
+                    default:
+                        return;
                 }
-                intent.putExtra("id", id);
+                MyApp myApp = (MyApp) mContext.getApplicationContext();
+                myApp.setCurrentSelection(mainPageSelection);
                 startActivity(mContext, intent, null);
             }
         });
@@ -79,13 +80,13 @@ public class MainPageAdapter extends RecyclerView.Adapter<MainPageAdapter.MainPa
 
     @Override
     public int getItemCount() {
-        return 0;
+        return mList.size();
     }
 
     static class MainPageViewHolder extends RecyclerView.ViewHolder {
         FrameLayout mFrameLayout;
 
-        MainPageViewHolder(View itemView) {
+        private MainPageViewHolder(View itemView) {
             super(itemView);
             mFrameLayout = (FrameLayout) itemView;
         }

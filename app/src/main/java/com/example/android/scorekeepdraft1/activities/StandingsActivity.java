@@ -1,4 +1,4 @@
-package com.example.android.scorekeepdraft1;
+package com.example.android.scorekeepdraft1.activities;
 
 import android.content.ContentUris;
 import android.content.CursorLoader;
@@ -15,6 +15,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.StandingsCursorAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;

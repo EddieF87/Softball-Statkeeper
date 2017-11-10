@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.example.android.scorekeepdraft1.InningScore;
+import com.example.android.scorekeepdraft1.activities.InningScore;
 import com.example.android.scorekeepdraft1.R;
 
 import java.util.List;

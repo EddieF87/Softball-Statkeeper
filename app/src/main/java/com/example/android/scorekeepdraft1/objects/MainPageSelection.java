@@ -6,11 +6,14 @@ package com.example.android.scorekeepdraft1.objects;
 
 public class MainPageSelection {
 
-    private String name;
     private String id;
-    private int type;
+    private String name;
+    private String type;
 
-    public MainPageSelection(String name, String id, int type) {
+    public MainPageSelection() {
+    }
+
+    public MainPageSelection(String id, String name, String type) {
         this.name = name;
         this.id = id;
         this.type = type;
@@ -24,7 +27,19 @@ public class MainPageSelection {
         return id;
     }
 
-    public int getType() {
+    public String getType() {
         return type;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

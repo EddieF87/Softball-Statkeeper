@@ -1,4 +1,4 @@
-package com.example.android.scorekeepdraft1;
+package com.example.android.scorekeepdraft1.activities;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -27,6 +27,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.objects.Player;
 

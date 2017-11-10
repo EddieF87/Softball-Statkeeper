@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.example.android.scorekeepdraft1;
+package com.example.android.scorekeepdraft1.activities;
 
 import android.app.AlertDialog;
 import android.content.ClipData;
@@ -31,6 +31,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapter;
 import com.example.android.scorekeepdraft1.gamelog.BaseLog;
 
@@ -159,12 +160,15 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     private static final String KEY_UNDOREDO = "keyUndoRedo";
     private static final String TAG = "GameActivity: ";
 
+    private String leagueID;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.v(TAG, "onCreate");
-
         setContentView(R.layout.activity_game);
+
+        MyApp myApp = (MyApp) getApplicationContext();
+        leagueID = myApp.getCurrentSelection().getId();
 
         playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEMP, null,
                 null, null, null);
@@ -223,7 +227,8 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         homeDisplay.setOnDragListener(new MyDragListener());
         outTrash.setOnDragListener(new MyDragListener());
 
-        gameCursor = getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG, null, null, null, null);
+        gameCursor = getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG, null,
+                null, null, null);
         if (gameCursor.moveToFirst()) {
             SharedPreferences shared = getSharedPreferences("info", MODE_PRIVATE);
             gameLogIndex = shared.getInt(KEY_GAMELOGINDEX, 0);
@@ -359,7 +364,8 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         currentBatter = awayTeam.get(0);
         currentRunsLog = new ArrayList<>();
         tempRunsLog = new ArrayList<>();
-        currentBaseLogStart = new BaseLog(currentTeam, currentBatter, "", "", "", 0, 0, 0);
+        currentBaseLogStart = new BaseLog(currentTeam, currentBatter, "", "", "",
+                0, 0, 0);
 
         ContentValues values = new ContentValues();
         String onDeck = currentBatter.getName();
@@ -602,7 +608,8 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         TeamLog teamLog = new TeamLog(teamId, teamRuns, otherTeamRuns);
         backupValues.put(StatsEntry.COLUMN_TEAM_ID, teamId);
 
-        final DocumentReference docRef = mFirestore.collection(FirestoreAdapter.LEAGUE_COLLECTION).document().collection(FirestoreAdapter.TEAMS_COLLECTION).document(teamName)
+        final DocumentReference docRef = mFirestore.collection(FirestoreAdapter.LEAGUE_COLLECTION)
+                .document(leagueID).collection(FirestoreAdapter.TEAMS_COLLECTION).document(teamName)
                 .collection(FirestoreAdapter.TEAM_LOGS).document(String.valueOf(logId));
 
         if (teamRuns > otherTeamRuns) {
@@ -683,10 +690,12 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             } else {
                 logId = System.currentTimeMillis();
             }
-            final DocumentReference docRef = mFirestore.collection(FirestoreAdapter.LEAGUE_COLLECTION).document().collection(FirestoreAdapter.PLAYERS_COLLECTION).document(name)
+            final DocumentReference docRef = mFirestore.collection(FirestoreAdapter.LEAGUE_COLLECTION)
+                    .document(leagueID).collection(FirestoreAdapter.PLAYERS_COLLECTION).document(name)
                     .collection(FirestoreAdapter.PLAYER_LOGS).document(String.valueOf(logId));
 
-            PlayerLog playerLog = new PlayerLog(playerId, gameRBI, gameRun, game1b, game2b, game3b, gameHR, gameOuts, gameBB, gameSF);
+            PlayerLog playerLog = new PlayerLog(playerId, gameRBI, gameRun, game1b, game2b, game3b,
+                    gameHR, gameOuts, gameBB, gameSF);
             playerBatch.set(docRef, playerLog);
 
             Uri playerUri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_PLAYERS, playerId);
@@ -794,7 +803,8 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         int tOuts = playerCursor.getInt(playerOutIndex);
 
         String selection = StatsEntry.COLUMN_NAME + "=?";
-        playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS, null, selection, new String[]{name}, null);
+        playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS, null,
+                selection, new String[]{name}, null);
         playerCursor.moveToFirst();
 
         int pRBIIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_RBI);
@@ -1001,7 +1011,8 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
 
     private void onSubmit() {
         if (undoRedo) {
-            gameCursor = getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG, null, null, null, null);
+            gameCursor = getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG, null,
+                    null, null, null);
             gameCursor.moveToPosition(gameLogIndex);
             int id = gameCursor.getInt(idIndex);
             Uri toDelete = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_GAMELOG, id);
@@ -1058,7 +1069,8 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     private void undoPlay() {
         String undoResult;
         if (gameLogIndex > 0) {
-            gameCursor = getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG, null, null, null, null);
+            gameCursor = getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG, null,
+                    null, null, null);
             gameCursor.moveToPosition(gameLogIndex);
             undoRedo = true;
             tempBatter = gameCursor.getString(prevBatterIndex);
@@ -1093,7 +1105,8 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     }
 
     private void redoPlay() {
-        gameCursor = getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG, null, null, null, null);
+        gameCursor = getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG, null,
+                null, null, null);
 
         if (gameLogIndex < gameCursor.getCount() - 1) {
             undoRedo = true;
@@ -1297,9 +1310,11 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                         tempRuns++;
                         String scoreString;
                         if (currentTeam == awayTeam) {
-                            scoreString = awayTeamName + " " + (awayTeamRuns + tempRuns) + "    " + homeTeamName + " " + homeTeamRuns;
+                            scoreString = awayTeamName + " " + (awayTeamRuns + tempRuns) + "    "
+                                    + homeTeamName + " " + homeTeamRuns;
                         } else {
-                            scoreString = awayTeamName + " " + awayTeamRuns + "    " + homeTeamName + " " + (homeTeamRuns + tempRuns);
+                            scoreString = awayTeamName + " " + awayTeamRuns + "    "
+                                    + homeTeamName + " " + (homeTeamRuns + tempRuns);
                         }
                         scoreboard.setText(scoreString);
                     }

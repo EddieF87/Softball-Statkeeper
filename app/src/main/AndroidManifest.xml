@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <application
+        android:name=".activities.MyApp"
         android:allowBackup="true"
         android:icon="@mipmap/baseballtest"
         android:label="@string/app_name"
@@ -17,7 +18,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".MainActivity">
+        <activity android:name=".activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -25,39 +26,39 @@
         </activity>
 
         <activity
-            android:name=".LeagueActivity"
-            android:parentActivityName=".MainActivity"
+            android:name=".activities.LeagueActivity"
+            android:parentActivityName=".activities.MainActivity"
             android:launchMode="singleTask">
         </activity>
         <activity
-            android:name=".GameActivity"
-            android:parentActivityName=".LeagueActivity"
+            android:name=".activities.GameActivity"
+            android:parentActivityName=".activities.LeagueActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".StandingsActivity"
+            android:name=".activities.StandingsActivity"
             android:label="STANDINGS"
-            android:parentActivityName=".LeagueActivity" />
+            android:parentActivityName=".activities.LeagueActivity" />
         <activity
-            android:name=".StatsActivity"
+            android:name=".activities.StatsActivity"
             android:label="PLAYER STATS"
-            android:parentActivityName=".LeagueActivity" />
+            android:parentActivityName=".activities.LeagueActivity" />
         <activity
-            android:name=".SetLineupActivity"
+            android:name=".activities.SetLineupActivity"
             android:label="Lineup Editor"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".MatchupActivity"
+            android:name=".activities.MatchupActivity"
             android:label="Matchup Selector"
-            android:parentActivityName=".LeagueActivity"
+            android:parentActivityName=".activities.LeagueActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".PlayerPageActivity"
-            android:parentActivityName=".StatsActivity" />
-        <activity android:name=".TeamPageActivity" />
+            android:name=".activities.PlayerPageActivity"
+            android:parentActivityName=".activities.StatsActivity" />
+        <activity android:name=".activities.TeamPageActivity" />
         <activity
-            android:name=".BoxScoreActivity"
+            android:name=".activities.BoxScoreActivity"
             android:label="Box Score"
-            android:parentActivityName=".GameActivity"
+            android:parentActivityName=".activities.GameActivity"
             android:screenOrientation="portrait" />
 
         <provider

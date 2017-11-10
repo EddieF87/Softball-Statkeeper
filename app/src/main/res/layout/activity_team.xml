@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.example.android.scorekeepdraft1.TeamPageActivity">
+    tools:context="com.example.android.scorekeepdraft1.activities.TeamPageActivity">
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -38,7 +38,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            tools:context="com.example.android.scorekeepdraft1.StatsActivity">
+            tools:context="com.example.android.scorekeepdraft1.activities.StatsActivity">
 
             <include
                 android:id="@+id/team_stats_titles"

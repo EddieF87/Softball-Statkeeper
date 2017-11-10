@@ -7,7 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.example.android.scorekeepdraft1.objects.MainPageSelection;
+import com.example.android.scorekeepdraft1.activities.MyApp;
 import com.example.android.scorekeepdraft1.objects.Player;
 import com.example.android.scorekeepdraft1.objects.Team;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
@@ -25,8 +25,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Transaction;
 import com.google.firebase.firestore.WriteBatch;
 
-import java.util.ArrayList;
-
 /**
  * Created by Eddie on 11/7/2017.
  */
@@ -38,17 +36,21 @@ public class FirestoreAdapter {
     public static final String TEAMS_COLLECTION = "teams";
     public static final String PLAYER_LOGS = "playerlogs";
     public static final String TEAM_LOGS = "teamlogs";
+    public static final String USER = "id";
 
-    private Context context;
+    private Context mContext;
     private FirebaseFirestore mFirestore;
 
     public FirestoreAdapter(Context context) {
-        this.context = context;
+        this.mContext = context;
         mFirestore = FirebaseFirestore.getInstance();
     }
 
     public void syncStats() {
-        mFirestore.collection(PLAYERS_COLLECTION)
+        MyApp myApp = (MyApp) mContext.getApplicationContext();
+        final String leagueID = myApp.getCurrentSelection().getId();
+
+        mFirestore.collection(LEAGUE_COLLECTION).document(leagueID).collection(PLAYERS_COLLECTION)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -59,7 +61,8 @@ public class FirestoreAdapter {
                                 final Player player = document.toObject(Player.class);
                                 final String playerIdString = document.getId();
 
-                                mFirestore.collection(PLAYERS_COLLECTION).document(playerIdString).collection(PLAYER_LOGS)
+                                mFirestore.collection(LEAGUE_COLLECTION).document(leagueID).collection(PLAYERS_COLLECTION)
+                                        .document(playerIdString).collection(PLAYER_LOGS)
                                         .get()
                                         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                             @Override
@@ -92,14 +95,16 @@ public class FirestoreAdapter {
                                                         outs += playerLog.getOuts();
                                                         sfs += playerLog.getSacfly();
                                                     }
-                                                    final PlayerLog finalLog = new PlayerLog(0, rbi, runs, singles, doubles, triples, hrs, outs, walks, sfs);
+                                                    final PlayerLog finalLog = new PlayerLog(0, rbi, runs, singles,
+                                                            doubles, triples, hrs, outs, walks, sfs);
                                                     final int finalGames = games;
 
                                                     mFirestore.runTransaction(new Transaction.Function<DocumentReference>() {
                                                         @Nullable
                                                         @Override
                                                         public DocumentReference apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
-                                                            final DocumentReference docRef = mFirestore.collection(PLAYERS_COLLECTION).document(playerIdString);
+                                                            final DocumentReference docRef = mFirestore.collection(LEAGUE_COLLECTION)
+                                                                    .document(leagueID).collection(PLAYERS_COLLECTION).document(playerIdString);
 
                                                             int totalGames = player.getGames() + finalGames;
                                                             int totalSingles = player.getSingles() + finalLog.getSingles();
@@ -153,13 +158,14 @@ public class FirestoreAdapter {
                                                             values.put(StatsEntry.COLUMN_SF, player.getSacFlies());
                                                             values.put(StatsEntry.COLUMN_G, player.getGames());
                                                             String selection = StatsEntry.COLUMN_NAME + "=?";
-                                                            int rowsUpdated = context.getContentResolver().update(StatsEntry.CONTENT_URI_PLAYERS, values, selection, new String[]{player.getName()});
+                                                            int rowsUpdated = mContext.getContentResolver().update(StatsEntry.CONTENT_URI_PLAYERS,
+                                                                    values, selection, new String[]{player.getName()});
                                                             if (rowsUpdated < 1) {
                                                                 values.put("sync", 0);
                                                                 values.put(StatsEntry.COLUMN_NAME, player.getName());
                                                                 values.put(StatsEntry.COLUMN_TEAM, player.getTeam());
                                                                 Log.d(TAG, "Insert attempt for player " + playerIdString + player.getName());
-                                                                context.getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
+                                                                mContext.getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
                                                             }
                                                         }
                                                     });
@@ -169,8 +175,6 @@ public class FirestoreAdapter {
                                                 }
                                             }
                                         });
-
-
                             }
                         } else {
                             Log.d(TAG, "Error getting documents: ", task.getException());
@@ -178,7 +182,7 @@ public class FirestoreAdapter {
                     }
                 });
 
-        mFirestore.collection(TEAMS_COLLECTION)
+        mFirestore.collection(LEAGUE_COLLECTION).document(leagueID).collection(TEAMS_COLLECTION)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -189,7 +193,8 @@ public class FirestoreAdapter {
                                 final Team team = document.toObject(Team.class);
                                 final String teamIdString = document.getId();
 
-                                mFirestore.collection(TEAMS_COLLECTION).document(teamIdString).collection(TEAM_LOGS)
+                                mFirestore.collection(LEAGUE_COLLECTION).document(leagueID).collection(TEAMS_COLLECTION)
+                                        .document(teamIdString).collection(TEAM_LOGS)
                                         .get()
                                         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                             @Override
@@ -219,7 +224,8 @@ public class FirestoreAdapter {
                                                         @Nullable
                                                         @Override
                                                         public DocumentReference apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
-                                                            final DocumentReference docRef = mFirestore.collection(TEAMS_COLLECTION).document(teamIdString);
+                                                            final DocumentReference docRef = mFirestore.collection(LEAGUE_COLLECTION)
+                                                                    .document(leagueID).collection(TEAMS_COLLECTION).document(teamIdString);
 
                                                             int totalWins = team.getWins() + finalLog.getWins();
                                                             int totalLosses = team.getLosses() + finalLog.getLosses();
@@ -258,13 +264,14 @@ public class FirestoreAdapter {
                                                             values.put(StatsEntry.COLUMN_RUNSFOR, team.getTotalRunsScored());
                                                             values.put(StatsEntry.COLUMN_RUNSAGAINST, team.getTotalRunsAllowed());
                                                             String selection = StatsEntry.COLUMN_NAME + "=?";
-                                                            int rowsUpdated = context.getContentResolver().update(StatsEntry.CONTENT_URI_TEAMS, values, selection, new String[]{teamIdString});
+                                                            int rowsUpdated = mContext.getContentResolver().update(StatsEntry.CONTENT_URI_TEAMS,
+                                                                    values, selection, new String[]{teamIdString});
                                                             if (rowsUpdated < 1) {
                                                                 values.put("sync", 0);
                                                                 values.put(StatsEntry.COLUMN_LEAGUE, "ISL");
                                                                 values.put(StatsEntry.COLUMN_NAME, team.getName());
                                                                 Log.d(TAG, "Insert attempt for team " + teamIdString + team.getName());
-                                                                context.getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
+                                                                mContext.getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
                                                             }
                                                         }
                                                     });
@@ -282,10 +289,15 @@ public class FirestoreAdapter {
                 });
     }
 
+
     public void retryGameLogLoad() {
+        MyApp myApp = (MyApp) mContext.getApplicationContext();
+        String leagueID = myApp.getCurrentSelection().getId();
+
         WriteBatch batch = mFirestore.batch();
 
-        Cursor cursor = context.getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, null, null, null, null);
+        Cursor cursor = mContext.getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_PLAYERS,
+                null, null, null, null);
         while (cursor.moveToNext()) {
             long logId = cursor.getLong(cursor.getColumnIndex(StatsEntry.COLUMN_LOG_ID));
             long playerId = cursor.getLong(cursor.getColumnIndex(StatsEntry.COLUMN_PLAYERID));
@@ -299,9 +311,8 @@ public class FirestoreAdapter {
             int gameBB = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_BB));
             int gameSF = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_SF));
 
-
-            final DocumentReference docRef = mFirestore.collection(LEAGUE_COLLECTION).document().collection(PLAYERS_COLLECTION).document(String.valueOf(playerId))
-                    .collection(PLAYER_LOGS).document(String.valueOf(logId));
+            final DocumentReference docRef = mFirestore.collection(LEAGUE_COLLECTION).document(leagueID).collection(PLAYERS_COLLECTION)
+                    .document(String.valueOf(playerId)).collection(PLAYER_LOGS).document(String.valueOf(logId));
 
             PlayerLog playerLog = new PlayerLog(playerId, gameRBI, gameRun, game1b, game2b, game3b, gameHR, gameOuts, gameBB, gameSF);
             batch.set(docRef, playerLog);
@@ -309,7 +320,8 @@ public class FirestoreAdapter {
 
         cursor.close();
 
-        cursor = context.getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_TEAMS, null, null, null, null);
+        cursor = mContext.getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_TEAMS, null,
+                null, null, null);
         while (cursor.moveToNext()) {
             long logId = cursor.getLong(cursor.getColumnIndex(StatsEntry.COLUMN_LOG_ID));
             long teamId = cursor.getLong(cursor.getColumnIndex(StatsEntry.COLUMN_TEAM_ID));
@@ -319,8 +331,8 @@ public class FirestoreAdapter {
             int gameRunsScored = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_RUNSFOR));
             int gameRunsAllowed = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_RUNSAGAINST));
 
-            final DocumentReference docRef = mFirestore.collection(TEAMS_COLLECTION).document(String.valueOf(teamId))
-                    .collection(TEAM_LOGS).document(String.valueOf(logId));
+            final DocumentReference docRef = mFirestore.collection(LEAGUE_COLLECTION).document(leagueID).collection(TEAMS_COLLECTION)
+                    .document(String.valueOf(teamId)).collection(TEAM_LOGS).document(String.valueOf(logId));
 
             TeamLog teamLog = new TeamLog(teamId, gameWins, gameLosses, gameTies, gameRunsScored, gameRunsAllowed);
             batch.set(docRef, teamLog);
@@ -330,8 +342,8 @@ public class FirestoreAdapter {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 Log.d(TAG, "Transaction success!");
-                context.getContentResolver().delete(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, null, null);
-                context.getContentResolver().delete(StatsEntry.CONTENT_URI_BACKUP_TEAMS, null, null);
+                mContext.getContentResolver().delete(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, null, null);
+                mContext.getContentResolver().delete(StatsEntry.CONTENT_URI_BACKUP_TEAMS, null, null);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -342,11 +354,4 @@ public class FirestoreAdapter {
         cursor.close();
 
     }
-
-    public ArrayList<MainPageSelection> getSelections(String userId) {
-
-        return null;
-
-    }
-
 }

@@ -89,6 +89,7 @@ public class StatsContract {
         public static final String COLUMN_TEAM_ID = "teamid";
         public static final String COLUMN_LOG_ID = "logid";
         public static final String COLUMN_FIRESTORE_ID = "firestoreid";
+        public static final String COLUMN_LEAGUE_ID = "leagueid";
     }
 
 }
