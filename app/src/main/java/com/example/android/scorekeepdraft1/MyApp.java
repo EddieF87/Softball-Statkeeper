@@ -1,4 +1,4 @@
-package com.example.android.scorekeepdraft1.activities;
+package com.example.android.scorekeepdraft1;
 
 import android.app.Application;
 

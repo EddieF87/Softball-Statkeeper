@@ -16,11 +16,14 @@ package com.example.android.scorekeepdraft1.activities;
  * limitations under the License.
  */
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -33,11 +36,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.LineupListAdapter;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.Listener;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
+import com.example.android.scorekeepdraft1.objects.Player;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,8 +52,6 @@ import java.util.List;
  */
 public class SetLineupActivity extends AppCompatActivity implements Listener {
 
-    private Button lineupSubmitButton;
-    private Button addPlayerButton;
     private EditText addPlayerText;
 
     private LineupListAdapter leftListAdapter;
@@ -74,6 +77,8 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
         } else {
             finish();
         }
+        MyApp myApp = (MyApp) getApplicationContext();
+        final String selectionType = myApp.getCurrentSelection().getType();
 
         rvLeftLineup = findViewById(R.id.rvLeft);
         rvRightLineup = findViewById(R.id.rvRight);
@@ -102,18 +107,23 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
         initLeftRecyclerView();
         initRightRecyclerView();
 
-        lineupSubmitButton = findViewById(R.id.lineup_submit);
+        Button lineupSubmitButton = findViewById(R.id.lineup_submit);
         lineupSubmitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateAndSubmitLineup();
+                if (selectionType.equals("Team")) {
+                    startGameDialog();
+                } else {
+                    updateAndSubmitLineup();
+                    finish();
+                }
             }
         });
 
         TextView teamName = findViewById(R.id.team_name_display);
         teamName.setText(mTeam);
 
-        addPlayerButton = findViewById(R.id.add_player_submit);
+        Button addPlayerButton = findViewById(R.id.add_player_submit);
         addPlayerText = findViewById(R.id.add_player_text);
         addPlayerButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -121,6 +131,104 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
                 addPlayer();
             }
         });
+    }
+
+    private void startGameDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder
+                .setPositiveButton(R.string.home, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        if(dialogInterface != null) {
+                            dialogInterface.dismiss();
+                        }
+                        startGame(true);
+                    }
+                })
+                .setNeutralButton(R.string.away, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        if(dialogInterface != null) {
+                            dialogInterface.dismiss();
+                        }
+                        startGame(false);
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        if(dialogInterface != null) {
+                            dialogInterface.dismiss();
+                        }
+                    }
+                });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    private void startGame(boolean isHome) {
+        int size = updateAndSubmitLineup();
+        if (size < 4) {
+            Toast.makeText(SetLineupActivity.this, "Add more players to lineup first.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        addTeamToTempDB();
+        Intent intent = new Intent(SetLineupActivity.this, TeamGameActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    private void addTeamToTempDB(){
+        List<Player> lineup = getLineup();
+        ContentResolver contentResolver = getContentResolver();
+        for(int i = 0; i < lineup.size(); i++) {
+            Player player = lineup.get(i);
+            long playerId = player.getPlayerId();
+            String playerName = player.getName();
+            String firestoreID = player.getFirestoreID();
+
+            ContentValues values = new ContentValues();
+            values.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
+            values.put(StatsEntry.COLUMN_PLAYERID, playerId);
+            values.put(StatsEntry.COLUMN_NAME, playerName);
+            values.put(StatsEntry.COLUMN_TEAM, mTeam);
+            values.put(StatsEntry.COLUMN_ORDER, i+1);
+            contentResolver.insert(StatsEntry.CONTENT_URI_TEMP, values);
+        }
+    }
+
+    private ArrayList<Player> getLineup(){
+        ArrayList<Player> lineup = new ArrayList<>();
+        try {
+            String[] projection = new String[]{StatsContract.StatsEntry._ID, StatsContract.StatsEntry.COLUMN_ORDER, StatsEntry.COLUMN_NAME, StatsEntry.COLUMN_FIRESTORE_ID};
+            String selection = StatsContract.StatsEntry.COLUMN_TEAM + "=?";
+            String[] selectionArgs = new String[]{mTeam};
+            String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
+
+            Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS, projection,
+                    selection, selectionArgs, sortOrder);
+            while (cursor.moveToNext()) {
+                int nameIndex = cursor.getColumnIndex(StatsContract.StatsEntry.COLUMN_NAME);
+                int orderIndex = cursor.getColumnIndex(StatsEntry.COLUMN_ORDER);
+                int idIndex = cursor.getColumnIndex(StatsEntry._ID);
+                int firestoreIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
+
+                String playerName = cursor.getString(nameIndex);
+                int id = cursor.getInt(idIndex);
+
+                String firestoreID = cursor.getString(firestoreIDIndex);
+
+                int order = cursor.getInt(orderIndex);
+                if (order < 50) {
+                    lineup.add(new Player(playerName, mTeam, id, firestoreID));
+                }
+            }
+            cursor.close();
+            return lineup;
+        } catch (Exception e) {
+            Toast.makeText(this, "woops  " + e, Toast.LENGTH_SHORT).show();
+            return null;
+        }
     }
 
     private void initLeftRecyclerView() {
@@ -149,26 +257,20 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
                 InputMethodManager.HIDE_NOT_ALWAYS);
 
         String playerName = addPlayerText.getText().toString();
-//        if (playerName.isEmpty()) {
-//            Toast.makeText(SetLineupActivity.this, "Please type a player's name first",
-//                    Toast.LENGTH_SHORT).show();
-//        } else if (mBench.contains(playerName) || mLineup.contains(playerName)) {
-//            Toast.makeText(SetLineupActivity.this, playerName + " is already on" + mTeam,
-//                    Toast.LENGTH_SHORT).show();
-//        } else {
+
         ContentValues values = new ContentValues();
         values.put(StatsEntry.COLUMN_NAME, playerName);
         values.put(StatsEntry.COLUMN_TEAM, mTeam);
         values.put(StatsEntry.COLUMN_ORDER, 99);
         Uri uri = getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
-        if(uri != null) {
+        if (uri != null) {
             mBench.add(playerName);
             initRightRecyclerView();
         }
         addPlayerText.setText("");
     }
 
-    public void updateAndSubmitLineup() {
+    private int updateAndSubmitLineup() {
         String selection = StatsEntry.COLUMN_NAME + "=?";
         String[] selectionArgs;
 
@@ -192,21 +294,15 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
             getContentResolver().update(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, values,
                     selection, selectionArgs);
         }
-        finish();
+
+        return lineupList.size();
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-    }
 
     @Override
-    public void setEmptyListTop(boolean visibility) {
-    }
-
+    public void setEmptyListTop(boolean visibility) {}
     @Override
-    public void setEmptyListBottom(boolean visibility) {
-    }
+    public void setEmptyListBottom(boolean visibility) {}
 
     public LineupListAdapter getLeftListAdapter() {
         return leftListAdapter;

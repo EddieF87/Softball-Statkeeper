@@ -1,6 +1,8 @@
 package com.example.android.scorekeepdraft1.activities;
 
 import android.content.ContentUris;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.database.Cursor;
@@ -10,15 +12,20 @@ import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.StandingsCursorAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
+import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 
 public class StandingsActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, View.OnClickListener {
 
@@ -26,9 +33,8 @@ public class StandingsActivity extends AppCompatActivity implements LoaderManage
             + StatsEntry.COLUMN_LOSSES + ")) AS winpct"};
     private String statToSortBy = "winpct";
     private String sortOrder = null;
-    private String[] selectionArgs = new String[]{"ISL"};
     private static final int STANDINGS_LOADER = 3;
-
+    private EditText addTeamText;
 
     private StandingsCursorAdapter mAdapter;
 
@@ -37,7 +43,7 @@ public class StandingsActivity extends AppCompatActivity implements LoaderManage
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_standings);
 
-        ListView listView = (ListView) findViewById(R.id.list);
+        ListView listView = findViewById(R.id.list);
         mAdapter = new StandingsCursorAdapter(this, null);
         listView.setAdapter(mAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -53,7 +59,9 @@ public class StandingsActivity extends AppCompatActivity implements LoaderManage
         listView.setEmptyView(emptyView);
 
         TextView title = findViewById(R.id.standings_header);
-        String titleString = selectionArgs[0] + " Standings";
+        MyApp myApp = (MyApp)getApplicationContext();
+        MainPageSelection mainPageSelection = myApp.getCurrentSelection();
+        String titleString = mainPageSelection.getName() + " Standings";
         title.setText(titleString);
         findViewById(R.id.name_title).setOnClickListener(this);
         findViewById(R.id.win_title).setOnClickListener(this);
@@ -64,12 +72,38 @@ public class StandingsActivity extends AppCompatActivity implements LoaderManage
         findViewById(R.id.runsagainst_title).setOnClickListener(this);
         findViewById(R.id.rundiff_title).setOnClickListener(this);
 
+        View addPlayerView = findViewById(R.id.item_team_adder);
+        addTeamText = addPlayerView.findViewById(R.id.add_player_text);
+        addTeamText.setHint(R.string.add_team);
+        Button addPlayerBtn = addPlayerView.findViewById(R.id.add_player_submit);
+        addPlayerBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                addTeam();
+            }
+        });
+
         getLoaderManager().initLoader(STANDINGS_LOADER, null, this);
     }
 
+    public void addTeam() {
+        InputMethodManager inputManager = (InputMethodManager)
+                getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),
+                InputMethodManager.HIDE_NOT_ALWAYS);
+
+        String teamName = addTeamText.getText().toString();
+
+        ContentValues values = new ContentValues();
+        values.put(StatsEntry.COLUMN_NAME, teamName);
+        getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
+        addTeamText.setText("");
+    }
+
+
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        String selection = StatsEntry.COLUMN_LEAGUE + "=?";
 
         if (statToSortBy.equals(StatsContract.StatsEntry.COLUMN_NAME)) {
             sortOrder = statToSortBy + " COLLATE NOCASE ASC";
@@ -82,8 +116,8 @@ public class StandingsActivity extends AppCompatActivity implements LoaderManage
                 this,
                 StatsContract.StatsEntry.CONTENT_URI_TEAMS,
                 projection,
-                selection,
-                selectionArgs,
+                null,
+                null,
                 sortOrder
         );
     }

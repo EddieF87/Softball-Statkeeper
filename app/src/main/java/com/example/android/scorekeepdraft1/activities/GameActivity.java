@@ -31,6 +31,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapter;
 import com.example.android.scorekeepdraft1.gamelog.BaseLog;
@@ -230,7 +231,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         gameCursor = getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG, null,
                 null, null, null);
         if (gameCursor.moveToFirst()) {
-            SharedPreferences shared = getSharedPreferences("info", MODE_PRIVATE);
+            SharedPreferences shared = getSharedPreferences(leagueID, MODE_PRIVATE);
             gameLogIndex = shared.getInt(KEY_GAMELOGINDEX, 0);
             highestIndex = shared.getInt(KEY_HIGHESTINDEX, 0);
             inningNumber = shared.getInt(KEY_INNINGNUMBER, 2);
@@ -262,7 +263,10 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         while (playerCursor.moveToNext()) {
             int playerId = playerCursor.getInt(idIndex);
             String playerName = playerCursor.getString(nameIndex);
-            team.add(new Player(playerName, teamName, playerId));
+            int firestoreIDIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
+            String  firestoreID = playerCursor.getString(firestoreIDIndex);
+
+            team.add(new Player(playerName, teamName, playerId, firestoreID));
         }
         return team;
     }
@@ -385,6 +389,8 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         try {
             startCursor();
             setDisplays();
+            String outsText = "0 outs";
+            outsDisplay.setText(outsText);
         } catch (Exception e) {
             Log.v(TAG, "Error with startCursor() or setDisplays()!");
         }
@@ -517,7 +523,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     }
 
     private void saveGameState() {
-        SharedPreferences pref = getSharedPreferences("info", MODE_PRIVATE);
+        SharedPreferences pref = getSharedPreferences(leagueID, MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
         editor.putInt(KEY_GAMELOGINDEX, gameLogIndex);
         editor.putInt(KEY_HIGHESTINDEX, highestIndex);
@@ -608,8 +614,11 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         TeamLog teamLog = new TeamLog(teamId, teamRuns, otherTeamRuns);
         backupValues.put(StatsEntry.COLUMN_TEAM_ID, teamId);
 
+        int firestoreIDIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
+        String firestoreID = playerCursor.getString(firestoreIDIndex);
+
         final DocumentReference docRef = mFirestore.collection(FirestoreAdapter.LEAGUE_COLLECTION)
-                .document(leagueID).collection(FirestoreAdapter.TEAMS_COLLECTION).document(teamName)
+                .document(leagueID).collection(FirestoreAdapter.TEAMS_COLLECTION).document(firestoreID)
                 .collection(FirestoreAdapter.TEAM_LOGS).document(String.valueOf(logId));
 
         if (teamRuns > otherTeamRuns) {
@@ -641,6 +650,8 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         newValue = playerCursor.getInt(valueIndex) + otherTeamRuns;
         values.put(StatsEntry.COLUMN_RUNSAGAINST, newValue);
         backupValues.put(StatsEntry.COLUMN_RUNSAGAINST, otherTeamRuns);
+
+        values.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
 
         getContentResolver().update(StatsEntry.CONTENT_URI_TEAMS, values, selection, selectionArgs);
 
@@ -682,7 +693,9 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             int gameOuts = playerCursor.getInt(playerOutIndex);
             int gameBB = playerCursor.getInt(bbIndex);
             int gameSF = playerCursor.getInt(sfIndex);
-            String name = playerCursor.getString(playerNameIndex);
+
+            int firestoreIDIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
+            String firestoreID = playerCursor.getString(firestoreIDIndex);
 
             long logId;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
@@ -691,7 +704,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                 logId = System.currentTimeMillis();
             }
             final DocumentReference docRef = mFirestore.collection(FirestoreAdapter.LEAGUE_COLLECTION)
-                    .document(leagueID).collection(FirestoreAdapter.PLAYERS_COLLECTION).document(name)
+                    .document(leagueID).collection(FirestoreAdapter.PLAYERS_COLLECTION).document(firestoreID)
                     .collection(FirestoreAdapter.PLAYER_LOGS).document(String.valueOf(logId));
 
             PlayerLog playerLog = new PlayerLog(playerId, gameRBI, gameRun, game1b, game2b, game3b,
@@ -722,6 +735,8 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             int pSF = playerCursor.getInt(pSFIndex);
             int gamesPlayedIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_G);
             int games = playerCursor.getInt(gamesPlayedIndex);
+            firestoreIDIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
+            firestoreID = playerCursor.getString(firestoreIDIndex);
 
             ContentValues values = new ContentValues();
             values.put(StatsEntry.COLUMN_1B, p1b + game1b);
@@ -734,6 +749,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             values.put(StatsEntry.COLUMN_OUT, pOuts + gameOuts);
             values.put(StatsEntry.COLUMN_SF, pSF + gameSF);
             values.put(StatsEntry.COLUMN_G, games + 1);
+            values.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
             getContentResolver().update(playerUri, values, null, null);
         }
         playerBatch.commit().addOnFailureListener(new OnFailureListener() {
@@ -1020,9 +1036,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             undoRedo = false;
             redoEndsGame = false;
             currentRunsLog.clear();
-            for (String player : tempRunsLog) {
-                currentRunsLog.add(player);
-            }
+            currentRunsLog.addAll(tempRunsLog);
         }
         updatePlayerStats(result, 1);
         gameOuts += tempOuts;

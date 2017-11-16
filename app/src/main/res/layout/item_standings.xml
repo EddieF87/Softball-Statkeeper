@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Layout for a single list item in the list of pets -->
-<android.support.constraint.ConstraintLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -12,7 +12,8 @@
 
     <TextView
         android:id="@+id/name"
-        android:layout_width="100dp"
+        android:layout_width="0dp"
+        android:layout_weight="100"
         android:layout_height="wrap_content"
         android:gravity="start"
         android:maxLines="1"
@@ -32,7 +33,8 @@
 
     <TextView
         android:id="@+id/win"
-        android:layout_width="30dp"
+        android:layout_width="0dp"
+        android:layout_weight="30"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textAlignment="center"
@@ -45,7 +47,8 @@
 
     <TextView
         android:id="@+id/loss"
-        android:layout_width="30dp"
+        android:layout_width="0dp"
+        android:layout_weight="30"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textAlignment="center"
@@ -58,7 +61,8 @@
 
     <TextView
         android:id="@+id/tie"
-        android:layout_width="30dp"
+        android:layout_width="0dp"
+        android:layout_weight="30"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textAlignment="center"
@@ -71,7 +75,8 @@
 
     <TextView
         android:id="@+id/winpct"
-        android:layout_width="50dp"
+        android:layout_width="0dp"
+        android:layout_weight="50"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textAlignment="center"
@@ -84,7 +89,8 @@
 
     <TextView
         android:id="@+id/runsfor"
-        android:layout_width="36dp"
+        android:layout_width="0dp"
+        android:layout_weight="36"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textAlignment="textEnd"
@@ -97,7 +103,8 @@
 
     <TextView
         android:id="@+id/runsagainst"
-        android:layout_width="36dp"
+        android:layout_width="0dp"
+        android:layout_weight="36"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textAlignment="textEnd"
@@ -110,7 +117,8 @@
 
     <TextView
         android:id="@+id/rundiff"
-        android:layout_width="36dp"
+        android:layout_width="0dp"
+        android:layout_weight="36"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textAlignment="viewEnd"
@@ -120,4 +128,4 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="300" />
-</android.support.constraint.ConstraintLayout>
+</LinearLayout>

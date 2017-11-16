@@ -39,6 +39,7 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
     private static final int EXISTING_PLAYER_LOADER = 0;
     private Uri mCurrentPlayerUri;
     private String teamString;
+    private String firestoreID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +81,7 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
             int runIndex = cursor.getColumnIndex(StatsEntry.COLUMN_RUN);
             int sfIndex = cursor.getColumnIndex(StatsEntry.COLUMN_SF);
             int gameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_G);
+            int firestoreIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
 
             playerString = cursor.getString(nameIndex);
             teamString = cursor.getString(teamIndex);
@@ -93,8 +95,9 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
             int run = cursor.getInt(runIndex);
             int sf = cursor.getInt(sfIndex);
             int g = cursor.getInt(gameIndex);
+            firestoreID = cursor.getString(firestoreIDIndex);
 
-            Player player = new Player(playerString, teamString, sgl, dbl, tpl, hr, bb, run, rbi, out, sf, g, 0);
+            Player player = new Player(playerString, teamString, sgl, dbl, tpl, hr, bb, run, rbi, out, sf, g, 0, firestoreID);
             TextView hitView = findViewById(R.id.playerboard_hit);
             TextView hrView = findViewById(R.id.player_hr);
             TextView rbiView = findViewById(R.id.player_rbi);
@@ -127,7 +130,6 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
 
             String title = "Player Bio: " + playerString;
             setTitle(title);
-
         }
     }
 
@@ -192,7 +194,7 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         Dialog dialog1 = (Dialog) dialog;
-                        EditText editText = (EditText) dialog1.findViewById(R.id.username);
+                        EditText editText = dialog1.findViewById(R.id.username);
                         String enteredPlayer = editText.getText().toString();
                         if (nameAlreadyInDB(enteredPlayer)) {
                             Toast.makeText(PlayerPageActivity.this, enteredPlayer + " already exists!",
@@ -257,6 +259,8 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
         playerString = player;
         ContentValues contentValues = new ContentValues();
         contentValues.put(StatsEntry.COLUMN_NAME, playerString);
+        contentValues.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
+
         getContentResolver().update(mCurrentPlayerUri, contentValues, null, null);
         getLoaderManager().restartLoader(EXISTING_PLAYER_LOADER, null, this);
     }
@@ -265,6 +269,8 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
         ContentValues contentValues = new ContentValues();
         contentValues.put(StatsEntry.COLUMN_TEAM, team);
         contentValues.put(StatsEntry.COLUMN_ORDER, 99);
+        contentValues.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
+
         getContentResolver().update(mCurrentPlayerUri, contentValues, null, null);
     }
 

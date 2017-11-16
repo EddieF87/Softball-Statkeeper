@@ -23,7 +23,7 @@
     tools:context="com.example.android.scorekeepdraft1.activities.SetLineupActivity">
 
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="60dp"
         android:orientation="horizontal"
         android:layout_marginRight="8dp"
@@ -61,7 +61,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="60dp"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -80,7 +80,7 @@
             android:layout_gravity="center"
             android:textSize="30sp"
             android:textStyle="bold"
-            android:hint="Add Player"
+            android:hint="@string/add_player"
             android:inputType="text"
             android:maxLines="1"/>
 
@@ -89,12 +89,12 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="Add Player" />
+            android:text="@string/add_player" />
 
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="368dp"
+        android:layout_width="match_parent"
         android:layout_height="60dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
@@ -130,27 +130,27 @@
         android:id="@+id/linearLayout2"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
         android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout3"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout">
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout3">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rvLeft"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:padding="10dp"
+            android:paddingEnd="10dp"
             android:paddingLeft="20dp"
             android:paddingRight="10dp"
-            android:paddingStart="20dp"
-            android:paddingEnd="10dp"
-            android:padding="10dp"/>
+            android:paddingStart="20dp" />
 
 
         <android.support.v7.widget.RecyclerView
@@ -158,11 +158,11 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
+            android:padding="10dp"
+            android:paddingEnd="10dp"
             android:paddingLeft="20dp"
             android:paddingRight="10dp"
-            android:paddingStart="20dp"
-            android:paddingEnd="10dp"
-            android:padding="10dp"/>
+            android:paddingStart="20dp" />
     </LinearLayout>
 
 

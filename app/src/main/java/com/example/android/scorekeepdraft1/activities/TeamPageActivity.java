@@ -3,9 +3,11 @@ package com.example.android.scorekeepdraft1.activities;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.app.LoaderManager;
 import android.content.Loader;
@@ -17,13 +19,18 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.PlayerStatsAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
+import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.example.android.scorekeepdraft1.objects.Player;
 
 import java.util.ArrayList;
@@ -37,52 +44,107 @@ public class TeamPageActivity extends AppCompatActivity implements LoaderManager
 
     private TextView teamNameView;
     private TextView teamRecordView;
+    private EditText addPlayerText;
+
     private RecyclerView rv;
 
-    private Cursor mCursor;
     private List<Player> players;
     private String teamSelected;
-    private PlayerStatsAdapter rvAdapter;
     private boolean waivers;
 
+    private String selectionType;
+    private String selectionID;
+    private PlayerStatsAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_team);
+
         waivers = false;
-        Intent intent = getIntent();
-        mCurrentTeamUri = intent.getData();
-        if (mCurrentTeamUri == null) {
-            waivers = true;
+        MyApp myApp = (MyApp) getApplicationContext();
+        MainPageSelection mainPageSelection = myApp.getCurrentSelection();
+        selectionType = mainPageSelection.getType();
+        if(selectionType.equals("Team")) {
+            setButtons();
+            Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG,
+                    null, null, null, null);
+            Button continueGameButton = findViewById(R.id.btn_continue_game);
+            if (cursor.moveToFirst()) {
+                continueGameButton.setVisibility(View.VISIBLE);
+            } else {
+                continueGameButton.setVisibility(View.INVISIBLE);
+            }
+            cursor.close();
+            teamSelected = mainPageSelection.getName();
+            selectionID = mainPageSelection.getName();
+        } else {
+            Intent intent = getIntent();
+            mCurrentTeamUri = intent.getData();
+            if (mCurrentTeamUri == null) {
+                waivers = true;
+            }
+            teamSelected = "Free Agent";
         }
-        teamSelected = "Free Agent";
+
         teamNameView = findViewById(R.id.teamName);
         teamRecordView = findViewById(R.id.teamRecord);
         rv = findViewById(R.id.rv_players);
-        getLoaderManager().initLoader(EXISTING_TEAM_LOADER, null, this);
+
+        View addPlayerView = findViewById(R.id.item_player_adder);
+        addPlayerText = addPlayerView.findViewById(R.id.add_player_text);
+        Button addPlayerBtn = addPlayerView.findViewById(R.id.add_player_submit);
+        addPlayerBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                addPlayer();
+            }
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        getLoaderManager().restartLoader(EXISTING_TEAM_LOADER, null, this);
+    }
+
+    public void addPlayer() {
+        InputMethodManager inputManager = (InputMethodManager)
+                getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),
+                InputMethodManager.HIDE_NOT_ALWAYS);
+
+        String playerName = addPlayerText.getText().toString();
+
+        ContentValues values = new ContentValues();
+        values.put(StatsEntry.COLUMN_NAME, playerName);
+        values.put(StatsEntry.COLUMN_TEAM, teamSelected);
+        getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
+        addPlayerText.setText("");
+        getLoaderManager().restartLoader(EXISTING_TEAM_LOADER, null, this);
     }
 
     private void initRecyclerView() {
         rv.setLayoutManager(new LinearLayoutManager(
                 this, LinearLayoutManager.VERTICAL, false));
-        rvAdapter = new PlayerStatsAdapter(players, this);
-        rv.setAdapter(rvAdapter);
+        mAdapter= new PlayerStatsAdapter(players, this);
+        rv.setAdapter(mAdapter);
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        String selection;
-        String[] selectionArgs;
+        String selection = null;
+        String[] selectionArgs = null;
         Uri uri;
 
-        if (waivers) {
+        if (selectionType.equals("Team")) {
+            uri = StatsEntry.CONTENT_URI_TEAMS;
+        } else if (waivers) {
             selection = StatsEntry.COLUMN_NAME + "=?";
             selectionArgs = new String[]{"Free Agent"};
             uri = StatsEntry.CONTENT_URI_TEAMS;
         } else {
-            selection = null;
-            selectionArgs = null;
             uri = mCurrentTeamUri;
         }
         return new CursorLoader(
@@ -112,7 +174,8 @@ public class TeamPageActivity extends AppCompatActivity implements LoaderManager
             losses = cursor.getInt(lossColumnIndex);
             ties = cursor.getInt(tieColumnIndex);
 
-            teamRecordView.setText(wins + "-" + losses + "-" + ties);
+            String recordText = wins + "-" + losses + "-" + ties;
+            teamRecordView.setText(recordText);
         }
         int sumG = wins + losses + ties;
 
@@ -144,6 +207,7 @@ public class TeamPageActivity extends AppCompatActivity implements LoaderManager
         int sfIndex = cursor.getColumnIndex(StatsEntry.COLUMN_SF);
         int gameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_G);
         int idIndex = cursor.getColumnIndex(StatsEntry._ID);
+        int firestoreIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
 
         int sumHr = 0;
         int sumTpl = 0;
@@ -158,6 +222,7 @@ public class TeamPageActivity extends AppCompatActivity implements LoaderManager
         cursor.moveToPosition(-1);
         while (cursor.moveToNext()) {
 
+            String  firestoreID = cursor.getString(firestoreIDIndex);
             String player = cursor.getString(nameIndex);
             int hr = cursor.getInt(hrIndex);
             sumHr += hr;
@@ -180,9 +245,9 @@ public class TeamPageActivity extends AppCompatActivity implements LoaderManager
             int g = cursor.getInt(gameIndex);
 
             int playerId = cursor.getInt(idIndex);
-            players.add(new Player(player, teamSelected, sgl, dbl, tpl, hr, bb, run, rbi, out, sf, g, playerId));
+            players.add(new Player(player, teamSelected, sgl, dbl, tpl, hr, bb, run, rbi, out, sf, g, playerId, firestoreID));
         }
-        players.add(new Player("Total", teamSelected, sumSgl, sumDbl, sumTpl, sumHr, sumBb, sumRun, sumRbi, sumOut, sumSf, sumG, 0));
+        players.add(new Player("Total", teamSelected, sumSgl, sumDbl, sumTpl, sumHr, sumBb, sumRun, sumRbi, sumOut, sumSf, sumG, 0, ""));
 
         initRecyclerView();
     }
@@ -190,18 +255,44 @@ public class TeamPageActivity extends AppCompatActivity implements LoaderManager
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-
     }
 
-//    public void goToPlayerPage(View v) {
-//        Intent intent = new Intent(TeamPageActivity.this, PlayerPageActivity.class);
-//        TextView textView = (TextView) v;
-//        String player = textView.getText().toString();
-//        Bundle b = new Bundle();
-//        b.putString("player", player);
-//        intent.putExtras(b);
-//        startActivity(intent);
-//    }
+    private void setButtons() {
+        Button newGameButton = findViewById(R.id.btn_start_game);
+        Button continueGameButton = findViewById(R.id.btn_continue_game);
+
+        newGameButton.setVisibility(View.VISIBLE);
+        newGameButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startNewGame();
+            }
+        });
+
+        continueGameButton.setVisibility(View.VISIBLE);
+        continueGameButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(TeamPageActivity.this, TeamGameActivity.class);
+                startActivity(intent);
+            }
+        });
+    }
+
+    public void startNewGame(){
+        getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, null, null);
+        getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, null, null);
+        SharedPreferences savedGamePreferences = getSharedPreferences(selectionID, MODE_PRIVATE);
+        SharedPreferences.Editor editor = savedGamePreferences.edit();
+        editor.clear();
+        editor.commit();
+
+        Intent intent = new Intent(TeamPageActivity.this, SetLineupActivity.class);
+        Bundle b = new Bundle();
+        b.putString("team", teamSelected);
+        intent.putExtras(b);
+        startActivity(intent);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -216,6 +307,8 @@ public class TeamPageActivity extends AppCompatActivity implements LoaderManager
             menu.findItem(R.id.action_change_name).setVisible(false);
             menu.findItem(R.id.action_edit_photo).setVisible(false);
             menu.findItem(R.id.action_delete_team).setVisible(false);
+            menu.findItem(R.id.action_edit_lineup).setVisible(false);
+        } else if (selectionType.equals("Team")) {
             menu.findItem(R.id.action_edit_lineup).setVisible(false);
         }
         return true;
@@ -242,6 +335,10 @@ public class TeamPageActivity extends AppCompatActivity implements LoaderManager
                 return true;
             case R.id.action_delete_team:
                 showDeleteConfirmationDialog();
+                return true;
+            case R.id.action_add_players:
+                View itemPlayerAdder = findViewById(R.id.item_player_adder);
+                itemPlayerAdder.setVisibility(View.VISIBLE);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -358,9 +455,23 @@ public class TeamPageActivity extends AppCompatActivity implements LoaderManager
     }
 
     private void updateTeamName(String team) {
+
+        String selection = StatsEntry.COLUMN_NAME + "=?";
+        String[] selectionArgs = new String[] {team};
+        String[] projection = new String[] {StatsEntry.COLUMN_FIRESTORE_ID};
+        Cursor cursor = getContentResolver().query(mCurrentTeamUri,
+                projection, null, null, null);
+        cursor.moveToFirst();
+        int firestoreIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
+        String firestoreID = cursor.getString(firestoreIndex);
+        cursor.close();
+
         ContentValues contentValues = new ContentValues();
         contentValues.put(StatsEntry.COLUMN_NAME, team);
-        int rowsUpdated = getContentResolver().update(mCurrentTeamUri, contentValues, null, null);
+        contentValues.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
+
+        int rowsUpdated = getContentResolver().update(mCurrentTeamUri,
+                contentValues, null, null);
         if (rowsUpdated > 0) {
             updatePlayersTeam(team);
         }

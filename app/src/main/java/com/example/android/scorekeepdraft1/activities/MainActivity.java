@@ -1,6 +1,7 @@
 package com.example.android.scorekeepdraft1.activities;
 
 import android.app.Dialog;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
@@ -19,8 +20,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.android.scorekeepdraft1.BuildConfig;
+import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.MainPageAdapter;
+import com.example.android.scorekeepdraft1.data.StatsContract;
+import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -59,7 +63,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         addTeam.setOnClickListener(this);
         FloatingActionButton addLeague = findViewById(R.id.btn_create_join_lg);
         addLeague.setOnClickListener(this);
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
         authenticateUser();
     }
 
@@ -118,8 +126,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 Log.d(TAG, documentSnapshot.getId() + " => " + documentSnapshot.getData());
                             }
                             if (mSelections.isEmpty()) {
-//                                TextView rvErrorView = findViewById(R.id.error_rv_main);
-//                                rvErrorView.setVisibility(View.VISIBLE);
+                                TextView rvErrorView = findViewById(R.id.error_rv_main);
+                                rvErrorView.setVisibility(View.VISIBLE);
                             } else {
                                 MainPageAdapter mainPageAdapter = new MainPageAdapter(mSelections, MainActivity.this);
                                 RecyclerView recyclerView = findViewById(R.id.rv_main);
@@ -245,9 +253,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //            case "Player":
 //                intent = new Intent(MainActivity.this, PlayerPageActivity.class);
 //                break;
-//            case "Team":
-//                intent = new Intent(MainActivity.this, TeamPageActivity.class);
-//                break;
+            case "Team":
+                intent = new Intent(MainActivity.this, TeamPageActivity.class);
+                break;
             case "League":
                 intent = new Intent(MainActivity.this, LeagueActivity.class);
                 break;
@@ -291,6 +299,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         MyApp myApp = (MyApp)getApplicationContext();
                         MainPageSelection mainPageSelection = new MainPageSelection(documentReference.getId(), name, type);
                         myApp.setCurrentSelection(mainPageSelection);
+                        if(type.equals("Team")) {
+                            ContentValues values = new ContentValues();
+                            values.put(StatsEntry.COLUMN_NAME, name);
+                            getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
+                        }
                         startActivity(intent);
                     }
                 });

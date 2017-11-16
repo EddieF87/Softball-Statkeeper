@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
@@ -29,6 +30,7 @@ public class LeagueActivity extends AppCompatActivity implements LoaderManager.L
     private static final int BACKUP_TEAM_LOADER = 46;
     private static final String TAG = "LeagueActivity: ";
     private FirebaseAuth mAuth;
+    private String leagueID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +41,8 @@ public class LeagueActivity extends AppCompatActivity implements LoaderManager.L
         MyApp myApp = (MyApp)getApplicationContext();
         MainPageSelection mainPageSelection = myApp.getCurrentSelection();
         leagueTitle.setText(mainPageSelection.getName());
+        leagueID = mainPageSelection.getId();
+        String leagueName = mainPageSelection.getName();
 
         Button stats = findViewById(R.id.statistics);
         stats.setOnClickListener(new View.OnClickListener() {
@@ -174,7 +178,7 @@ public class LeagueActivity extends AppCompatActivity implements LoaderManager.L
         Intent intent = new Intent(LeagueActivity.this, MatchupActivity.class);
         getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, null, null);
         getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, null, null);
-        SharedPreferences savedGamePreferences = getSharedPreferences("info", MODE_PRIVATE);
+        SharedPreferences savedGamePreferences = getSharedPreferences(leagueID, MODE_PRIVATE);
         SharedPreferences.Editor editor = savedGamePreferences.edit();
         editor.clear();
         editor.commit();
@@ -186,6 +190,7 @@ public class LeagueActivity extends AppCompatActivity implements LoaderManager.L
     }
 
     public void getDummyData(){
+
         String[] listOfPlayers = {"Purp1", "Purp2", "Purp3", "Purp4", "Purp5",
                 "Purp6", "Purp7", "Purp8", "Purp9", "Purp10"};
 
@@ -232,7 +237,6 @@ public class LeagueActivity extends AppCompatActivity implements LoaderManager.L
         for (String team : listOfTeams) {
             ContentValues values = new ContentValues();
             values.put(StatsEntry.COLUMN_NAME, team);
-            values.put(StatsEntry.COLUMN_LEAGUE, "ISL");
             getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
         }
     }

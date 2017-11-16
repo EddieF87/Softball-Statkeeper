@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -20,6 +21,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.TeamListAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract;
@@ -45,7 +47,6 @@ public class MatchupActivity extends AppCompatActivity implements LoaderManager.
 
 
     //TODO add menu options so I can put "Create new team there" and have more space
-    //TODO fix bench/lineup text overlap
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +54,9 @@ public class MatchupActivity extends AppCompatActivity implements LoaderManager.
         setContentView(R.layout.activity_set_teams);
         awayTeamSpinner = findViewById(R.id.awayteam_spinner);
         homeTeamSpinner = findViewById(R.id.hometeam_spinner);
+
+
+
 
         rvLeft = findViewById(R.id.rv_left_team);
         rvRight = findViewById(R.id.rv_right_team);
@@ -128,7 +132,10 @@ public class MatchupActivity extends AppCompatActivity implements LoaderManager.
             Player player = lineup.get(i);
             long playerId = player.getPlayerId();
             String playerName = player.getName();
+            String firestoreID = player.getFirestoreID();
+
             ContentValues values = new ContentValues();
+            values.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
             values.put(StatsEntry.COLUMN_PLAYERID, playerId);
             values.put(StatsEntry.COLUMN_NAME, playerName);
             values.put(StatsEntry.COLUMN_TEAM, teamSelection);
@@ -205,7 +212,7 @@ public class MatchupActivity extends AppCompatActivity implements LoaderManager.
         ArrayList<Player> lineup = new ArrayList<>();
         List<Player> benchList = new ArrayList<>();
         try {
-            String[] projection = new String[]{StatsContract.StatsEntry._ID, StatsContract.StatsEntry.COLUMN_ORDER, StatsEntry.COLUMN_NAME};
+            String[] projection = new String[]{StatsContract.StatsEntry._ID, StatsContract.StatsEntry.COLUMN_ORDER, StatsEntry.COLUMN_NAME, StatsEntry.COLUMN_FIRESTORE_ID};
             String selection = StatsContract.StatsEntry.COLUMN_TEAM + "=?";
             String[] selectionArgs = new String[]{team};
             String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
@@ -216,15 +223,21 @@ public class MatchupActivity extends AppCompatActivity implements LoaderManager.
                 int nameIndex = cursor.getColumnIndex(StatsContract.StatsEntry.COLUMN_NAME);
                 int orderIndex = cursor.getColumnIndex(StatsEntry.COLUMN_ORDER);
                 int idIndex = cursor.getColumnIndex(StatsEntry._ID);
+                int firestoreIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
+
                 String playerName = cursor.getString(nameIndex);
                 int id = cursor.getInt(idIndex);
+
+                String  firestoreID = cursor.getString(firestoreIDIndex);
+
                 int order = cursor.getInt(orderIndex);
                 if (order < 50) {
-                    lineup.add(new Player(playerName, team, id));
+                    lineup.add(new Player(playerName, team, id, firestoreID));
                 } else {
-                    benchList.add(new Player(playerName, team, id));
+                    benchList.add(new Player(playerName, team, id, firestoreID));
                 }
             }
+            cursor.close();
             addToBench(benchList, team);
             return lineup;
         } catch (Exception e) {
@@ -282,8 +295,10 @@ public class MatchupActivity extends AppCompatActivity implements LoaderManager.
         @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         String[] projection = new String[]{StatsContract.StatsEntry._ID, StatsEntry.COLUMN_NAME};
-        String selection = StatsContract.StatsEntry.COLUMN_LEAGUE + "=?";
-        String league = "ISL";
+            MyApp myApp = (MyApp) getApplicationContext();
+            String leagueID = myApp.getCurrentSelection().getId();
+        String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String league = leagueID;
         String[] selectionArgs = new String[]{league};
         return new CursorLoader(this, StatsContract.StatsEntry.CONTENT_URI_TEAMS, projection,
                 selection, selectionArgs, null);

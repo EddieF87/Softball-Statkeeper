@@ -12,13 +12,14 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.example.android.scorekeepdraft1.activities.MyApp;
+import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -80,6 +81,13 @@ public class StatsProvider extends ContentProvider {
     @Override
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection,
                         @Nullable String[] selectionArgs, @Nullable String sortOrder) {
+        MyApp myApp = (MyApp)getContext().getApplicationContext();
+        String leagueID = myApp.getCurrentSelection().getId();
+        if(selection == null || selection.isEmpty()){
+            selection = StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
+        } else {
+            selection = selection + " AND " + StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
+        }
         SQLiteDatabase database = mOpenHelper.getReadableDatabase();
         Cursor cursor;
         String table;
@@ -150,12 +158,14 @@ public class StatsProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
+        MyApp myApp = (MyApp)getContext().getApplicationContext();
+        String leagueID = myApp.getCurrentSelection().getId();
+        values.put(StatsEntry.COLUMN_LEAGUE_ID, leagueID);
+
         if (sqlSafeguard(values)) {
             Toast.makeText(getContext(), "Please only enter letters, numbers, -, and _", Toast.LENGTH_SHORT).show();
             return null;
         }
-        MyApp myApp = (MyApp)getContext().getApplicationContext();
-        String leagueID = myApp.getCurrentSelection().getId();
 
         String table;
         final int match = sUriMatcher.match(uri);
@@ -185,6 +195,8 @@ public class StatsProvider extends ContentProvider {
                 values.put(StatsEntry.COLUMN_FIRESTORE_ID, playerDoc.getId());
                 break;
             case TEAMS:
+                String leagueName = myApp.getCurrentSelection().getName();
+                values.put(StatsEntry.COLUMN_LEAGUE, leagueName);
                 if (containsName(StatsEntry.CONTENT_URI_TEAMS, values, true)) {
                     return null;
                 }
@@ -197,7 +209,9 @@ public class StatsProvider extends ContentProvider {
                 DocumentReference teamDoc = mFirestore.collection(FirestoreAdapter.LEAGUE_COLLECTION)
                         .document(leagueID).collection(FirestoreAdapter.TEAMS_COLLECTION).document();
                 String teamName = values.getAsString(StatsEntry.COLUMN_NAME);
-                teamDoc.update("name", teamName);
+                Map<String, Object> team = new HashMap<>();
+                team.put("name", teamName);
+                teamDoc.set(team, SetOptions.merge());
                 values.put(StatsEntry.COLUMN_FIRESTORE_ID, teamDoc.getId());
                 break;
             case TEMP:
@@ -230,6 +244,14 @@ public class StatsProvider extends ContentProvider {
 
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
+        MyApp myApp = (MyApp)getContext().getApplicationContext();
+        String leagueID = myApp.getCurrentSelection().getId();
+        if(selection == null || selection.isEmpty()){
+            selection = StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
+        } else {
+            selection = selection + " AND " + StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
+        }
+
         SQLiteDatabase database = mOpenHelper.getWritableDatabase();
 
         final int match = sUriMatcher.match(uri);
@@ -308,17 +330,23 @@ public class StatsProvider extends ContentProvider {
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues values,
                       @Nullable String selection, @Nullable String[] selectionArgs) {
-        Log.e(LOG_TAG, "Update attempt for " + uri + "  " + values.getAsString(StatsEntry.COLUMN_NAME));
+        MyApp myApp = (MyApp)getContext().getApplicationContext();
+        String leagueID = myApp.getCurrentSelection().getId();
+        if(selection == null || selection.isEmpty()){
+            selection = StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
+        } else {
+            selection = selection + " AND " + StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
+        }
+
         if (sqlSafeguard(values)) {
             Toast.makeText(getContext(), "Please only enter letters, numbers, -, and _", Toast.LENGTH_SHORT).show();
             return -1;
         }
         String table;
-        final int match = sUriMatcher.match(uri);
         String firestoreID;
         DocumentReference documentReference;
-        MyApp myApp = (MyApp)getContext().getApplicationContext();
-        String leagueID = myApp.getCurrentSelection().getId();
+
+        final int match = sUriMatcher.match(uri);
         switch (match) {
             case PLAYERS:
                 table = StatsEntry.PLAYERS_TABLE_NAME;
@@ -328,12 +356,16 @@ public class StatsProvider extends ContentProvider {
                 long id = ContentUris.parseId(uri);
                 selectionArgs = new String[]{String.valueOf(id)};
                 table = StatsEntry.PLAYERS_TABLE_NAME;
-                if (containsName(StatsEntry.CONTENT_URI_PLAYERS, values, false)) {
+                if (values.containsKey("sync")) {
+                    values.remove("sync");
+                } else if (containsName(StatsEntry.CONTENT_URI_PLAYERS, values, false)) {
                     return -1;
                 }
                 firestoreID = values.getAsString(StatsEntry.COLUMN_FIRESTORE_ID);
+                mFirestore = FirebaseFirestore.getInstance();
                 documentReference = mFirestore.collection(FirestoreAdapter.LEAGUE_COLLECTION).document(leagueID)
                         .collection(FirestoreAdapter.PLAYERS_COLLECTION).document(firestoreID);
+                values.remove(StatsEntry.COLUMN_FIRESTORE_ID);
                 if (values.containsKey(StatsEntry.COLUMN_NAME)) {
                     String playerName = values.getAsString(StatsEntry.COLUMN_NAME);
                     documentReference.update("name", playerName);
@@ -349,13 +381,17 @@ public class StatsProvider extends ContentProvider {
                 selection = StatsEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 table = StatsEntry.TEAMS_TABLE_NAME;
-                if (containsName(StatsEntry.CONTENT_URI_TEAMS, values, true)) {
+                if (values.containsKey("sync")) {
+                    values.remove("sync");
+                } else if (containsName(StatsEntry.CONTENT_URI_TEAMS, values, true)) {
                     return -1;
                 }
                 if (values.containsKey(StatsEntry.COLUMN_NAME)) {
                     firestoreID = values.getAsString(StatsEntry.COLUMN_FIRESTORE_ID);
+                    mFirestore = FirebaseFirestore.getInstance();
                     documentReference = mFirestore.collection(FirestoreAdapter.LEAGUE_COLLECTION).document(leagueID)
                             .collection(FirestoreAdapter.TEAMS_COLLECTION).document(firestoreID);
+                    values.remove(StatsEntry.COLUMN_FIRESTORE_ID);
                     String teamName = values.getAsString(StatsEntry.COLUMN_NAME);
                     documentReference.update("name", teamName);
                 }
@@ -381,14 +417,23 @@ public class StatsProvider extends ContentProvider {
         }
         SQLiteDatabase database = mOpenHelper.getWritableDatabase();
         int rowsUpdated = database.update(table, values, selection, selectionArgs);
+        Log.d(LOG_TAG, " row table " + table + "   selectionargs " + Arrays.toString(selectionArgs));
+
+
         if (rowsUpdated != 0) {
             getContext().getContentResolver().notifyChange(uri, null);
+        } else {
+            Log.d(LOG_TAG, "NRFCUVHURCCUJUJC)");
         }
         return rowsUpdated;
     }
 
 
     public boolean containsName(Uri uri, ContentValues values, boolean isTeam) {
+        MyApp myApp = (MyApp)getContext().getApplicationContext();
+        String leagueID = myApp.getCurrentSelection().getId();
+        String selection = StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
+
         if (values.containsKey(StatsEntry.COLUMN_NAME)) {
             String name = values.getAsString(StatsEntry.COLUMN_NAME);
             if (name == null || name.trim().isEmpty()) {
@@ -396,13 +441,14 @@ public class StatsProvider extends ContentProvider {
                 return true;
             }
             String[] projection = new String[]{StatsEntry.COLUMN_NAME};
-            Cursor cursor = query(uri, projection, null, null, null);
+            Cursor cursor = query(uri, projection, selection, null, null);
             while (cursor.moveToNext()) {
                 int nameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_NAME);
                 String teamName = cursor.getString(nameIndex);
                 if (teamName.equals(name)) {
                     if (isTeam) {
                         Toast.makeText(getContext(), "This team already exists!", Toast.LENGTH_SHORT).show();
+                        Log.d(LOG_TAG, teamName + " already exists.");
                     } else {
                         Toast.makeText(getContext(), "This player already exists!", Toast.LENGTH_SHORT).show();
                     }
@@ -411,8 +457,9 @@ public class StatsProvider extends ContentProvider {
                 }
             }
             cursor.close();
-        }
+            Log.d(LOG_TAG, name + "is good to go!");
 
+        }
         return false;
     }
 

@@ -15,6 +15,7 @@
         app:srcCompat="@drawable/sand"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginTop="0dp"
+        android:scaleType="fitCenter"
         />
 
     <TextView
@@ -28,7 +29,9 @@
         android:background="@drawable/homeplate"
         app:layout_constraintBottom_toBottomOf="@+id/infield"
         app:layout_constraintLeft_toLeftOf="@+id/infield"
-        app:layout_constraintRight_toRightOf="@+id/infield" />
+        app:layout_constraintRight_toRightOf="@+id/infield"
+        android:scaleType="centerInside"
+        />
 
     <TextView
         android:id="@+id/first_display"
@@ -64,6 +67,31 @@
         app:layout_constraintRight_toRightOf="@+id/infield"
         app:layout_constraintTop_toBottomOf="@+id/second_display"
         app:layout_constraintVertical_bias="0.50"
-        app:srcCompat="@drawable/batter" />
+        app:srcCompat="@drawable/batter"
+        android:scaleType="centerInside"
+        />
+
+    <ImageView
+        android:id="@+id/trash"
+        android:layout_width="55dp"
+        android:layout_height="55dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/home_display"
+        app:layout_constraintTop_toBottomOf="@+id/first_display"
+        app:srcCompat="@drawable/trash" />
+
+    <TextView
+        android:id="@+id/outText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="Out"
+        android:textColor="#ffffff"
+        app:layout_constraintBottom_toBottomOf="@+id/trash"
+        app:layout_constraintLeft_toLeftOf="@+id/trash"
+        app:layout_constraintRight_toRightOf="@+id/trash" />
 
 </android.support.constraint.ConstraintLayout>

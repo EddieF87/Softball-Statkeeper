@@ -281,6 +281,7 @@ public class StatsActivity extends AppCompatActivity implements LoaderManager.Lo
             int sfIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_SF);
             int gameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_G);
             int idIndex = mCursor.getColumnIndex(StatsEntry._ID);
+            int firestoreIDIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
 
             String player = mCursor.getString(nameIndex);
             String team = mCursor.getString(teamIndex);
@@ -306,7 +307,9 @@ public class StatsActivity extends AppCompatActivity implements LoaderManager.Lo
                 }
             }
             int playerId = mCursor.getInt(idIndex);
-            players.add(new Player(player, team, sgl, dbl, tpl, hr, bb, run, rbi, out, sf, g, teamId, playerId));
+            String  firestoreID = mCursor.getString(firestoreIDIndex);
+
+            players.add(new Player(player, team, sgl, dbl, tpl, hr, bb, run, rbi, out, sf, g, teamId, playerId, firestoreID));
         }
         if (players.isEmpty()) {
                 rv.setVisibility(View.GONE);

@@ -16,6 +16,8 @@
         <item name="android:background">@drawable/custom_radio_button_bg</item>
         <item name="android:button">@android:color/transparent</item>
         <item name="android:gravity">center</item>
+        <item name="android:paddingTop">12dp</item>
+        <item name="android:paddingBottom">12dp</item>
     </style>
 
     <style name="ScoreboardStyle">
@@ -34,6 +36,7 @@
         <item name="android:autoSizeTextType">uniform</item>
         <item name="android:autoSizeMinTextSize">10sp</item>
         <item name="android:autoSizeMaxTextSize">20sp</item>
+        <item name="android:scaleType">centerInside</item>
     </style>
 
     <style name="MatchupEditorLayoutStyle">
@@ -66,7 +69,8 @@
     </style>
 
     <style name="StandingsTitleStyle">
-        <item name="android:layout_width">30dp</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">30</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">16sp</item>
         <item name="android:textStyle">bold</item>

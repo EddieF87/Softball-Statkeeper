@@ -7,7 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.example.android.scorekeepdraft1.activities.MyApp;
+import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.objects.Player;
 import com.example.android.scorekeepdraft1.objects.Team;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
@@ -147,6 +147,8 @@ public class FirestoreAdapter {
                                                                 }
                                                             });
                                                             ContentValues values = new ContentValues();
+                                                            values.put(StatsEntry.COLUMN_NAME, player.getName());
+                                                            values.put(StatsEntry.COLUMN_TEAM, player.getTeam());
                                                             values.put(StatsEntry.COLUMN_1B, player.getSingles());
                                                             values.put(StatsEntry.COLUMN_2B, player.getDoubles());
                                                             values.put(StatsEntry.COLUMN_3B, player.getTriples());
@@ -157,13 +159,14 @@ public class FirestoreAdapter {
                                                             values.put(StatsEntry.COLUMN_OUT, player.getOuts());
                                                             values.put(StatsEntry.COLUMN_SF, player.getSacFlies());
                                                             values.put(StatsEntry.COLUMN_G, player.getGames());
-                                                            String selection = StatsEntry.COLUMN_NAME + "=?";
+                                                            String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
                                                             int rowsUpdated = mContext.getContentResolver().update(StatsEntry.CONTENT_URI_PLAYERS,
-                                                                    values, selection, new String[]{player.getName()});
+                                                                    values, selection, new String[]{playerIdString});
                                                             if (rowsUpdated < 1) {
                                                                 values.put("sync", 0);
                                                                 values.put(StatsEntry.COLUMN_NAME, player.getName());
                                                                 values.put(StatsEntry.COLUMN_TEAM, player.getTeam());
+                                                                values.put(StatsEntry.COLUMN_FIRESTORE_ID, playerIdString);
                                                                 Log.d(TAG, "Insert attempt for player " + playerIdString + player.getName());
                                                                 mContext.getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
                                                             }
@@ -258,18 +261,20 @@ public class FirestoreAdapter {
                                                                 }
                                                             });
                                                             ContentValues values = new ContentValues();
+                                                            values.put(StatsEntry.COLUMN_NAME, team.getName());
                                                             values.put(StatsEntry.COLUMN_WINS, team.getWins());
                                                             values.put(StatsEntry.COLUMN_LOSSES, team.getLosses());
                                                             values.put(StatsEntry.COLUMN_TIES, team.getTies());
                                                             values.put(StatsEntry.COLUMN_RUNSFOR, team.getTotalRunsScored());
                                                             values.put(StatsEntry.COLUMN_RUNSAGAINST, team.getTotalRunsAllowed());
-                                                            String selection = StatsEntry.COLUMN_NAME + "=?";
+                                                            String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
+                                                            Log.d(TAG, "test:  " + teamIdString +  "   " + team.getTeamId());
                                                             int rowsUpdated = mContext.getContentResolver().update(StatsEntry.CONTENT_URI_TEAMS,
                                                                     values, selection, new String[]{teamIdString});
                                                             if (rowsUpdated < 1) {
                                                                 values.put("sync", 0);
-                                                                values.put(StatsEntry.COLUMN_LEAGUE, "ISL");
                                                                 values.put(StatsEntry.COLUMN_NAME, team.getName());
+                                                                values.put(StatsEntry.COLUMN_FIRESTORE_ID, teamIdString);
                                                                 Log.d(TAG, "Insert attempt for team " + teamIdString + team.getName());
                                                                 mContext.getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
                                                             }

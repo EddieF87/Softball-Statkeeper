@@ -10,26 +10,25 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <application
-        android:name=".activities.MyApp"
+        android:name=".MyApp"
         android:allowBackup="true"
         android:icon="@mipmap/baseballtest"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/baseballtest"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-
+        android:theme="@style/AppTheme"
+        android:windowSoftInputMode="stateHidden|adjustResize">
         <activity android:name=".activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".activities.LeagueActivity"
-            android:parentActivityName=".activities.MainActivity"
-            android:launchMode="singleTask">
-        </activity>
+            android:launchMode="singleTask"
+            android:parentActivityName=".activities.MainActivity"></activity>
         <activity
             android:name=".activities.GameActivity"
             android:parentActivityName=".activities.LeagueActivity"
@@ -37,7 +36,8 @@
         <activity
             android:name=".activities.StandingsActivity"
             android:label="STANDINGS"
-            android:parentActivityName=".activities.LeagueActivity" />
+            android:parentActivityName=".activities.LeagueActivity"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
             android:name=".activities.StatsActivity"
             android:label="PLAYER STATS"
@@ -54,7 +54,9 @@
         <activity
             android:name=".activities.PlayerPageActivity"
             android:parentActivityName=".activities.StatsActivity" />
-        <activity android:name=".activities.TeamPageActivity" />
+        <activity
+            android:name=".activities.TeamPageActivity"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
             android:name=".activities.BoxScoreActivity"
             android:label="Box Score"
@@ -65,6 +67,8 @@
             android:name=".data.StatsProvider"
             android:authorities="com.example.android.scorekeepdraft1"
             android:exported="false" />
+
+        <activity android:name=".activities.TeamGameActivity"></activity>
     </application>
 
 </manifest>

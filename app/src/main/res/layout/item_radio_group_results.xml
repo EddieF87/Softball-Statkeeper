@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/group1"
+        android:layout_width="0dp"
+        android:layout_height="45dp"
+        android:layout_marginBottom="0dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/group2"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <RadioButton
+            android:id="@+id/single"
+            style="@style/RadioButtonStyle"
+            android:onClick="onRadioButtonClicked"
+            android:text="@string/_1b" />
+
+        <RadioButton
+            android:id="@+id/dbl"
+            style="@style/RadioButtonStyle"
+            android:text="@string/_2b" />
+
+        <RadioButton
+            android:id="@+id/triple"
+            style="@style/RadioButtonStyle"
+            android:text="@string/_3b" />
+
+        <RadioButton
+            android:id="@+id/hr"
+            style="@style/RadioButtonStyle"
+            android:text="@string/hr" />
+
+    </RadioGroup>
+
+    <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/group2"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_marginBottom="24dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="@+id/group1"
+        app:layout_constraintRight_toRightOf="@+id/group1">
+
+        <RadioButton
+            android:id="@+id/out"
+            style="@style/RadioButtonStyle"
+            android:text="@string/out" />
+
+        <RadioButton
+            android:id="@+id/error"
+            style="@style/RadioButtonStyle"
+            android:text="@string/error" />
+
+        <RadioButton
+            android:id="@+id/sf"
+            style="@style/RadioButtonStyle"
+            android:text="@string/sf" />
+
+        <RadioButton
+            android:id="@+id/fc"
+            style="@style/RadioButtonStyle"
+            android:text="@string/fc" />
+
+        <RadioButton
+            android:id="@+id/bb"
+            style="@style/RadioButtonStyle"
+            android:text="@string/bb" />
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/reset"
+        android:layout_width="150dp"
+        android:layout_height="51dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:elevation="5dp"
+        android:stateListAnimator="@null"
+        android:text="Reset Bases?"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toTopOf="@+id/group1"
+        app:layout_constraintLeft_toLeftOf="@+id/group2" />
+
+    <Button
+        android:id="@+id/submit"
+        android:layout_width="150dp"
+        android:layout_height="51dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginRight="15dp"
+        android:elevation="5dp"
+        android:stateListAnimator="@null"
+        android:text="Submit Play"
+        android:textSize="12sp"
+        app:layout_constraintLeft_toRightOf="@+id/reset"
+        app:layout_constraintRight_toRightOf="@+id/group2"
+        app:layout_constraintTop_toTopOf="@+id/reset" />
+
+</android.support.constraint.ConstraintLayout>
