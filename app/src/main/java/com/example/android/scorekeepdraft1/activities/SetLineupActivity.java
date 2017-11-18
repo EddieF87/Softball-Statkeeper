@@ -108,6 +108,9 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
         initRightRecyclerView();
 
         Button lineupSubmitButton = findViewById(R.id.lineup_submit);
+        if (selectionType.equals("Team")) {
+            lineupSubmitButton.setText(R.string.start);
+        }
         lineupSubmitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -174,6 +177,7 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
         }
         addTeamToTempDB();
         Intent intent = new Intent(SetLineupActivity.this, TeamGameActivity.class);
+        intent.putExtra("isHome", isHome);
         startActivity(intent);
         finish();
     }

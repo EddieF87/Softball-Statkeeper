@@ -1466,6 +1466,8 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                 b.putString("awayTeam", awayTeamName);
                 b.putString("homeTeam", homeTeamName);
                 b.putInt("totalInnings", totalInnings);
+                b.putInt("awayTeamRuns", awayTeamRuns);
+                b.putInt("homeTeamRuns", homeTeamRuns);
                 intent.putExtras(b);
                 startActivity(intent);
                 break;

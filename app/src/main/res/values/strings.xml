@@ -109,4 +109,5 @@
     <string name="add_players">Add Players</string>
     <string name="home">Home</string>
     <string name="away">Away</string>
+    <string name="start">Start</string>
 </resources>
