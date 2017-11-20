@@ -28,10 +28,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -63,7 +66,6 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
     private List<String> mLineup;
     private List<String> mBench;
     private String mTeam;
-    private Cursor mCursor;
 
 
     //TODO add player from free agency/other teams
@@ -89,14 +91,15 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
         String selection = StatsEntry.COLUMN_TEAM + "=?";
         String[] selectionArgs = new String[]{mTeam};
         String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
-        mCursor = getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS, projection,
+
+        Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS, projection,
                 selection, selectionArgs, sortOrder);
 
-        while (mCursor.moveToNext()) {
-            int nameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
-            int orderIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_ORDER);
-            String playerName = mCursor.getString(nameIndex);
-            int playerOrder = mCursor.getInt(orderIndex);
+        while (cursor.moveToNext()) {
+            int nameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_NAME);
+            int orderIndex = cursor.getColumnIndex(StatsEntry.COLUMN_ORDER);
+            String playerName = cursor.getString(nameIndex);
+            int playerOrder = cursor.getInt(orderIndex);
             if (playerOrder > 50) {
                 mBench.add(playerName);
             } else {
@@ -110,12 +113,27 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
         Button lineupSubmitButton = findViewById(R.id.lineup_submit);
         if (selectionType.equals("Team")) {
             lineupSubmitButton.setText(R.string.start);
+            View teamNameDisplay = findViewById(R.id.team_name_display);
+            teamNameDisplay.setVisibility(View.GONE);
+            View radioButtonGroup = findViewById(R.id.radiobtns_away_or_home_team);
+            radioButtonGroup.setVisibility(View.VISIBLE);
         }
         lineupSubmitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (selectionType.equals("Team")) {
-                    startGameDialog();
+                    RadioGroup radioGroup = findViewById(R.id.radiobtns_away_or_home_team);
+                    int id = radioGroup.getCheckedRadioButtonId();
+                    switch (id) {
+                        case R.id.radio_away:
+                            startGame(false);
+                            break;
+                        case R.id.radio_home:
+                            startGame(true);
+                            break;
+                        default:
+                            Log.e("lineup", "Radiobutton error");
+                    }
                 } else {
                     updateAndSubmitLineup();
                     finish();
@@ -142,7 +160,7 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
                 .setPositiveButton(R.string.home, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        if(dialogInterface != null) {
+                        if (dialogInterface != null) {
                             dialogInterface.dismiss();
                         }
                         startGame(true);
@@ -151,7 +169,7 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
                 .setNeutralButton(R.string.away, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        if(dialogInterface != null) {
+                        if (dialogInterface != null) {
                             dialogInterface.dismiss();
                         }
                         startGame(false);
@@ -160,7 +178,7 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        if(dialogInterface != null) {
+                        if (dialogInterface != null) {
                             dialogInterface.dismiss();
                         }
                     }
@@ -182,10 +200,10 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
         finish();
     }
 
-    private void addTeamToTempDB(){
+    private void addTeamToTempDB() {
         List<Player> lineup = getLineup();
         ContentResolver contentResolver = getContentResolver();
-        for(int i = 0; i < lineup.size(); i++) {
+        for (int i = 0; i < lineup.size(); i++) {
             Player player = lineup.get(i);
             long playerId = player.getPlayerId();
             String playerName = player.getName();
@@ -196,12 +214,12 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
             values.put(StatsEntry.COLUMN_PLAYERID, playerId);
             values.put(StatsEntry.COLUMN_NAME, playerName);
             values.put(StatsEntry.COLUMN_TEAM, mTeam);
-            values.put(StatsEntry.COLUMN_ORDER, i+1);
+            values.put(StatsEntry.COLUMN_ORDER, i + 1);
             contentResolver.insert(StatsEntry.CONTENT_URI_TEMP, values);
         }
     }
 
-    private ArrayList<Player> getLineup(){
+    private ArrayList<Player> getLineup() {
         ArrayList<Player> lineup = new ArrayList<>();
         try {
             String[] projection = new String[]{StatsContract.StatsEntry._ID, StatsContract.StatsEntry.COLUMN_ORDER, StatsEntry.COLUMN_NAME, StatsEntry.COLUMN_FIRESTORE_ID};
@@ -304,9 +322,12 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
 
 
     @Override
-    public void setEmptyListTop(boolean visibility) {}
+    public void setEmptyListTop(boolean visibility) {
+    }
+
     @Override
-    public void setEmptyListBottom(boolean visibility) {}
+    public void setEmptyListBottom(boolean visibility) {
+    }
 
     public LineupListAdapter getLeftListAdapter() {
         return leftListAdapter;

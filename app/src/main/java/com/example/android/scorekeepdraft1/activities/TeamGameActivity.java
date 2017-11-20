@@ -1,5 +1,6 @@
 package com.example.android.scorekeepdraft1.activities;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ContentUris;
@@ -11,6 +12,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -32,6 +34,7 @@ import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
+import com.example.android.scorekeepdraft1.fragments.FinishGameFragment;
 import com.example.android.scorekeepdraft1.gamelog.BaseLog;
 import com.example.android.scorekeepdraft1.gamelog.PlayerLog;
 import com.example.android.scorekeepdraft1.gamelog.TeamLog;
@@ -48,11 +51,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class TeamGameActivity extends AppCompatActivity {
+public class TeamGameActivity extends AppCompatActivity implements FinishGameFragment.OnFragmentInteractionListener{
 
     private Cursor playerCursor;
     private Cursor gameCursor;
     private FirebaseFirestore mFirestore;
+    private static final String DIALOG_FINISH = "DialogFinish";
+    private static final int REQUEST_FINISH = 0;
 
     private TextView scoreboard;
     private TextView nowBatting;
@@ -146,7 +151,7 @@ public class TeamGameActivity extends AppCompatActivity {
     private int playerOutIndex;
     private int playerRunIndex;
     private int rbiIndex;
-    private int totalInnings = 9;
+    private int totalInnings = 1;
 
     private boolean isHome;
     private boolean isTop;
@@ -194,14 +199,14 @@ public class TeamGameActivity extends AppCompatActivity {
                 null, null, null);
         playerCursor.moveToFirst();
         getPlayerColumnIndexes();
-        //todo if myTeam = home, hometeamname =, else awayteamname =
+
         if(isHome) {
             homeTeamName = myTeamName;
-            awayTeamName = "XXXXX";
+            awayTeamName = "Away Team";
             myTeam = setTeam(homeTeamName);
         } else {
             awayTeamName = myTeamName;
-            homeTeamName = "XXXXX";
+            homeTeamName = "Home Team";
             myTeam = setTeam(awayTeamName);
         }
         setTitle(awayTeamName + " @ " + homeTeamName);
@@ -464,12 +469,12 @@ public class TeamGameActivity extends AppCompatActivity {
 
     private void nextBatter() {
         if (!isTop && finalInning && homeTeamRuns > awayTeamRuns) {
-            showEndGameConfirmationDialog();
+            showFinishGameDialog();
             return;
         }
         if (gameOuts >= 3) {
             if (!isTop && finalInning && awayTeamRuns > homeTeamRuns) {
-                showEndGameConfirmationDialog();
+                showFinishGameDialog();
                 return;
             } else {
                 nextInning();
@@ -655,7 +660,7 @@ public class TeamGameActivity extends AppCompatActivity {
         int playerOuts = tOuts + pOuts;
         double avg = calculateAverage(singles, doubles, triples, displayHR, playerOuts);
 
-        String nowBattingString = "Now batting: " + name;
+        String nowBattingString = getString(R.string.nowbatting) + " " + name;
         nowBatting.setText(nowBattingString);
         String avgDisplayText = "AVG: " + formatter.format(avg);
         String hrDisplayText = "HR: " + displayHR;
@@ -683,7 +688,7 @@ public class TeamGameActivity extends AppCompatActivity {
             }
         } else {
             if (finalInning && homeTeamRuns > awayTeamRuns) {
-                showEndGameConfirmationDialog();
+                showFinishGameDialog();
                 return;
             }
             if (isHome) {
@@ -733,7 +738,7 @@ public class TeamGameActivity extends AppCompatActivity {
             homeTeamRuns++;
             if (finalInning && homeTeamRuns > awayTeamRuns) {
                 setScoreDisplay();
-                showEndGameConfirmationDialog();
+                showFinishGameDialog();
             }
         }
         otherTeamRuns++;
@@ -794,28 +799,31 @@ public class TeamGameActivity extends AppCompatActivity {
         startActivity(finishGame);
     }
 
-    private void showEndGameConfirmationDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(R.string.end_game_msg);
-        builder.setPositiveButton(R.string.end_msg, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                endGame();
-            }
-        });
-        builder.setNegativeButton(R.string.undo, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                updateGameLogs();
-                undoPlay();
-                redoEndsGame = true;
-                if (dialog != null) {
-                    dialog.dismiss();
-                }
-            }
-        });
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
-    }
+    private void showFinishGameDialog() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FinishGameFragment dialog = FinishGameFragment.newInstance();
+        dialog.show(fragmentManager, DIALOG_FINISH);
 
+//        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//        builder.setMessage(R.string.end_game_msg);
+//        builder.setPositiveButton(R.string.end_msg, new DialogInterface.OnClickListener() {
+//            public void onClick(DialogInterface dialog, int id) {
+//                endGame();
+//            }
+//        });
+//        builder.setNegativeButton(R.string.undo, new DialogInterface.OnClickListener() {
+//            public void onClick(DialogInterface dialog, int id) {
+//                updateGameLogs();
+//                undoPlay();
+//                redoEndsGame = true;
+//                if (dialog != null) {
+//                    dialog.dismiss();
+//                }
+//            }
+//        });
+//        AlertDialog alertDialog = builder.create();
+//        alertDialog.show();
+    }
 
     private void addTeamStatsToDB(String teamName, int teamRuns, int otherTeamRuns) {
         WriteBatch teamBatch = mFirestore.batch();
@@ -1177,7 +1185,7 @@ public class TeamGameActivity extends AppCompatActivity {
         setBaseListeners();
         tempOuts = 0;
         tempRuns = 0;
-        String outs = gameOuts + "outs";
+        String outs = gameOuts + " outs";
         outsDisplay.setText(outs);
         setScoreDisplay();
     }
@@ -1200,7 +1208,7 @@ public class TeamGameActivity extends AppCompatActivity {
         updatePlayerStats(result, 1);
         gameOuts += tempOuts;
         nextBatter();
-        String outs = gameOuts + "outs";
+        String outs = gameOuts + " outs";
         outsDisplay.setText(outs);
 //        Log.d(TAG, " onSubmit  gameouts = " + gameOuts);
     }
@@ -1355,7 +1363,7 @@ public class TeamGameActivity extends AppCompatActivity {
             if (gameCursor.moveToNext()) {
                 gameCursor.moveToPrevious();
             } else {
-                showEndGameConfirmationDialog();
+                showFinishGameDialog();
             }
         }
         if (isAlternate){
@@ -1421,6 +1429,17 @@ public class TeamGameActivity extends AppCompatActivity {
         currentRunsLog.add(run4);
     }
 
+    @Override
+    public void onFragmentInteraction(boolean isOver) {
+        if (isOver) {
+            endGame();
+        } else {
+            updateGameLogs();
+            undoPlay();
+            redoEndsGame = true;
+        }
+    }
+
     private class MyDragListener implements View.OnDragListener {
         @Override
         public boolean onDrag(View v, final DragEvent event) {
@@ -1474,7 +1493,7 @@ public class TeamGameActivity extends AppCompatActivity {
                             }
                         }
                         tempOuts++;
-                        String sumOuts = gameOuts + tempOuts + "outs";
+                        String sumOuts = gameOuts + tempOuts + " outs";
                         outsDisplay.setText(sumOuts);
                     } else {
                         if (eventView instanceof TextView) {

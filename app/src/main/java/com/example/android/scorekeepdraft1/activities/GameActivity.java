@@ -423,12 +423,12 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
 
     private void nextBatter() {
         if (currentTeam == homeTeam && finalInning && homeTeamRuns > awayTeamRuns) {
-            showEndGameConfirmationDialog();
+            showFinishGameDialog();
             return;
         }
         if (gameOuts >= 3) {
             if (currentTeam == homeTeam && finalInning && awayTeamRuns > homeTeamRuns) {
-                showEndGameConfirmationDialog();
+                showFinishGameDialog();
                 return;
             } else {
                 nextInning();
@@ -544,7 +544,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         increaseLineupIndex();
         if (currentTeam == awayTeam) {
             if (finalInning && homeTeamRuns > awayTeamRuns) {
-                showEndGameConfirmationDialog();
+                showFinishGameDialog();
                 return;
             }
             currentTeam = homeTeam;
@@ -568,7 +568,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         startActivity(finishGame);
     }
 
-    private void showEndGameConfirmationDialog() {
+    private void showFinishGameDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.end_game_msg);
         builder.setPositiveButton(R.string.end_msg, new DialogInterface.OnClickListener() {
@@ -848,7 +848,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         int playerOuts = tOuts + pOuts;
         double avg = calculateAverage(singles, doubles, triples, displayHR, playerOuts);
 
-        String nowBattingString = "Now batting: " + name;
+        String nowBattingString = getString(R.string.nowbatting) + " " + name;
         nowBatting.setText(nowBattingString);
         String avgDisplayText = "AVG: " + formatter.format(avg);
         String hrDisplayText = "HR: " + displayHR;
@@ -1009,7 +1009,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         setBaseListeners();
         tempOuts = 0;
         tempRuns = 0;
-        String outs = gameOuts + "outs";
+        String outs = gameOuts + " outs";
         outsDisplay.setText(outs);
         setScoreDisplay();
     }
@@ -1041,7 +1041,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         updatePlayerStats(result, 1);
         gameOuts += tempOuts;
         nextBatter();
-        String outs = gameOuts + "outs";
+        String outs = gameOuts + " outs";
         outsDisplay.setText(outs);
     }
 
@@ -1163,7 +1163,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             if (gameCursor.moveToNext()) {
                 gameCursor.moveToPrevious();
             } else {
-                showEndGameConfirmationDialog();
+                showFinishGameDialog();
             }
         }
     }
@@ -1284,7 +1284,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                             }
                         }
                         tempOuts++;
-                        String sumOuts = gameOuts + tempOuts + "outs";
+                        String sumOuts = gameOuts + tempOuts + " outs";
                         outsDisplay.setText(sumOuts);
                     } else {
                         if (eventView instanceof TextView) {

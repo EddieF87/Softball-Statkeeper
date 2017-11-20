@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -11,13 +10,19 @@
     <TextView
         android:id="@+id/scoreboard"
         style="@style/ScoreboardStyle"
+        android:layout_width="0dp"
+        android:layout_marginEnd="24dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginStart="8dp"
-        tools:text="@string/scoreboard"
+        android:layout_marginTop="4dp"
+        android:autoSizeMinTextSize="10sp"
+        android:autoSizeTextType="uniform"
+        android:maxLines="1"
         android:textAppearance="@style/TextAppearance.AppCompat.Headline"
         android:textSize="18sp"
+        app:layout_constraintEnd_toStartOf="@+id/inning_top_arrow"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Juggernauts 5  Home Team 10" />
 
     <TextView
         android:id="@+id/nowbatting"
@@ -34,9 +39,9 @@
         android:id="@+id/inning_top_arrow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="32dp"
+        android:layout_marginEnd="16dp"
         android:tint="#FFD600"
-        app:layout_constraintLeft_toRightOf="@+id/scoreboard"
+        app:layout_constraintEnd_toStartOf="@+id/num_of_outs"
         app:layout_constraintTop_toTopOf="@+id/scoreboard"
         app:srcCompat="@android:drawable/arrow_up_float" />
 
@@ -56,57 +61,53 @@
         android:id="@+id/inning"
         style="@style/ScoreboardStyle"
         android:layout_marginTop="8dp"
-        tools:text="1"
         android:textStyle="bold"
         app:layout_constraintLeft_toLeftOf="@+id/inning_top_arrow"
         app:layout_constraintRight_toRightOf="@+id/inning_top_arrow"
-        app:layout_constraintTop_toBottomOf="@+id/inning_top_arrow" />
+        app:layout_constraintTop_toBottomOf="@+id/inning_top_arrow"
+        tools:text="1" />
 
     <TextView
         android:id="@+id/num_of_outs"
         style="@style/ScoreboardStyle"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="24dp"
         android:layout_marginRight="8dp"
-        android:layout_marginStart="24dp"
-        tools:text="0 outs"
-        app:layout_constraintLeft_toRightOf="@+id/inning"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/inning" />
+        app:layout_constraintTop_toTopOf="@+id/inning"
+        tools:text="0 outs" />
 
     <TextView
         android:id="@+id/hrdisplay"
         style="@style/ScoreboardStyle"
         android:layout_marginLeft="16dp"
         android:layout_marginStart="16dp"
-        tools:text="playerHR"
         app:layout_constraintLeft_toRightOf="@+id/avgdisplay"
-        app:layout_constraintTop_toTopOf="@+id/avgdisplay" />
+        app:layout_constraintTop_toTopOf="@+id/avgdisplay"
+        tools:text="playerHR" />
 
     <TextView
         android:id="@+id/rbidisplay"
         style="@style/ScoreboardStyle"
         android:layout_marginLeft="16dp"
         android:layout_marginStart="16dp"
-        tools:text="playerRBI"
         app:layout_constraintLeft_toRightOf="@+id/hrdisplay"
-        app:layout_constraintTop_toTopOf="@+id/hrdisplay" />
+        app:layout_constraintTop_toTopOf="@+id/hrdisplay"
+        tools:text="playerRBI" />
 
     <TextView
         android:id="@+id/rundisplay"
         style="@style/ScoreboardStyle"
         android:layout_marginLeft="16dp"
         android:layout_marginStart="16dp"
-        tools:text="playerRuns"
         app:layout_constraintLeft_toRightOf="@+id/rbidisplay"
-        app:layout_constraintTop_toTopOf="@+id/rbidisplay" />
+        app:layout_constraintTop_toTopOf="@+id/rbidisplay"
+        tools:text="playerRuns" />
 
     <TextView
         android:id="@+id/avgdisplay"
         style="@style/ScoreboardStyle"
-        android:layout_marginTop="16dp"
-        tools:text=".XXX"
+        android:layout_marginTop="12dp"
         app:layout_constraintLeft_toLeftOf="@+id/nowbatting"
-        app:layout_constraintTop_toBottomOf="@+id/nowbatting" />
+        app:layout_constraintTop_toBottomOf="@+id/nowbatting"
+        tools:text=".XXX" />
 
 </android.support.constraint.ConstraintLayout>

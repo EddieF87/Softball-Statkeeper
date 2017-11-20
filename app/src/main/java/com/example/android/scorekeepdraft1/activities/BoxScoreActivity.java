@@ -77,10 +77,11 @@ public class BoxScoreActivity extends AppCompatActivity implements LoaderManager
         ListView awayListView = findViewById(R.id.away_players_listview);
         ListView homeListView = findViewById(R.id.home_players_listview);
 
-        String titleString = awayTeam + "  " + awayTeamRuns + "      " + homeTeam + "  " + homeTeamRuns;
-        setTitle(titleString);
+        String headerString = awayTeam + " " + awayTeamRuns + "   " + homeTeam + " " + homeTeamRuns;
 
         if (type.equals("Team")) {
+            TextView boxscoreHeader = findViewById(R.id.boxscore_header);
+            boxscoreHeader.setText(headerString);
             View boxscore = findViewById(R.id.relativelayout_boxscore);
             boxscore.setVisibility(View.GONE);
             teamName = mainPageSelection.getName();
@@ -96,6 +97,7 @@ public class BoxScoreActivity extends AppCompatActivity implements LoaderManager
 
         awayNameView.setText(awayTeam);
         homeNameView.setText(homeTeam);
+        setTitle(headerString);
 
         awayAdapter = new BoxScorePlayerCursorAdapter(this, null);
         awayListView.setAdapter(awayAdapter);

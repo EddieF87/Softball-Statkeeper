@@ -19,7 +19,6 @@
         <RadioButton
             android:id="@+id/single"
             style="@style/RadioButtonStyle"
-            android:onClick="onRadioButtonClicked"
             android:text="@string/_1b" />
 
         <RadioButton

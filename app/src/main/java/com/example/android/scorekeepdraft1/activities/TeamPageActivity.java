@@ -67,15 +67,15 @@ public class TeamPageActivity extends AppCompatActivity implements LoaderManager
         selectionType = mainPageSelection.getType();
         if(selectionType.equals("Team")) {
             setButtons();
-            Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG,
-                    null, null, null, null);
-            Button continueGameButton = findViewById(R.id.btn_continue_game);
-            if (cursor.moveToFirst()) {
-                continueGameButton.setVisibility(View.VISIBLE);
-            } else {
-                continueGameButton.setVisibility(View.INVISIBLE);
-            }
-            cursor.close();
+//            Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG,
+//                    null, null, null, null);
+//            Button continueGameButton = findViewById(R.id.btn_continue_game);
+//            if (cursor.moveToFirst()) {
+//                continueGameButton.setVisibility(View.VISIBLE);
+//            } else {
+//                continueGameButton.setVisibility(View.INVISIBLE);
+//            }
+//            cursor.close();
             teamSelected = mainPageSelection.getName();
             selectionID = mainPageSelection.getName();
         } else {
@@ -100,6 +100,8 @@ public class TeamPageActivity extends AppCompatActivity implements LoaderManager
                 addPlayer();
             }
         });
+
+        getLoaderManager();
     }
 
     @Override
@@ -134,6 +136,7 @@ public class TeamPageActivity extends AppCompatActivity implements LoaderManager
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+
         String selection = null;
         String[] selectionArgs = null;
         Uri uri;
@@ -147,6 +150,7 @@ public class TeamPageActivity extends AppCompatActivity implements LoaderManager
         } else {
             uri = mCurrentTeamUri;
         }
+
         return new CursorLoader(
                 this,
                 uri,
@@ -160,6 +164,7 @@ public class TeamPageActivity extends AppCompatActivity implements LoaderManager
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+
         int wins = 0;
         int losses = 0;
         int ties = 0;
@@ -250,11 +255,25 @@ public class TeamPageActivity extends AppCompatActivity implements LoaderManager
         players.add(new Player("Total", teamSelected, sumSgl, sumDbl, sumTpl, sumHr, sumBb, sumRun, sumRbi, sumOut, sumSf, sumG, 0, ""));
 
         initRecyclerView();
+
+        if(selectionType.equals("Team")) {
+            setButtons();
+            cursor = getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG,
+                    null, null, null, null);
+            Button continueGameButton = findViewById(R.id.btn_continue_game);
+            if (cursor.moveToFirst()) {
+                continueGameButton.setVisibility(View.VISIBLE);
+            } else {
+                continueGameButton.setVisibility(View.INVISIBLE);
+            }
+            cursor.close();
+        }
     }
 
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
+
     }
 
     private void setButtons() {
