@@ -6,4 +6,10 @@
     android:id="@+id/league_view_pager"
     >
 
+    <android.support.design.widget.TabLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:id="@+id/league_tab_layout"/>
+
 </android.support.v4.view.ViewPager>

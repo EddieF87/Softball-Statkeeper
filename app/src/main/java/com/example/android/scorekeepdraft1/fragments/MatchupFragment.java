@@ -1,4 +1,5 @@
-package com.example.android.scorekeepdraft1.activities;
+package com.example.android.scorekeepdraft1.fragments;
+
 
 import android.app.LoaderManager;
 import android.content.ContentResolver;
@@ -8,12 +9,13 @@ import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.SimpleCursorAdapter;
@@ -23,6 +25,8 @@ import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
+import com.example.android.scorekeepdraft1.activities.GameActivity;
+import com.example.android.scorekeepdraft1.activities.SetLineupActivity;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.TeamListAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
@@ -31,7 +35,10 @@ import com.example.android.scorekeepdraft1.objects.Player;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MatchupActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemSelectedListener {
+/**
+ * A simple {@link Fragment} subclass.
+ */
+public class MatchupFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemSelectedListener{
 
     private TeamListAdapter leftListAdapter;
     private TeamListAdapter rightListAdapter;
@@ -46,27 +53,32 @@ public class MatchupActivity extends AppCompatActivity implements LoaderManager.
     private static final int MATCHUP_LOADER = 5;
 
 
-    //TODO add menu options so I can put "Create new team there" and have more space
+    public MatchupFragment() {
+        // Required empty public constructor
+    }
+
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_set_teams);
-        awayTeamSpinner = findViewById(R.id.awayteam_spinner);
-        homeTeamSpinner = findViewById(R.id.hometeam_spinner);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View rootView = inflater.inflate(R.layout.fragment_matchup, container, false);
 
-        rvLeft = findViewById(R.id.rv_left_team);
-        rvRight = findViewById(R.id.rv_right_team);
+        awayTeamSpinner = rootView.findViewById(R.id.awayteam_spinner);
+        homeTeamSpinner = rootView.findViewById(R.id.hometeam_spinner);
 
-        Button editAwayLineup = findViewById(R.id.edit_away_team_button);
-        Button editHomeLineup = findViewById(R.id.edit_home_team_button);
+        rvLeft = rootView.findViewById(R.id.rv_left_team);
+        rvRight = rootView.findViewById(R.id.rv_right_team);
+
+        Button editAwayLineup = rootView.findViewById(R.id.edit_away_team_button);
+        Button editHomeLineup = rootView.findViewById(R.id.edit_home_team_button);
         editAwayLineup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (awayTeamSelection == null) {
                     return;
                 }
-                Intent intent = new Intent(MatchupActivity.this, SetLineupActivity.class);
+                Intent intent = new Intent(getActivity(), SetLineupActivity.class);
                 Bundle b = new Bundle();
                 b.putString("team", awayTeamSelection);
                 intent.putExtras(b);
@@ -79,7 +91,7 @@ public class MatchupActivity extends AppCompatActivity implements LoaderManager.
                 if (homeTeamSelection == null) {
                     return;
                 }
-                Intent intent = new Intent(MatchupActivity.this, SetLineupActivity.class);
+                Intent intent = new Intent(getActivity(), SetLineupActivity.class);
                 Bundle b = new Bundle();
                 b.putString("team", homeTeamSelection);
                 intent.putExtras(b);
@@ -87,35 +99,41 @@ public class MatchupActivity extends AppCompatActivity implements LoaderManager.
             }
         });
 
-        Button startGame = findViewById(R.id.start_game);
+        Button startGame = rootView.findViewById(R.id.start_game);
         startGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (awayTeamSelection == null || homeTeamSelection == null) {
-                    Toast.makeText(MatchupActivity.this, "No teams currently in this league.",
+                    Toast.makeText(getActivity(), "No teams currently in this league.",
                             Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if (awayTeamSelection.equals(homeTeamSelection)) {
-                    Toast.makeText(MatchupActivity.this, "Please choose different teams.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Please choose different teams.", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if (getLeftListAdapter().getItemCount() < 4) {
-                    Toast.makeText(MatchupActivity.this, "Add more players to " + awayTeamSelection + " lineup first.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Add more players to " + awayTeamSelection + " lineup first.", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if (getRightListAdapter().getItemCount() < 4) {
-                    Toast.makeText(MatchupActivity.this, "Add more players to " + homeTeamSelection + " lineup first.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Add more players to " + homeTeamSelection + " lineup first.", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 setLineupsToDB();
-                Intent intent = new Intent(MatchupActivity.this, GameActivity.class);
+                Intent intent = new Intent(getActivity(), GameActivity.class);
                 startActivity(intent);
                 finish();
             }
         });
         getLoaderManager().initLoader(MATCHUP_LOADER, null, this);
     }
+
+
+
+
+    //TODO add menu options so I can put "Create new team there" and have more space
+
 
     private void setLineupsToDB() {
         addTeamToTempDB(awayTeamSelection);
@@ -124,7 +142,7 @@ public class MatchupActivity extends AppCompatActivity implements LoaderManager.
 
     private void addTeamToTempDB(String teamSelection){
         List<Player> lineup = getLineup(teamSelection);
-        ContentResolver contentResolver = getContentResolver();
+        ContentResolver contentResolver = getActivity().getContentResolver();
         for(int i = 0; i < lineup.size(); i++) {
             Player player = lineup.get(i);
             long playerId = player.getPlayerId();
@@ -153,7 +171,7 @@ public class MatchupActivity extends AppCompatActivity implements LoaderManager.
         } else if (parent.getId() == R.id.hometeam_spinner) {
             homeTeamSelection = team;
         } else {
-            Toast.makeText(MatchupActivity.this, "onItemSelected error ", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "onItemSelected error ", Toast.LENGTH_SHORT).show();
         }
         List<Player> playerList = getLineup(team);
 
@@ -289,17 +307,17 @@ public class MatchupActivity extends AppCompatActivity implements LoaderManager.
     }
 
 
-        @Override
+    @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         String[] projection = new String[]{StatsContract.StatsEntry._ID, StatsEntry.COLUMN_NAME};
-            MyApp myApp = (MyApp) getApplicationContext();
-            String leagueID = myApp.getCurrentSelection().getId();
+        MyApp myApp = (MyApp) getApplicationContext();
+        String leagueID = myApp.getCurrentSelection().getId();
         String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
         String league = leagueID;
         String[] selectionArgs = new String[]{league};
         return new CursorLoader(this, StatsContract.StatsEntry.CONTENT_URI_TEAMS, projection,
                 selection, selectionArgs, null);
-   }
+    }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {

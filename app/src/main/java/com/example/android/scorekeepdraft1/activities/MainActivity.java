@@ -257,7 +257,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 intent = new Intent(MainActivity.this, TeamPageActivity.class);
                 break;
             case "League":
-                intent = new Intent(MainActivity.this, LeagueActivity.class);
+                intent = new Intent(MainActivity.this, LeaguePagerActivity.class);
                 break;
             default:
                 return;

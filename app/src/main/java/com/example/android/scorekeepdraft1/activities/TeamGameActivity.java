@@ -164,6 +164,7 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
     private static final String KEY_UNDOREDO = "keyUndoRedo";
     private static final String KEY_ISHOME = "isHome";
     private static final String TAG = "TeamGameActivity: ";
+    private static final String KEY_REDOENDSGAME = "keyRedoEndsGame";
 
     private String leagueID;
 
@@ -265,6 +266,8 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
             inningNumber = pref.getInt(KEY_INNINGNUMBER, 2);
             myTeamIndex = pref.getInt(KEY_MYTEAMINDEX, 0);
             undoRedo = pref.getBoolean(KEY_UNDOREDO, false);
+            redoEndsGame = pref.getBoolean(KEY_REDOENDSGAME, false);
+
             Log.d(TAG, "after getSharedPrefs  =  " + myTeamIndex);
             resumeGame();
             Log.d(TAG, "after resumeGame =  " + myTeamIndex);
@@ -430,7 +433,7 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
             setScoreDisplay();
             return;
         }
-            try {
+        try {
             startCursor();
             setDisplays();
         } catch (Exception e) {
@@ -440,6 +443,9 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
 
     private void resumeGame() {
         isTop = (inningNumber % 2 == 0);
+        if (inningNumber / 2 >= totalInnings) {
+            finalInning = true;
+        }
         getGameColumnIndexes();
         chooseDisplay();
         gameCursor.moveToPosition(gameLogIndex);
@@ -468,7 +474,13 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
 
 
     private void nextBatter() {
+        if(redoEndsGame) {
+            return;
+        }
         if (!isTop && finalInning && homeTeamRuns > awayTeamRuns) {
+            if (isHome) {
+                increaseLineupIndex();
+            }
             showFinishGameDialog();
             return;
         }
@@ -480,11 +492,12 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
                 nextInning();
                 if(isAlternate) {
                     increaseLineupIndex();
-                    Log.d(TAG, " after nextbatter increase  =  " + myTeamIndex);
+                    Log.d(TAG, "myteamindex increased to  " + myTeamIndex);
                 }
             }
         } else {
             increaseLineupIndex();
+            Log.d(TAG, "myteamindex increased to  " + myTeamIndex);
         }
         updateGameLogs();
     }
@@ -496,10 +509,10 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
             currentBatter = myTeam.get(myTeamIndex);
         } else {
             currentBatter = myTeam.get(myTeamIndex);
-            previousBatterName = currentBatter.getName();
+            previousBatterName = null;
         }
 
-            BaseLog currentBaseLogEnd = new BaseLog(myTeam, currentBatter, firstDisplay.getText().toString(),
+        BaseLog currentBaseLogEnd = new BaseLog(myTeam, currentBatter, firstDisplay.getText().toString(),
                 secondDisplay.getText().toString(), thirdDisplay.getText().toString(),
                 gameOuts, awayTeamRuns, homeTeamRuns
         );
@@ -516,10 +529,8 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
 
         String onDeck = currentBatter.getName();
 
-        if (isAlternate) {
+        if (isAlternate && previousBatterName != null) {
             onDeck = null;
-        } else if (previousBatterName.equals(onDeck)) {
-            previousBatterName = null;
         };
 
         ContentValues values = new ContentValues();
@@ -556,7 +567,8 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
         }
         getContentResolver().insert(StatsEntry.CONTENT_URI_GAMELOG, values);
 
-//        Log.d(TAG, "updating gamelog:  " + gameLogIndex + "  " + values.toString());
+        Log.d(TAG, "   gamelog:" + gameLogIndex + "    batter=" + previousBatterName +
+                " .  ondeck=" + onDeck + " .  gamelogindex=" +  gameLogIndex);
         saveGameState();
 
         startCursor();
@@ -590,6 +602,7 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
         editor.putInt(KEY_INNINGNUMBER, inningNumber);
         editor.putInt(KEY_MYTEAMINDEX, myTeamIndex);
         editor.putBoolean(KEY_UNDOREDO, undoRedo);
+        editor.putBoolean(KEY_REDOENDSGAME, redoEndsGame);
         editor.commit();
     }
 
@@ -688,7 +701,9 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
             }
         } else {
             if (finalInning && homeTeamRuns > awayTeamRuns) {
-                showFinishGameDialog();
+                if(!redoEndsGame) {
+                    showFinishGameDialog();
+                }
                 return;
             }
             if (isHome) {
@@ -736,10 +751,10 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
             awayTeamRuns++;
         } else {
             homeTeamRuns++;
-            if (finalInning && homeTeamRuns > awayTeamRuns) {
-                setScoreDisplay();
-                showFinishGameDialog();
-            }
+//            if (finalInning && homeTeamRuns > awayTeamRuns) {
+//                setScoreDisplay();
+//                showFinishGameDialog();
+//            }
         }
         otherTeamRuns++;
         otherTeamRunsView.setText(String.valueOf(otherTeamRuns));
@@ -764,12 +779,13 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
         gameOuts++;
         otherTeamOutsView.setText(String.valueOf(gameOuts));
         if (gameOuts >= 3) {
-            Log.d(TAG, " gameouts>=3 =  " + myTeamIndex);
+            currentBatter = null;
             if (undoRedo) {
                 deleteGameLogs();
-                Log.d(TAG, " after deletegamelogs =  " + myTeamIndex);
-                increaseLineupIndex();
-                Log.d(TAG, " after teamaddout increase  =  " + myTeamIndex);
+                Log.d(TAG, " after deletegamelogs =  " + gameLogIndex);
+                Log.d(TAG, " myteamindex is  =  " + myTeamIndex);
+//                increaseLineupIndex();
+//                Log.d(TAG, " myteamindex increased to  =  " + myTeamIndex);
             }
             nextBatter();
             Log.d(TAG, " after nextbatter =  " + myTeamIndex);
@@ -1069,13 +1085,21 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
     }
 
     private void updatePlayerStats(String action, int n) {
-        Log.d(TAG, "updatePlayerStats   " + myTeamIndex);
+//        Log.d(TAG, "updatePlayerStats   " + myTeamIndex);
 
         String selection = StatsEntry.COLUMN_NAME + "=?";
         String[] selectionArgs;
         if (undoRedo) {
             selectionArgs = new String[]{tempBatter};
+            if(tempBatter == null) {
+                Log.d(TAG, "updatePlayerStats failed: temp batter  = null " + myTeamIndex);
+                return;
+            }
         } else {
+            if(currentBatter == null) {
+                Log.d(TAG, "updatePlayerStats failed:  currentbatter == null!" + myTeamIndex);
+                return;
+            }
             String currentBatterString = currentBatter.getName();
             selectionArgs = new String[]{currentBatterString};
         }
@@ -1133,13 +1157,11 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
             }
         }
         if (isAlternate) {
-            Log.d(TAG, "updatePlayerStats isalt return  " + myTeamIndex);
-
+//            Log.d(TAG, "updatePlayerStats isalt return  " + myTeamIndex);
             return;
         }
         startCursor();
         setDisplays();
-        Log.d(TAG, "updatePlayerStats end  " + myTeamIndex);
     }
 
     private void updatePlayerRuns(String player, int n) {
@@ -1292,15 +1314,18 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
         gameOuts = currentBaseLogStart.getOutCount();
         currentBatter = currentBaseLogStart.getBatter();
         if(currentBatter != null) {
-            myTeamIndex = myTeam.indexOf(currentBatter);
-        } else {
             decreaseLineupIndex();
-            Log.d(TAG, "index decreased" + myTeamIndex);
+                        myTeamIndex = myTeam.indexOf(currentBatter);
+
+            Log.d(TAG, "myteamindex changed to " + myTeamIndex);
+//            myTeamIndex = myTeam.indexOf(currentBatter);
+        } else {
+//            decreaseLineupIndex();
+//            Log.d(TAG, "myteamindex index decreased to " + myTeamIndex);
         }
         resetBases(currentBaseLogStart);
-        Log.d(TAG, " undoplay  gameouts = " + gameOuts);
+//        Log.d(TAG, " undoplay  gameouts = " + gameOuts);
         if(isAlternate) {
-            Log.d(TAG, "undo, temp = null   " + myTeamIndex);
             chooseDisplay();
             setInningDisplay();
         } else {
@@ -1351,6 +1376,8 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
         }
         if(currentBatter != null) {
             myTeamIndex = myTeam.indexOf(currentBatter);
+        } else {
+            increaseLineupIndex();
         }
         resetBases(currentBaseLogStart);
         isAlternate = (tempBatter == null);
@@ -1434,9 +1461,14 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
         if (isOver) {
             endGame();
         } else {
-            updateGameLogs();
+            if (!redoEndsGame) {
+                updateGameLogs();
+                redoEndsGame = true;
+            }
+//            else {
+//                redoPlay();
+//            }
             undoPlay();
-            redoEndsGame = true;
         }
     }
 

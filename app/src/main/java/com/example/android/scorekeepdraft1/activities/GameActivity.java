@@ -151,7 +151,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     private int playerOutIndex;
     private int playerRunIndex;
     private int rbiIndex;
-    private int totalInnings = 9;
+    private int totalInnings = 1;
 
     private static final String KEY_GAMELOGINDEX = "keyGameLogIndex";
     private static final String KEY_HIGHESTINDEX = "keyHighestIndex";

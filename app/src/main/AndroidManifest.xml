@@ -73,12 +73,16 @@
             android:parentActivityName=".activities.TeamPageActivity"
             android:screenOrientation="portrait" />
 
+        <activity android:name=".activities.LeaguePagerActivity"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="stateHidden|adjustResize"
+            />
+
         <provider
             android:name=".data.StatsProvider"
             android:authorities="com.example.android.scorekeepdraft1"
             android:exported="false" />
 
-        <activity android:name=".activities.LeaguePagerActivity"></activity>
     </application>
 
 </manifest>

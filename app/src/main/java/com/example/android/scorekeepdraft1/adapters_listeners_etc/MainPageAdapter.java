@@ -12,6 +12,8 @@ import android.widget.TextView;
 import com.example.android.scorekeepdraft1.activities.LeagueActivity;
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
+import com.example.android.scorekeepdraft1.activities.LeaguePagerActivity;
+import com.example.android.scorekeepdraft1.activities.PlayerPageActivity;
 import com.example.android.scorekeepdraft1.activities.TeamPageActivity;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 
@@ -60,13 +62,13 @@ public class MainPageAdapter extends RecyclerView.Adapter<MainPageAdapter.MainPa
                 Intent intent;
                 switch (type) {
                     case LEAGUE:
-                        intent = new Intent(mContext, LeagueActivity.class);
+                        intent = new Intent(mContext, LeaguePagerActivity.class);
                         break;
                     case TEAM:
                         intent = new Intent(mContext, TeamPageActivity.class);
                         break;
                     case PLAYER:
-                        intent = new Intent(mContext, LeagueActivity.class);
+                        intent = new Intent(mContext, PlayerPageActivity.class);
                         break;
                     default:
                         return;
