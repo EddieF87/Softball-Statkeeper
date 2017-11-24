@@ -98,37 +98,28 @@
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/btn_create_plyr"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
-        android:clickable="true"
-        android:scaleType="center"
+        style="@style/FloatingActionButtonStyle"
         app:layout_constraintBottom_toTopOf="@+id/textview_players_description"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline2"
-        app:layout_constraintTop_toTopOf="@+id/textview_players_description"
-        app:srcCompat="@android:drawable/ic_input_add" />
+        app:layout_constraintTop_toTopOf="@+id/textview_players_description" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/btn_create_join_tm"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
-        android:clickable="true"
-        android:scaleType="center"
+        style="@style/FloatingActionButtonStyle"
         app:layout_constraintBottom_toTopOf="@+id/textview_teams_description"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline2"
-        app:layout_constraintTop_toTopOf="@+id/textview_teams_description"
-        app:srcCompat="@android:drawable/ic_input_add" />
+        app:layout_constraintTop_toTopOf="@+id/textview_teams_description" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/btn_create_join_lg"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
-        android:clickable="true"
-        android:scaleType="center"
+        style="@style/FloatingActionButtonStyle"
         app:layout_constraintBottom_toTopOf="@+id/textview_leagues_description"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guideline2"
-        app:layout_constraintTop_toTopOf="@+id/textview_leagues_description"
-        app:srcCompat="@android:drawable/ic_input_add" />
+        app:layout_constraintTop_toTopOf="@+id/textview_leagues_description" />
+
+    <!--todo: convert android drawable to app drawable-->
+
 </android.support.constraint.ConstraintLayout>

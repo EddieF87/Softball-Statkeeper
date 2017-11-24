@@ -5,8 +5,9 @@ package com.example.android.scorekeepdraft1.objects;
  */
 
 public class InningScore {
-     private int top;
-     private int bottom;
+
+    private int top;
+    private int bottom;
 
     public InningScore(int top, int bottom) {
         this.top = top;

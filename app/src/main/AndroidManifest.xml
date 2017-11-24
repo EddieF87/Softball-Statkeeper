@@ -56,10 +56,10 @@
             android:parentActivityName=".activities.LeagueActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".activities.PlayerPageActivity"
+            android:name=".activities.PlayerActivity"
             android:parentActivityName=".activities.StatsActivity" />
         <activity
-            android:name=".activities.TeamPageActivity"
+            android:name=".activities.TeamActivity"
             android:launchMode="singleTask"
             android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity
@@ -70,19 +70,20 @@
         <activity
             android:name=".activities.TeamGameActivity"
             android:launchMode="singleTask"
-            android:parentActivityName=".activities.TeamPageActivity"
+            android:parentActivityName=".activities.TeamActivity"
             android:screenOrientation="portrait" />
-
-        <activity android:name=".activities.LeaguePagerActivity"
+        <activity
+            android:name=".activities.LeaguePagerActivity"
             android:launchMode="singleTask"
-            android:windowSoftInputMode="stateHidden|adjustResize"
-            />
+            android:windowSoftInputMode="stateHidden|adjustResize" />
 
         <provider
             android:name=".data.StatsProvider"
             android:authorities="com.example.android.scorekeepdraft1"
             android:exported="false" />
 
+        <activity android:name=".activities.TeamPagerActivity" />
+        <activity android:name=".activities.PlayerPagerActivity"></activity>
     </application>
 
 </manifest>

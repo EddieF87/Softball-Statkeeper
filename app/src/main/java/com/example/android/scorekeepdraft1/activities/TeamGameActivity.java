@@ -1,6 +1,5 @@
 package com.example.android.scorekeepdraft1.activities;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ContentUris;
@@ -12,7 +11,10 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -141,7 +143,6 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
     private int idIndex;
     private int playerIdIndex;
     private int playerNameIndex;
-    private int teamIndex;
     private int singleIndex;
     private int doubleIndex;
     private int tripleIndex;
@@ -811,14 +812,27 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
         addPlayerStatsToDB();
         getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, null, null);
         getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, null, null);
-        Intent finishGame = new Intent(TeamGameActivity.this, TeamPageActivity.class);
+        Intent finishGame = new Intent(TeamGameActivity.this, TeamActivity.class);
         startActivity(finishGame);
+        finish();
     }
 
     private void showFinishGameDialog() {
         FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        Fragment prev = fragmentManager.findFragmentByTag(DIALOG_FINISH);
+        if (prev != null) {
+            fragmentTransaction.remove(prev);
+        }
+        fragmentTransaction.addToBackStack(null);
+
+
         FinishGameFragment dialog = FinishGameFragment.newInstance();
-        dialog.show(fragmentManager, DIALOG_FINISH);
+
+//        dialog.onCreateDialog(null);
+//        dialog.show(fragmentManager, DIALOG_FINISH);
+        DialogFragment newFragment = FinishGameFragment.newInstance();
+        newFragment.show(fragmentTransaction, DIALOG_FINISH);
 
 //        AlertDialog.Builder builder = new AlertDialog.Builder(this);
 //        builder.setMessage(R.string.end_game_msg);
@@ -1270,7 +1284,6 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
         idIndex = playerCursor.getColumnIndex(StatsEntry._ID);
         playerIdIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_PLAYERID);
         playerNameIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
-        teamIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_TEAM);
         singleIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_1B);
         doubleIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_2B);
         tripleIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_3B);
@@ -1694,7 +1707,7 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
                 startActivity(intent);
                 break;
             case R.id.action_exit_game:
-                intent = new Intent(TeamGameActivity.this, TeamPageActivity.class);
+                intent = new Intent(TeamGameActivity.this, TeamActivity.class);
                 startActivity(intent);
                 finish();
                 break;

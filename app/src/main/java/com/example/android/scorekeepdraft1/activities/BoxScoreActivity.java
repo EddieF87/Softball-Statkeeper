@@ -40,7 +40,7 @@ public class BoxScoreActivity extends AppCompatActivity implements LoaderManager
     private int awayTeamRuns;
     private int homeTeamRuns;
     private int totalInnings;
-    private String type;
+    private int selectionType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +54,7 @@ public class BoxScoreActivity extends AppCompatActivity implements LoaderManager
             finish();
         }
         MainPageSelection mainPageSelection = myApp.getCurrentSelection();
-        type = mainPageSelection.getType();
+        selectionType = mainPageSelection.getType();
 
         Bundle b = getIntent().getExtras();
         if (savedInstanceState != null) {
@@ -80,7 +80,7 @@ public class BoxScoreActivity extends AppCompatActivity implements LoaderManager
 
         String headerString = awayTeam + " " + awayTeamRuns + "   " + homeTeam + " " + homeTeamRuns;
 
-        if (type.equals("Team")) {
+        if (selectionType == MainPageSelection.TYPE_TEAM) {
             TextView boxscoreHeader = findViewById(R.id.boxscore_header);
             boxscoreHeader.setText(headerString);
             View boxscore = findViewById(R.id.relativelayout_boxscore);
@@ -119,7 +119,7 @@ public class BoxScoreActivity extends AppCompatActivity implements LoaderManager
             case AWAY_LOADER:
                 uri = StatsEntry.CONTENT_URI_TEMP;
                 selection = StatsEntry.COLUMN_TEAM + "=?";
-                if(type.equals("Team")){
+                if(selectionType == MainPageSelection.TYPE_TEAM){
                     selectionArgs = new String[]{teamName};
                 } else {
                     selectionArgs = new String[]{awayTeam};
@@ -236,7 +236,7 @@ public class BoxScoreActivity extends AppCompatActivity implements LoaderManager
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         awayAdapter.swapCursor(null);
-        if (type.equals("Team")) {
+        if (selectionType == MainPageSelection.TYPE_TEAM) {
             return;
         }
         homeAdapter.swapCursor(null);

@@ -159,6 +159,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     private static final String KEY_AWAYTEAMNDEX = "keyAwayTeamIndex";
     private static final String KEY_HOMETEAMINDEX = "keyHomeTeamIndex";
     private static final String KEY_UNDOREDO = "keyUndoRedo";
+    private static final String KEY_REDOENDSGAME = "redoEndsGame";
     private static final String TAG = "GameActivity: ";
 
     private String leagueID;
@@ -238,6 +239,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             awayTeamIndex = shared.getInt(KEY_AWAYTEAMNDEX, 0);
             homeTeamIndex = shared.getInt(KEY_HOMETEAMINDEX, 0);
             undoRedo = shared.getBoolean(KEY_UNDOREDO, false);
+            redoEndsGame = shared.getBoolean(KEY_REDOENDSGAME, redoEndsGame);
 
             resumeGame();
             return;
@@ -398,7 +400,9 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
 
     private void resumeGame() {
         getGameColumnIndexes();
-
+        if (inningNumber / 2 >= totalInnings) {
+            finalInning = true;
+        }
         gameCursor.moveToPosition(gameLogIndex);
         reloadRunsLog();
         reloadBaseLog();
@@ -423,6 +427,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
 
     private void nextBatter() {
         if (currentTeam == homeTeam && finalInning && homeTeamRuns > awayTeamRuns) {
+            increaseLineupIndex();
             showFinishGameDialog();
             return;
         }
@@ -531,6 +536,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         editor.putInt(KEY_AWAYTEAMNDEX, awayTeamIndex);
         editor.putInt(KEY_HOMETEAMINDEX, homeTeamIndex);
         editor.putBoolean(KEY_UNDOREDO, undoRedo);
+        editor.putBoolean(KEY_REDOENDSGAME, redoEndsGame);
         editor.commit();
     }
 
@@ -564,8 +570,9 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         addPlayerStatsToDB();
         getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, null, null);
         getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, null, null);
-        Intent finishGame = new Intent(GameActivity.this, LeagueActivity.class);
+        Intent finishGame = new Intent(GameActivity.this, LeaguePagerActivity.class);
         startActivity(finishGame);
+        finish();
     }
 
     private void showFinishGameDialog() {
@@ -578,15 +585,19 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         });
         builder.setNegativeButton(R.string.undo, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                updateGameLogs();
+                if(!redoEndsGame) {
+                    updateGameLogs();
+                    redoEndsGame = true;
+                }
                 undoPlay();
-                redoEndsGame = true;
                 if (dialog != null) {
                     dialog.dismiss();
                 }
             }
         });
         AlertDialog alertDialog = builder.create();
+        alertDialog.setCancelable(false);
+        alertDialog.setCanceledOnTouchOutside(false);
         alertDialog.show();
     }
 
@@ -1472,7 +1483,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                 startActivity(intent);
                 break;
             case R.id.action_exit_game:
-                intent = new Intent(GameActivity.this, LeagueActivity.class);
+                intent = new Intent(GameActivity.this, LeaguePagerActivity.class);
                 startActivity(intent);
                 finish();
                 break;

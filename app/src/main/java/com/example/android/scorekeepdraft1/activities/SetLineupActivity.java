@@ -45,6 +45,7 @@ import com.example.android.scorekeepdraft1.adapters_listeners_etc.LineupListAdap
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.Listener;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
+import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.example.android.scorekeepdraft1.objects.Player;
 
 import java.util.ArrayList;
@@ -80,7 +81,7 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
             finish();
         }
         MyApp myApp = (MyApp) getApplicationContext();
-        final String selectionType = myApp.getCurrentSelection().getType();
+        final int selectionType = myApp.getCurrentSelection().getType();
 
         rvLeftLineup = findViewById(R.id.rvLeft);
         rvRightLineup = findViewById(R.id.rvRight);
@@ -111,7 +112,7 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
         initRightRecyclerView();
 
         Button lineupSubmitButton = findViewById(R.id.lineup_submit);
-        if (selectionType.equals("Team")) {
+        if (selectionType == MainPageSelection.TYPE_TEAM) {
             lineupSubmitButton.setText(R.string.start);
             View teamNameDisplay = findViewById(R.id.team_name_display);
             teamNameDisplay.setVisibility(View.GONE);
@@ -121,7 +122,7 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
         lineupSubmitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (selectionType.equals("Team")) {
+                if (selectionType == MainPageSelection.TYPE_TEAM) {
                     RadioGroup radioGroup = findViewById(R.id.radiobtns_away_or_home_team);
                     int id = radioGroup.getCheckedRadioButtonId();
                     switch (id) {
@@ -136,6 +137,7 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
                     }
                 } else {
                     updateAndSubmitLineup();
+                    setResult(RESULT_OK);
                     finish();
                 }
             }
@@ -152,39 +154,6 @@ public class SetLineupActivity extends AppCompatActivity implements Listener {
                 addPlayer();
             }
         });
-    }
-
-    private void startGameDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder
-                .setPositiveButton(R.string.home, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        if (dialogInterface != null) {
-                            dialogInterface.dismiss();
-                        }
-                        startGame(true);
-                    }
-                })
-                .setNeutralButton(R.string.away, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        if (dialogInterface != null) {
-                            dialogInterface.dismiss();
-                        }
-                        startGame(false);
-                    }
-                })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        if (dialogInterface != null) {
-                            dialogInterface.dismiss();
-                        }
-                    }
-                });
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
     }
 
     private void startGame(boolean isHome) {

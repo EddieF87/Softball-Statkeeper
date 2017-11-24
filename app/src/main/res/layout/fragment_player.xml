@@ -190,21 +190,21 @@
         app:layout_constraintTop_toBottomOf="@+id/player_hr"
         app:layout_constraintRight_toLeftOf="@+id/playerboard_1b_title" />
 
-<!--        <TextView
-            android:id="@+id/playerboard_run_title"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="3"
-            android:gravity="center"
-            android:text="@string/r" />
+    <!--        <TextView
+                android:id="@+id/playerboard_run_title"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                android:gravity="center"
+                android:text="@string/r" />
 
-        <TextView
-            android:id="@+id/playerboard_rbi_title"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="3"
-            android:gravity="center"
-            android:text="@string/rbi" />-->
+            <TextView
+                android:id="@+id/playerboard_rbi_title"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                android:gravity="center"
+                android:text="@string/rbi" />-->
 
     <TextView
         android:id="@+id/playerboard_1b_title"
@@ -239,13 +239,13 @@
         app:layout_constraintLeft_toRightOf="@+id/playerboard_2b_title"
         app:layout_constraintRight_toLeftOf="@+id/playerboard_bb_title" />
 
-<!--        <TextView
-            android:id="@+id/playerboard_hr_title"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="3"
-            android:gravity="center"
-            android:text="@string/hr" />-->
+    <!--        <TextView
+                android:id="@+id/playerboard_hr_title"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                android:gravity="center"
+                android:text="@string/hr" />-->
 
     <TextView
         android:id="@+id/playerboard_bb_title"
@@ -269,21 +269,21 @@
         app:layout_constraintTop_toTopOf="@+id/playerboard_bb_title"
         app:layout_constraintRight_toRightOf="parent" />
 
-<!--        <TextView
-            android:id="@+id/playerboard_slg_title"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="4"
-            android:gravity="center"
-            android:text="@string/slg" />
+    <!--        <TextView
+                android:id="@+id/playerboard_slg_title"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="4"
+                android:gravity="center"
+                android:text="@string/slg" />
 
-        <TextView
-            android:id="@+id/playerboard_ops_title"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="4"
-            android:gravity="center"
-            android:text="@string/ops" />-->
+            <TextView
+                android:id="@+id/playerboard_ops_title"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="4"
+                android:gravity="center"
+                android:text="@string/ops" />-->
 
 
     <TextView
@@ -298,23 +298,23 @@
         app:layout_constraintTop_toBottomOf="@+id/playerboard_hit_title"
         app:layout_constraintLeft_toLeftOf="@+id/playerboard_hit_title" />
 
-<!--
-        <TextView
-            android:id="@+id/playerboard_run"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="3"
-            android:gravity="center"
-            android:text="25" />
+    <!--
+            <TextView
+                android:id="@+id/playerboard_run"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                android:gravity="center"
+                android:text="25" />
 
-        <TextView
-            android:id="@+id/playerboard_rbi"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="3"
-            android:gravity="center"
-            android:text="18" />
--->
+            <TextView
+                android:id="@+id/playerboard_rbi"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                android:gravity="center"
+                android:text="18" />
+    -->
 
     <TextView
         android:id="@+id/playerboard_1b"
@@ -352,15 +352,15 @@
         android:layout_marginTop="6dp"
         app:layout_constraintTop_toBottomOf="@+id/playerboard_3b_title" />
 
-<!--
-        <TextView
-            android:id="@+id/playerboard_hr"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="3"
-            android:gravity="center"
-            android:text="5" />
--->
+    <!--
+            <TextView
+                android:id="@+id/playerboard_hr"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                android:gravity="center"
+                android:text="5" />
+    -->
 
     <TextView
         android:id="@+id/playerboard_bb"

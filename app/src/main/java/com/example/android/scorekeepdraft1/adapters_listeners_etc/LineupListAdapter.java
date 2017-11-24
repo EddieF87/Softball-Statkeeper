@@ -80,7 +80,8 @@ public class LineupListAdapter extends RecyclerView.Adapter<LineupListAdapter.Li
     }
 
     public List<String> getList() {return list;    }
-    public void updateList(List<String> list) {
+
+    void updateList(List<String> list) {
         this.list = list;
     }
 

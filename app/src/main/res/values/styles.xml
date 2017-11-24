@@ -80,4 +80,12 @@
         <item name="android:textColor">#FFFFFF</item>
     </style>
 
+    <style name="FloatingActionButtonStyle">
+        <item name="android:layout_width">44dp</item>
+        <item name="android:layout_height">44dp</item>
+        <item name="android:scaleType">center</item>
+        <item name="android:clickable">true</item>
+        <item name="android:src">@android:drawable/ic_input_add</item>
+    </style>
+
 </resources>

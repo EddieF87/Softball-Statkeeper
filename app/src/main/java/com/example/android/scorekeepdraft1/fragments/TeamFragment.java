@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -18,7 +19,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -31,10 +31,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
+import com.example.android.scorekeepdraft1.activities.LeagueActivity;
 import com.example.android.scorekeepdraft1.activities.SetLineupActivity;
 import com.example.android.scorekeepdraft1.activities.TeamGameActivity;
+import com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapter;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.PlayerStatsAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
@@ -54,6 +55,8 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
     private TextView teamNameView;
     private TextView teamRecordView;
     private EditText addPlayerText;
+    private FloatingActionButton addPlayerButton;
+    private Button addPlayerBtn;
 
     private RecyclerView rv;
 
@@ -61,18 +64,50 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
     private String teamSelected;
     private boolean waivers;
 
-    private String selectionType;
+    private int selectionType;
     private String selectionID;
-    private PlayerStatsAdapter mAdapter;
+    private String selectionName;
+
+    private static final String KEY_TEAM_URI = "teamURI";
+
 
     public TeamFragment() {
         // Required empty public constructor
+    }
+
+    public static TeamFragment newInstance(String leagueID, int leagueType, String leagueName) {
+        Bundle args = new Bundle();
+        args.putString(MainPageSelection.KEY_SELECTION_ID, leagueID);
+        args.putInt(MainPageSelection.KEY_SELECTION_TYPE, leagueType);
+        args.putString(MainPageSelection.KEY_SELECTION_NAME, leagueName);
+        TeamFragment fragment = new TeamFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public static TeamFragment newInstance(String leagueID, int leagueType, String leagueName, Uri uri) {
+        Bundle args = new Bundle();
+        args.putString(MainPageSelection.KEY_SELECTION_ID, leagueID);
+        args.putInt(MainPageSelection.KEY_SELECTION_TYPE, leagueType);
+        args.putString(MainPageSelection.KEY_SELECTION_NAME, leagueName);
+        args.putString(KEY_TEAM_URI, uri.toString());
+        TeamFragment fragment = new TeamFragment();
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        Bundle args = getArguments();
+        selectionID = args.getString(MainPageSelection.KEY_SELECTION_ID);
+        selectionType = args.getInt(MainPageSelection.KEY_SELECTION_TYPE);
+        selectionName = args.getString(MainPageSelection.KEY_SELECTION_NAME);
+        if (selectionType == MainPageSelection.TYPE_LEAGUE) {
+            String uriString = args.getString(KEY_TEAM_URI);
+            mCurrentTeamUri = Uri.parse(uriString);
+        }
     }
 
     @Override
@@ -81,12 +116,18 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_team, container, false);
 
-        Log.d("teamgame", "ooncreatefrag");
         waivers = false;
-        MyApp myApp = (MyApp) getActivity().getApplicationContext();
-        MainPageSelection mainPageSelection = myApp.getCurrentSelection();
-        selectionType = mainPageSelection.getType();
-        if (selectionType.equals("Team")) {
+
+//        MyApp myApp = (MyApp) getActivity().getApplicationContext();
+//        MainPageSelection mainPageSelection = myApp.getCurrentSelection();
+//        if (myApp.getCurrentSelection() == null) {
+//            Intent intent = new Intent(getActivity(), MainActivity.class);
+//            startActivity(intent);
+//            return null;
+//        }
+
+//        selectionType = mainPageSelection.getType();
+        if (selectionType == MainPageSelection.TYPE_TEAM) {
 
 
             //            Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG,
@@ -98,11 +139,13 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
 //                continueGameButton.setVisibility(View.INVISIBLE);
 //            }
 //            cursor.close();
-            teamSelected = mainPageSelection.getName();
-            selectionID = mainPageSelection.getName();
+            teamSelected = selectionName;
+//            selectionID = mainPageSelection.getId();
+
         } else {
-            Intent intent = getActivity().getIntent();
-            mCurrentTeamUri = intent.getData();
+            mCurrentTeamUri = mCurrentTeamUri;
+//            Intent intent = getActivity().getIntent();
+//            mCurrentTeamUri = intent.getData();
             if (mCurrentTeamUri == null) {
                 waivers = true;
             }
@@ -114,15 +157,24 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
         rv = rootView.findViewById(R.id.rv_players);
 
         View addPlayerView = rootView.findViewById(R.id.item_player_adder);
+
         addPlayerText = addPlayerView.findViewById(R.id.add_player_text);
-        Button addPlayerBtn = addPlayerView.findViewById(R.id.add_player_submit);
+        addPlayerBtn = addPlayerView.findViewById(R.id.add_player_submit);
         addPlayerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 addPlayer();
             }
         });
-
+        addPlayerButton = addPlayerView.findViewById(R.id.btn_start_adder);
+        addPlayerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                addPlayerButton.setVisibility(View.GONE);
+                addPlayerText.setVisibility(View.VISIBLE);
+                addPlayerBtn.setVisibility(View.VISIBLE);
+            }
+        });
         getLoaderManager();
 
         return rootView;
@@ -154,7 +206,7 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
     private void initRecyclerView() {
         rv.setLayoutManager(new LinearLayoutManager(
                 getActivity(), LinearLayoutManager.VERTICAL, false));
-        mAdapter = new PlayerStatsAdapter(players, getActivity());
+        PlayerStatsAdapter mAdapter = new PlayerStatsAdapter(players, getActivity());
         rv.setAdapter(mAdapter);
     }
 
@@ -165,7 +217,7 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
         String[] selectionArgs = null;
         Uri uri;
 
-        if (selectionType.equals("Team")) {
+        if (selectionType == MainPageSelection.TYPE_TEAM) {
             uri = StatsEntry.CONTENT_URI_TEAMS;
         } else if (waivers) {
             selection = StatsEntry.COLUMN_NAME + "=?";
@@ -213,7 +265,6 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
         } else {
             teamNameView.setText(teamSelected);
         }
-        getActivity().setTitle(teamSelected);
 
         String selection = StatsEntry.COLUMN_TEAM + "=?";
         String[] selectionArgs = new String[]{teamSelected};
@@ -282,7 +333,7 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
 
         initRecyclerView();
 
-        if (selectionType.equals("Team")) {
+        if (selectionType == MainPageSelection.TYPE_TEAM) {
             Button newGameButton = getView().findViewById(R.id.btn_start_game);
             Button continueGameButton = getView().findViewById(R.id.btn_continue_game);
 
@@ -349,14 +400,13 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
         super.onPrepareOptionsMenu(menu);
         if (waivers) {
             menu.findItem(R.id.action_change_name).setVisible(false);
-            menu.findItem(R.id.action_edit_photo).setVisible(false);
+//            menu.findItem(R.id.action_edit_photo).setVisible(false);
             menu.findItem(R.id.action_delete_team).setVisible(false);
             menu.findItem(R.id.action_edit_lineup).setVisible(false);
-        } else if (selectionType.equals("Team")) {
+        } else if (selectionType == MainPageSelection.TYPE_TEAM) {
             menu.findItem(R.id.action_edit_lineup).setVisible(false);
         }
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -365,7 +415,8 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
                 editNameDialog();
                 return true;
             case R.id.action_edit_photo:
-
+                FirestoreAdapter statsTransfer = new FirestoreAdapter(getActivity());
+                statsTransfer.syncStats();
                 return true;
             case R.id.action_edit_lineup:
                 Intent intent = new Intent(getActivity(), SetLineupActivity.class);

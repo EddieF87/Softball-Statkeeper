@@ -13,9 +13,10 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.example.android.scorekeepdraft1.activities.TeamPageActivity;
+import com.example.android.scorekeepdraft1.activities.PlayerPagerActivity;
+import com.example.android.scorekeepdraft1.activities.TeamActivity;
+import com.example.android.scorekeepdraft1.activities.TeamPagerActivity;
 import com.example.android.scorekeepdraft1.objects.Player;
-import com.example.android.scorekeepdraft1.activities.PlayerPageActivity;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 
@@ -41,7 +42,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
         super();
         this.players = players;
         this.context = context;
-        if (context instanceof TeamPageActivity) {
+        if (context instanceof TeamActivity || context instanceof TeamPagerActivity) {
             visibility = View.GONE;
             isTeam = true;
         } else {
@@ -97,7 +98,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
         nameView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(context, PlayerPageActivity.class);
+                Intent intent = new Intent(context, PlayerPagerActivity.class);
                 long playerId = (long) nameView.getTag();
                 Uri playerUri = ContentUris.withAppendedId(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, playerId);
                 intent.setData(playerUri);
@@ -112,7 +113,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             teamView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent intent = new Intent(context, TeamPageActivity.class);
+                    Intent intent = new Intent(context, TeamPagerActivity.class);
                     int teamId = (int) teamView.getTag();
                     Uri currentTeamUri = null;
                     if (teamId != -1) {

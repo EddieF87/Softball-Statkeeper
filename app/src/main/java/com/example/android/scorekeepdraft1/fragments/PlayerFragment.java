@@ -1,38 +1,47 @@
-package com.example.android.scorekeepdraft1.activities;
+package com.example.android.scorekeepdraft1.fragments;
+
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.LoaderManager;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.CursorLoader;
+import android.support.annotation.Nullable;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.Loader;
 import android.database.Cursor;
-
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.ArrayList;
-
 import android.net.Uri;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.R;
+import com.example.android.scorekeepdraft1.activities.PlayerActivity;
+import com.example.android.scorekeepdraft1.activities.TeamActivity;
+import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
+import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.example.android.scorekeepdraft1.objects.Player;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.ArrayList;
 
-public class PlayerPageActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+/**
+ * A simple {@link Fragment} subclass.
+ */
+public class PlayerFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
 
     private String playerString;
     private NumberFormat formatter = new DecimalFormat("#.000");
@@ -40,22 +49,69 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
     private Uri mCurrentPlayerUri;
     private String teamString;
     private String firestoreID;
+    private static final String KEY_PLAYER_URI = "playerURI";
+
+    private int selectionType;
+    private String selectionID;
+    private String selectionName;
+
+    public PlayerFragment() {
+        // Required empty public constructor
+    }
+
+
+    public static PlayerFragment newInstance(String leagueID, int leagueType, String leagueName) {
+        Bundle args = new Bundle();
+        args.putString(MainPageSelection.KEY_SELECTION_ID, leagueID);
+        args.putInt(MainPageSelection.KEY_SELECTION_TYPE, leagueType);
+        args.putString(MainPageSelection.KEY_SELECTION_NAME, leagueName);
+        PlayerFragment fragment = new PlayerFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public static PlayerFragment newInstance(String leagueID, int leagueType, String leagueName, Uri uri) {
+        Bundle args = new Bundle();
+        args.putString(MainPageSelection.KEY_SELECTION_ID, leagueID);
+        args.putInt(MainPageSelection.KEY_SELECTION_TYPE, leagueType);
+        args.putString(MainPageSelection.KEY_SELECTION_NAME, leagueName);
+        args.putString(KEY_PLAYER_URI, uri.toString());
+        PlayerFragment fragment = new PlayerFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_player_page);
+        setHasOptionsMenu(true);
+        Bundle args = getArguments();
+        selectionID = args.getString(MainPageSelection.KEY_SELECTION_ID);
+        selectionType = args.getInt(MainPageSelection.KEY_SELECTION_TYPE);
+        selectionName = args.getString(MainPageSelection.KEY_SELECTION_NAME);
+        if (selectionType == MainPageSelection.TYPE_LEAGUE) {
+            String uriString = args.getString(KEY_PLAYER_URI);
+            mCurrentPlayerUri = Uri.parse(uriString);
+        }
+    }
 
-        Intent intent = getIntent();
-        mCurrentPlayerUri = intent.getData();
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_player, container, false);
+    }
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
         getLoaderManager().initLoader(EXISTING_PLAYER_LOADER, null, this);
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new CursorLoader(
-                this,
+                getActivity(),
                 mCurrentPlayerUri,
                 null,
                 null,
@@ -66,10 +122,11 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        TextView nameView = findViewById(R.id.player_name);
+        View rootView = getView();
+        TextView nameView = rootView.findViewById(R.id.player_name);
 
         if (cursor.moveToFirst()) {
-            int nameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_NAME);
+            int nameIndex = cursor.getColumnIndex(StatsContract.StatsEntry.COLUMN_NAME);
             int teamIndex = cursor.getColumnIndex(StatsEntry.COLUMN_TEAM);
             int hrIndex = cursor.getColumnIndex(StatsEntry.COLUMN_HR);
             int tripleIndex = cursor.getColumnIndex(StatsEntry.COLUMN_3B);
@@ -98,19 +155,19 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
             firestoreID = cursor.getString(firestoreIDIndex);
 
             Player player = new Player(playerString, teamString, sgl, dbl, tpl, hr, bb, run, rbi, out, sf, g, 0, firestoreID);
-            TextView hitView = findViewById(R.id.playerboard_hit);
-            TextView hrView = findViewById(R.id.player_hr);
-            TextView rbiView = findViewById(R.id.player_rbi);
-            TextView runView = findViewById(R.id.player_runs);
-            TextView avgView = findViewById(R.id.player_avg);
-            TextView obpView = findViewById(R.id.playerboard_obp);
-            TextView slgView = findViewById(R.id.player_slg);
-            TextView opsView = findViewById(R.id.player_ops);
-            TextView sglView = findViewById(R.id.playerboard_1b);
-            TextView dblView = findViewById(R.id.playerboard_2b);
-            TextView tplView = findViewById(R.id.playerboard_3b);
-            TextView bbView = findViewById(R.id.playerboard_bb);
-            TextView teamView = findViewById(R.id.player_team);
+            TextView hitView = rootView.findViewById(R.id.playerboard_hit);
+            TextView hrView = rootView.findViewById(R.id.player_hr);
+            TextView rbiView = rootView.findViewById(R.id.player_rbi);
+            TextView runView = rootView.findViewById(R.id.player_runs);
+            TextView avgView = rootView.findViewById(R.id.player_avg);
+            TextView obpView = rootView.findViewById(R.id.playerboard_obp);
+            TextView slgView = rootView.findViewById(R.id.player_slg);
+            TextView opsView = rootView.findViewById(R.id.player_ops);
+            TextView sglView = rootView.findViewById(R.id.playerboard_1b);
+            TextView dblView = rootView.findViewById(R.id.playerboard_2b);
+            TextView tplView = rootView.findViewById(R.id.playerboard_3b);
+            TextView bbView = rootView.findViewById(R.id.playerboard_bb);
+            TextView teamView = rootView.findViewById(R.id.player_team);
 
 
             nameView.setText(player.getName());
@@ -129,7 +186,7 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
             opsView.setText(String.valueOf(formatter.format(player.getOPS())));
 
             String title = "Player Bio: " + playerString;
-            setTitle(title);
+            getActivity().setTitle(title);
         }
     }
 
@@ -138,9 +195,9 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_player, menu);
-        return true;
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.menu_player, menu);
     }
 
     @Override
@@ -164,7 +221,7 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
     }
 
     private void showDeleteConfirmationDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setMessage(R.string.delete_dialog_msg);
         builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
@@ -186,7 +243,7 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
     }
 
     private void editNameDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setMessage(R.string.edit_player_name);
         final LayoutInflater inflater = getLayoutInflater();
         builder.setView(inflater.inflate(R.layout.dialog_edit_name, null))
@@ -197,7 +254,7 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
                         EditText editText = dialog1.findViewById(R.id.username);
                         String enteredPlayer = editText.getText().toString();
                         if (nameAlreadyInDB(enteredPlayer)) {
-                            Toast.makeText(PlayerPageActivity.this, enteredPlayer + " already exists!",
+                            Toast.makeText(getActivity(), enteredPlayer + " already exists!",
                                     Toast.LENGTH_SHORT).show();
                             editNameDialog();
                         } else {
@@ -217,9 +274,9 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
     }
 
     private void changeTeamDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-        Cursor mCursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
+        Cursor mCursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
                 new String[]{StatsEntry.COLUMN_NAME}, null, null, null);
         ArrayList<String> teams = new ArrayList<>();
         while (mCursor.moveToNext()) {
@@ -245,14 +302,14 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
 
     private void deletePlayer() {
         if (mCurrentPlayerUri != null) {
-            int rowsDeleted = getContentResolver().delete(mCurrentPlayerUri, null, null);
+            int rowsDeleted = getActivity().getContentResolver().delete(mCurrentPlayerUri, null, null);
             if (rowsDeleted == 1) {
-                Toast.makeText(this, playerString + " " + getString(R.string.editor_delete_player_successful), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), playerString + " " + getString(R.string.editor_delete_player_successful), Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(this, getString(R.string.editor_delete_player_failed), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), getString(R.string.editor_delete_player_failed), Toast.LENGTH_SHORT).show();
             }
         }
-        finish();
+        getActivity().finish();
     }
 
     private void updatePlayerName(String player) {
@@ -261,7 +318,7 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
         contentValues.put(StatsEntry.COLUMN_NAME, playerString);
         contentValues.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
 
-        getContentResolver().update(mCurrentPlayerUri, contentValues, null, null);
+        getActivity().getContentResolver().update(mCurrentPlayerUri, contentValues, null, null);
         getLoaderManager().restartLoader(EXISTING_PLAYER_LOADER, null, this);
     }
 
@@ -271,13 +328,13 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
         contentValues.put(StatsEntry.COLUMN_ORDER, 99);
         contentValues.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
 
-        getContentResolver().update(mCurrentPlayerUri, contentValues, null, null);
+        getActivity().getContentResolver().update(mCurrentPlayerUri, contentValues, null, null);
     }
 
     private boolean nameAlreadyInDB(String playerName) {
         String selection = StatsEntry.COLUMN_NAME + " = '" + playerName + "' COLLATE NOCASE";
 
-        Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS, null, selection, null, null);
+        Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS, null, selection, null, null);
         if (cursor.getCount() <= 0) {
             cursor.close();
             return false;
@@ -288,11 +345,11 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
 
     public void goToTeamPage(View v) {
         if (teamString != null) {
-            Intent intent = new Intent(PlayerPageActivity.this, TeamPageActivity.class);
+            Intent intent = new Intent(getActivity(), TeamActivity.class);
 
             String selection = StatsEntry.COLUMN_NAME + "=?";
             String[] selectionArgs = new String[]{teamString};
-            Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
+            Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
                     null, selection, selectionArgs, null);
             if (cursor.moveToFirst()) {
                 int playerId = cursor.getInt(cursor.getColumnIndex(StatsEntry._ID));
@@ -301,7 +358,8 @@ public class PlayerPageActivity extends AppCompatActivity implements LoaderManag
             }
             startActivity(intent);
         } else {
-            Log.v("PlayerPageActivity", "Error going to team page");
+            Log.v("PlayerActivity", "Error going to team page");
         }
     }
+
 }

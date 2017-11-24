@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    tools:context="com.example.android.scorekeepdraft1.activities.TeamPageActivity">
+    tools:context="com.example.android.scorekeepdraft1.activities.TeamActivity">
 
     <LinearLayout
         android:id="@+id/team_header"
@@ -131,7 +131,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        android:visibility="gone"
         />
 
 

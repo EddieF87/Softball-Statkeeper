@@ -9,12 +9,11 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import com.example.android.scorekeepdraft1.activities.LeagueActivity;
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.activities.LeaguePagerActivity;
-import com.example.android.scorekeepdraft1.activities.PlayerPageActivity;
-import com.example.android.scorekeepdraft1.activities.TeamPageActivity;
+import com.example.android.scorekeepdraft1.activities.PlayerActivity;
+import com.example.android.scorekeepdraft1.activities.TeamActivity;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 
 import java.util.List;
@@ -30,9 +29,6 @@ public class MainPageAdapter extends RecyclerView.Adapter<MainPageAdapter.MainPa
 
     private List<MainPageSelection> mList;
     private Context mContext;
-    private static final String LEAGUE = "League";
-    private static final String TEAM = "Team";
-    private static final String PLAYER = "Player";
 
     public MainPageAdapter(List<MainPageSelection> list, Context context) {
         this.mList = list;
@@ -54,21 +50,21 @@ public class MainPageAdapter extends RecyclerView.Adapter<MainPageAdapter.MainPa
         final MainPageSelection mainPageSelection = mList.get(position);
         String name = mainPageSelection.getName();
         textView.setText(name);
-        final String type = mainPageSelection.getType();
+        final int selectionType = mainPageSelection.getType();
         textView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
                 Intent intent;
-                switch (type) {
-                    case LEAGUE:
+                switch (selectionType) {
+                    case MainPageSelection.TYPE_LEAGUE:
                         intent = new Intent(mContext, LeaguePagerActivity.class);
                         break;
-                    case TEAM:
-                        intent = new Intent(mContext, TeamPageActivity.class);
+                    case MainPageSelection.TYPE_TEAM:
+                        intent = new Intent(mContext, TeamActivity.class);
                         break;
-                    case PLAYER:
-                        intent = new Intent(mContext, PlayerPageActivity.class);
+                    case MainPageSelection.TYPE_PLAYER:
+                        intent = new Intent(mContext, PlayerActivity.class);
                         break;
                     default:
                         return;

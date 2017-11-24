@@ -23,9 +23,9 @@ import com.example.android.scorekeepdraft1.BuildConfig;
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.MainPageAdapter;
-import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
+import com.example.android.scorekeepdraft1.objects.Player;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             for (DocumentSnapshot documentSnapshot : task.getResult()) {
                                 String selectionID = documentSnapshot.getId();
                                 String name = documentSnapshot.getString("name");
-                                String type = documentSnapshot.getString("type");
+                                int type = documentSnapshot.getLong("type").intValue();
                                 MainPageSelection mainPageSelection = new MainPageSelection(selectionID, name, type);
                                 mSelections.add(mainPageSelection);
                                 Log.d(TAG, documentSnapshot.getId() + " => " + documentSnapshot.getData());
@@ -188,32 +188,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View view) {
-        String type;
+        int type;
+        String selection;
         switch (view.getId()) {
             case R.id.btn_create_plyr:
-                type = "Player";
+                type = MainPageSelection.TYPE_PLAYER;
+                selection = "Player";
                 break;
 
             case R.id.btn_create_join_tm:
-                type = "Team";
+                type = MainPageSelection.TYPE_TEAM;
+                selection = "Team";
                 break;
 
             case R.id.btn_create_join_lg:
-                type = "League";
+                type = MainPageSelection.TYPE_LEAGUE;
+                selection = "League";
                 break;
 
             default:
                 Log.e(TAG, "error with onclick");
                 return;
         }
-        joinCreateDialog(type);
+        joinCreateDialog(type, selection);
     }
 
-    public void joinCreateDialog(final String type) {
-
+    public void joinCreateDialog(final int type, String selection) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        final String dialogMessage = "Join or Create a " + type;
+        final String dialogMessage = "Join or Create a " + selection;
         builder.setMessage(dialogMessage).
                 setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
@@ -232,7 +235,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }
                     }
                 });
-        if (!type.equals("Player")) {
+        if (type != MainPageSelection.TYPE_PLAYER) {
             builder.setNegativeButton("Join", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
@@ -247,16 +250,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         alertDialog.show();
     }
 
-    public void enterNameDialog(final String type) {
+    public void enterNameDialog(final int type) {
         final Intent intent;
         switch (type) {
-//            case "Player":
-//                intent = new Intent(MainActivity.this, PlayerPageActivity.class);
+//            case MainPageSelection.TYPE_PLAYER:
+//                intent = new Intent(MainActivity.this, PlayerActivity.class);
 //                break;
-            case "Team":
-                intent = new Intent(MainActivity.this, TeamPageActivity.class);
+            case MainPageSelection.TYPE_TEAM:
+                intent = new Intent(MainActivity.this, TeamActivity.class);
                 break;
-            case "League":
+            case MainPageSelection.TYPE_LEAGUE:
                 intent = new Intent(MainActivity.this, LeaguePagerActivity.class);
                 break;
             default:
@@ -299,7 +302,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         MyApp myApp = (MyApp)getApplicationContext();
                         MainPageSelection mainPageSelection = new MainPageSelection(documentReference.getId(), name, type);
                         myApp.setCurrentSelection(mainPageSelection);
-                        if(type.equals("Team")) {
+                        if(type == MainPageSelection.TYPE_TEAM) {
                             ContentValues values = new ContentValues();
                             values.put(StatsEntry.COLUMN_NAME, name);
                             getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);

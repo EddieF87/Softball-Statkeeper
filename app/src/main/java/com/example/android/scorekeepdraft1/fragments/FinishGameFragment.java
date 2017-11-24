@@ -13,6 +13,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.activities.TeamGameActivity;
@@ -32,8 +33,9 @@ public class FinishGameFragment extends DialogFragment {
 //    private static final String ARG_PARAM2 = "param2";
 
     // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+//    private String mParam1;
+//    private String mParam2;
+
 
     private OnFragmentInteractionListener mListener;
 
@@ -52,29 +54,24 @@ public class FinishGameFragment extends DialogFragment {
     // TODO: Rename and change types and number of parameters
     //String param1, String param2
     public static FinishGameFragment newInstance() {
-        FinishGameFragment fragment = new FinishGameFragment();
-//        Bundle args = new Bundle();
+        //        Bundle args = new Bundle();
 //        args.putString(ARG_PARAM1, param1);
 //        args.putString(ARG_PARAM2, param2);
 //        fragment.setArguments(args);
-        return fragment;
+        return new FinishGameFragment();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
 //        if (getArguments() != null) {
 //            mParam1 = getArguments().getString(ARG_PARAM1);
 //            mParam2 = getArguments().getString(ARG_PARAM2);
 //        }
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_finish_game, container, false);
-    }
+
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(boolean isOver) {
@@ -120,9 +117,9 @@ public class FinishGameFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         View v = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_finish_game, null);
 
-        return new AlertDialog.Builder(getActivity())
+        AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
                 .setView(v)
-                .setMessage(R.string.end_game_msg)
+                .setTitle(R.string.end_game_msg)
                 .setPositiveButton(R.string.end_msg, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         onButtonPressed(true);
@@ -136,6 +133,9 @@ public class FinishGameFragment extends DialogFragment {
                         }
                     }
                 })
+                .setCancelable(false)
                 .create();
+        alertDialog.setCanceledOnTouchOutside(false);
+        return alertDialog;
     }
 }

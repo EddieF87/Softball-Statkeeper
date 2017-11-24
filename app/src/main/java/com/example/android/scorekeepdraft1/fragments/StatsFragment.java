@@ -22,7 +22,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.R;
-import com.example.android.scorekeepdraft1.activities.StatsActivity;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.PlayerStatsAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
@@ -40,14 +39,12 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
     private static final String TAG = "StatActivity: ";
     private RecyclerView rv;
     private TextView emptyView;
-    private Spinner teamSpinner;
     private String statSort;
     private String teamFilter;
     private String[] projection;
     private TextView colorView;
     private Cursor mCursor;
     private List<Player> players;
-    private List<String> teams;
     private static final int STATS_LOADER = 4;
     private HashMap<String, Integer> teamIDs;
 
@@ -90,7 +87,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         mCursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
                 new String[]{StatsEntry._ID, StatsEntry.COLUMN_NAME}, null, null, null);
 
-        teams = new ArrayList<>();
+        List<String> teams = new ArrayList<>();
         teams.add("All Teams");
         teamIDs = new HashMap<>();
         while (mCursor.moveToNext()) {
@@ -102,7 +99,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
             teams.add(teamName);
         }
         teams.add("Free Agent");
-        teamSpinner = rootView.findViewById(R.id.spinner_stats_teams);
+        Spinner teamSpinner = rootView.findViewById(R.id.spinner_stats_teams);
 
         ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(getActivity(),
                 R.layout.spinner_layout, teams);
@@ -242,7 +239,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
     }
 
 //    public void goToPlayerPage(View v) {
-//        Intent intent = new Intent(StatsActivity.this, PlayerPageActivity.class);
+//        Intent intent = new Intent(StatsActivity.this, PlayerActivity.class);
 //        TextView textView = (TextView) v;
 //        String player = textView.getText().toString();
 //        Bundle b = new Bundle();

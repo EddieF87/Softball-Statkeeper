@@ -6,10 +6,10 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -24,14 +24,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
-import com.example.android.scorekeepdraft1.activities.StandingsActivity;
-import com.example.android.scorekeepdraft1.activities.TeamPageActivity;
+import com.example.android.scorekeepdraft1.activities.TeamPagerActivity;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.StandingsCursorAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
-import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -42,15 +39,14 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
     private String[] projection = new String[]{"*, (CAST ((" + StatsEntry.COLUMN_WINS + ") AS FLOAT) / (" + StatsEntry.COLUMN_WINS + " + "
             + StatsEntry.COLUMN_LOSSES + ")) AS winpct"};
     private String statToSortBy = "winpct";
-    private String sortOrder = null;
     private static final int STANDINGS_LOADER = 3;
-    private EditText addTeamText;
+    private EditText addEditText;
+    private Button addSubmitButton;
     private StandingsCursorAdapter mAdapter;
 
     public StandingsFragment() {
         // Required empty public constructor
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -63,7 +59,7 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                Intent intent = new Intent(getActivity(), TeamPageActivity.class);
+                Intent intent = new Intent(getActivity(), TeamPagerActivity.class);
                 Uri currentTeamUri = ContentUris.withAppendedId(StatsContract.StatsEntry.CONTENT_URI_TEAMS, id);
                 intent.setData(currentTeamUri);
                 startActivity(intent);
@@ -73,10 +69,7 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
         listView.setEmptyView(emptyView);
 
         TextView title = rootView.findViewById(R.id.standings_header);
-        MyApp myApp = (MyApp) getActivity().getApplicationContext();
-        MainPageSelection mainPageSelection = myApp.getCurrentSelection();
-        String titleString = mainPageSelection.getName() + " Standings";
-        title.setText(titleString);
+        title.setVisibility(View.GONE);
 
         rootView.findViewById(R.id.name_title).setOnClickListener(this);
         rootView.findViewById(R.id.win_title).setOnClickListener(this);
@@ -87,14 +80,26 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
         rootView.findViewById(R.id.runsagainst_title).setOnClickListener(this);
         rootView.findViewById(R.id.rundiff_title).setOnClickListener(this);
 
+
         View addPlayerView = rootView.findViewById(R.id.item_team_adder);
-        addTeamText = addPlayerView.findViewById(R.id.add_player_text);
-        addTeamText.setHint(R.string.add_team);
-        Button addPlayerBtn = addPlayerView.findViewById(R.id.add_player_submit);
-        addPlayerBtn.setOnClickListener(new View.OnClickListener() {
+
+        addEditText = addPlayerView.findViewById(R.id.add_player_text);
+        addEditText.setHint(R.string.add_team);
+        addSubmitButton = addPlayerView.findViewById(R.id.add_player_submit);
+        addSubmitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 addTeam();
+            }
+        });
+
+        final FloatingActionButton startAdderButton = addPlayerView.findViewById(R.id.btn_start_adder);
+        startAdderButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startAdderButton.setVisibility(View.GONE);
+                addEditText.setVisibility(View.VISIBLE);
+                addSubmitButton.setVisibility(View.VISIBLE);
             }
         });
 
@@ -110,16 +115,17 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
         inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(),
                 InputMethodManager.HIDE_NOT_ALWAYS);
 
-        String teamName = addTeamText.getText().toString();
+        String teamName = addEditText.getText().toString();
 
         ContentValues values = new ContentValues();
         values.put(StatsEntry.COLUMN_NAME, teamName);
         getActivity().getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
-        addTeamText.setText("");
+        addEditText.setText("");
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        String sortOrder;
         if (statToSortBy.equals(StatsContract.StatsEntry.COLUMN_NAME)) {
             sortOrder = statToSortBy + " COLLATE NOCASE ASC";
         } else {
