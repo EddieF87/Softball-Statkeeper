@@ -1,12 +1,10 @@
 package com.example.android.scorekeepdraft1.activities;
 
-import android.app.ActionBar;
 import android.content.Intent;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,17 +16,17 @@ import com.example.android.scorekeepdraft1.fragments.StandingsFragment;
 import com.example.android.scorekeepdraft1.fragments.StatsFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 
-public class LeaguePagerActivity extends AppCompatActivity {
+public class LeagueManagerActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_league_pager);
+        setContentView(R.layout.activity_manager_pager);
 
         MyApp myApp = (MyApp) getApplicationContext();
         MainPageSelection mainPageSelection = myApp.getCurrentSelection();
         if(mainPageSelection == null) {
-            Intent intent = new Intent(LeaguePagerActivity.this, MainActivity.class);
+            Intent intent = new Intent(LeagueManagerActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
         }

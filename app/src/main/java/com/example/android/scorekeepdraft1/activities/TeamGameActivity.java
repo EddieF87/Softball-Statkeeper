@@ -18,6 +18,8 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.Menu;
@@ -34,6 +36,7 @@ import android.widget.Toast;
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapter;
+import com.example.android.scorekeepdraft1.adapters_listeners_etc.TeamListAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.fragments.FinishGameFragment;
@@ -258,6 +261,14 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
         thirdDisplay.setOnDragListener(new MyDragListener());
         homeDisplay.setOnDragListener(new MyDragListener());
         outTrash.setOnDragListener(new MyDragListener());
+
+        RecyclerView rv = findViewById(R.id.team_lineup);
+        rv.setLayoutManager(new LinearLayoutManager(this,
+                LinearLayoutManager.VERTICAL, false));
+        TeamListAdapter teamListAdapter = new TeamListAdapter(myTeam);
+        rv.setAdapter(teamListAdapter);
+        TextView teamText = findViewById(R.id.team_text);
+        teamText.setText(myTeamName);
 
         gameCursor = getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG, null,
                 null, null, null);
@@ -1765,3 +1776,6 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
         alertDialog.show();
     }
 }
+
+
+

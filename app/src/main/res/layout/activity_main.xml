@@ -10,10 +10,11 @@
 
     <TextView
         android:id="@+id/welcome_title"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
+        android:gravity="center"
         android:text="Welcome to ScoreKeep!"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -48,8 +49,9 @@
 
     <TextView
         android:id="@+id/textview_description"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:gravity="center"
         android:text="Keep stats for yourself, your team, or an entire league!"
         android:textSize="12sp"
         android:textStyle="italic"
@@ -59,12 +61,13 @@
 
     <TextView
         android:id="@+id/current_leagues_title"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:background="@color/stat_title"
         android:padding="4dp"
         android:text="Your Leagues, Teams, &amp; Players"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
         android:textColor="#ffffff"
         android:textSize="18sp"
         android:textStyle="bold|italic"

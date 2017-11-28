@@ -25,7 +25,6 @@ import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.MainPageAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
-import com.example.android.scorekeepdraft1.objects.Player;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -260,7 +259,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 intent = new Intent(MainActivity.this, TeamActivity.class);
                 break;
             case MainPageSelection.TYPE_LEAGUE:
-                intent = new Intent(MainActivity.this, LeaguePagerActivity.class);
+                intent = new Intent(MainActivity.this, LeagueManagerActivity.class);
                 break;
             default:
                 return;

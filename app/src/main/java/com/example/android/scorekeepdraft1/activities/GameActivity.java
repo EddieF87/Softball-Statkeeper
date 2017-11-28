@@ -17,8 +17,11 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.Menu;
@@ -34,6 +37,7 @@ import android.widget.TextView;
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapter;
+import com.example.android.scorekeepdraft1.adapters_listeners_etc.TeamListAdapter;
 import com.example.android.scorekeepdraft1.gamelog.BaseLog;
 
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
@@ -44,6 +48,8 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
+
+import org.w3c.dom.Text;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -229,6 +235,22 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         homeDisplay.setOnDragListener(new MyDragListener());
         outTrash.setOnDragListener(new MyDragListener());
 
+        RecyclerView rva = findViewById(R.id.away_lineup);
+        rva.setLayoutManager(new LinearLayoutManager(
+                this, LinearLayoutManager.VERTICAL, false));
+        TeamListAdapter teamListAdapter = new TeamListAdapter(awayTeam);
+        rva.setAdapter(teamListAdapter);
+
+        RecyclerView rvh = findViewById(R.id.home_lineup);
+        rvh.setLayoutManager(new LinearLayoutManager(
+                this, LinearLayoutManager.VERTICAL, false));
+        TeamListAdapter teamListAdapter2 = new TeamListAdapter(homeTeam);
+        rvh.setAdapter(teamListAdapter2);
+        TextView awayText = findViewById(R.id.away_text);
+        TextView homeText = findViewById(R.id.home_text);
+        awayText.setText(awayTeamName);
+        homeText.setText(homeTeamName);
+
         gameCursor = getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG, null,
                 null, null, null);
         if (gameCursor.moveToFirst()) {
@@ -266,13 +288,58 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             int playerId = playerCursor.getInt(idIndex);
             String playerName = playerCursor.getString(nameIndex);
             int firestoreIDIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
-            String  firestoreID = playerCursor.getString(firestoreIDIndex);
-
+            String firestoreID = playerCursor.getString(firestoreIDIndex);
             team.add(new Player(playerName, teamName, playerId, firestoreID));
         }
         return team;
     }
 
+    private List<Player> genderSort(List<Player> team, int femaleRequired) {
+        List<Player> females = new ArrayList<>();
+        List<Player> males = new ArrayList<>();
+        int femaleIndex = 0;
+        int maleIndex = 0;
+        int firstFemale = 0;
+        boolean firstFemaleSet = false;
+        for (Player player : team) {
+            //TODO complete gendersort, add info to players and db/firestore
+//            if (player.getGender == 0) {
+//                females.add(player);
+//                firstFemaleSet = true;
+//            } else {
+//                males.add(player);
+//            }
+            if (!firstFemaleSet) {
+                firstFemale++;
+            }
+        }
+        if (firstFemale >= femaleRequired) {
+            firstFemale = femaleRequired - 1;
+        }
+        for (int i = 0; i < firstFemale; i++) {
+            team.add(males.get(maleIndex));
+            maleIndex++;
+            if (maleIndex >= males.size()) {
+                maleIndex = 0;
+            }
+        }
+        for (int i = 0; i < 100; i++) {
+            if (i % femaleRequired == 0) {
+                team.add(females.get(femaleIndex));
+                femaleIndex++;
+                if (femaleIndex >= females.size()) {
+                    femaleIndex = 0;
+                }
+            } else {
+                team.add(males.get(maleIndex));
+                maleIndex++;
+                if (maleIndex >= males.size()) {
+                    maleIndex = 0;
+                }
+            }
+        }
+        return team;
+    }
 
     public void onRadioButtonClicked(View view) {
         boolean checked = ((RadioButton) view).isChecked();
@@ -570,7 +637,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         addPlayerStatsToDB();
         getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, null, null);
         getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, null, null);
-        Intent finishGame = new Intent(GameActivity.this, LeaguePagerActivity.class);
+        Intent finishGame = new Intent(GameActivity.this, LeagueManagerActivity.class);
         startActivity(finishGame);
         finish();
     }
@@ -585,7 +652,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         });
         builder.setNegativeButton(R.string.undo, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                if(!redoEndsGame) {
+                if (!redoEndsGame) {
                     updateGameLogs();
                     redoEndsGame = true;
                 }
@@ -1483,7 +1550,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                 startActivity(intent);
                 break;
             case R.id.action_exit_game:
-                intent = new Intent(GameActivity.this, LeaguePagerActivity.class);
+                intent = new Intent(GameActivity.this, LeagueManagerActivity.class);
                 startActivity(intent);
                 finish();
                 break;

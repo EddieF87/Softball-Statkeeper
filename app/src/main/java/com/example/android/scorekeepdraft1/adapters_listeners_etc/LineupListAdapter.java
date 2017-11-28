@@ -26,7 +26,6 @@ public class LineupListAdapter extends RecyclerView.Adapter<LineupListAdapter.Li
     private Listener listener;
     private boolean isBench;
 
-
     public LineupListAdapter(List<String> list, Listener listener, boolean isBench) {
         this.list = list;
         this.listener = listener;

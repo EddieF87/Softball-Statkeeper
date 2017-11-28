@@ -52,6 +52,5 @@ public class TeamListAdapter extends RecyclerView.Adapter<TeamListAdapter.ListVi
             super(itemView);
             mFrameLayout = (FrameLayout) itemView;
         }
-
     }
 }

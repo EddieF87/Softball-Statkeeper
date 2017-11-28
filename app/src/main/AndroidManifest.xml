@@ -73,7 +73,7 @@
             android:parentActivityName=".activities.TeamActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".activities.LeaguePagerActivity"
+            android:name=".activities.LeagueManagerActivity"
             android:launchMode="singleTask"
             android:windowSoftInputMode="stateHidden|adjustResize" />
 
@@ -83,7 +83,8 @@
             android:exported="false" />
 
         <activity android:name=".activities.TeamPagerActivity" />
-        <activity android:name=".activities.PlayerPagerActivity"></activity>
+        <activity android:name=".activities.PlayerPagerActivity" />
+        <activity android:name=".activities.TeamManagerActivity" />
     </application>
 
 </manifest>

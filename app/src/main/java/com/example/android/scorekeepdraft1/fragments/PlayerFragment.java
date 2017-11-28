@@ -51,30 +51,23 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     private String firestoreID;
     private static final String KEY_PLAYER_URI = "playerURI";
 
-    private int selectionType;
-    private String selectionID;
-    private String selectionName;
 
     public PlayerFragment() {
         // Required empty public constructor
     }
 
 
-    public static PlayerFragment newInstance(String leagueID, int leagueType, String leagueName) {
+    public static PlayerFragment newInstance(int leagueType) {
         Bundle args = new Bundle();
-        args.putString(MainPageSelection.KEY_SELECTION_ID, leagueID);
         args.putInt(MainPageSelection.KEY_SELECTION_TYPE, leagueType);
-        args.putString(MainPageSelection.KEY_SELECTION_NAME, leagueName);
         PlayerFragment fragment = new PlayerFragment();
         fragment.setArguments(args);
         return fragment;
     }
 
-    public static PlayerFragment newInstance(String leagueID, int leagueType, String leagueName, Uri uri) {
+    public static PlayerFragment newInstance(int leagueType, Uri uri) {
         Bundle args = new Bundle();
-        args.putString(MainPageSelection.KEY_SELECTION_ID, leagueID);
         args.putInt(MainPageSelection.KEY_SELECTION_TYPE, leagueType);
-        args.putString(MainPageSelection.KEY_SELECTION_NAME, leagueName);
         args.putString(KEY_PLAYER_URI, uri.toString());
         PlayerFragment fragment = new PlayerFragment();
         fragment.setArguments(args);
@@ -86,10 +79,8 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         Bundle args = getArguments();
-        selectionID = args.getString(MainPageSelection.KEY_SELECTION_ID);
-        selectionType = args.getInt(MainPageSelection.KEY_SELECTION_TYPE);
-        selectionName = args.getString(MainPageSelection.KEY_SELECTION_NAME);
-        if (selectionType == MainPageSelection.TYPE_LEAGUE) {
+        int selectionType = args.getInt(MainPageSelection.KEY_SELECTION_TYPE);
+        if (selectionType != MainPageSelection.TYPE_PLAYER) {
             String uriString = args.getString(KEY_PLAYER_URI);
             mCurrentPlayerUri = Uri.parse(uriString);
         }

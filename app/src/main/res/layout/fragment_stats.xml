@@ -1,52 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:paddingBottom="100dp"
     >
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingTop="20dp"
-        android:paddingBottom="20dp"
-        android:paddingLeft="16dp"
-        android:paddingStart="16dp"
-        android:paddingRight="16dp"
-        android:paddingEnd="16dp">
-
-        <!--<TextView-->
-            <!--android:layout_width="200dp"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:gravity="center_vertical"-->
-            <!--android:text="ISOTOPES LEAGUE"-->
-            <!--android:textSize="24sp"-->
-            <!--android:textStyle="bold"-->
-            <!--android:layout_alignParentTop="true"-->
-            <!--android:layout_alignParentStart="true"-->
-            <!--android:layout_alignParentLeft="true"-->
-            <!--/>-->
-
-        <Spinner
-            android:id="@+id/spinner_stats_teams"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            />
-
-    </RelativeLayout>
 
     <HorizontalScrollView
         android:id="@+id/scrollView1"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/relativeLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="wrap_content"
@@ -64,11 +37,11 @@
                     style="@style/StatsTitleStyle"
                     android:layout_width="100dp"
                     android:gravity="start"
-                    android:paddingTop="0dp"
                     android:paddingEnd="20dp"
                     android:paddingLeft="8dp"
                     android:paddingRight="20dp"
                     android:paddingStart="8dp"
+                    android:paddingTop="0dp"
                     android:text="@string/name"
                     android:textAlignment="textStart"
                     android:textSize="20sp" />
@@ -83,7 +56,7 @@
                 <TextView
                     android:id="@+id/game_title"
                     style="@style/StatsTitleStyle"
-                    android:text="@string/g"/>
+                    android:text="@string/g" />
 
                 <TextView
                     android:id="@+id/ab_title"
@@ -112,42 +85,42 @@
 
                 <TextView
                     android:id="@+id/avg_title"
-                    android:layout_width="70dp"
                     style="@style/StatsTitleStyle"
+                    android:layout_width="70dp"
                     android:text="@string/avg" />
 
                 <TextView
                     android:id="@+id/obp_title"
-                    android:layout_width="70dp"
                     style="@style/StatsTitleStyle"
+                    android:layout_width="70dp"
                     android:text="@string/obp" />
 
                 <TextView
                     android:id="@+id/slg_title"
-                    android:layout_width="70dp"
                     style="@style/StatsTitleStyle"
+                    android:layout_width="70dp"
                     android:text="@string/slg" />
 
                 <TextView
                     android:id="@+id/ops_title"
-                    android:layout_width="70dp"
                     style="@style/StatsTitleStyle"
+                    android:layout_width="70dp"
                     android:text="@string/ops" />
 
                 <TextView
                     android:id="@+id/sgl_title"
                     style="@style/StatsTitleStyle"
-                    android:text="@string/_1b"/>
+                    android:text="@string/_1b" />
 
                 <TextView
                     android:id="@+id/dbl_title"
                     style="@style/StatsTitleStyle"
-                    android:text="@string/_2b"/>
+                    android:text="@string/_2b" />
 
                 <TextView
                     android:id="@+id/tpl_title"
-                    android:layout_width="50dp"
                     style="@style/StatsTitleStyle"
+                    android:layout_width="50dp"
                     android:text="@string/_3b" />
 
                 <TextView
@@ -167,9 +140,50 @@
                 android:layout_height="match_parent"
                 android:gravity="center_vertical"
                 android:paddingLeft="48dp"
+                android:text="@string/empty_view_player_text"
                 android:textSize="36sp"
-                android:visibility="gone"
-                android:text="@string/empty_view_player_text" />
+                android:visibility="gone" />
         </LinearLayout>
     </HorizontalScrollView>
-</LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:orientation="horizontal"
+        android:paddingBottom="20dp"
+        android:paddingEnd="16dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingStart="16dp"
+        android:paddingTop="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <!--<TextView-->
+        <!--android:layout_width="200dp"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:gravity="center_vertical"-->
+        <!--android:text="ISOTOPES LEAGUE"-->
+        <!--android:textSize="24sp"-->
+        <!--android:textStyle="bold"-->
+        <!--android:layout_alignParentTop="true"-->
+        <!--android:layout_alignParentStart="true"-->
+        <!--android:layout_alignParentLeft="true"-->
+        <!--/>-->
+
+        <Spinner
+            android:id="@+id/spinner_stats_teams"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_gravity="end" />
+    </RelativeLayout>
+
+</android.support.constraint.ConstraintLayout>
