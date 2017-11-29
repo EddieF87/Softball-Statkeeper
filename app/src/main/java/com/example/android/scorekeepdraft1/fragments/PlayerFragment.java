@@ -22,13 +22,17 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.R;
-import com.example.android.scorekeepdraft1.activities.PlayerActivity;
-import com.example.android.scorekeepdraft1.activities.TeamActivity;
+import com.example.android.scorekeepdraft1.activities.LeagueManagerActivity;
+import com.example.android.scorekeepdraft1.activities.TeamManagerActivity;
+import com.example.android.scorekeepdraft1.activities.TeamPagerActivity;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
@@ -50,6 +54,14 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     private String teamString;
     private String firestoreID;
     private static final String KEY_PLAYER_URI = "playerURI";
+    private int selectionType;
+    private TextView runsText;
+    private TextView rbiText;
+    private TextView resultText;
+    private Button submit;
+    private int runs;
+    private int rbi;
+    private int resultCount;
 
 
     public PlayerFragment() {
@@ -74,13 +86,25 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         return fragment;
     }
 
+    public static PlayerFragment newInstance(int leagueType, String playerName) {
+        Bundle args = new Bundle();
+        args.putInt(MainPageSelection.KEY_SELECTION_TYPE, leagueType);
+        args.putString(MainPageSelection.KEY_SELECTION_NAME, playerName);
+        PlayerFragment fragment = new PlayerFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         Bundle args = getArguments();
-        int selectionType = args.getInt(MainPageSelection.KEY_SELECTION_TYPE);
-        if (selectionType != MainPageSelection.TYPE_PLAYER) {
+        selectionType = args.getInt(MainPageSelection.KEY_SELECTION_TYPE);
+        if (selectionType == MainPageSelection.TYPE_PLAYER) {
+            playerString = args.getString(MainPageSelection.KEY_SELECTION_NAME);
+            mCurrentPlayerUri = StatsEntry.CONTENT_URI_PLAYERS;
+        } else {
             String uriString = args.getString(KEY_PLAYER_URI);
             mCurrentPlayerUri = Uri.parse(uriString);
         }
@@ -160,6 +184,33 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             TextView bbView = rootView.findViewById(R.id.playerboard_bb);
             TextView teamView = rootView.findViewById(R.id.player_team);
 
+            if(selectionType == MainPageSelection.TYPE_LEAGUE) {
+                teamView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (teamString != null) {
+                            Intent intent;
+                            String selection = StatsEntry.COLUMN_NAME + "=?";
+                            String[] selectionArgs = new String[]{teamString};
+                            Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
+                                    null, selection, selectionArgs, null);
+                            if (cursor.moveToFirst()) {
+                                int playerId = cursor.getInt(cursor.getColumnIndex(StatsEntry._ID));
+                                Uri teamUri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_TEAMS, playerId);
+                                intent = new Intent(getActivity(), TeamPagerActivity.class);
+                                intent.setData(teamUri);
+                            } else {
+                                intent = new Intent(getActivity(), LeagueManagerActivity.class);
+                            }
+                            cursor.close();
+                            startActivity(intent);
+                        } else {
+                            Log.d("PlayerActivity", "Error going to team page");
+                        }
+                    }
+                });
+            }
+
 
             nameView.setText(player.getName());
             teamView.setText(teamString);
@@ -176,9 +227,134 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             slgView.setText(String.valueOf(formatter.format(player.getSLG())));
             opsView.setText(String.valueOf(formatter.format(player.getOPS())));
 
-            String title = "Player Bio: " + playerString;
+            String title = "Player: " + playerString;
+            if (selectionType == MainPageSelection.TYPE_PLAYER) {
+                setPlayerManager();
+            }
             getActivity().setTitle(title);
         }
+    }
+
+    private void setPlayerManager() {
+        View playerManager = getView().findViewById(R.id.player_mgr);
+        playerManager.setVisibility(View.VISIBLE);
+
+        runs = 0;
+        rbi = 0;
+        resultCount = 0;
+        rbiText = playerManager.findViewById(R.id.textview_rbi);
+        runsText = playerManager.findViewById(R.id.textview_runs);
+        resultText = playerManager.findViewById(R.id.textview_results);
+        final Spinner resultSpinner = playerManager.findViewById(R.id.spinner_result);
+        ImageButton addRuns = playerManager.findViewById(R.id.btn_add_run);
+        ImageButton addRBI = playerManager.findViewById(R.id.btn_add_rbi);
+        ImageButton addResult = playerManager.findViewById(R.id.btn_add_result);
+        ImageButton subtractRuns = playerManager.findViewById(R.id.btn_subtract_run);
+        ImageButton subtractRBI = playerManager.findViewById(R.id.btn_subtract_rbi);
+        ImageButton subtractResult = playerManager.findViewById(R.id.btn_subtract_result);
+        Button submitButton = playerManager.findViewById(R.id.submit);
+
+        addRuns.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                runs++;
+                runsText.setText(String.valueOf(runs));
+            }
+        });
+        addRBI.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                rbi++;
+                rbiText.setText(String.valueOf(rbi));
+            }
+        });
+        addResult.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                resultCount++;
+                resultText.setText(String.valueOf(resultCount));
+            }
+        });
+        subtractRuns.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                runs--;
+                runsText.setText(String.valueOf(runs));
+            }
+        });
+        subtractRBI.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                rbi--;
+                rbiText.setText(String.valueOf(rbi));
+            }
+        });
+        subtractResult.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                resultCount--;
+                resultText.setText(String.valueOf(resultCount));
+            }
+        });
+        submitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String result = resultSpinner.getSelectedItem().toString();
+                String statEntry;
+
+                Cursor cursor = getActivity().getContentResolver().query(mCurrentPlayerUri,
+                        null, null, null, null);
+                if (cursor.moveToFirst()) {
+                    switch (result) {
+                        case "1B":
+                            statEntry = StatsEntry.COLUMN_1B;
+                            break;
+                        case "2B":
+                            statEntry = StatsEntry.COLUMN_2B;
+                            break;
+                        case "3B":
+                            statEntry = StatsEntry.COLUMN_3B;
+                            break;
+                        case "HR":
+                            statEntry = StatsEntry.COLUMN_HR;
+                            break;
+                        case "BB":
+                            statEntry = StatsEntry.COLUMN_BB;
+                            break;
+                        case "Out":
+                            statEntry = StatsEntry.COLUMN_OUT;
+                            break;
+                        case "SF":
+                            statEntry = StatsEntry.COLUMN_SF;
+                            break;
+                        default:
+                            return;
+                    }
+                    int currentResultCount = cursor.getInt(cursor.getColumnIndex(statEntry));
+                    resultCount += currentResultCount;
+                    int currentRuns = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_RUN));
+                    runs += currentRuns;
+                    int currentRBI = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_RBI));
+                    rbi += currentRBI;
+                    ContentValues values = new ContentValues();
+                    values.put(statEntry, resultCount);
+                    values.put(StatsEntry.COLUMN_RUN, runs);
+                    values.put(StatsEntry.COLUMN_RBI, rbi);
+                    getActivity().getContentResolver().update(mCurrentPlayerUri,
+                            values, null, null);
+                } else {
+                    Toast.makeText(getActivity(), "FEGTFWEVV", Toast.LENGTH_LONG).show();
+                }
+                cursor.close();
+
+                runs = 0;
+                rbi = 0;
+                resultCount = 0;
+                runsText.setText(String.valueOf(0));
+                rbiText.setText(String.valueOf(0));
+                resultText.setText(String.valueOf(0));
+            }
+        });
     }
 
     @Override
@@ -334,23 +510,23 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         return true;
     }
 
-    public void goToTeamPage(View v) {
-        if (teamString != null) {
-            Intent intent = new Intent(getActivity(), TeamActivity.class);
-
-            String selection = StatsEntry.COLUMN_NAME + "=?";
-            String[] selectionArgs = new String[]{teamString};
-            Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
-                    null, selection, selectionArgs, null);
-            if (cursor.moveToFirst()) {
-                int playerId = cursor.getInt(cursor.getColumnIndex(StatsEntry._ID));
-                Uri teamUri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_TEAMS, playerId);
-                intent.setData(teamUri);
-            }
-            startActivity(intent);
-        } else {
-            Log.v("PlayerActivity", "Error going to team page");
-        }
-    }
+//    public void goToTeamPage(View v) {
+//        if (teamString != null) {
+//            Intent intent = new Intent(getActivity(), TeamActivity.class);
+//
+//            String selection = StatsEntry.COLUMN_NAME + "=?";
+//            String[] selectionArgs = new String[]{teamString};
+//            Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
+//                    null, selection, selectionArgs, null);
+//            if (cursor.moveToFirst()) {
+//                int playerId = cursor.getInt(cursor.getColumnIndex(StatsEntry._ID));
+//                Uri teamUri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_TEAMS, playerId);
+//                intent.setData(teamUri);
+//            }
+//            startActivity(intent);
+//        } else {
+//            Log.v("PlayerActivity", "Error going to team page");
+//        }
+//    }
 
 }

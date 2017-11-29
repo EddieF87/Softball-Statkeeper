@@ -105,7 +105,11 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
         selectionName = args.getString(MainPageSelection.KEY_SELECTION_NAME);
         if (selectionType == MainPageSelection.TYPE_LEAGUE) {
             String uriString = args.getString(KEY_TEAM_URI);
-            mCurrentTeamUri = Uri.parse(uriString);
+            if (uriString == null) {
+                mCurrentTeamUri = null;
+            } else {
+                mCurrentTeamUri = Uri.parse(uriString);
+            }
         }
     }
 
@@ -255,6 +259,9 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
 
             String recordText = wins + "-" + losses + "-" + ties;
             teamRecordView.setText(recordText);
+        } else {
+            //todo add dialog about adding teams/players
+
         }
         int sumG = wins + losses + ties;
 

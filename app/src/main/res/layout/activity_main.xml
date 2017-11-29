@@ -5,15 +5,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="8dp"
-    tools:context="com.example.android.scorekeepdraft1.activities.MainActivity">
+    tools:context="com.example.android.scorekeepdraft1.activities.MainActivity"
+    >
 
 
     <TextView
         android:id="@+id/welcome_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
         android:gravity="center"
         android:text="Welcome to ScoreKeep!"
         android:textSize="24sp"
@@ -25,17 +25,10 @@
         android:id="@+id/leagueFrameLayout"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/guideline"
+        app:layout_constraintBottom_toTopOf="@+id/textview_join_or_create"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/current_leagues_title">
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/rv_main"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
 
         <TextView
             android:id="@+id/error_rv_main"
@@ -45,11 +38,16 @@
             android:text="Error with loading"
             android:visibility="gone" />
 
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_main"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
     </FrameLayout>
 
     <TextView
         android:id="@+id/textview_description"
-        android:layout_width="0dp"
+        android:layout_width="344dp"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="Keep stats for yourself, your team, or an entire league!"
@@ -63,7 +61,7 @@
         android:id="@+id/current_leagues_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         android:background="@color/stat_title"
         android:padding="4dp"
         android:text="Your Leagues, Teams, &amp; Players"
@@ -75,23 +73,112 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textview_description" />
 
-    <android.support.constraint.Guideline
-        android:id="@+id/guideline"
+
+    <TextView
+        android:id="@+id/textview_players_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_begin="247dp" />
-
-
-    <FrameLayout
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="16dp"
+        android:text="Players"
+        android:textSize="18sp"
+        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/guideline">
+        app:layout_constraintTop_toTopOf="@+id/btn_create_plyr" />
 
-        <include layout="@layout/item_add_lg" />
+    <TextView
+        android:id="@+id/textview_leagues_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Leagues"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="@+id/textview_teams_title"
+        app:layout_constraintTop_toTopOf="@+id/btn_create_join_lg" />
 
-    </FrameLayout>
+    <TextView
+        android:id="@+id/textview_leagues_description"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="32dp"
+        android:text="Manage, view, &amp; share stats, scores, &amp; standings of an entire league"
+        android:textSize="12sp"
+        android:textStyle="italic"
+        app:layout_constraintEnd_toStartOf="@+id/btn_create_join_lg"
+        app:layout_constraintStart_toStartOf="@+id/textview_leagues_title"
+        app:layout_constraintTop_toBottomOf="@+id/textview_leagues_title" />
+
+    <TextView
+        android:id="@+id/textview_teams_description"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="32dp"
+        android:text="Manage, view, &amp; share stats &amp; scores of your team"
+        android:textSize="12sp"
+        android:textStyle="italic"
+        app:layout_constraintEnd_toStartOf="@+id/btn_create_join_tm"
+        app:layout_constraintStart_toStartOf="@+id/textview_teams_title"
+        app:layout_constraintTop_toBottomOf="@+id/textview_teams_title" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/btn_create_plyr"
+        style="@style/FloatingActionButtonStyle"
+        android:layout_marginBottom="24dp"
+        android:layout_marginEnd="32dp"
+        app:layout_constraintBottom_toTopOf="@+id/btn_create_join_tm"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/btn_create_join_lg"
+        style="@style/FloatingActionButtonStyle"
+        android:layout_height="44dp"
+        android:layout_marginBottom="24dp"
+        android:layout_marginEnd="32dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/textview_join_or_create"
+        android:layout_width="0dp"
+        android:layout_height="33dp"
+        android:layout_marginBottom="16dp"
+        android:background="@color/stat_title"
+        android:padding="4dp"
+        android:text="Join or Create..."
+        android:textColor="#ffffff"
+        android:textSize="18sp"
+        android:textStyle="bold|italic"
+        app:layout_constraintBottom_toTopOf="@+id/btn_create_plyr"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/textview_players_description"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="32dp"
+        android:text="Manage &amp; view your individual stats"
+        android:textSize="12sp"
+        android:textStyle="italic"
+        app:layout_constraintEnd_toStartOf="@+id/btn_create_plyr"
+        app:layout_constraintStart_toStartOf="@+id/textview_players_title"
+        app:layout_constraintTop_toBottomOf="@+id/textview_players_title" />
+
+    <TextView
+        android:id="@+id/textview_teams_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Teams"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="@+id/textview_players_title"
+        app:layout_constraintTop_toTopOf="@+id/btn_create_join_tm" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/btn_create_join_tm"
+        style="@style/FloatingActionButtonStyle"
+        android:layout_marginBottom="24dp"
+        android:layout_marginEnd="32dp"
+        app:layout_constraintBottom_toTopOf="@+id/btn_create_join_lg"
+        app:layout_constraintEnd_toEndOf="parent" />
+
 </android.support.constraint.ConstraintLayout>

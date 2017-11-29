@@ -2,6 +2,7 @@ package com.example.android.scorekeepdraft1.adapters_listeners_etc;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,8 +13,7 @@ import android.widget.TextView;
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.activities.LeagueManagerActivity;
-import com.example.android.scorekeepdraft1.activities.PlayerActivity;
-import com.example.android.scorekeepdraft1.activities.TeamActivity;
+import com.example.android.scorekeepdraft1.activities.PlayerManagerActivity;
 import com.example.android.scorekeepdraft1.activities.TeamManagerActivity;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 
@@ -47,29 +47,35 @@ public class MainPageAdapter extends RecyclerView.Adapter<MainPageAdapter.MainPa
     @Override
     public void onBindViewHolder(MainPageViewHolder holder, int position) {
         FrameLayout frameLayout = holder.mFrameLayout;
-        TextView textView = frameLayout.findViewById(R.id.team_text);
+        TextView nameView = frameLayout.findViewById(R.id.team_text);
         final MainPageSelection mainPageSelection = mList.get(position);
-        String name = mainPageSelection.getName();
-        textView.setText(name);
         final int selectionType = mainPageSelection.getType();
-        textView.setOnClickListener(new View.OnClickListener() {
+        final Intent intent;
+        String name;
+        switch (selectionType) {
+            case MainPageSelection.TYPE_LEAGUE:
+                intent = new Intent(mContext, LeagueManagerActivity.class);
+                name = mainPageSelection.getName() + "  (League)";
+                nameView.setTextColor(Color.MAGENTA);
+                break;
+            case MainPageSelection.TYPE_TEAM:
+                intent = new Intent(mContext, TeamManagerActivity.class);
+                name = mainPageSelection.getName() + "  (Team)";
+                nameView.setTextColor(Color.BLUE);
+                break;
+            case MainPageSelection.TYPE_PLAYER:
+                intent = new Intent(mContext, PlayerManagerActivity.class);
+                name = mainPageSelection.getName() + "  (Player)";
+                nameView.setTextColor(Color.RED);
+                break;
+            default:
+                return;
+        }
+        nameView.setText(name);
+
+        nameView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                Intent intent;
-                switch (selectionType) {
-                    case MainPageSelection.TYPE_LEAGUE:
-                        intent = new Intent(mContext, LeagueManagerActivity.class);
-                        break;
-                    case MainPageSelection.TYPE_TEAM:
-                        intent = new Intent(mContext, TeamManagerActivity.class);
-                        break;
-                    case MainPageSelection.TYPE_PLAYER:
-                        intent = new Intent(mContext, PlayerActivity.class);
-                        break;
-                    default:
-                        return;
-                }
                 MyApp myApp = (MyApp) mContext.getApplicationContext();
                 myApp.setCurrentSelection(mainPageSelection);
                 startActivity(mContext, intent, null);

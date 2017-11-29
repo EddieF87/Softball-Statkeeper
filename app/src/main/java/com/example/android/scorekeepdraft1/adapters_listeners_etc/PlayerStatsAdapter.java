@@ -14,7 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.android.scorekeepdraft1.activities.PlayerPagerActivity;
-import com.example.android.scorekeepdraft1.activities.TeamActivity;
+import com.example.android.scorekeepdraft1.activities.TeamManagerActivity;
 import com.example.android.scorekeepdraft1.activities.TeamPagerActivity;
 import com.example.android.scorekeepdraft1.objects.Player;
 import com.example.android.scorekeepdraft1.R;
@@ -42,7 +42,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
         super();
         this.players = players;
         this.context = context;
-        if (context instanceof TeamActivity || context instanceof TeamPagerActivity) {
+        if (context instanceof TeamManagerActivity || context instanceof TeamPagerActivity) {
             visibility = View.GONE;
             isTeam = true;
         } else {

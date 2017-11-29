@@ -823,7 +823,7 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
         addPlayerStatsToDB();
         getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, null, null);
         getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, null, null);
-        Intent finishGame = new Intent(TeamGameActivity.this, TeamActivity.class);
+        Intent finishGame = new Intent(TeamGameActivity.this, TeamManagerActivity.class);
         startActivity(finishGame);
         finish();
     }
@@ -872,9 +872,13 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
         String selection = StatsEntry.COLUMN_NAME + "=?";
         String[] selectionArgs = {teamName};
         playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS, null,
-                selection, selectionArgs, null
+                null, null, null
         );
-        playerCursor.moveToFirst();
+        if (playerCursor.moveToFirst()) {
+            Log.d(TAG, "moved to first");
+        } else {
+            Log.d(TAG, "didn't move to first");
+        }
         ContentValues values = new ContentValues();
         final ContentValues backupValues = new ContentValues();
 
@@ -1677,8 +1681,6 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
         myTeamIndex++;
         if (myTeamIndex >= myTeam.size()) {
             myTeamIndex = 0;
-        } else {
-            Log.v(TAG, "SOMETHING WENT WRONG WITH THE INDEXES!!!");
         }
     }
 
@@ -1686,8 +1688,6 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
         myTeamIndex--;
         if (myTeamIndex <= 0) {
             myTeamIndex = myTeam.size() - 1;
-        } else {
-            Log.v(TAG, "SOMETHING WENT WRONG WITH THE INDEXES!!!");
         }
     }
 
@@ -1718,7 +1718,7 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
                 startActivity(intent);
                 break;
             case R.id.action_exit_game:
-                intent = new Intent(TeamGameActivity.this, TeamActivity.class);
+                intent = new Intent(TeamGameActivity.this, TeamManagerActivity.class);
                 startActivity(intent);
                 finish();
                 break;

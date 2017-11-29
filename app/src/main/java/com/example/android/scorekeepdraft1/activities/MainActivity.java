@@ -252,11 +252,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void enterNameDialog(final int type) {
         final Intent intent;
         switch (type) {
-//            case MainPageSelection.TYPE_PLAYER:
-//                intent = new Intent(MainActivity.this, PlayerActivity.class);
-//                break;
+            case MainPageSelection.TYPE_PLAYER:
+                intent = new Intent(MainActivity.this, PlayerManagerActivity.class);
+                break;
             case MainPageSelection.TYPE_TEAM:
-                intent = new Intent(MainActivity.this, TeamActivity.class);
+                intent = new Intent(MainActivity.this, TeamManagerActivity.class);
                 break;
             case MainPageSelection.TYPE_LEAGUE:
                 intent = new Intent(MainActivity.this, LeagueManagerActivity.class);
@@ -305,6 +305,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             ContentValues values = new ContentValues();
                             values.put(StatsEntry.COLUMN_NAME, name);
                             getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
+                        } else if(type == MainPageSelection.TYPE_PLAYER) {
+                            ContentValues values = new ContentValues();
+                            values.put(StatsEntry.COLUMN_NAME, name);
+                            getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
                         }
                         startActivity(intent);
                     }

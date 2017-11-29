@@ -1,6 +1,7 @@
 package com.example.android.scorekeepdraft1.activities;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -8,9 +9,12 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
+import com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapter;
+import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.fragments.LineupFragment;
 import com.example.android.scorekeepdraft1.fragments.MatchupFragment;
 import com.example.android.scorekeepdraft1.fragments.StandingsFragment;
@@ -36,6 +40,15 @@ public class TeamManagerActivity extends AppCompatActivity {
         final String leagueID = mainPageSelection.getId();
         final int leagueType = mainPageSelection.getType();
         setTitle(leagueName);
+
+        Cursor cursor = getContentResolver().query(StatsContract.StatsEntry.CONTENT_URI_TEAMS,
+                null, null, null, null);
+        if (!cursor.moveToFirst()) {
+            Toast.makeText(this, "syncing", Toast.LENGTH_SHORT).show();
+            FirestoreAdapter firestoreAdapter = new FirestoreAdapter(this);
+            firestoreAdapter.syncStats();
+        }
+        cursor.close();
 
         ViewPager viewPager = findViewById(R.id.league_view_pager);
 
