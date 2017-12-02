@@ -68,7 +68,7 @@ public class FirestoreAdapter {
                                             @Override
                                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                                 if (task.isSuccessful()) {
-                                                    Log.d(TAG, "Query successful for " + playerIdString);
+                                                    WriteBatch batch = mFirestore.batch();
 
                                                     final QuerySnapshot querySnapshot = task.getResult();
                                                     int games = 0;
@@ -99,83 +99,71 @@ public class FirestoreAdapter {
                                                             doubles, triples, hrs, outs, walks, sfs);
                                                     final int finalGames = games;
 
-                                                    mFirestore.runTransaction(new Transaction.Function<DocumentReference>() {
-                                                        @Nullable
+
+                                                    final DocumentReference docRef = mFirestore.collection(LEAGUE_COLLECTION)
+                                                            .document(leagueID).collection(PLAYERS_COLLECTION).document(playerIdString);
+
+                                                    int totalGames = player.getGames() + finalGames;
+                                                    int totalSingles = player.getSingles() + finalLog.getSingles();
+                                                    int totalDoubles = player.getDoubles() + finalLog.getDoubles();
+                                                    int totalTriples = player.getTriples() + finalLog.getTriples();
+                                                    int totalHrs = player.getHrs() + finalLog.getHrs();
+                                                    int totalWalks = player.getWalks() + finalLog.getWalks();
+                                                    int totalOuts = player.getOuts() + finalLog.getOuts();
+                                                    int totalRbis = player.getRbis() + finalLog.getRbi();
+                                                    int totalRuns = player.getRuns() + finalLog.getRuns();
+                                                    int totalSFs = player.getSacFlies() + finalLog.getSacfly();
+
+                                                    player.setGames(totalGames);
+                                                    player.setSingles(totalSingles);
+                                                    player.setDoubles(totalDoubles);
+                                                    player.setTriples(totalTriples);
+                                                    player.setHrs(totalHrs);
+                                                    player.setWalks(totalWalks);
+                                                    player.setOuts(totalOuts);
+                                                    player.setRbis(totalRbis);
+                                                    player.setRuns(totalRuns);
+                                                    player.setSacFlies(totalSFs);
+
+                                                    batch.set(docRef, player);
+
+                                                    for (DocumentSnapshot snapshot : querySnapshot) {
+                                                        batch.delete(snapshot.getReference());
+                                                    }
+                                                    batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
                                                         @Override
-                                                        public DocumentReference apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
-                                                            final DocumentReference docRef = mFirestore.collection(LEAGUE_COLLECTION)
-                                                                    .document(leagueID).collection(PLAYERS_COLLECTION).document(playerIdString);
-
-                                                            int totalGames = player.getGames() + finalGames;
-                                                            int totalSingles = player.getSingles() + finalLog.getSingles();
-                                                            int totalDoubles = player.getDoubles() + finalLog.getDoubles();
-                                                            int totalTriples = player.getTriples() + finalLog.getTriples();
-                                                            int totalHrs = player.getHrs() + finalLog.getHrs();
-                                                            int totalWalks = player.getWalks() + finalLog.getWalks();
-                                                            int totalOuts = player.getOuts() + finalLog.getOuts();
-                                                            int totalRbis = player.getRbis() + finalLog.getRbi();
-                                                            int totalRuns = player.getRuns() + finalLog.getRuns();
-                                                            int totalSFs = player.getSacFlies() + finalLog.getSacfly();
-
-                                                            player.setGames(totalGames);
-                                                            player.setSingles(totalSingles);
-                                                            player.setDoubles(totalDoubles);
-                                                            player.setTriples(totalTriples);
-                                                            player.setHrs(totalHrs);
-                                                            player.setWalks(totalWalks);
-                                                            player.setOuts(totalOuts);
-                                                            player.setRbis(totalRbis);
-                                                            player.setRuns(totalRuns);
-                                                            player.setSacFlies(totalSFs);
-
-                                                            transaction.set(docRef, player);
-                                                            return docRef;
-                                                        }
-                                                    }).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                                        @Override
-                                                        public void onSuccess(DocumentReference documentReference) {
-                                                            Log.d(TAG, "Update successful for " + playerIdString);
-                                                            //delete GameLogs
-                                                            WriteBatch batch = mFirestore.batch();
-                                                            for (DocumentSnapshot snapshot : querySnapshot) {
-                                                                batch.delete(snapshot.getReference());
-                                                            }
-                                                            batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                @Override
-                                                                public void onComplete(@NonNull Task<Void> task) {
-                                                                    Log.d(TAG, "Deletion successful for " + playerIdString);
-                                                                }
-                                                            });
-                                                            ContentValues values = new ContentValues();
-                                                            values.put(StatsEntry.COLUMN_NAME, player.getName());
-                                                            values.put(StatsEntry.COLUMN_TEAM, player.getTeam());
-                                                            values.put(StatsEntry.COLUMN_1B, player.getSingles());
-                                                            values.put(StatsEntry.COLUMN_2B, player.getDoubles());
-                                                            values.put(StatsEntry.COLUMN_3B, player.getTriples());
-                                                            values.put(StatsEntry.COLUMN_HR, player.getHrs());
-                                                            values.put(StatsEntry.COLUMN_RUN, player.getRuns());
-                                                            values.put(StatsEntry.COLUMN_RBI, player.getRbis());
-                                                            values.put(StatsEntry.COLUMN_BB, player.getWalks());
-                                                            values.put(StatsEntry.COLUMN_OUT, player.getOuts());
-                                                            values.put(StatsEntry.COLUMN_SF, player.getSacFlies());
-                                                            values.put(StatsEntry.COLUMN_G, player.getGames());
-                                                            String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
-                                                            int rowsUpdated = mContext.getContentResolver().update(StatsEntry.CONTENT_URI_PLAYERS,
-                                                                    values, selection, new String[]{playerIdString});
-                                                            if (rowsUpdated < 1) {
-                                                                values.put("sync", 0);
-                                                                values.put(StatsEntry.COLUMN_NAME, player.getName());
-                                                                values.put(StatsEntry.COLUMN_TEAM, player.getTeam());
-                                                                values.put(StatsEntry.COLUMN_FIRESTORE_ID, playerIdString);
-                                                                Log.d(TAG, "Insert attempt for player " + playerIdString + player.getName());
-                                                                mContext.getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
-                                                            }
+                                                        public void onComplete(@NonNull Task<Void> task) {
+                                                            Log.d(TAG, "Deletion successful for " + playerIdString);
                                                         }
                                                     });
 
-                                                } else {
-                                                    Log.d(TAG, "Error getting documents: ", task.getException());
+                                                    ContentValues values = new ContentValues();
+                                                    values.put(StatsEntry.COLUMN_NAME, player.getName());
+                                                    values.put(StatsEntry.COLUMN_TEAM, player.getTeam());
+                                                    values.put(StatsEntry.COLUMN_1B, player.getSingles());
+                                                    values.put(StatsEntry.COLUMN_2B, player.getDoubles());
+                                                    values.put(StatsEntry.COLUMN_3B, player.getTriples());
+                                                    values.put(StatsEntry.COLUMN_HR, player.getHrs());
+                                                    values.put(StatsEntry.COLUMN_RUN, player.getRuns());
+                                                    values.put(StatsEntry.COLUMN_RBI, player.getRbis());
+                                                    values.put(StatsEntry.COLUMN_BB, player.getWalks());
+                                                    values.put(StatsEntry.COLUMN_OUT, player.getOuts());
+                                                    values.put(StatsEntry.COLUMN_SF, player.getSacFlies());
+                                                    values.put(StatsEntry.COLUMN_G, player.getGames());
+                                                    String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
+
+                                                    int rowsUpdated = mContext.getContentResolver().update(StatsEntry.CONTENT_URI_PLAYERS,
+                                                            values, selection, new String[]{playerIdString});
+
+                                                    if (rowsUpdated < 1) {
+                                                        values.put("sync", 0);
+                                                        values.put(StatsEntry.COLUMN_NAME, player.getName());
+                                                        values.put(StatsEntry.COLUMN_TEAM, player.getTeam());
+                                                        values.put(StatsEntry.COLUMN_FIRESTORE_ID, playerIdString);
+                                                        mContext.getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
+                                                    }
                                                 }
+
                                             }
                                         });
                             }
@@ -185,17 +173,23 @@ public class FirestoreAdapter {
                     }
                 });
 
+        //Get the collection of all teams in a league
         mFirestore.collection(LEAGUE_COLLECTION).document(leagueID).collection(TEAMS_COLLECTION)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
+
+                            int batchNum = 0;
+                            //loop through teams
                             for (DocumentSnapshot document : task.getResult()) {
-                                Log.d(TAG, document.getId() + " => " + document.getData());
+                                //Get the document data and ID of a team
                                 final Team team = document.toObject(Team.class);
                                 final String teamIdString = document.getId();
+                                Log.d(TAG, "Batch #" + batchNum);
 
+                                //Get the logs for a team
                                 mFirestore.collection(LEAGUE_COLLECTION).document(leagueID).collection(TEAMS_COLLECTION)
                                         .document(teamIdString).collection(TEAM_LOGS)
                                         .get()
@@ -203,7 +197,8 @@ public class FirestoreAdapter {
                                             @Override
                                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                                 if (task.isSuccessful()) {
-                                                    Log.d(TAG, "Query successful for team " + teamIdString);
+
+                                                    WriteBatch batch = mFirestore.batch();
 
                                                     final QuerySnapshot querySnapshot = task.getResult();
                                                     int wins = 0;
@@ -212,6 +207,7 @@ public class FirestoreAdapter {
                                                     int runsScored = 0;
                                                     int runsAllowed = 0;
 
+                                                    //compile logs for team
                                                     for (DocumentSnapshot document : task.getResult()) {
                                                         Log.d(TAG, document.getId() + " => " + document.getData());
                                                         TeamLog teamLog = document.toObject(TeamLog.class);
@@ -223,66 +219,49 @@ public class FirestoreAdapter {
                                                     }
                                                     final TeamLog finalLog = new TeamLog(0, wins, losses, ties, runsScored, runsAllowed);
 
-                                                    mFirestore.runTransaction(new Transaction.Function<DocumentReference>() {
-                                                        @Nullable
-                                                        @Override
-                                                        public DocumentReference apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
-                                                            final DocumentReference docRef = mFirestore.collection(LEAGUE_COLLECTION)
-                                                                    .document(leagueID).collection(TEAMS_COLLECTION).document(teamIdString);
 
-                                                            int totalWins = team.getWins() + finalLog.getWins();
-                                                            int totalLosses = team.getLosses() + finalLog.getLosses();
-                                                            int totalTies = team.getTies() + finalLog.getTies();
-                                                            int totalRunsScored = team.getTotalRunsScored() + finalLog.getRunsScored();
-                                                            int totalRunsAllowed = team.getTotalRunsAllowed() + finalLog.getRunsAllowed();
+                                                    DocumentReference docRef = mFirestore.collection(LEAGUE_COLLECTION)
+                                                            .document(leagueID).collection(TEAMS_COLLECTION).document(teamIdString);
 
-                                                            team.setWins(totalWins);
-                                                            team.setLosses(totalLosses);
-                                                            team.setTies(totalTies);
-                                                            team.setTotalRunsScored(totalRunsScored);
-                                                            team.setTotalRunsAllowed(totalRunsAllowed);
+                                                    int totalWins = team.getWins() + finalLog.getWins();
+                                                    int totalLosses = team.getLosses() + finalLog.getLosses();
+                                                    int totalTies = team.getTies() + finalLog.getTies();
+                                                    int totalRunsScored = team.getTotalRunsScored() + finalLog.getRunsScored();
+                                                    int totalRunsAllowed = team.getTotalRunsAllowed() + finalLog.getRunsAllowed();
 
-                                                            transaction.set(docRef, team);
-                                                            return docRef;
-                                                        }
-                                                    }).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                                        @Override
-                                                        public void onSuccess(DocumentReference documentReference) {
-                                                            Log.d(TAG, "Update successful for team " + teamIdString);
-                                                            //delete GameLogs
-                                                            WriteBatch batch = mFirestore.batch();
-                                                            for (DocumentSnapshot snapshot : querySnapshot) {
-                                                                batch.delete(snapshot.getReference());
-                                                            }
-                                                            batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                @Override
-                                                                public void onComplete(@NonNull Task<Void> task) {
-                                                                    Log.d(TAG, "Deletion successful for team " + teamIdString);
-                                                                }
-                                                            });
-                                                            ContentValues values = new ContentValues();
-                                                            values.put(StatsEntry.COLUMN_NAME, team.getName());
-                                                            values.put(StatsEntry.COLUMN_WINS, team.getWins());
-                                                            values.put(StatsEntry.COLUMN_LOSSES, team.getLosses());
-                                                            values.put(StatsEntry.COLUMN_TIES, team.getTies());
-                                                            values.put(StatsEntry.COLUMN_RUNSFOR, team.getTotalRunsScored());
-                                                            values.put(StatsEntry.COLUMN_RUNSAGAINST, team.getTotalRunsAllowed());
-                                                            String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
-                                                            Log.d(TAG, "test:  " + teamIdString +  "   " + team.getTeamId());
-                                                            int rowsUpdated = mContext.getContentResolver().update(StatsEntry.CONTENT_URI_TEAMS,
-                                                                    values, selection, new String[]{teamIdString});
-                                                            if (rowsUpdated < 1) {
-                                                                values.put("sync", 0);
-                                                                values.put(StatsEntry.COLUMN_NAME, team.getName());
-                                                                values.put(StatsEntry.COLUMN_FIRESTORE_ID, teamIdString);
-                                                                Log.d(TAG, "Insert attempt for team " + teamIdString + team.getName());
-                                                                mContext.getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
-                                                            }
-                                                        }
-                                                    });
+                                                    team.setWins(totalWins);
+                                                    team.setLosses(totalLosses);
+                                                    team.setTies(totalTies);
+                                                    team.setTotalRunsScored(totalRunsScored);
+                                                    team.setTotalRunsAllowed(totalRunsAllowed);
 
-                                                } else {
-                                                    Log.d(TAG, "Error getting documents: ", task.getException());
+                                                    batch.set(docRef, team);
+
+                                                    for (DocumentSnapshot snapshot : querySnapshot) {
+                                                        batch.delete(snapshot.getReference());
+                                                    }
+
+                                                    batch.commit();
+
+                                                    ContentValues values = new ContentValues();
+                                                    values.put(StatsEntry.COLUMN_NAME, team.getName());
+                                                    values.put(StatsEntry.COLUMN_WINS, team.getWins());
+                                                    values.put(StatsEntry.COLUMN_LOSSES, team.getLosses());
+                                                    values.put(StatsEntry.COLUMN_TIES, team.getTies());
+                                                    values.put(StatsEntry.COLUMN_RUNSFOR, team.getTotalRunsScored());
+                                                    values.put(StatsEntry.COLUMN_RUNSAGAINST, team.getTotalRunsAllowed());
+                                                    String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
+                                                    Log.d(TAG, "test:  " + teamIdString + "   " + team.getTeamId());
+
+                                                    int rowsUpdated = mContext.getContentResolver().update(StatsEntry.CONTENT_URI_TEAMS,
+                                                            values, selection, new String[]{teamIdString});
+
+                                                    if (rowsUpdated < 1) {
+                                                        values.put("sync", 0);
+                                                        values.put(StatsEntry.COLUMN_NAME, team.getName());
+                                                        values.put(StatsEntry.COLUMN_FIRESTORE_ID, teamIdString);
+                                                        mContext.getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
+                                                    }
                                                 }
                                             }
                                         });

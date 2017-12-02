@@ -86,3 +86,6 @@ public class TeamManagerActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(viewPager);
     }
 }
+
+
+

@@ -158,6 +158,7 @@ public class StatsProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
+        //Get current leagueID
         MyApp myApp = (MyApp)getContext().getApplicationContext();
         String leagueID = myApp.getCurrentSelection().getId();
         values.put(StatsEntry.COLUMN_LEAGUE_ID, leagueID);
