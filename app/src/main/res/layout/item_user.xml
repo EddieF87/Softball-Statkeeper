@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp">
+
+    <TextView
+        android:id="@+id/user_name_view"
+        style="@style/ItemUserStyle"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/user_email_view"
+        style="@style/ItemUserStyle"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"/>
+
+
+    <FrameLayout
+        android:id="@+id/user_level_relativelayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="10">
+
+        <TextView
+            android:id="@+id/user_level_view"
+            style="@style/ItemUserStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:paddingBottom="16dp"/>
+
+        <SeekBar
+            android:id="@+id/user_level_seekbar"
+            style="@style/Widget.AppCompat.SeekBar.Discrete"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="3"
+            android:progress="1"
+            android:layout_gravity="bottom"
+            />
+    </FrameLayout>
+
+</LinearLayout>

@@ -37,6 +37,7 @@ public class FirestoreAdapter {
     public static final String PLAYER_LOGS = "playerlogs";
     public static final String TEAM_LOGS = "teamlogs";
     public static final String USER = "id";
+    public static final String USERS = "users";
 
     private Context mContext;
     private FirebaseFirestore mFirestore;

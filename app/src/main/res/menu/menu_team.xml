@@ -34,4 +34,9 @@
         android:id="@+id/action_delete_team"
         android:title="@string/delete_team"
         app:showAsAction="never" />
+
+    <item android:id="@+id/goto_settings"
+        android:title="@string/settings"
+        app:showAsAction="never"
+        />
 </menu>

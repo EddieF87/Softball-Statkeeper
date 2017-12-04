@@ -41,6 +41,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapter.LEAGUE_COLLECTION;
+import static com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapter.USERS;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -48,8 +49,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final String AUTH = "FirebaseAuth";
     private FirebaseAuth mAuth;
     private static final int RC_SIGN_IN = 0;
-
-    private ArrayList<MainPageSelection> mSelections;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,25 +109,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (mSelections == null) {
-                            mSelections = new ArrayList<>();
-                        } else {
-                            mSelections.clear();
-                        }
+                        ArrayList<MainPageSelection> selections = new ArrayList<>();
                         if (task.isSuccessful()) {
                             for (DocumentSnapshot documentSnapshot : task.getResult()) {
                                 String selectionID = documentSnapshot.getId();
                                 String name = documentSnapshot.getString("name");
                                 int type = documentSnapshot.getLong("type").intValue();
                                 MainPageSelection mainPageSelection = new MainPageSelection(selectionID, name, type);
-                                mSelections.add(mainPageSelection);
+                                selections.add(mainPageSelection);
                                 Log.d(TAG, documentSnapshot.getId() + " => " + documentSnapshot.getData());
                             }
-                            if (mSelections.isEmpty()) {
+                            if (selections.isEmpty()) {
                                 TextView rvErrorView = findViewById(R.id.error_rv_main);
                                 rvErrorView.setVisibility(View.VISIBLE);
                             } else {
-                                MainPageAdapter mainPageAdapter = new MainPageAdapter(mSelections, MainActivity.this);
+                                MainPageAdapter mainPageAdapter = new MainPageAdapter(selections, MainActivity.this);
                                 RecyclerView recyclerView = findViewById(R.id.rv_main);
                                 recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this, LinearLayoutManager.VERTICAL, false));
                                 recyclerView.setAdapter(mainPageAdapter);
@@ -145,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_league, menu);
+        getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
@@ -288,16 +283,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             return;
                         }
                         String userID = currentUser.getUid();
+                        String userEmail = currentUser.getEmail();
+                        String userDisplayName = currentUser.getDisplayName();
                         Dialog dialog1 = (Dialog) dialogInterface;
                         EditText editText = dialog1.findViewById(R.id.username);
                         String name = editText.getText().toString();
-                        Map<String, Object> firestoreMap = new HashMap<>();
-                        firestoreMap.put("name",  name);
-                        firestoreMap.put("type", type);
-                        firestoreMap.put(userID, true);
+                        Map<String, Object> firestoreLeagueMap = new HashMap<>();
+                        firestoreLeagueMap.put("name",  name);
+                        firestoreLeagueMap.put("type", type);
+                        firestoreLeagueMap.put(userID, true);
                         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
                         DocumentReference documentReference = firestore.collection(LEAGUE_COLLECTION).document();
-                        documentReference.set(firestoreMap);
+                        documentReference.set(firestoreLeagueMap);
+                        Map<String, Object> firestoreUserMap = new HashMap<>();
+                        firestoreUserMap.put("level", 0);
+                        firestoreUserMap.put("email", userEmail);
+                        firestoreUserMap.put("name", userDisplayName);
+                        documentReference.collection(USERS).document(userID).set(firestoreUserMap);
                         MyApp myApp = (MyApp)getApplicationContext();
                         MainPageSelection mainPageSelection = new MainPageSelection(documentReference.getId(), name, type);
                         myApp.setCurrentSelection(mainPageSelection);

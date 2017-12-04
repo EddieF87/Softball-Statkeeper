@@ -4,7 +4,7 @@
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
-    <!-- To auto-complete the email text field in the login form with the user's emails -->
+    <!-- To auto-complete the email text field in the login form with statKeepUseruser's emails -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
@@ -55,8 +55,6 @@
             android:launchMode="singleTask"
             android:parentActivityName=".activities.LeagueManagerActivity"
             android:screenOrientation="portrait" />
-
-
         <activity
             android:name=".activities.BoxScoreActivity"
             android:label="Box Score"
@@ -70,14 +68,16 @@
         <activity android:name=".activities.TeamPagerActivity" />
         <activity android:name=".activities.PlayerPagerActivity" />
         <activity android:name=".activities.TeamManagerActivity" />
-        <activity android:name=".activities.PlayerManagerActivity"
-            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".activities.PlayerManagerActivity"
+            android:screenOrientation="portrait" />
 
         <provider
             android:name=".data.StatsProvider"
             android:authorities="com.example.android.scorekeepdraft1"
             android:exported="false" />
 
+        <activity android:name=".activities.SettingsActivity"></activity>
     </application>
 
 </manifest>

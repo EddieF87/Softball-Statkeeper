@@ -331,3 +331,5 @@ public class LineupFragment extends Fragment implements Listener {
         return rightListAdapter;
     }
 }
+
+

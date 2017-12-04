@@ -369,7 +369,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // User clicked on a menu option in the app bar overflow menu
+        // StatKeepUser clicked on a menu option in the app bar overflow menu
         switch (item.getItemId()) {
             case R.id.action_change_name:
                 editNameDialog();
@@ -392,13 +392,13 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         builder.setMessage(R.string.delete_dialog_msg);
         builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                // User clicked the "Delete" button, so delete the pet.
+                // StatKeepUser clicked the "Delete" button, so delete the pet.
                 deletePlayer();
             }
         });
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                // User clicked the "Cancel" button, so dismiss the dialog
+                // StatKeepUser clicked the "Cancel" button, so dismiss the dialog
                 // and continue editing the pet.
                 if (dialog != null) {
                     dialog.dismiss();

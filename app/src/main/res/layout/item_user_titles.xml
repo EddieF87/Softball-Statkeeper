@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/user_name_view"
+        style="@style/ItemUserStyle"
+        android:text="@string/name"
+        />
+
+    <TextView
+        android:id="@+id/user_email_view"
+        style="@style/ItemUserStyle"
+        android:text="@string/email"
+        />
+
+    <TextView
+        android:id="@+id/user_level_view"
+        style="@style/ItemUserStyle"
+        android:text="Level"
+        />
+
+
+
+</LinearLayout>

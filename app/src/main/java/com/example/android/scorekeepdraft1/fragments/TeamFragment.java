@@ -33,6 +33,7 @@ import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.activities.SetLineupActivity;
+import com.example.android.scorekeepdraft1.activities.SettingsActivity;
 import com.example.android.scorekeepdraft1.activities.TeamGameActivity;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapter;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.PlayerStatsAdapter;
@@ -425,11 +426,11 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
                 statsTransfer.syncStats();
                 return true;
             case R.id.action_edit_lineup:
-                Intent intent = new Intent(getActivity(), SetLineupActivity.class);
+                Intent setLineupIntent = new Intent(getActivity(), SetLineupActivity.class);
                 Bundle b = new Bundle();
                 b.putString("team", teamSelected);
-                intent.putExtras(b);
-                startActivity(intent);
+                setLineupIntent.putExtras(b);
+                startActivity(setLineupIntent);
                 return true;
             case R.id.action_remove_players:
                 showRemoveAllPlayersDialog();
@@ -440,6 +441,10 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
             case R.id.action_add_players:
                 View itemPlayerAdder = getView().findViewById(R.id.item_player_adder);
                 itemPlayerAdder.setVisibility(View.VISIBLE);
+                return true;
+            case R.id.goto_settings:
+                Intent settingsIntent = new Intent(getActivity(), SettingsActivity.class);
+                startActivity(settingsIntent);
                 return true;
         }
         return super.onOptionsItemSelected(item);
