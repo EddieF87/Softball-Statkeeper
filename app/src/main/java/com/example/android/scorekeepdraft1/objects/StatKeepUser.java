@@ -1,10 +1,13 @@
 package com.example.android.scorekeepdraft1.objects;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by Eddie on 12/3/2017.
  */
 
-public class StatKeepUser {
+public class StatKeepUser implements Parcelable {
 
     private String id;
     private String name;
@@ -52,4 +55,37 @@ public class StatKeepUser {
     public void setId(String id) {
         this.id = id;
     }
+
+    protected StatKeepUser(Parcel in) {
+        id = in.readString();
+        name = in.readString();
+        email = in.readString();
+        level = in.readInt();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(name);
+        dest.writeString(email);
+        dest.writeInt(level);
+    }
+
+    @SuppressWarnings("unused")
+    public static final Parcelable.Creator<StatKeepUser> CREATOR = new Parcelable.Creator<StatKeepUser>() {
+        @Override
+        public StatKeepUser createFromParcel(Parcel in) {
+            return new StatKeepUser(in);
+        }
+
+        @Override
+        public StatKeepUser[] newArray(int size) {
+            return new StatKeepUser[size];
+        }
+    };
 }

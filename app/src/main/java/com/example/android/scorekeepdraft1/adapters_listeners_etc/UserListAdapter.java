@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,8 +16,10 @@ import android.widget.TextView;
 
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.activities.SettingsActivity;
+import com.example.android.scorekeepdraft1.fragments.UserFragment;
 import com.example.android.scorekeepdraft1.objects.StatKeepUser;
 import com.firebase.ui.auth.User;
+import com.example.android.scorekeepdraft1.fragments.UserFragment.OnListFragmentInteractionListener;
 
 import java.util.List;
 
@@ -26,13 +29,15 @@ import java.util.List;
 
 public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserListViewHolder> {
 
-    private Context mContext;
     private List<StatKeepUser> mUserList;
+    private final OnListFragmentInteractionListener mListener;
+    private static final String TAG = "UserListAdapter";
 
-    public UserListAdapter(Context context, List<StatKeepUser> list) {
+    public UserListAdapter(List<StatKeepUser> list, OnListFragmentInteractionListener listener) {
         super();
-        mContext = context;
-        mUserList = list;
+        this.mUserList = list;
+        this.mListener = listener;
+        Log.d(TAG, "hoppy UserListAdapter created");
     }
 
     @Override
@@ -43,35 +48,40 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserLi
     }
 
     @Override
-    public void onBindViewHolder(UserListViewHolder holder, int position) {
+    public void onBindViewHolder(final UserListViewHolder holder, int position) {
         final StatKeepUser statKeepUser = mUserList.get(position);
-        holder.seekBar.setProgress(3 - statKeepUser.getLevel());
-        String level = getLevel(holder.seekBar.getProgress());
+        final String id = statKeepUser.getId();
+
+        int level = statKeepUser.getLevel();
+        String levelString = getUserLevel(level);
+
+        holder.seekBar.setProgress(level);
         holder.nameView.setText(statKeepUser.getName());
         holder.emailView.setText(statKeepUser.getEmail());
-        holder.levelView.setText(level);
-        final TextView editLevelView = holder.levelView;
+        holder.levelView.setText(levelString);
         holder.seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                statKeepUser.setLevel(3 - i);
-                String level = getLevel(i);
-                editLevelView.setText(level);
+                String levelString = getUserLevel(i);
+                statKeepUser.setLevel(i);
+
+                holder.levelView.setText(levelString);
                 if (i == 0) {
-                    editLevelView.setTextColor(Color.RED);
+                    holder.levelView.setTextColor(Color.RED);
                 } else {
-                    editLevelView.setTextColor(Color.BLUE);
+                    holder.levelView.setTextColor(Color.BLUE);
+                }
+                if (null != mListener) {
+                    mListener.onListFragmentInteraction(id, i);
                 }
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-
             }
         });
     }
@@ -86,19 +96,22 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserLi
         return position;
     }
 
-    private String getLevel(int i) {
+    private String getUserLevel(int i) {
         String level;
         switch (i) {
             case 0:
                 level = "remove user";
                 break;
             case 1:
-                level = "view only";
+                level = "request access";
                 break;
             case 2:
-                level = "view/manage";
+                level = "view only";
                 break;
             case 3:
+                level = "view/manage";
+                break;
+            case 4:
                 level = "admin";
                 break;
             default:

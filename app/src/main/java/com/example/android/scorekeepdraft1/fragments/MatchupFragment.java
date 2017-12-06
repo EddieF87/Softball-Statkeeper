@@ -15,6 +15,9 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -27,6 +30,7 @@ import android.widget.Toast;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.activities.GameActivity;
 import com.example.android.scorekeepdraft1.activities.SetLineupActivity;
+import com.example.android.scorekeepdraft1.activities.SettingsActivity;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.TeamListAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
@@ -91,6 +95,23 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     }
 
     //TODO add menu options so I can put "Create new team there" and have more space
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.menu_league, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.goto_settings:
+                Intent settingsIntent = new Intent(getActivity(), SettingsActivity.class);
+                startActivity(settingsIntent);
+                return true;
+        }
+        return false;
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

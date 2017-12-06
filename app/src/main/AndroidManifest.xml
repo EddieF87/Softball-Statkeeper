@@ -77,7 +77,8 @@
             android:authorities="com.example.android.scorekeepdraft1"
             android:exported="false" />
 
-        <activity android:name=".activities.SettingsActivity"></activity>
+        <activity android:name=".activities.SettingsActivity" />
+        <activity android:name=".activities.SettingsActivityPager"></activity>
     </application>
 
 </manifest>
