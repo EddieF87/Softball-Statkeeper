@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
@@ -7,23 +8,20 @@
     android:paddingBottom="8dp">
 
     <TextView
-        android:id="@+id/user_name_view"
-        style="@style/ItemUserStyle"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"/>
-
-    <TextView
         android:id="@+id/user_email_view"
         style="@style/ItemUserStyle"
+        android:layout_height="match_parent"
+        android:paddingBottom="8dp"
         android:paddingTop="8dp"
-        android:paddingBottom="8dp"/>
+        tools:text="Test9999@email.com" />
 
 
-    <FrameLayout
+    <LinearLayout
         android:id="@+id/user_level_relativelayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="10">
+        android:layout_weight="10"
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/user_level_view"
@@ -31,7 +29,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="top"
-            android:paddingBottom="16dp"/>
+            tools:text="access requested" />
 
         <SeekBar
             android:id="@+id/user_level_seekbar"
@@ -42,6 +40,6 @@
             android:progress="1"
             android:layout_gravity="bottom"
             />
-    </FrameLayout>
+    </LinearLayout>
 
 </LinearLayout>

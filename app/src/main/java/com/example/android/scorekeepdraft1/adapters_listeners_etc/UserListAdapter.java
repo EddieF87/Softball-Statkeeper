@@ -1,24 +1,17 @@
 package com.example.android.scorekeepdraft1.adapters_listeners_etc;
 
-import android.content.Context;
 import android.graphics.Color;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.example.android.scorekeepdraft1.R;
-import com.example.android.scorekeepdraft1.activities.SettingsActivity;
-import com.example.android.scorekeepdraft1.fragments.UserFragment;
 import com.example.android.scorekeepdraft1.objects.StatKeepUser;
-import com.firebase.ui.auth.User;
 import com.example.android.scorekeepdraft1.fragments.UserFragment.OnListFragmentInteractionListener;
 
 import java.util.List;
@@ -50,14 +43,13 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserLi
     @Override
     public void onBindViewHolder(final UserListViewHolder holder, int position) {
         final StatKeepUser statKeepUser = mUserList.get(position);
-        final String id = statKeepUser.getId();
+        final String id = statKeepUser.getEmail();
 
         int level = statKeepUser.getLevel();
         String levelString = getUserLevel(level);
 
         holder.seekBar.setProgress(level);
-        holder.nameView.setText(statKeepUser.getName());
-        holder.emailView.setText(statKeepUser.getEmail());
+        holder.emailView.setText(id);
         holder.levelView.setText(levelString);
         holder.seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override

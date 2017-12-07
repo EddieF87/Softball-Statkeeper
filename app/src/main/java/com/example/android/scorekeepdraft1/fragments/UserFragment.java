@@ -47,6 +47,7 @@ public class UserFragment extends Fragment {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "hoppy userfragment created");
 
+        setRetainInstance(true);
         if (getArguments() != null) {
             List<StatKeepUser> users = getArguments().getParcelableArrayList(ARG_LIST);
             mUserList = cloneList(users);

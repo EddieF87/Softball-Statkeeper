@@ -34,6 +34,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -92,6 +93,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RC_SIGN_IN) {
             if (resultCode == RESULT_OK) {
+                FirebaseUser currentUser = mAuth.getCurrentUser();
+                if (currentUser != null) {
+                    String email = currentUser.getEmail();
+                    String id = currentUser.getUid();
+
+                    Map<String, Object> userInfo = new HashMap<>();
+                    userInfo.put("email", email);
+
+                    FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+                    firestore.collection(USERS).document(id).set(userInfo);
+                }
                 loadLeaguesTeamsPlayers();
             } else {
                 Log.d(AUTH, "USER NOT AUTHENTICATED");
@@ -105,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String userID = currentUser.getUid();
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         firestore.collection(LEAGUE_COLLECTION)
-                .whereEqualTo(userID, true).get()
+                .whereGreaterThan(userID, 1).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -170,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
-                                finish();
+//                                finish();
                             }
                         });
                 break;
@@ -289,25 +301,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         EditText editText = dialog1.findViewById(R.id.username);
                         String name = editText.getText().toString();
                         Map<String, Object> firestoreLeagueMap = new HashMap<>();
-                        firestoreLeagueMap.put("name",  name);
+                        firestoreLeagueMap.put("name", name);
                         firestoreLeagueMap.put("type", type);
-                        firestoreLeagueMap.put(userID, true);
+                        firestoreLeagueMap.put(userID, 5);
                         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
                         DocumentReference documentReference = firestore.collection(LEAGUE_COLLECTION).document();
                         documentReference.set(firestoreLeagueMap);
                         Map<String, Object> firestoreUserMap = new HashMap<>();
-                        firestoreUserMap.put("level", 0);
+                        firestoreUserMap.put("level", 5);
                         firestoreUserMap.put("email", userEmail);
                         firestoreUserMap.put("name", userDisplayName);
                         documentReference.collection(USERS).document(userID).set(firestoreUserMap);
-                        MyApp myApp = (MyApp)getApplicationContext();
+                        MyApp myApp = (MyApp) getApplicationContext();
                         MainPageSelection mainPageSelection = new MainPageSelection(documentReference.getId(), name, type);
                         myApp.setCurrentSelection(mainPageSelection);
-                        if(type == MainPageSelection.TYPE_TEAM) {
+                        if (type == MainPageSelection.TYPE_TEAM) {
                             ContentValues values = new ContentValues();
                             values.put(StatsEntry.COLUMN_NAME, name);
                             getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
-                        } else if(type == MainPageSelection.TYPE_PLAYER) {
+                        } else if (type == MainPageSelection.TYPE_PLAYER) {
                             ContentValues values = new ContentValues();
                             values.put(StatsEntry.COLUMN_NAME, name);
                             getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
