@@ -43,18 +43,19 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserLi
     @Override
     public void onBindViewHolder(final UserListViewHolder holder, int position) {
         final StatKeepUser statKeepUser = mUserList.get(position);
-        final String id = statKeepUser.getEmail();
-
+        String email = statKeepUser.getEmail();
         int level = statKeepUser.getLevel();
         String levelString = getUserLevel(level);
 
         holder.seekBar.setProgress(level);
-        holder.emailView.setText(id);
+        holder.emailView.setText(email);
         holder.levelView.setText(levelString);
         holder.seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 String levelString = getUserLevel(i);
+                String id = statKeepUser.getId();
+
                 statKeepUser.setLevel(i);
 
                 holder.levelView.setText(levelString);

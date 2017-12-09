@@ -55,8 +55,8 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
     private TextView teamNameView;
     private TextView teamRecordView;
     private EditText addPlayerText;
-    private FloatingActionButton addPlayerButton;
-    private Button addPlayerBtn;
+    private FloatingActionButton startAdderBtn;
+    private Button submitPlayerBtn;
 
     private RecyclerView rv;
 
@@ -67,6 +67,7 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
     private int selectionType;
     private String selectionID;
     private String selectionName;
+    private int mLevel;
 
     private static final String KEY_TEAM_URI = "teamURI";
 
@@ -75,20 +76,22 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
         // Required empty public constructor
     }
 
-    public static TeamFragment newInstance(String leagueID, int leagueType, String leagueName) {
+    public static TeamFragment newInstance(String leagueID, int leagueType, String leagueName, int level) {
         Bundle args = new Bundle();
         args.putString(MainPageSelection.KEY_SELECTION_ID, leagueID);
         args.putInt(MainPageSelection.KEY_SELECTION_TYPE, leagueType);
+        args.putInt(MainPageSelection.KEY_SELECTION_LEVEL, level);
         args.putString(MainPageSelection.KEY_SELECTION_NAME, leagueName);
         TeamFragment fragment = new TeamFragment();
         fragment.setArguments(args);
         return fragment;
     }
 
-    public static TeamFragment newInstance(String leagueID, int leagueType, String leagueName, Uri uri) {
+    public static TeamFragment newInstance(String leagueID, int leagueType, String leagueName, int level, Uri uri) {
         Bundle args = new Bundle();
         args.putString(MainPageSelection.KEY_SELECTION_ID, leagueID);
         args.putInt(MainPageSelection.KEY_SELECTION_TYPE, leagueType);
+        args.putInt(MainPageSelection.KEY_SELECTION_LEVEL, level);
         args.putString(MainPageSelection.KEY_SELECTION_NAME, leagueName);
         args.putString(KEY_TEAM_URI, uri.toString());
         TeamFragment fragment = new TeamFragment();
@@ -103,6 +106,7 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
         Bundle args = getArguments();
         selectionID = args.getString(MainPageSelection.KEY_SELECTION_ID);
         selectionType = args.getInt(MainPageSelection.KEY_SELECTION_TYPE);
+        mLevel = args.getInt(MainPageSelection.KEY_SELECTION_LEVEL);
         selectionName = args.getString(MainPageSelection.KEY_SELECTION_NAME);
         if (selectionType == MainPageSelection.TYPE_LEAGUE) {
             String uriString = args.getString(KEY_TEAM_URI);
@@ -161,24 +165,27 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
         rv = rootView.findViewById(R.id.rv_players);
 
         View addPlayerView = rootView.findViewById(R.id.item_player_adder);
-
         addPlayerText = addPlayerView.findViewById(R.id.add_player_text);
-        addPlayerBtn = addPlayerView.findViewById(R.id.add_player_submit);
-        addPlayerBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                addPlayer();
-            }
-        });
-        addPlayerButton = addPlayerView.findViewById(R.id.btn_start_adder);
-        addPlayerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                addPlayerButton.setVisibility(View.GONE);
-                addPlayerText.setVisibility(View.VISIBLE);
-                addPlayerBtn.setVisibility(View.VISIBLE);
-            }
-        });
+        submitPlayerBtn = addPlayerView.findViewById(R.id.add_player_submit);
+        startAdderBtn = addPlayerView.findViewById(R.id.btn_start_adder);
+        if(levelAuthorized()) {
+            submitPlayerBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    addPlayer();
+                }
+            });
+            startAdderBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    startAdderBtn.setVisibility(View.GONE);
+                    addPlayerText.setVisibility(View.VISIBLE);
+                    submitPlayerBtn.setVisibility(View.VISIBLE);
+                }
+            });
+        } else {
+            addPlayerView.setVisibility(View.INVISIBLE);
+        }
         getLoaderManager();
 
         return rootView;
@@ -393,13 +400,17 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
         startActivity(intent);
     }
 
-//todo
 
+    private boolean levelAuthorized() {
+        return mLevel >= 3;
+    }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.menu_team, menu);
+        if (levelAuthorized()) {
+            inflater.inflate(R.menu.menu_team, menu);
+        }
     }
 
     @Override

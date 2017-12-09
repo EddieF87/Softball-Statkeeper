@@ -55,6 +55,7 @@ public class ObjectPagerActivity extends AppCompatActivity {
         final int selectionType = mainPageSelection.getType();
         final String leagueName = mainPageSelection.getName();
         final String leagueID = mainPageSelection.getId();
+        final int level = mainPageSelection.getLevel();
         setTitle(leagueName);
 
         ViewPager mViewPager = findViewById(R.id.view_pager);
@@ -67,9 +68,9 @@ public class ObjectPagerActivity extends AppCompatActivity {
                 Uri currentObjectUri = ContentUris.withAppendedId(uri, id);
                 switch (objectType) {
                     case 0:
-                        return TeamFragment.newInstance(leagueID, selectionType, leagueName, currentObjectUri);
+                        return TeamFragment.newInstance(leagueID, selectionType, leagueName, level, currentObjectUri);
                     case 1:
-                        return PlayerFragment.newInstance(selectionType, currentObjectUri);
+                        return PlayerFragment.newInstance(selectionType, level, currentObjectUri);
                     default:
                         return null;
                 }

@@ -95,17 +95,6 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
 
         long playerId = player.getPlayerId();
         nameView.setTag(playerId);
-        nameView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(context, PlayerPagerActivity.class);
-                long playerId = (long) nameView.getTag();
-                Uri playerUri = ContentUris.withAppendedId(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, playerId);
-                intent.setData(playerUri);
-                startActivity(context, intent, null);
-            }
-        });
-
 
         int teamId = player.getTeamId();
         teamView.setTag(teamId);
@@ -170,7 +159,19 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             obpView.setTypeface(Typeface.DEFAULT_BOLD);
             slgView.setTypeface(Typeface.DEFAULT_BOLD);
             opsView.setTypeface(Typeface.DEFAULT_BOLD);
+        } else {
+            nameView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(context, PlayerPagerActivity.class);
+                    long playerId = (long) nameView.getTag();
+                    Uri playerUri = ContentUris.withAppendedId(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, playerId);
+                    intent.setData(playerUri);
+                    startActivity(context, intent, null);
+                }
+            });
         }
+
     }
 
     @Override

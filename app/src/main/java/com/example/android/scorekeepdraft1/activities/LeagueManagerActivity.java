@@ -21,6 +21,8 @@ import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 
 public class LeagueManagerActivity extends AppCompatActivity {
 
+    private int level;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,8 +35,10 @@ public class LeagueManagerActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         }
+        level = mainPageSelection.getLevel();
         String leagueName = mainPageSelection.getName();
         final String leagueID = mainPageSelection.getId();
+        final int level = mainPageSelection.getLevel();
         setTitle(leagueName);
 
         ViewPager viewPager = findViewById(R.id.league_view_pager);
@@ -45,10 +49,13 @@ public class LeagueManagerActivity extends AppCompatActivity {
             public Fragment getItem(int position) {
                 switch (position) {
                     case 0:
-                        return new StandingsFragment();
+                        return StandingsFragment.newInstance(level);
                     case 1:
-                        return new StatsFragment();
+                        return StatsFragment.newInstance(level);
                     case 2:
+                        if(level < 3) {
+                            return null;
+                        }
                         return MatchupFragment.newInstance(leagueID);
                     default:
                         return null;
@@ -69,6 +76,9 @@ public class LeagueManagerActivity extends AppCompatActivity {
             }
             @Override
             public int getCount() {
+                if (level < 3) {
+                    return 2;
+                }
                 return 3;
             }
         });

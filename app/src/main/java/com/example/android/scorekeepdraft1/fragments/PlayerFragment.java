@@ -51,6 +51,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     private NumberFormat formatter = new DecimalFormat("#.000");
     private static final int EXISTING_PLAYER_LOADER = 0;
     private Uri mCurrentPlayerUri;
+    private int mLevel;
     private String teamString;
     private String firestoreID;
     private static final String KEY_PLAYER_URI = "playerURI";
@@ -69,17 +70,19 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     }
 
 
-    public static PlayerFragment newInstance(int leagueType) {
-        Bundle args = new Bundle();
-        args.putInt(MainPageSelection.KEY_SELECTION_TYPE, leagueType);
-        PlayerFragment fragment = new PlayerFragment();
-        fragment.setArguments(args);
-        return fragment;
-    }
+//    public static PlayerFragment newInstance(int leagueType, int level) {
+//        Bundle args = new Bundle();
+//        args.putInt(MainPageSelection.KEY_SELECTION_TYPE, leagueType);
+//        args.putInt(MainPageSelection.KEY_SELECTION_LEVEL, level);
+//        PlayerFragment fragment = new PlayerFragment();
+//        fragment.setArguments(args);
+//        return fragment;
+//    }
 
-    public static PlayerFragment newInstance(int leagueType, Uri uri) {
+    public static PlayerFragment newInstance(int leagueType, int level , Uri uri) {
         Bundle args = new Bundle();
         args.putInt(MainPageSelection.KEY_SELECTION_TYPE, leagueType);
+        args.putInt(MainPageSelection.KEY_SELECTION_LEVEL, level);
         args.putString(KEY_PLAYER_URI, uri.toString());
         PlayerFragment fragment = new PlayerFragment();
         fragment.setArguments(args);
@@ -89,6 +92,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     public static PlayerFragment newInstance(int leagueType, String playerName) {
         Bundle args = new Bundle();
         args.putInt(MainPageSelection.KEY_SELECTION_TYPE, leagueType);
+        args.putInt(MainPageSelection.KEY_SELECTION_LEVEL, 5);
         args.putString(MainPageSelection.KEY_SELECTION_NAME, playerName);
         PlayerFragment fragment = new PlayerFragment();
         fragment.setArguments(args);
@@ -101,6 +105,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         setHasOptionsMenu(true);
         Bundle args = getArguments();
         selectionType = args.getInt(MainPageSelection.KEY_SELECTION_TYPE);
+        mLevel = args.getInt(MainPageSelection.KEY_SELECTION_LEVEL);
         if (selectionType == MainPageSelection.TYPE_PLAYER) {
             playerString = args.getString(MainPageSelection.KEY_SELECTION_NAME);
             mCurrentPlayerUri = StatsEntry.CONTENT_URI_PLAYERS;
@@ -227,11 +232,9 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             slgView.setText(String.valueOf(formatter.format(player.getSLG())));
             opsView.setText(String.valueOf(formatter.format(player.getOPS())));
 
-            String title = "Player: " + playerString;
             if (selectionType == MainPageSelection.TYPE_PLAYER) {
                 setPlayerManager();
             }
-            getActivity().setTitle(title);
         }
     }
 
@@ -364,7 +367,9 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.menu_player, menu);
+        if (levelAuthorized()) {
+            inflater.inflate(R.menu.menu_player, menu);
+        }
     }
 
     @Override
@@ -508,6 +513,10 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         }
         cursor.close();
         return true;
+    }
+
+    private boolean levelAuthorized() {
+        return mLevel >= 3;
     }
 
 //    public void goToTeamPage(View v) {

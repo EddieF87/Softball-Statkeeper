@@ -28,14 +28,17 @@ import com.example.android.scorekeepdraft1.adapters_listeners_etc.MainPageAdapte
 import com.example.android.scorekeepdraft1.fragments.UserFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.example.android.scorekeepdraft1.objects.StatKeepUser;
+import com.google.android.gms.common.api.Batch;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,8 +49,6 @@ import static com.example.android.scorekeepdraft1.adapters_listeners_etc.Firesto
 import static com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapter.USERS;
 
 public class SettingsActivity extends AppCompatActivity implements UserFragment.OnListFragmentInteractionListener {
-
-    private FirebaseAuth mAuth;
 
     private static final String TAG = "SettingsActivity";
     private static final String SAVED_MAP = "map";
@@ -84,9 +85,8 @@ public class SettingsActivity extends AppCompatActivity implements UserFragment.
         Log.d(TAG, "hoppy start!");
 
         MyApp myApp = (MyApp) getApplicationContext();
-        mAuth = FirebaseAuth.getInstance();
 
-        if (myApp.getCurrentSelection() == null || mAuth.getCurrentUser() == null) {
+        if (myApp.getCurrentSelection() == null) {
             Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
@@ -95,10 +95,8 @@ public class SettingsActivity extends AppCompatActivity implements UserFragment.
         MainPageSelection mainPageSelection = myApp.getCurrentSelection();
         leagueID = mainPageSelection.getId();
 
-        //todo
-        FirebaseUser currentUser = mAuth.getCurrentUser();
+
         firestore = FirebaseFirestore.getInstance();
-        String userID = currentUser.getEmail();
 
         mViewPager = findViewById(R.id.user_view_pager);
         mProgressBar = findViewById(R.id.progressBar2);
@@ -123,6 +121,9 @@ public class SettingsActivity extends AppCompatActivity implements UserFragment.
         });
 
         if (savedInstanceState != null) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            userFragment = (UserFragment) fragmentManager.getFragments().get(0);
+            requestFragment = (UserFragment) fragmentManager.getFragments().get(1);
             levelChanges = (HashMap<String, Integer>) savedInstanceState.getSerializable(SAVED_MAP);
             mUserList = savedInstanceState.getParcelableArrayList(SAVED_USERLIST);
             mRequestList = savedInstanceState.getParcelableArrayList(SAVED_REQUESTLIST);
@@ -266,17 +267,22 @@ public class SettingsActivity extends AppCompatActivity implements UserFragment.
         if (levelChanges == null) {
             return;
         }
+        WriteBatch batch = firestore.batch();
         for (Map.Entry<String, Integer> entry : levelChanges.entrySet()) {
             String id = entry.getKey();
             int level = entry.getValue();
+            DocumentReference league = firestore.collection(LEAGUE_COLLECTION).document(leagueID);
+            DocumentReference leagueUser = firestore.collection(LEAGUE_COLLECTION).document(leagueID)
+                    .collection(USERS).document(id);
             if (level == 0) {
-                firestore.collection(LEAGUE_COLLECTION).document(leagueID)
-                        .collection(USERS).document(id).delete();
+                batch.update(league, id, -1);
+                batch.delete(leagueUser);
             } else {
-                firestore.collection(LEAGUE_COLLECTION).document(leagueID)
-                        .collection(USERS).document(id).update("level", level);
+                batch.update(league, id, level);
+                batch.update(leagueUser, "level", level);
             }
         }
+        batch.commit();
         onBackPressed();
     }
 

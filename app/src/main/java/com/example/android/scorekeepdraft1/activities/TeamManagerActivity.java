@@ -39,6 +39,7 @@ public class TeamManagerActivity extends AppCompatActivity {
         final String leagueName = mainPageSelection.getName();
         final String leagueID = mainPageSelection.getId();
         final int leagueType = mainPageSelection.getType();
+        final int level = mainPageSelection.getLevel();
         setTitle(leagueName);
 
         Cursor cursor = getContentResolver().query(StatsContract.StatsEntry.CONTENT_URI_TEAMS,
@@ -58,8 +59,11 @@ public class TeamManagerActivity extends AppCompatActivity {
             public Fragment getItem(int position) {
                 switch (position) {
                     case 0:
-                        return TeamFragment.newInstance(leagueID, leagueType, leagueName);
+                        return TeamFragment.newInstance(leagueID, leagueType, leagueName, level);
                     case 1:
+                        if (level < 3) {
+                            return null;
+                        }
                         return LineupFragment.newInstance(leagueType, leagueName);
                     default:
                         return null;
@@ -78,6 +82,9 @@ public class TeamManagerActivity extends AppCompatActivity {
             }
             @Override
             public int getCount() {
+                if (level < 3) {
+                    return 1;
+                }
                 return 2;
             }
         });

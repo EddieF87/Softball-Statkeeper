@@ -35,6 +35,7 @@ import com.example.android.scorekeepdraft1.activities.TeamPagerActivity;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.StandingsCursorAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
+import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -48,16 +49,28 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
     private static final int STANDINGS_LOADER = 3;
     private EditText addEditText;
     private Button addSubmitButton;
+    private int level;
     private StandingsCursorAdapter mAdapter;
 
     public StandingsFragment() {
         // Required empty public constructor
     }
 
+    public static StandingsFragment newInstance(int level) {
+
+        Bundle args = new Bundle();
+        StandingsFragment fragment = new StandingsFragment();
+        args.putInt(MainPageSelection.KEY_SELECTION_LEVEL, level);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        Bundle args = getArguments();
+        level = args.getInt(MainPageSelection.KEY_SELECTION_LEVEL);
     }
 
     @Override
@@ -123,7 +136,9 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.menu_league, menu);
+        if (level >= 3) {
+            inflater.inflate(R.menu.menu_league, menu);
+        }
     }
 
     @Override

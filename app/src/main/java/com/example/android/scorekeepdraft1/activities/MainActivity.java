@@ -17,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.android.scorekeepdraft1.BuildConfig;
@@ -113,32 +114,43 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void loadLeaguesTeamsPlayers() {
+        ProgressBar progressBar = findViewById(R.id.progressBarMain);
+        progressBar.setVisibility(View.VISIBLE);
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        String userID = currentUser.getUid();
+        final String userID = currentUser.getUid();
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         firestore.collection(LEAGUE_COLLECTION)
-                .whereGreaterThan(userID, 1).get()
+                .whereGreaterThan(userID, -1).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         ArrayList<MainPageSelection> selections = new ArrayList<>();
                         if (task.isSuccessful()) {
                             for (DocumentSnapshot documentSnapshot : task.getResult()) {
-                                String selectionID = documentSnapshot.getId();
-                                String name = documentSnapshot.getString("name");
-                                int type = documentSnapshot.getLong("type").intValue();
-                                MainPageSelection mainPageSelection = new MainPageSelection(selectionID, name, type);
-                                selections.add(mainPageSelection);
-                                Log.d(TAG, documentSnapshot.getId() + " => " + documentSnapshot.getData());
+                                int level = documentSnapshot.getLong(userID).intValue();
+                                if (level == 0) {
+                                    //todo add logic for accepting invites
+                                } else if (level > 1) {
+                                    String selectionID = documentSnapshot.getId();
+                                    String name = documentSnapshot.getString("name");
+                                    int type = documentSnapshot.getLong("type").intValue();
+                                    MainPageSelection mainPageSelection = new MainPageSelection(
+                                            selectionID, name, type, level);
+                                    selections.add(mainPageSelection);
+                                }
                             }
                             if (selections.isEmpty()) {
                                 TextView rvErrorView = findViewById(R.id.error_rv_main);
+                                rvErrorView.setText("Please add a selection!");
                                 rvErrorView.setVisibility(View.VISIBLE);
                             } else {
                                 MainPageAdapter mainPageAdapter = new MainPageAdapter(selections, MainActivity.this);
                                 RecyclerView recyclerView = findViewById(R.id.rv_main);
                                 recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this, LinearLayoutManager.VERTICAL, false));
                                 recyclerView.setAdapter(mainPageAdapter);
+                                ProgressBar progressBar = findViewById(R.id.progressBarMain);
+                                progressBar.setVisibility(View.GONE);
+                                recyclerView.setVisibility(View.VISIBLE);
                             }
                         } else {
                             TextView rvErrorView = findViewById(R.id.error_rv_main);
@@ -177,6 +189,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 authenticateUser();
                 break;
             case R.id.action_sign_out:
+                RecyclerView recyclerView = findViewById(R.id.rv_main);
+                recyclerView.setAdapter(null);
                 AuthUI.getInstance()
                         .signOut(this)
                         .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -300,20 +314,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Dialog dialog1 = (Dialog) dialogInterface;
                         EditText editText = dialog1.findViewById(R.id.username);
                         String name = editText.getText().toString();
+                        int level = 5;
+
                         Map<String, Object> firestoreLeagueMap = new HashMap<>();
                         firestoreLeagueMap.put("name", name);
                         firestoreLeagueMap.put("type", type);
-                        firestoreLeagueMap.put(userID, 5);
+                        firestoreLeagueMap.put(userID, level);
                         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
                         DocumentReference documentReference = firestore.collection(LEAGUE_COLLECTION).document();
                         documentReference.set(firestoreLeagueMap);
                         Map<String, Object> firestoreUserMap = new HashMap<>();
-                        firestoreUserMap.put("level", 5);
+                        firestoreUserMap.put("level", level);
                         firestoreUserMap.put("email", userEmail);
                         firestoreUserMap.put("name", userDisplayName);
                         documentReference.collection(USERS).document(userID).set(firestoreUserMap);
+
                         MyApp myApp = (MyApp) getApplicationContext();
-                        MainPageSelection mainPageSelection = new MainPageSelection(documentReference.getId(), name, type);
+                        MainPageSelection mainPageSelection = new MainPageSelection(documentReference.getId(), name, type, level);
                         myApp.setCurrentSelection(mainPageSelection);
                         if (type == MainPageSelection.TYPE_TEAM) {
                             ContentValues values = new ContentValues();

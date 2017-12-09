@@ -79,6 +79,8 @@ public class MainPageAdapter extends RecyclerView.Adapter<MainPageAdapter.MainPa
                 MyApp myApp = (MyApp) mContext.getApplicationContext();
                 myApp.setCurrentSelection(mainPageSelection);
                 startActivity(mContext, intent, null);
+                mList.clear();
+                notifyDataSetChanged();
             }
         });
     }

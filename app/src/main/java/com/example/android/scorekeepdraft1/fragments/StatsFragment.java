@@ -30,6 +30,7 @@ import com.example.android.scorekeepdraft1.activities.SettingsActivity;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.PlayerStatsAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
+import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.example.android.scorekeepdraft1.objects.Player;
 
 import java.util.ArrayList;
@@ -50,6 +51,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
     private TextView colorView;
     private Cursor mCursor;
     private List<Player> players;
+    private int level;
     private static final int STATS_LOADER = 4;
     private HashMap<String, Integer> teamIDs;
 
@@ -57,10 +59,19 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         // Required empty public constructor
     }
 
+    public static StatsFragment newInstance(int level) {
+        Bundle args = new Bundle();
+        args.putInt(MainPageSelection.KEY_SELECTION_LEVEL, level);
+        StatsFragment fragment = new StatsFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        Bundle args = getArguments();
+        level = args.getInt(MainPageSelection.KEY_SELECTION_LEVEL);
     }
 
     @Override
@@ -123,7 +134,9 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.menu_league, menu);
+        if (level >= 3) {
+            inflater.inflate(R.menu.menu_league, menu);
+        }
     }
 
     @Override

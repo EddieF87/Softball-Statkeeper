@@ -9,6 +9,7 @@ public class MainPageSelection {
     public static final String KEY_SELECTION_ID = "selectionID";
     public static final String KEY_SELECTION_TYPE = "selectionType";
     public static final String KEY_SELECTION_NAME = "selectionName";
+    public static final String KEY_SELECTION_LEVEL = "userLevel";
 
     public static final int TYPE_LEAGUE = 0;
     public static final int TYPE_TEAM = 1;
@@ -17,14 +18,16 @@ public class MainPageSelection {
     private String id;
     private String name;
     private int type;
+    private int level;
 
     public MainPageSelection() {
     }
 
-    public MainPageSelection(String id, String name, int type) {
+    public MainPageSelection(String id, String name, int type, int level) {
         this.name = name;
         this.id = id;
         this.type = type;
+        this.level = level;
     }
 
     public String getName() {
@@ -39,6 +42,10 @@ public class MainPageSelection {
         return type;
     }
 
+    public int getLevel() {
+        return level;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -49,5 +56,9 @@ public class MainPageSelection {
 
     public void setType(int type) {
         this.type = type;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
     }
 }
