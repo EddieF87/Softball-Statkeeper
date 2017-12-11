@@ -360,6 +360,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
                 }
             }
             int playerId = mCursor.getInt(idIndex);
+            Log.d("xxx", "name = " + player + "   playerid = " + playerId);
             String  firestoreID = mCursor.getString(firestoreIDIndex);
 
             players.add(new Player(player, team, sgl, dbl, tpl, hr, bb, run, rbi, out, sf, g, teamId, playerId, firestoreID));

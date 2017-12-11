@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void authenticateUser() {
         mAuth = FirebaseAuth.getInstance();
         if (mAuth.getCurrentUser() != null) {
-            Log.v(TAG, "signed in already");
+            Log.v(AUTH, "signed in already");
             loadLeaguesTeamsPlayers();
             invalidateOptionsMenu();
         } else {
@@ -93,9 +93,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RC_SIGN_IN) {
+            Log.d(AUTH, "REQUESTCODE = RCSIGN");
             if (resultCode == RESULT_OK) {
+                Log.d(AUTH, "RESULTCODE = RESULTOK");
                 FirebaseUser currentUser = mAuth.getCurrentUser();
                 if (currentUser != null) {
+                    Log.d(AUTH, "USER != NULL");
                     String email = currentUser.getEmail();
                     String id = currentUser.getUid();
 
@@ -104,8 +107,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     FirebaseFirestore firestore = FirebaseFirestore.getInstance();
                     firestore.collection(USERS).document(id).set(userInfo);
+                    loadLeaguesTeamsPlayers();
+                } else {
+                    Log.d(AUTH, "USER == NULL?!?!?");
                 }
-                loadLeaguesTeamsPlayers();
             } else {
                 Log.d(AUTH, "USER NOT AUTHENTICATED");
             }
@@ -114,6 +119,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void loadLeaguesTeamsPlayers() {
+        Log.d(AUTH, "loadLeaguesTeamsPlayers");
         ProgressBar progressBar = findViewById(R.id.progressBarMain);
         progressBar.setVisibility(View.VISIBLE);
         FirebaseUser currentUser = mAuth.getCurrentUser();

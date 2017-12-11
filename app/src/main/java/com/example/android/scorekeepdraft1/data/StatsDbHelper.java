@@ -27,9 +27,11 @@ public class StatsDbHelper extends SQLiteOpenHelper {
                         StatsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         StatsEntry.COLUMN_FIRESTORE_ID + " TEXT NOT NULL, " +
                         StatsEntry.COLUMN_LEAGUE_ID + " TEXT NOT NULL, " +
+
                         StatsEntry.COLUMN_NAME + " TEXT NOT NULL, " +
                         StatsEntry.COLUMN_TEAM + " TEXT DEFAULT 'Free Agent', " +
                         StatsEntry.COLUMN_ORDER + " INTEGER, " +
+                        StatsEntry.COLUMN_GENDER + " INTEGER DEFAULT 0, " +
 
                         StatsEntry.COLUMN_1B + " INTEGER DEFAULT 0, " +
                         StatsEntry.COLUMN_2B + " INTEGER DEFAULT 0, " +
@@ -55,6 +57,7 @@ public class StatsDbHelper extends SQLiteOpenHelper {
                         StatsEntry.COLUMN_NAME + " TEXT NOT NULL, " +
                         StatsEntry.COLUMN_TEAM + " TEXT DEFAULT 'Free Agent', " +
                         StatsEntry.COLUMN_ORDER + " INTEGER, " +
+                        StatsEntry.COLUMN_GENDER + " INTEGER, " +
 
                         StatsEntry.COLUMN_1B + " INTEGER DEFAULT 0, " +
                         StatsEntry.COLUMN_2B + " INTEGER DEFAULT 0, " +

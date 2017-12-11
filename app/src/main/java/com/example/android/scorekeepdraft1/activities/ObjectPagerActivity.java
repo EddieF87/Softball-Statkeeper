@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
@@ -41,9 +42,12 @@ public class ObjectPagerActivity extends AppCompatActivity {
         }
         cursor.close();
 
-        Intent intent = getIntent();
-        Uri playerURI = intent.getData();
-        int objectID = (int) ContentUris.parseId(playerURI);
+//        Intent intent = getIntent();
+//        Uri objectURI = intent.getData();
+//        int objectID;
+//        if (playerURI != null) {
+//            objectID = (int) ContentUris.parseId(playerURI);
+//        }
 
         MyApp myApp = (MyApp) getApplicationContext();
         MainPageSelection mainPageSelection = myApp.getCurrentSelection();
@@ -58,13 +62,29 @@ public class ObjectPagerActivity extends AppCompatActivity {
         final int level = mainPageSelection.getLevel();
         setTitle(leagueName);
 
-        ViewPager mViewPager = findViewById(R.id.view_pager);
+        Intent intent = getIntent();
+        Uri objectURI = intent.getData();
+        int objectID;
+        if (objectURI != null) {
+            objectID = (int) ContentUris.parseId(objectURI);
+        } else {
+            TeamFragment.newInstance(leagueID, selectionType, leagueName, level, uri);
+            return;
+        }
 
+        ViewPager mViewPager = findViewById(R.id.view_pager);
         FragmentManager fragmentManager = getSupportFragmentManager();
         mViewPager.setAdapter(new FragmentStatePagerAdapter(fragmentManager) {
             @Override
             public Fragment getItem(int position) {
-                int id = objectIDs.get(position);
+
+//                Uri currentObjectUri;
+//                if(objectIDs.isEmpty()) {
+//                    currentObjectUri = uri;
+//                } else {
+                    int id = objectIDs.get(position);
+//                    currentObjectUri = ContentUris.withAppendedId(uri, id);
+//                }
                 Uri currentObjectUri = ContentUris.withAppendedId(uri, id);
                 switch (objectType) {
                     case 0:
@@ -82,10 +102,24 @@ public class ObjectPagerActivity extends AppCompatActivity {
             }
         });
 
+
         for (int i = 0; i < objectIDs.size(); i++) {
             if (objectIDs.get(i) == objectID) {
                 mViewPager.setCurrentItem(i);
             }
         }
+//        if (objectURI != null) {
+//            int objectID = (int) ContentUris.parseId(objectURI);
+//            Log.d("xxx", "onjectid != null");
+//
+            for (int i = 0; i < objectIDs.size(); i++) {
+                if (objectIDs.get(i) == objectID) {
+                    mViewPager.setCurrentItem(i);
+                }
+            }
+//        } else {
+//            mViewPager.setCurrentItem(0);
+//            Log.d("xxx", "setCurrentItem 0");
+//        }
     }
 }

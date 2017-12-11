@@ -19,6 +19,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -124,6 +125,7 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_team, container, false);
 
+
         waivers = false;
 
 //        MyApp myApp = (MyApp) getActivity().getApplicationContext();
@@ -151,7 +153,6 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
 //            selectionID = mainPageSelection.getId();
 
         } else {
-            mCurrentTeamUri = mCurrentTeamUri;
 //            Intent intent = getActivity().getIntent();
 //            mCurrentTeamUri = intent.getData();
             if (mCurrentTeamUri == null) {

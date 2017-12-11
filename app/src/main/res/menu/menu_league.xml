@@ -9,4 +9,9 @@
         android:title="@string/settings"
         app:showAsAction="never"
         />
+
+    <item android:id="@+id/create_team"
+        android:title="create team"
+        app:showAsAction="never"
+        />
 </menu>

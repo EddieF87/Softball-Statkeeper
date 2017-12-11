@@ -1,5 +1,6 @@
 package com.example.android.scorekeepdraft1.activities;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -8,18 +9,25 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
+import com.example.android.scorekeepdraft1.data.StatsContract;
+import com.example.android.scorekeepdraft1.fragments.CreateTeamFragment;
 import com.example.android.scorekeepdraft1.fragments.MatchupFragment;
 import com.example.android.scorekeepdraft1.fragments.StandingsFragment;
 import com.example.android.scorekeepdraft1.fragments.StatsFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 
-public class LeagueManagerActivity extends AppCompatActivity {
+import java.util.List;
+
+public class LeagueManagerActivity extends AppCompatActivity
+        implements CreateTeamFragment.OnListFragmentInteractionListener {
 
     private int level;
 
@@ -85,5 +93,19 @@ public class LeagueManagerActivity extends AppCompatActivity {
 
         TabLayout tabLayout = findViewById(R.id.league_tab_layout);
         tabLayout.setupWithViewPager(viewPager);
+    }
+
+    @Override
+    public void onListFragmentInteraction(List<String> names, List<Integer> genders) {
+        Log.d("fragglerock", "start interaction");
+
+        for (int i = 0; i < names.size() - 1; i++) {
+            ContentValues values = new ContentValues();
+            String player = names.get(i);
+            int gender = genders.get(i);
+            values.put(StatsContract.StatsEntry.COLUMN_NAME, player);
+            values.put(StatsContract.StatsEntry.COLUMN_GENDER, gender);
+            getContentResolver().insert(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, values);
+        }
     }
 }

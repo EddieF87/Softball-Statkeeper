@@ -8,12 +8,16 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -40,7 +44,8 @@ import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class StandingsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, View.OnClickListener  {
+public class StandingsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
+        View.OnClickListener  {
 
 
     private String[] projection = new String[]{"*, (CAST ((" + StatsEntry.COLUMN_WINS + ") AS FLOAT) / (" + StatsEntry.COLUMN_WINS + " + "
@@ -86,6 +91,7 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 Intent intent = new Intent(getActivity(), TeamPagerActivity.class);
                 Uri currentTeamUri = ContentUris.withAppendedId(StatsContract.StatsEntry.CONTENT_URI_TEAMS, id);
+                Log.d("xxx", "onItemClick team id = " + id);
                 intent.setData(currentTeamUri);
                 startActivity(intent);
             }
@@ -148,8 +154,19 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
                 Intent settingsIntent = new Intent(getActivity(), SettingsActivity.class);
                 startActivity(settingsIntent);
                 return true;
+            case R.id.create_team:
+                createTeamFragment();
+                Log.d("", "CreateTeamFrag called");
+                return true;
         }
         return false;
+    }
+
+    private void createTeamFragment() {
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        DialogFragment newFragment = new CreateTeamFragment();
+        newFragment.show(fragmentTransaction, "");
     }
 
     public void addTeam() {
@@ -237,4 +254,5 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
         }
         getLoaderManager().restartLoader(STANDINGS_LOADER, null, this);
     }
+
 }

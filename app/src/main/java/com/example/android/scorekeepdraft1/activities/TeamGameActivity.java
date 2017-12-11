@@ -838,7 +838,7 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
         fragmentTransaction.addToBackStack(null);
 
 
-        FinishGameFragment dialog = FinishGameFragment.newInstance();
+//        FinishGameFragment dialog = FinishGameFragment.newInstance();
 
 //        dialog.onCreateDialog(null);
 //        dialog.show(fragmentManager, DIALOG_FINISH);

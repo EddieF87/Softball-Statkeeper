@@ -61,6 +61,7 @@ public class FirestoreAdapter {
                                 Log.d(TAG, document.getId() + " => " + document.getData());
                                 final Player player = document.toObject(Player.class);
                                 final String playerIdString = document.getId();
+                                int id = player.getTeamId();
 
                                 mFirestore.collection(LEAGUE_COLLECTION).document(leagueID).collection(PLAYERS_COLLECTION)
                                         .document(playerIdString).collection(PLAYER_LOGS)
