@@ -3,6 +3,7 @@ package com.example.android.scorekeepdraft1.fragments;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -103,16 +104,19 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setHasOptionsMenu(true);
+
         Bundle args = getArguments();
         selectionID = args.getString(MainPageSelection.KEY_SELECTION_ID);
         selectionType = args.getInt(MainPageSelection.KEY_SELECTION_TYPE);
         mLevel = args.getInt(MainPageSelection.KEY_SELECTION_LEVEL);
         selectionName = args.getString(MainPageSelection.KEY_SELECTION_NAME);
+
         if (selectionType == MainPageSelection.TYPE_LEAGUE) {
             String uriString = args.getString(KEY_TEAM_URI);
             if (uriString == null) {
-                mCurrentTeamUri = null;
+                mCurrentTeamUri = StatsEntry.CONTENT_URI_TEAMS;
             } else {
                 mCurrentTeamUri = Uri.parse(uriString);
             }
@@ -125,37 +129,12 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_team, container, false);
 
-
         waivers = false;
 
-//        MyApp myApp = (MyApp) getActivity().getApplicationContext();
-//        MainPageSelection mainPageSelection = myApp.getCurrentSelection();
-//        if (myApp.getCurrentSelection() == null) {
-//            Intent intent = new Intent(getActivity(), MainActivity.class);
-//            startActivity(intent);
-//            return null;
-//        }
-
-//        selectionType = mainPageSelection.getType();
         if (selectionType == MainPageSelection.TYPE_TEAM) {
-
-
-            //            Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG,
-//                    null, null, null, null);
-//            Button continueGameButton = findViewById(R.id.btn_continue_game);
-//            if (cursor.moveToFirst()) {
-//                continueGameButton.setVisibility(View.VISIBLE);
-//            } else {
-//                continueGameButton.setVisibility(View.INVISIBLE);
-//            }
-//            cursor.close();
             teamSelected = selectionName;
-//            selectionID = mainPageSelection.getId();
-
         } else {
-//            Intent intent = getActivity().getIntent();
-//            mCurrentTeamUri = intent.getData();
-            if (mCurrentTeamUri == null) {
+            if (mCurrentTeamUri.equals(StatsEntry.CONTENT_URI_TEAMS)) {
                 waivers = true;
             }
             teamSelected = "Free Agent";

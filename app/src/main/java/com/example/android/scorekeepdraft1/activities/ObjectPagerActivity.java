@@ -25,6 +25,8 @@ import java.util.List;
 
 public class ObjectPagerActivity extends AppCompatActivity {
 
+    private List<Integer> objectIDs;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,22 +34,6 @@ public class ObjectPagerActivity extends AppCompatActivity {
     }
 
     protected void startPager(final int objectType, final Uri uri) {
-        final List<Integer> objectIDs = new ArrayList<>();
-
-        Cursor cursor = getContentResolver().query(uri, null,
-                null, null, null);
-        while (cursor.moveToNext()) {
-            int objectID = cursor.getInt(cursor.getColumnIndex(StatsContract.StatsEntry._ID));
-            objectIDs.add(objectID);
-        }
-        cursor.close();
-
-//        Intent intent = getIntent();
-//        Uri objectURI = intent.getData();
-//        int objectID;
-//        if (playerURI != null) {
-//            objectID = (int) ContentUris.parseId(playerURI);
-//        }
 
         MyApp myApp = (MyApp) getApplicationContext();
         MainPageSelection mainPageSelection = myApp.getCurrentSelection();
@@ -62,14 +48,35 @@ public class ObjectPagerActivity extends AppCompatActivity {
         final int level = mainPageSelection.getLevel();
         setTitle(leagueName);
 
+        objectIDs = new ArrayList<>();
+
+        Cursor cursor = getContentResolver().query(uri, null,
+                null, null, null);
+        while (cursor.moveToNext()) {
+            int objectID = cursor.getInt(cursor.getColumnIndex(StatsContract.StatsEntry._ID));
+            objectIDs.add(objectID);
+        }
+        cursor.close();
+
+        if (objectType == 0) {
+            objectIDs.add(-1);
+        }
+//        Intent intent = getIntent();
+//        Uri objectURI = intent.getData();
+//        int objectID;
+//        if (playerURI != null) {
+//            objectID = (int) ContentUris.parseId(playerURI);
+//        }
+
+
+
         Intent intent = getIntent();
         Uri objectURI = intent.getData();
         int objectID;
         if (objectURI != null) {
             objectID = (int) ContentUris.parseId(objectURI);
         } else {
-            TeamFragment.newInstance(leagueID, selectionType, leagueName, level, uri);
-            return;
+            objectID = -1;
         }
 
         ViewPager mViewPager = findViewById(R.id.view_pager);
@@ -83,9 +90,12 @@ public class ObjectPagerActivity extends AppCompatActivity {
 //                    currentObjectUri = uri;
 //                } else {
                     int id = objectIDs.get(position);
-//                    currentObjectUri = ContentUris.withAppendedId(uri, id);
-//                }
-                Uri currentObjectUri = ContentUris.withAppendedId(uri, id);
+                Uri currentObjectUri;
+                 if (id == -1) {
+                     currentObjectUri = uri;
+                 } else {
+                     currentObjectUri = ContentUris.withAppendedId(uri, id);
+                 }
                 switch (objectType) {
                     case 0:
                         return TeamFragment.newInstance(leagueID, selectionType, leagueName, level, currentObjectUri);
@@ -102,24 +112,18 @@ public class ObjectPagerActivity extends AppCompatActivity {
             }
         });
 
+        int pagerPosition = setPagerPosition(objectID);
 
+            mViewPager.setCurrentItem(pagerPosition);
+
+    }
+
+    private int setPagerPosition(int objectID) {
         for (int i = 0; i < objectIDs.size(); i++) {
             if (objectIDs.get(i) == objectID) {
-                mViewPager.setCurrentItem(i);
+                return i;
             }
         }
-//        if (objectURI != null) {
-//            int objectID = (int) ContentUris.parseId(objectURI);
-//            Log.d("xxx", "onjectid != null");
-//
-            for (int i = 0; i < objectIDs.size(); i++) {
-                if (objectIDs.get(i) == objectID) {
-                    mViewPager.setCurrentItem(i);
-                }
-            }
-//        } else {
-//            mViewPager.setCurrentItem(0);
-//            Log.d("xxx", "setCurrentItem 0");
-//        }
+        return -1;
     }
 }

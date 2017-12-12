@@ -87,6 +87,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         //todo fix this out
         leagueID =  args.getString(MainPageSelection.KEY_SELECTION_ID);
         getActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, null, null);
+        //todo when -1 error with delete
         getActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, null, null);
         SharedPreferences savedGamePreferences = getActivity().getSharedPreferences(leagueID, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = savedGamePreferences.edit();

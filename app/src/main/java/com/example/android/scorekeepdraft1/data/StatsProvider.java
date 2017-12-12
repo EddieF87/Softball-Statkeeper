@@ -3,6 +3,7 @@ package com.example.android.scorekeepdraft1.data;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -13,8 +14,11 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.MyApp;
+import com.example.android.scorekeepdraft1.activities.LeagueManagerActivity;
+import com.example.android.scorekeepdraft1.activities.MainActivity;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
+import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
@@ -246,6 +250,11 @@ public class StatsProvider extends ContentProvider {
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
         MyApp myApp = (MyApp)getContext().getApplicationContext();
+        MainPageSelection mainPageSelection = myApp.getCurrentSelection();
+        if (mainPageSelection == null) {
+            Log.d("xxx", "ERROR WITH DELETE!!!");
+            return -1;
+        }
         String leagueID = myApp.getCurrentSelection().getId();
         if(selection == null || selection.isEmpty()){
             selection = StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
