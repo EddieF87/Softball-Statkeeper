@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Log.d(AUTH, "else");
             startActivityForResult(AuthUI.getInstance()
                     .createSignInIntentBuilder()
-                    .setIsSmartLockEnabled(!BuildConfig.DEBUG)
+//                    .setIsSmartLockEnabled(!BuildConfig.DEBUG)
                     .setAvailableProviders(
                             Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
                                     new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()

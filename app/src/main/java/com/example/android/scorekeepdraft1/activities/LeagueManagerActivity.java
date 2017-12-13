@@ -96,15 +96,17 @@ public class LeagueManagerActivity extends AppCompatActivity
     }
 
     @Override
-    public void onListFragmentInteraction(List<String> names, List<Integer> genders) {
-        Log.d("fragglerock", "start interaction");
-
+    public void onSubmitPlayersListener(List<String> names, List<Integer> genders, String team) {
         for (int i = 0; i < names.size() - 1; i++) {
             ContentValues values = new ContentValues();
             String player = names.get(i);
+            if (player.isEmpty()) {
+                continue;
+            }
             int gender = genders.get(i);
             values.put(StatsContract.StatsEntry.COLUMN_NAME, player);
             values.put(StatsContract.StatsEntry.COLUMN_GENDER, gender);
+            values.put(StatsContract.StatsEntry.COLUMN_TEAM, team);
             getContentResolver().insert(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, values);
         }
     }

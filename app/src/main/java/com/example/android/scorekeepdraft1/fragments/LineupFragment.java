@@ -118,6 +118,7 @@ public class LineupFragment extends Fragment implements Listener {
                 mLineup.add(playerName);
             }
         }
+        cursor.close();
 
         initLeftRecyclerView();
         initRightRecyclerView();

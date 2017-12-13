@@ -154,18 +154,14 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
                 Intent settingsIntent = new Intent(getActivity(), SettingsActivity.class);
                 startActivity(settingsIntent);
                 return true;
-            case R.id.create_team:
-                createTeamFragment();
-                Log.d("", "CreateTeamFrag called");
-                return true;
         }
         return false;
     }
 
-    private void createTeamFragment() {
+    private void createTeamFragment(String team) {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = new CreateTeamFragment();
+        DialogFragment newFragment = CreateTeamFragment.newInstance(team);
         newFragment.show(fragmentTransaction, "");
     }
 
@@ -180,8 +176,13 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
 
         ContentValues values = new ContentValues();
         values.put(StatsEntry.COLUMN_NAME, teamName);
-        getActivity().getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
+        Uri teamUri = getActivity().getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
         addEditText.setText("");
+        if(teamUri == null) {
+            return;
+        }
+        //todo createteamfrag
+        createTeamFragment(teamName);
     }
 
     @Override

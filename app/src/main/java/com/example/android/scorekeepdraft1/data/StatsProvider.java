@@ -122,6 +122,8 @@ public class StatsProvider extends ContentProvider {
                 table = StatsEntry.TEMPPLAYERS_TABLE_NAME;
                 break;
             case GAME:
+                selection = selection;
+                selectionArgs = selectionArgs;
                 sortOrder = StatsEntry._ID + " ASC";
                 table = StatsEntry.GAME_TABLE_NAME;
                 break;
@@ -141,6 +143,7 @@ public class StatsProvider extends ContentProvider {
         }
         cursor = database.query(table, projection, selection, selectionArgs, null, null, sortOrder);
         cursor.setNotificationUri(getContext().getContentResolver(), uri);
+        Log.d("xxx", "return cursor");
         return cursor;
     }
 
@@ -236,11 +239,9 @@ public class StatsProvider extends ContentProvider {
         }
         SQLiteDatabase database = mOpenHelper.getWritableDatabase();
         long id = database.insert(table, null, values);
+
         if (id == -1) {
-            Log.e(LOG_TAG, "Failed to insert row for " + uri);
             return null;
-        } else {
-            Log.e(LOG_TAG, "Insert row for " + values.getAsString(StatsEntry.COLUMN_NAME) + "  " + uri);
         }
         getContext().getContentResolver().notifyChange(uri, null);
         return ContentUris.withAppendedId(uri, id);

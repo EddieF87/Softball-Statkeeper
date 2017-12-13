@@ -11,6 +11,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 
 
 import com.example.android.scorekeepdraft1.R;
@@ -35,30 +36,29 @@ public class CreateTeamFragment extends DialogFragment {
     private static final String KEY_NAMES = "names";
     private static final String KEY_GENDERS = "genders";
     private static final String KEY_EDITS = "edits";
+    private static final String KEY_TEAM = "team";
+    private String mTeam;
 
-    /**
-     * Mandatory empty constructor for the fragment manager to instantiate the
-     * fragment (e.g. upon screen orientation changes).
-     */
     public CreateTeamFragment() {
     }
 
-//    // TODO: Customize parameter initialization
-//    @SuppressWarnings("unused")
-//    public static CreateTeamFragment newInstance() {
-//        CreateTeamFragment fragment = new CreateTeamFragment();
-//        Bundle args = new Bundle();
-//        Log.d("", "CreateTeamFrag newinstance");
-//        return fragment;
-//    }
+    public static CreateTeamFragment newInstance(String team) {
+        CreateTeamFragment fragment = new CreateTeamFragment();
+        Bundle args = new Bundle();
+        args.putString(KEY_TEAM, team);
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        mTeam = getArguments().getString(KEY_TEAM);
+
         if (savedInstanceState != null) {
-            List <Integer> edits = savedInstanceState.getIntegerArrayList(KEY_EDITS);
-            List <Integer> genderEntries = savedInstanceState.getIntegerArrayList(KEY_GENDERS);
+            List<Integer> edits = savedInstanceState.getIntegerArrayList(KEY_EDITS);
+            List<Integer> genderEntries = savedInstanceState.getIntegerArrayList(KEY_GENDERS);
             List<String> nameEntries = savedInstanceState.getStringArrayList(KEY_NAMES);
             mAdapter = new CreateTeamRecyclerViewAdapter(nameEntries, genderEntries, edits);
         } else {
@@ -84,7 +84,7 @@ public class CreateTeamFragment extends DialogFragment {
 
         AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
                 .setView(recyclerView)
-                .setTitle(R.string.end_game_msg)
+                .setTitle("Add new players to " + mTeam)
                 .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         onButtonPressed(true);
@@ -101,14 +101,17 @@ public class CreateTeamFragment extends DialogFragment {
                 .setCancelable(false)
                 .create();
         alertDialog.setCanceledOnTouchOutside(false);
+        alertDialog.show();
+        alertDialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE|WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
+        alertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         return alertDialog;
     }
 
     public void onButtonPressed(boolean save) {
-        if (mListener != null) {
+        if (save && mListener != null) {
             ArrayList<String> names = new ArrayList<>(mAdapter.getmNameEntries());
             ArrayList<Integer> genders = new ArrayList<>(mAdapter.getmGenderEntries());
-            mListener.onListFragmentInteraction(names, genders);
+            mListener.onSubmitPlayersListener(names, genders, mTeam);
         }
     }
 
@@ -157,6 +160,6 @@ public class CreateTeamFragment extends DialogFragment {
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(List<String> names, List<Integer> genders);
+        void onSubmitPlayersListener(List<String> names, List<Integer> genders, String team);
     }
 }

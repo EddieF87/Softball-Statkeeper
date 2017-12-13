@@ -9,7 +9,3 @@
     android:autoSizeMinTextSize="12sp"
     android:maxLines="1"
 />
-
-    <!--
-    android:maxLines="1"
-    -->

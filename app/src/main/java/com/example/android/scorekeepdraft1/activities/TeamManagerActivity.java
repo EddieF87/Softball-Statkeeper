@@ -1,5 +1,6 @@
 package com.example.android.scorekeepdraft1.activities;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.support.design.widget.TabLayout;
@@ -15,6 +16,7 @@ import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract;
+import com.example.android.scorekeepdraft1.fragments.CreateTeamFragment;
 import com.example.android.scorekeepdraft1.fragments.LineupFragment;
 import com.example.android.scorekeepdraft1.fragments.MatchupFragment;
 import com.example.android.scorekeepdraft1.fragments.StandingsFragment;
@@ -22,7 +24,10 @@ import com.example.android.scorekeepdraft1.fragments.StatsFragment;
 import com.example.android.scorekeepdraft1.fragments.TeamFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 
-public class TeamManagerActivity extends AppCompatActivity {
+import java.util.List;
+
+public class TeamManagerActivity extends AppCompatActivity
+        implements CreateTeamFragment.OnListFragmentInteractionListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,7 +97,20 @@ public class TeamManagerActivity extends AppCompatActivity {
         TabLayout tabLayout = findViewById(R.id.league_tab_layout);
         tabLayout.setupWithViewPager(viewPager);
     }
+
+    @Override
+    public void onSubmitPlayersListener(List<String> names, List<Integer> genders, String team) {
+        for (int i = 0; i < names.size() - 1; i++) {
+            ContentValues values = new ContentValues();
+            String player = names.get(i);
+            if (player.isEmpty()) {
+                continue;
+            }
+            int gender = genders.get(i);
+            values.put(StatsContract.StatsEntry.COLUMN_NAME, player);
+            values.put(StatsContract.StatsEntry.COLUMN_GENDER, gender);
+            values.put(StatsContract.StatsEntry.COLUMN_TEAM, team);
+            getContentResolver().insert(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, values);
+        }
+    }
 }
-
-
-

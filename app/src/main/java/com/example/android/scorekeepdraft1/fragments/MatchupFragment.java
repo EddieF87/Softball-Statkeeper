@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -31,7 +32,9 @@ import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.activities.GameActivity;
 import com.example.android.scorekeepdraft1.activities.SetLineupActivity;
 import com.example.android.scorekeepdraft1.activities.SettingsActivity;
+import com.example.android.scorekeepdraft1.activities.TeamGameActivity;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.TeamListAdapter;
+import com.example.android.scorekeepdraft1.adapters_listeners_etc.VerticalTextView;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
@@ -83,16 +86,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         Bundle args = getArguments();
-
-        //todo fix this out
-        leagueID =  args.getString(MainPageSelection.KEY_SELECTION_ID);
-        getActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, null, null);
-        //todo when -1 error with delete
-        getActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, null, null);
-        SharedPreferences savedGamePreferences = getActivity().getSharedPreferences(leagueID, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = savedGamePreferences.edit();
-        editor.clear();
-        editor.commit();
+        leagueID = args.getString(MainPageSelection.KEY_SELECTION_ID);
     }
 
     //TODO add menu options so I can put "Create new team there" and have more space
@@ -126,8 +120,31 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         rvAway = rootView.findViewById(R.id.rv_left_team);
         rvHome = rootView.findViewById(R.id.rv_right_team);
 
-        Button editAwayLineup = rootView.findViewById(R.id.edit_away_team_button);
-        Button editHomeLineup = rootView.findViewById(R.id.edit_home_team_button);
+        Button continueGameButton = rootView.findViewById(R.id.continue_game);
+        continueGameButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), GameActivity.class);
+                startActivity(intent);
+
+            }
+        });
+        continueGameButton.setVisibility(View.VISIBLE);
+
+        Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG,
+                null, null, null, null);
+        if (cursor.moveToFirst()) {
+            continueGameButton.setVisibility(View.VISIBLE);
+            Log.d("xxx", "continue vis");
+        } else {
+            continueGameButton.setVisibility(View.GONE);
+            Log.d("xxx", "continue invis");
+        }
+        Log.d("xxx", "cursor close");
+        cursor.close();
+
+        VerticalTextView editAwayLineup = rootView.findViewById(R.id.away_lineup_editor);
+        VerticalTextView editHomeLineup = rootView.findViewById(R.id.home_lineup_editor);
         editAwayLineup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

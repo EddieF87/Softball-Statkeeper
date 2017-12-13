@@ -17,7 +17,8 @@
         android:roundIcon="@mipmap/baseballtest"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:windowSoftInputMode="stateHidden|adjustResize">
+        android:windowSoftInputMode="stateHidden|adjustResize"
+        >
         <activity android:name=".activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -67,13 +68,14 @@
             android:screenOrientation="portrait" />
         <activity android:name=".activities.TeamPagerActivity" />
         <activity android:name=".activities.PlayerPagerActivity" />
-        <activity android:name=".activities.TeamManagerActivity" />
+        <activity android:name=".activities.TeamManagerActivity"
+            android:windowSoftInputMode="adjustPan"
+        />
         <activity
             android:name=".activities.PlayerManagerActivity"
             android:screenOrientation="portrait" />
 
-        <activity android:name=".activities.SettingsActivity"
-            android:windowSoftInputMode="stateHidden|adjustResize" />
+        <activity android:name=".activities.SettingsActivity"/>
 
         <provider
             android:name=".data.StatsProvider"

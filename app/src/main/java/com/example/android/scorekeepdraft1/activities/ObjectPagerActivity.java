@@ -61,14 +61,6 @@ public class ObjectPagerActivity extends AppCompatActivity {
         if (objectType == 0) {
             objectIDs.add(-1);
         }
-//        Intent intent = getIntent();
-//        Uri objectURI = intent.getData();
-//        int objectID;
-//        if (playerURI != null) {
-//            objectID = (int) ContentUris.parseId(playerURI);
-//        }
-
-
 
         Intent intent = getIntent();
         Uri objectURI = intent.getData();
@@ -85,17 +77,13 @@ public class ObjectPagerActivity extends AppCompatActivity {
             @Override
             public Fragment getItem(int position) {
 
-//                Uri currentObjectUri;
-//                if(objectIDs.isEmpty()) {
-//                    currentObjectUri = uri;
-//                } else {
-                    int id = objectIDs.get(position);
+                int id = objectIDs.get(position);
                 Uri currentObjectUri;
-                 if (id == -1) {
-                     currentObjectUri = uri;
-                 } else {
-                     currentObjectUri = ContentUris.withAppendedId(uri, id);
-                 }
+                if (id == -1) {
+                    currentObjectUri = uri;
+                } else {
+                    currentObjectUri = ContentUris.withAppendedId(uri, id);
+                }
                 switch (objectType) {
                     case 0:
                         return TeamFragment.newInstance(leagueID, selectionType, leagueName, level, currentObjectUri);
@@ -112,10 +100,11 @@ public class ObjectPagerActivity extends AppCompatActivity {
             }
         });
 
-        int pagerPosition = setPagerPosition(objectID);
-
-            mViewPager.setCurrentItem(pagerPosition);
-
+        for (int pagerPosition = 0; pagerPosition < objectIDs.size(); pagerPosition++) {
+            if (objectIDs.get(pagerPosition) == objectID) {
+                mViewPager.setCurrentItem(pagerPosition);;
+            }
+        }
     }
 
     private int setPagerPosition(int objectID) {

@@ -10,6 +10,9 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -126,7 +129,6 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_team, container, false);
 
         waivers = false;
@@ -145,22 +147,12 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
         rv = rootView.findViewById(R.id.rv_players);
 
         View addPlayerView = rootView.findViewById(R.id.item_player_adder);
-        addPlayerText = addPlayerView.findViewById(R.id.add_player_text);
-        submitPlayerBtn = addPlayerView.findViewById(R.id.add_player_submit);
         startAdderBtn = addPlayerView.findViewById(R.id.btn_start_adder);
         if(levelAuthorized()) {
-            submitPlayerBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    addPlayer();
-                }
-            });
             startAdderBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    startAdderBtn.setVisibility(View.GONE);
-                    addPlayerText.setVisibility(View.VISIBLE);
-                    submitPlayerBtn.setVisibility(View.VISIBLE);
+                    createTeamFragment(teamSelected);
                 }
             });
         } else {
@@ -171,28 +163,19 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
         return rootView;
     }
 
+    private void createTeamFragment(String team) {
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        DialogFragment newFragment = CreateTeamFragment.newInstance(team);
+        newFragment.show(fragmentTransaction, "");
+    }
+
     @Override
     public void onResume() {
         super.onResume();
         getLoaderManager().restartLoader(EXISTING_TEAM_LOADER, null, this);
     }
 
-    public void addPlayer() {
-        InputMethodManager inputManager = (InputMethodManager)
-                getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-
-        inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(),
-                InputMethodManager.HIDE_NOT_ALWAYS);
-
-        String playerName = addPlayerText.getText().toString();
-
-        ContentValues values = new ContentValues();
-        values.put(StatsEntry.COLUMN_NAME, playerName);
-        values.put(StatsEntry.COLUMN_TEAM, teamSelected);
-        getActivity().getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
-        addPlayerText.setText("");
-        getLoaderManager().restartLoader(EXISTING_TEAM_LOADER, null, this);
-    }
 
     private void initRecyclerView() {
         rv.setLayoutManager(new LinearLayoutManager(
