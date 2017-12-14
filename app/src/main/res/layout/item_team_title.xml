@@ -3,7 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:background="#7fdfff"
     >
 
     <TextView
@@ -12,14 +11,13 @@
         android:layout_height="wrap_content"
         android:gravity="start"
         android:maxLines="1"
-        android:paddingBottom="3dp"
+        style="@style/StatsTitleStyle"
         android:paddingEnd="20dp"
         android:paddingLeft="8dp"
         android:paddingRight="20dp"
         android:paddingStart="8dp"
         android:text="@string/name"
         android:textAlignment="textStart"
-        android:textSize="20sp"
         android:textStyle="bold"
         android:background="@color/stat_title"
         android:textColor="#FFFFFF"/>

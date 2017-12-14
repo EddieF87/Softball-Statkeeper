@@ -59,11 +59,9 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
 
     private TextView teamNameView;
     private TextView teamRecordView;
-    private EditText addPlayerText;
-    private FloatingActionButton startAdderBtn;
-    private Button submitPlayerBtn;
 
     private RecyclerView rv;
+    private PlayerStatsAdapter mAdapter;
 
     private List<Player> players;
     private String teamSelected;
@@ -147,7 +145,7 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
         rv = rootView.findViewById(R.id.rv_players);
 
         View addPlayerView = rootView.findViewById(R.id.item_player_adder);
-        startAdderBtn = addPlayerView.findViewById(R.id.btn_start_adder);
+        FloatingActionButton startAdderBtn = addPlayerView.findViewById(R.id.btn_start_adder);
         if(levelAuthorized()) {
             startAdderBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -180,7 +178,7 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
     private void initRecyclerView() {
         rv.setLayoutManager(new LinearLayoutManager(
                 getActivity(), LinearLayoutManager.VERTICAL, false));
-        PlayerStatsAdapter mAdapter = new PlayerStatsAdapter(players, getActivity());
+        mAdapter = new PlayerStatsAdapter(players, getActivity());
         rv.setAdapter(mAdapter);
     }
 
@@ -309,44 +307,19 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
                 sumRun, sumRbi, sumOut, sumSf, sumG, 0, ""));
 
         initRecyclerView();
-
-        if (selectionType == MainPageSelection.TYPE_TEAM) {
-            Button newGameButton = getView().findViewById(R.id.btn_start_game);
-            Button continueGameButton = getView().findViewById(R.id.btn_continue_game);
-
-            newGameButton.setVisibility(View.VISIBLE);
-            newGameButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    startNewGame();
-                }
-            });
-
-            continueGameButton.setVisibility(View.VISIBLE);
-            continueGameButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent(getActivity(), TeamGameActivity.class);
-                    startActivity(intent);
-
-                }
-            });
-            cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG,
-                    null, null, null, null);
-            if (cursor.moveToFirst()) {
-                continueGameButton.setVisibility(View.VISIBLE);
-            } else {
-                continueGameButton.setVisibility(View.INVISIBLE);
-            }
-            cursor.close();
-        }
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-
     }
 
+    public void updateUI(List<Player> newPlayers) {
+        int position = players.size() - 1;
+        players.addAll(position, newPlayers);
+        if(mAdapter != null) {
+            mAdapter.notifyDataSetChanged();
+        }
+    }
 
     public void startNewGame() {
         getActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, null, null);

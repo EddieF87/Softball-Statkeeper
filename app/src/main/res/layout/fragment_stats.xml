@@ -13,19 +13,21 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
+        android:padding="6dp"
+        android:background="@drawable/back_white"
         app:layout_constraintBottom_toTopOf="@+id/relativeLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <LinearLayout xmlns:tools="http://schemas.android.com/tools"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            tools:context="com.example.android.scorekeepdraft1.activities.StatsActivity">
+            >
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -41,16 +43,16 @@
                     android:paddingLeft="8dp"
                     android:paddingRight="20dp"
                     android:paddingStart="8dp"
-                    android:paddingTop="0dp"
                     android:text="@string/name"
                     android:textAlignment="textStart"
-                    android:textSize="20sp" />
+                    />
 
                 <TextView
                     android:id="@+id/team_abv_title"
                     style="@style/StatsTitleStyle"
                     android:layout_width="60dp"
                     android:paddingRight="10dp"
+                    android:paddingEnd="10dp"
                     android:text="@string/team" />
 
                 <TextView

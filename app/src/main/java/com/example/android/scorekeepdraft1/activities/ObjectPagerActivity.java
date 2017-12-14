@@ -26,6 +26,7 @@ import java.util.List;
 public class ObjectPagerActivity extends AppCompatActivity {
 
     private List<Integer> objectIDs;
+    private TeamFragment teamFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,14 +106,5 @@ public class ObjectPagerActivity extends AppCompatActivity {
                 mViewPager.setCurrentItem(pagerPosition);;
             }
         }
-    }
-
-    private int setPagerPosition(int objectID) {
-        for (int i = 0; i < objectIDs.size(); i++) {
-            if (objectIDs.get(i) == objectID) {
-                return i;
-            }
-        }
-        return -1;
     }
 }

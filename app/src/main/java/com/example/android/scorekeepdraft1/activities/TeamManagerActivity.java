@@ -3,6 +3,7 @@ package com.example.android.scorekeepdraft1.activities;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -23,11 +24,16 @@ import com.example.android.scorekeepdraft1.fragments.StandingsFragment;
 import com.example.android.scorekeepdraft1.fragments.StatsFragment;
 import com.example.android.scorekeepdraft1.fragments.TeamFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
+import com.example.android.scorekeepdraft1.objects.Player;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TeamManagerActivity extends AppCompatActivity
         implements CreateTeamFragment.OnListFragmentInteractionListener {
+
+    private LineupFragment lineupFragment;
+    private TeamFragment teamFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,12 +70,14 @@ public class TeamManagerActivity extends AppCompatActivity
             public Fragment getItem(int position) {
                 switch (position) {
                     case 0:
-                        return TeamFragment.newInstance(leagueID, leagueType, leagueName, level);
+                        teamFragment = TeamFragment.newInstance(leagueID, leagueType, leagueName, level);
+                        return teamFragment;
                     case 1:
                         if (level < 3) {
                             return null;
                         }
-                        return LineupFragment.newInstance(leagueType, leagueName);
+                        lineupFragment = LineupFragment.newInstance(leagueID, leagueType, leagueName);
+                        return lineupFragment;
                     default:
                         return null;
                 }
@@ -100,17 +108,32 @@ public class TeamManagerActivity extends AppCompatActivity
 
     @Override
     public void onSubmitPlayersListener(List<String> names, List<Integer> genders, String team) {
+        List<Player> players = new ArrayList<>();
+        List<String> playerNames = new ArrayList<>();
         for (int i = 0; i < names.size() - 1; i++) {
             ContentValues values = new ContentValues();
-            String player = names.get(i);
-            if (player.isEmpty()) {
+            String playerName = names.get(i);
+            if (playerName.isEmpty()) {
                 continue;
             }
             int gender = genders.get(i);
-            values.put(StatsContract.StatsEntry.COLUMN_NAME, player);
+            values.put(StatsContract.StatsEntry.COLUMN_NAME, playerName);
             values.put(StatsContract.StatsEntry.COLUMN_GENDER, gender);
             values.put(StatsContract.StatsEntry.COLUMN_TEAM, team);
-            getContentResolver().insert(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, values);
+            values.put(StatsContract.StatsEntry.COLUMN_ORDER, 99);
+            Uri uri = getContentResolver().insert(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, values);
+            if (uri != null) {
+                playerNames.add(playerName);
+                players.add(new Player(playerName, team, gender));
+            }
+        }
+        if (!players.isEmpty()) {
+            if (lineupFragment != null) {
+                lineupFragment.updateBench(playerNames);
+            }
+            if (teamFragment != null) {
+                teamFragment.updateUI(players);
+            }
         }
     }
 }

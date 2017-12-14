@@ -46,6 +46,7 @@ import com.example.android.scorekeepdraft1.adapters_listeners_etc.LineupListAdap
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.Listener;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
+import com.example.android.scorekeepdraft1.fragments.CreateTeamFragment;
 import com.example.android.scorekeepdraft1.fragments.LineupFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.example.android.scorekeepdraft1.objects.Player;
@@ -56,7 +57,10 @@ import java.util.List;
 /**
  * @author Paul Burke (ipaulpro)
  */
-public class SetLineupActivity extends SingleFragmentActivity {
+public class SetLineupActivity extends SingleFragmentActivity
+        implements CreateTeamFragment.OnListFragmentInteractionListener{
+
+    private LineupFragment lineupFragment;
 
     @Override
     protected Fragment createFragment() {
@@ -68,8 +72,40 @@ public class SetLineupActivity extends SingleFragmentActivity {
             finish();
         }
         MyApp myApp = (MyApp) getApplicationContext();
-        int type= myApp.getCurrentSelection().getType();
-        return LineupFragment.newInstance(type, team);
+        MainPageSelection mainPageSelection = myApp.getCurrentSelection();
+        if(mainPageSelection == null) {
+            Intent intent = new Intent(SetLineupActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        }
+        int type= mainPageSelection.getType();
+        String leagueId = mainPageSelection.getId();
+        lineupFragment = LineupFragment.newInstance(leagueId, type, team);
+        return lineupFragment;
+    }
+
+    @Override
+    public void onSubmitPlayersListener(List<String> names, List<Integer> genders, String team) {
+        List<String> players = new ArrayList<>();
+        for (int i = 0; i < names.size() - 1; i++) {
+            ContentValues values = new ContentValues();
+            String player = names.get(i);
+            if (player.isEmpty()) {
+                continue;
+            }
+            int gender = genders.get(i);
+            values.put(StatsEntry.COLUMN_NAME, player);
+            values.put(StatsEntry.COLUMN_GENDER, gender);
+            values.put(StatsEntry.COLUMN_TEAM, team);
+            values.put(StatsEntry.COLUMN_ORDER, 99);
+            Uri uri = getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
+            if (uri != null) {
+                players.add(player);
+            }
+        }
+        if (!players.isEmpty() && lineupFragment != null) {
+            lineupFragment.updateBench(players);
+        }
     }
 }
 

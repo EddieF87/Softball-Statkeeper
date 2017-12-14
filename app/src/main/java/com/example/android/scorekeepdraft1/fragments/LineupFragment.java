@@ -5,12 +5,16 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -26,6 +30,7 @@ import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
+import com.example.android.scorekeepdraft1.activities.GameActivity;
 import com.example.android.scorekeepdraft1.activities.SetLineupActivity;
 import com.example.android.scorekeepdraft1.activities.TeamGameActivity;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.LineupListAdapter;
@@ -45,8 +50,6 @@ import static android.app.Activity.RESULT_OK;
  */
 public class LineupFragment extends Fragment implements Listener {
 
-    private EditText addPlayerText;
-
     private LineupListAdapter leftListAdapter;
     private LineupListAdapter rightListAdapter;
 
@@ -57,20 +60,23 @@ public class LineupFragment extends Fragment implements Listener {
     private List<String> mBench;
     private String mTeam;
     private int mType;
+    private String mSelectionID;
+
+    private static final String KEY_TEAM = "team";
 
     public LineupFragment() {
         // Required empty public constructor
     }
 
-    public static LineupFragment newInstance(int selectionType, String team) {
+    public static LineupFragment newInstance(String selectionID, int selectionType, String team) {
         Bundle args = new Bundle();
-        args.putInt("type", selectionType);
-        args.putString("team", team);
+        args.putString(MainPageSelection.KEY_SELECTION_ID, selectionID);
+        args.putInt(MainPageSelection.KEY_SELECTION_TYPE, selectionType);
+        args.putString(KEY_TEAM, team);
         LineupFragment fragment = new LineupFragment();
         fragment.setArguments(args);
         return fragment;
     }
-
 
     //TODO add player from free agency/other teams
     @Override
@@ -78,21 +84,18 @@ public class LineupFragment extends Fragment implements Listener {
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
         if (args != null) {
-            mType = args.getInt("type");
-            mTeam = args.getString("team");
+            mSelectionID = args.getString(MainPageSelection.KEY_SELECTION_ID);
+            mType = args.getInt(MainPageSelection.KEY_SELECTION_TYPE);
+            mTeam = args.getString(KEY_TEAM);
         } else {
             getActivity().finish();
         }
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         final View rootView = inflater.inflate(R.layout.fragment_lineup, container, false);
-
-
 
         rvLeftLineup = rootView.findViewById(R.id.rvLeft);
         rvRightLineup = rootView.findViewById(R.id.rvRight);
@@ -120,14 +123,28 @@ public class LineupFragment extends Fragment implements Listener {
         }
         cursor.close();
 
-        initLeftRecyclerView();
-        initRightRecyclerView();
+        Button continueGameButton = rootView.findViewById(R.id.continue_game);
+        continueGameButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), TeamGameActivity.class);
+                startActivity(intent);
+            }
+        });
+        continueGameButton.setVisibility(View.VISIBLE);
+
+        cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG,
+                null, null, null, null);
+        if (cursor.moveToFirst()) {
+            continueGameButton.setVisibility(View.VISIBLE);
+        } else {
+            continueGameButton.setVisibility(View.GONE);
+        }
+        cursor.close();
 
         Button lineupSubmitButton = rootView.findViewById(R.id.lineup_submit);
         if (mType == MainPageSelection.TYPE_TEAM) {
             lineupSubmitButton.setText(R.string.start);
-            View teamNameDisplay = rootView.findViewById(R.id.team_name_display);
-            teamNameDisplay.setVisibility(View.GONE);
             View radioButtonGroup = rootView.findViewById(R.id.radiobtns_away_or_home_team);
             radioButtonGroup.setVisibility(View.VISIBLE);
         }
@@ -135,17 +152,13 @@ public class LineupFragment extends Fragment implements Listener {
             @Override
             public void onClick(View v) {
                 if (mType == MainPageSelection.TYPE_TEAM) {
-                    RadioGroup radioGroup = rootView.findViewById(R.id.radiobtns_away_or_home_team);
-                    int id = radioGroup.getCheckedRadioButtonId();
-                    switch (id) {
-                        case R.id.radio_away:
-                            startGame(false);
-                            break;
-                        case R.id.radio_home:
-                            startGame(true);
-                            break;
-                        default:
-                            Log.e("lineup", "Radiobutton error");
+                    if(isLineupOK()) {
+                        clearGameDB();
+                        addTeamToTempDB();
+                        startGame(isHome());
+                    } else {
+                        Toast.makeText(getActivity(), "Add more players to lineup first.",
+                                Toast.LENGTH_SHORT).show();
                     }
                 } else {
                     updateAndSubmitLineup();
@@ -155,44 +168,71 @@ public class LineupFragment extends Fragment implements Listener {
             }
         });
 
-        TextView teamName = rootView.findViewById(R.id.team_name_display);
-        teamName.setText(mTeam);
+        final TextView teamNameTextView = rootView.findViewById(R.id.team_name_display);
+        teamNameTextView.setText(mTeam);
 
         View addPlayerView = rootView.findViewById(R.id.item_player_adder);
+        final FloatingActionButton addPlayersButton = addPlayerView.findViewById(R.id.btn_start_adder);
+        addPlayersButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                createTeamFragment(mTeam);
+            }
+        });
 
-        addPlayerText = addPlayerView.findViewById(R.id.add_player_text);
-        final Button addPlayerBtn = addPlayerView.findViewById(R.id.add_player_submit);
-        addPlayerBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                addPlayer();
-            }
-        });
-        final FloatingActionButton addPlayerButton = addPlayerView.findViewById(R.id.btn_start_adder);
-        addPlayerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                addPlayerButton.setVisibility(View.GONE);
-                addPlayerText.setVisibility(View.VISIBLE);
-                addPlayerBtn.setVisibility(View.VISIBLE);
-            }
-        });
+        initLeftRecyclerView();
+        initRightRecyclerView();
 
         return rootView;
     }
 
+    public void updateBench(List<String> players) {
+        mBench.addAll(players);
+        if (rightListAdapter != null) {
+            rightListAdapter.notifyDataSetChanged();
+        }
+    }
+
+    private void createTeamFragment(String team) {
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        DialogFragment newFragment = CreateTeamFragment.newInstance(team);
+        newFragment.show(fragmentTransaction, "");
+    }
+
 
     private void startGame(boolean isHome) {
-        int size = updateAndSubmitLineup();
-        if (size < 4) {
-            Toast.makeText(getActivity(), "Add more players to lineup first.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        addTeamToTempDB();
         Intent intent = new Intent(getActivity(), TeamGameActivity.class);
         intent.putExtra("isHome", isHome);
         startActivity(intent);
         getActivity().finish();
+    }
+
+    private boolean isLineupOK() {
+        return updateAndSubmitLineup() > 3;
+    }
+
+    private boolean isHome() {
+        RadioGroup radioGroup = getView().findViewById(R.id.radiobtns_away_or_home_team);
+        int id = radioGroup.getCheckedRadioButtonId();
+        switch (id) {
+            case R.id.radio_away:
+                return false;
+            case R.id.radio_home:
+                return true;
+            default:
+                Log.e("lineup", "Radiobutton error");
+        }
+        return false;
+    }
+
+    private void clearGameDB() {
+        getActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, null, null);
+        getActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, null, null);
+        SharedPreferences savedGamePreferences = getActivity().getSharedPreferences(mSelectionID, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = savedGamePreferences.edit();
+        editor.clear();
+        editor.commit();
     }
 
     private void addTeamToTempDB() {
@@ -266,27 +306,6 @@ public class LineupFragment extends Fragment implements Listener {
         rvRightLineup.setOnDragListener(rightListAdapter.getDragInstance());
     }
 
-    public void addPlayer() {
-        InputMethodManager inputManager = (InputMethodManager)
-                getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-
-        inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(),
-                InputMethodManager.HIDE_NOT_ALWAYS);
-
-        String playerName = addPlayerText.getText().toString();
-
-        ContentValues values = new ContentValues();
-        values.put(StatsEntry.COLUMN_NAME, playerName);
-        values.put(StatsEntry.COLUMN_TEAM, mTeam);
-        values.put(StatsEntry.COLUMN_ORDER, 99);
-        Uri uri = getActivity().getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
-        if (uri != null) {
-            mBench.add(playerName);
-            initRightRecyclerView();
-        }
-        addPlayerText.setText("");
-    }
-
     private int updateAndSubmitLineup() {
         String selection = StatsEntry.COLUMN_NAME + "=?";
         String[] selectionArgs;
@@ -315,22 +334,16 @@ public class LineupFragment extends Fragment implements Listener {
         return lineupList.size();
     }
 
-
     @Override
     public void setEmptyListTop(boolean visibility) {
     }
-
     @Override
     public void setEmptyListBottom(boolean visibility) {
     }
-
     public LineupListAdapter getLeftListAdapter() {
         return leftListAdapter;
     }
-
     public LineupListAdapter getRightListAdapter() {
         return rightListAdapter;
     }
 }
-
-

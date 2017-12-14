@@ -34,28 +34,18 @@
         <activity
             android:name=".activities.GameActivity"
             android:screenOrientation="portrait" />
-        <activity
-            android:name=".activities.StandingsActivity"
-            android:label="STANDINGS"
-            android:launchMode="singleTask"
-            android:parentActivityName=".activities.LeagueManagerActivity"
-            android:windowSoftInputMode="stateHidden|adjustResize" />
-        <activity
-            android:name=".activities.StatsActivity"
-            android:label="PLAYER STATS"
-            android:launchMode="singleTask"
-            android:parentActivityName=".activities.LeagueManagerActivity" />
+
         <activity
             android:name=".activities.SetLineupActivity"
             android:label="Lineup Editor"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
-        <activity
-            android:name=".activities.MatchupActivity"
-            android:label="Matchup Selector"
-            android:launchMode="singleTask"
-            android:parentActivityName=".activities.LeagueManagerActivity"
-            android:screenOrientation="portrait" />
+        <!--<activity-->
+            <!--android:name=".activities.MatchupActivity"-->
+            <!--android:label="Matchup Selector"-->
+            <!--android:launchMode="singleTask"-->
+            <!--android:parentActivityName=".activities.LeagueManagerActivity"-->
+            <!--android:screenOrientation="portrait" />-->
         <activity
             android:name=".activities.BoxScoreActivity"
             android:label="Box Score"
@@ -66,13 +56,12 @@
             android:launchMode="singleTask"
             android:parentActivityName=".activities.TeamManagerActivity"
             android:screenOrientation="portrait" />
+
         <activity android:name=".activities.TeamPagerActivity" />
         <activity android:name=".activities.PlayerPagerActivity" />
-        <activity android:name=".activities.TeamManagerActivity"
-            android:windowSoftInputMode="adjustPan"
-        />
-        <activity
-            android:name=".activities.PlayerManagerActivity"
+        <activity android:name=".activities.TeamManagerActivity" />
+
+        <activity android:name=".activities.PlayerManagerActivity"
             android:screenOrientation="portrait" />
 
         <activity android:name=".activities.SettingsActivity"/>

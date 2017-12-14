@@ -8,7 +8,9 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:paddingTop="6dp"
-    android:paddingBottom="6dp">
+    android:paddingBottom="6dp"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp">
 
     <TextView
         android:id="@+id/name"

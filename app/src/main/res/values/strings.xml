@@ -117,4 +117,6 @@
     <string name="add_user">Add User</string>
     <string name="add_email">Add email</string>
     <string name="save">Save</string>
+    <string name="lineup">Lineup</string>
+    <string name="submit_lineup">Submit Lineup</string>
 </resources>

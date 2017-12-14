@@ -32,7 +32,6 @@ import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.activities.GameActivity;
 import com.example.android.scorekeepdraft1.activities.SetLineupActivity;
 import com.example.android.scorekeepdraft1.activities.SettingsActivity;
-import com.example.android.scorekeepdraft1.activities.TeamGameActivity;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.TeamListAdapter;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.VerticalTextView;
 import com.example.android.scorekeepdraft1.data.StatsContract;
@@ -129,18 +128,13 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
 
             }
         });
-        continueGameButton.setVisibility(View.VISIBLE);
-
         Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG,
                 null, null, null, null);
         if (cursor.moveToFirst()) {
             continueGameButton.setVisibility(View.VISIBLE);
-            Log.d("xxx", "continue vis");
         } else {
             continueGameButton.setVisibility(View.GONE);
-            Log.d("xxx", "continue invis");
         }
-        Log.d("xxx", "cursor close");
         cursor.close();
 
         VerticalTextView editAwayLineup = rootView.findViewById(R.id.away_lineup_editor);
@@ -193,15 +187,24 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                     Toast.makeText(getActivity(), "Add more players to " + homeTeamSelection + " lineup first.", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                clearGameDB();
                 setLineupsToDB();
                 Intent intent = new Intent(getActivity(), GameActivity.class);
                 startActivity(intent);
-                getActivity().finish();
             }
         });
         getLoaderManager().restartLoader(MATCHUP_LOADER, null, this);
 
         return rootView;
+    }
+
+    private void clearGameDB() {
+        getActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, null, null);
+        getActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, null, null);
+        SharedPreferences savedGamePreferences = getActivity().getSharedPreferences(leagueID, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = savedGamePreferences.edit();
+        editor.clear();
+        editor.commit();
     }
 
     private void setLineupsToDB() {

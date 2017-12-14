@@ -62,7 +62,6 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="@+id/tv_outs"
         app:srcCompat="@android:drawable/arrow_up_float"
-        android:onClick="teamAddOut"
         />
 
     <ImageButton

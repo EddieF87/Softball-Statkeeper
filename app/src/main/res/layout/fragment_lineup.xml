@@ -22,29 +22,49 @@
     android:orientation="vertical"
     tools:context="com.example.android.scorekeepdraft1.activities.SetLineupActivity">
 
+    <TextView
+        android:id="@+id/team_name_display"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_weight="2"
+        android:gravity="center"
+        android:padding="8dp"
+        android:textAlignment="center"
+        android:textColor="@color/colorPrimary"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="TeamName" />
+
     <LinearLayout
         android:id="@+id/linearLayout3"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
+        android:background="@drawable/back_green_top"
         android:descendantFocusability="beforeDescendants"
         android:focusableInTouchMode="true"
         android:orientation="horizontal"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout4">
+        app:layout_constraintTop_toBottomOf="@+id/team_name_display">
 
         <TextView
             android:id="@+id/lineup_title"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="2"
+            android:background="@color/colorPrimary"
             android:gravity="bottom"
-            android:text="LINEUP"
+            android:text="@string/lineup"
             android:textAlignment="center"
-            android:textSize="30sp"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
             android:textStyle="bold" />
 
         <TextView
@@ -53,82 +73,94 @@
             android:layout_height="match_parent"
             android:layout_weight="2"
             android:gravity="bottom"
-            android:text="BENCH"
+            android:text="@string/bench"
             android:textAlignment="center"
-            android:textSize="30sp"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
             android:textStyle="bold" />
     </LinearLayout>
 
-    <include layout="@layout/item_adder"
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/item_player_adder"
-        android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:gravity="end"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout4"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-    />
+        android:layout_margin="16dp">
+
+        <RadioGroup
+            android:id="@+id/radiobtns_away_or_home_team"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:textAlignment="center"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_toStartOf="@id/btn_start_adder"
+            android:layout_toLeftOf="@id/btn_start_adder"
+            android:visibility="gone">
+
+            <RadioButton
+                android:id="@+id/radio_away"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginRight="36dp"
+                android:layout_marginLeft="36dp"
+                android:checked="true"
+                android:text="@string/away"
+                />
+            <RadioButton
+                android:id="@+id/radio_home"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="@string/home" />
+
+        </RadioGroup>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/btn_start_adder"
+            style="@style/FloatingActionButtonStyle"
+            android:layout_marginRight="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            />
+
+    </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/linearLayout4"
         android:layout_width="match_parent"
         android:layout_height="60dp"
+        android:layout_marginBottom="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
         android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintRight_toRightOf="parent">
 
-        <TextView
-            android:id="@+id/team_name_display"
+        <Button
+            android:id="@+id/continue_game"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="2"
+            android:layout_weight="1"
             android:gravity="center"
-            android:text="TEAM NAME"
-            android:textAlignment="center"
-            android:textSize="30sp"
-            android:textStyle="bold" />
-
-        <RadioGroup
-            android:id="@+id/radiobtns_away_or_home_team"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="2"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:textAlignment="center"
-            android:textSize="30sp"
-            android:textStyle="bold"
-            android:visibility="gone"
-            >
-
-            <RadioButton
-                android:id="@+id/radio_away"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:text="@string/away"
-                android:checked="true"/>
-
-
-            <RadioButton
-                android:id="@+id/radio_home"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="match_parent"
-                android:text="@string/home"/>
-
-        </RadioGroup>
+            android:text="@string/continue_game"
+            android:visibility="gone"/>
 
         <Button
             android:id="@+id/lineup_submit"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="SUBMIT LINEUP" />
+            android:text="@string/submit_lineup" />
 
     </LinearLayout>
 
@@ -139,7 +171,6 @@
         android:layout_marginBottom="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
         android:orientation="horizontal"
         app:layout_constraintBottom_toTopOf="@+id/item_player_adder"
         app:layout_constraintHorizontal_bias="0.0"
@@ -152,28 +183,24 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:padding="10dp"
-            android:paddingEnd="10dp"
-            android:paddingLeft="20dp"
-            android:paddingRight="10dp"
-            android:paddingStart="20dp"
-            android:scrollbars="vertical"
-            />
-
+            android:background="@drawable/back_accent_left"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingBottom="8dp"
+            android:paddingTop="8dp"
+            android:scrollbars="vertical" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rvRight"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:padding="10dp"
-            android:paddingEnd="10dp"
-            android:paddingLeft="20dp"
-            android:paddingRight="10dp"
-            android:paddingStart="20dp"
-            android:scrollbars="vertical"
-            />
+            android:background="@drawable/back_accent_right"
+            android:paddingBottom="8dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="8dp"
+            android:scrollbars="vertical" />
     </LinearLayout>
-
 
 </android.support.constraint.ConstraintLayout>

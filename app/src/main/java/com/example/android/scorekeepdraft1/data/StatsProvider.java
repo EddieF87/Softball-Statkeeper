@@ -143,7 +143,6 @@ public class StatsProvider extends ContentProvider {
         }
         cursor = database.query(table, projection, selection, selectionArgs, null, null, sortOrder);
         cursor.setNotificationUri(getContext().getContentResolver(), uri);
-        Log.d("xxx", "return cursor");
         return cursor;
     }
 

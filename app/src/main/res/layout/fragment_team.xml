@@ -53,20 +53,21 @@
         android:id="@+id/scrollView1"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:background="@drawable/back_white"
+        android:padding="6dp"
         android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/team_buttons"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/item_player_adder"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/team_header">
 
-        <LinearLayout xmlns:tools="http://schemas.android.com/tools"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            tools:context="com.example.android.scorekeepdraft1.activities.StatsActivity">
+            android:orientation="vertical">
 
             <include
                 android:id="@+id/team_stats_titles"
@@ -79,48 +80,6 @@
 
         </LinearLayout>
     </HorizontalScrollView>
-
-    <LinearLayout
-        android:id="@+id/team_buttons"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_margin = "8dp"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf ="@id/item_player_adder"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        >
-
-        <Button
-            android:id="@+id/btn_continue_game"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textSize="24sp"
-            android:autoSizeTextType="uniform"
-            android:autoSizeMinTextSize="12sp"
-            android:maxLines="1"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:text="Continue"
-            android:visibility="gone"
-            />
-
-        <Button
-            android:id="@+id/btn_start_game"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textSize="24sp"
-            android:autoSizeTextType="uniform"
-            android:autoSizeMinTextSize="12sp"
-            android:maxLines="1"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
-            android:text="@string/new_game"
-            android:visibility="gone"
-            />
-    </LinearLayout>
 
     <include
         android:id="@+id/item_player_adder"

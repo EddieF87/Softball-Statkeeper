@@ -27,6 +27,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -81,6 +82,7 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
 
     private Button submitPlay;
     private Button resetBases;
+    private ImageButton addOutButton;
 
     private RadioGroup group1;
     private RadioGroup group2;
@@ -261,6 +263,14 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
         thirdDisplay.setOnDragListener(new MyDragListener());
         homeDisplay.setOnDragListener(new MyDragListener());
         outTrash.setOnDragListener(new MyDragListener());
+
+        addOutButton = findViewById(R.id.btn_add_out);
+        addOutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                teamAddOut();
+            }
+        });
 
         RecyclerView rv = findViewById(R.id.team_lineup);
         rv.setLayoutManager(new LinearLayoutManager(this,
@@ -737,6 +747,7 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
             radioGroup.setVisibility(View.GONE);
             diamond.setVisibility(View.GONE);
             alternateTeamDisplay.setVisibility(View.VISIBLE);
+            addOutButton.setEnabled(true);
             otherTeamOutsView = alternateTeamDisplay.findViewById(R.id.tv_outs);
             otherTeamRunsView = alternateTeamDisplay.findViewById(R.id.tv_runs_scored);
             otherTeamRuns = 0;
@@ -787,20 +798,18 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
         setScoreDisplay();
     }
 
-    public void teamAddOut(View v) {
+    public void teamAddOut() {
         gameOuts++;
+        Log.d("xxx", "addout = " + gameOuts);
         otherTeamOutsView.setText(String.valueOf(gameOuts));
         if (gameOuts >= 3) {
+            addOutButton.setEnabled(false);
             currentBatter = null;
             if (undoRedo) {
                 deleteGameLogs();
-                Log.d(TAG, " after deletegamelogs =  " + gameLogIndex);
-                Log.d(TAG, " myteamindex is  =  " + myTeamIndex);
-//                increaseLineupIndex();
-//                Log.d(TAG, " myteamindex increased to  =  " + myTeamIndex);
             }
             nextBatter();
-            Log.d(TAG, " after nextbatter =  " + myTeamIndex);
+            Log.d("xxx", "resetOuts = " + gameOuts);
         }
     }
 
@@ -1253,6 +1262,7 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
     }
 
     private void onSubmit() {
+        submitPlay.setEnabled(false);
         if (undoRedo) {
             deleteGameLogs();
         }
@@ -1261,7 +1271,7 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
         nextBatter();
         String outs = gameOuts + " outs";
         outsDisplay.setText(outs);
-//        Log.d(TAG, " onSubmit  gameouts = " + gameOuts);
+        submitPlay.setEnabled(true);
     }
 
     private void deleteGameLogs(){
