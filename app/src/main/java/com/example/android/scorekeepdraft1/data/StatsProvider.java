@@ -3,7 +3,6 @@ package com.example.android.scorekeepdraft1.data;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Intent;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -14,11 +13,11 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.MyApp;
-import com.example.android.scorekeepdraft1.activities.LeagueManagerActivity;
-import com.example.android.scorekeepdraft1.activities.MainActivity;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
@@ -35,7 +34,7 @@ public class StatsProvider extends ContentProvider {
 
     private FirebaseFirestore mFirestore;
 
-    public static final String LOG_TAG = StatsProvider.class.getSimpleName();
+    public static final String TAG = StatsProvider.class.getSimpleName();
 
     public static final int PLAYERS = 100;
     public static final int PLAYERS_ID = 101;
@@ -85,9 +84,9 @@ public class StatsProvider extends ContentProvider {
     @Override
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection,
                         @Nullable String[] selectionArgs, @Nullable String sortOrder) {
-        MyApp myApp = (MyApp)getContext().getApplicationContext();
+        MyApp myApp = (MyApp) getContext().getApplicationContext();
         String leagueID = myApp.getCurrentSelection().getId();
-        if(selection == null || selection.isEmpty()){
+        if (selection == null || selection.isEmpty()) {
             selection = StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
         } else {
             selection = selection + " AND " + StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
@@ -165,7 +164,7 @@ public class StatsProvider extends ContentProvider {
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
         //Get current leagueID
-        MyApp myApp = (MyApp)getContext().getApplicationContext();
+        MyApp myApp = (MyApp) getContext().getApplicationContext();
         String leagueID = myApp.getCurrentSelection().getId();
         values.put(StatsEntry.COLUMN_LEAGUE_ID, leagueID);
 
@@ -189,16 +188,30 @@ public class StatsProvider extends ContentProvider {
                 mFirestore = FirebaseFirestore.getInstance();
                 DocumentReference playerDoc = mFirestore.collection(FirestoreAdapter.LEAGUE_COLLECTION)
                         .document(leagueID).collection(FirestoreAdapter.PLAYERS_COLLECTION).document();
-                String playerName = values.getAsString(StatsEntry.COLUMN_NAME);
+
                 Map<String, Object> player = new HashMap<>();
+
+                String playerName = values.getAsString(StatsEntry.COLUMN_NAME);
+
+                String playerTeam;
                 if (values.containsKey(StatsEntry.COLUMN_TEAM)) {
-                    String teamName = values.getAsString(StatsEntry.COLUMN_TEAM);
-                    player.put("team", teamName);
+                    playerTeam = values.getAsString(StatsEntry.COLUMN_TEAM);
                 } else {
-                    player.put("team", "Free Agent");
+                    playerTeam = "Free Agent";
                 }
+
+                int playerGender;
+                if (values.containsKey(StatsEntry.COLUMN_GENDER)) {
+                    playerGender = values.getAsInteger(StatsEntry.COLUMN_GENDER);
+                } else {
+                    playerGender = 0;
+                }
+
                 player.put("name", playerName);
+                player.put("team", playerTeam);
+                player.put("gender", playerGender);
                 playerDoc.set(player, SetOptions.merge());
+
                 values.put(StatsEntry.COLUMN_FIRESTORE_ID, playerDoc.getId());
                 break;
             case TEAMS:
@@ -215,10 +228,12 @@ public class StatsProvider extends ContentProvider {
                 mFirestore = FirebaseFirestore.getInstance();
                 DocumentReference teamDoc = mFirestore.collection(FirestoreAdapter.LEAGUE_COLLECTION)
                         .document(leagueID).collection(FirestoreAdapter.TEAMS_COLLECTION).document();
-                String teamName = values.getAsString(StatsEntry.COLUMN_NAME);
+
                 Map<String, Object> team = new HashMap<>();
+                String teamName = values.getAsString(StatsEntry.COLUMN_NAME);
                 team.put("name", teamName);
                 teamDoc.set(team, SetOptions.merge());
+
                 values.put(StatsEntry.COLUMN_FIRESTORE_ID, teamDoc.getId());
                 break;
             case TEMP:
@@ -249,14 +264,15 @@ public class StatsProvider extends ContentProvider {
 
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
-        MyApp myApp = (MyApp)getContext().getApplicationContext();
+        MyApp myApp = (MyApp) getContext().getApplicationContext();
         MainPageSelection mainPageSelection = myApp.getCurrentSelection();
         if (mainPageSelection == null) {
-            Log.d("xxx", "ERROR WITH DELETE!!!");
+            Log.d(TAG, "ERROR WITH DELETE!!!");
             return -1;
         }
         String leagueID = myApp.getCurrentSelection().getId();
-        if(selection == null || selection.isEmpty()){
+        int selectionType = myApp.getCurrentSelection().getType();
+        if (selection == null || selection.isEmpty()) {
             selection = StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
         } else {
             selection = selection + " AND " + StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
@@ -267,13 +283,58 @@ public class StatsProvider extends ContentProvider {
         final int match = sUriMatcher.match(uri);
 
         int rowsDeleted;
+        String firestoreID;
 
         switch (match) {
             case PLAYERS:
+                if (selectionArgs != null) {
+                    firestoreID = selectionArgs[0].toString();
+                } else {
+                    return -1;
+                }
+                mFirestore = FirebaseFirestore.getInstance();
+
+                mFirestore.collection(FirestoreAdapter.LEAGUE_COLLECTION).document(leagueID)
+                        .collection(FirestoreAdapter.PLAYERS_COLLECTION).document(firestoreID)
+                        .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "DocumentSnapshot successfully deleted!");
+                    }
+                })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG, "Error deleting document", e);
+                            }
+                        });
+
                 rowsDeleted = database.delete(StatsEntry.PLAYERS_TABLE_NAME, selection, selectionArgs);
                 break;
 
             case PLAYERS_ID:
+                if (selectionArgs != null) {
+                    firestoreID = selectionArgs[0].toString();
+                } else {
+                    return -1;
+                }
+                mFirestore = FirebaseFirestore.getInstance();
+
+                mFirestore.collection(FirestoreAdapter.LEAGUE_COLLECTION).document(leagueID)
+                        .collection(FirestoreAdapter.PLAYERS_COLLECTION).document(firestoreID)
+                        .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "DocumentSnapshot successfully deleted!");
+                    }
+                })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG, "Error deleting document", e);
+                            }
+                        });
+
                 selection = StatsEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 rowsDeleted = database.delete(StatsEntry.PLAYERS_TABLE_NAME, selection, selectionArgs);
@@ -329,9 +390,9 @@ public class StatsProvider extends ContentProvider {
                 throw new IllegalArgumentException("Deletion is not supported for " + uri);
         }
         if (rowsDeleted < 1) {
-            Log.e(LOG_TAG, "Failed to delete row for " + uri);
+            Log.e(TAG, "Failed to delete row for " + uri);
         } else {
-            Log.e(LOG_TAG, "Deleted row for " + uri);
+            Log.e(TAG, "Deleted row for " + uri);
         }
         getContext().getContentResolver().notifyChange(uri, null);
         return rowsDeleted;
@@ -340,9 +401,9 @@ public class StatsProvider extends ContentProvider {
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues values,
                       @Nullable String selection, @Nullable String[] selectionArgs) {
-        MyApp myApp = (MyApp)getContext().getApplicationContext();
+        MyApp myApp = (MyApp) getContext().getApplicationContext();
         String leagueID = myApp.getCurrentSelection().getId();
-        if(selection == null || selection.isEmpty()){
+        if (selection == null || selection.isEmpty()) {
             selection = StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
         } else {
             selection = selection + " AND " + StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
@@ -372,6 +433,7 @@ public class StatsProvider extends ContentProvider {
                     return -1;
                 }
                 firestoreID = values.getAsString(StatsEntry.COLUMN_FIRESTORE_ID);
+
                 mFirestore = FirebaseFirestore.getInstance();
                 documentReference = mFirestore.collection(FirestoreAdapter.LEAGUE_COLLECTION).document(leagueID)
                         .collection(FirestoreAdapter.PLAYERS_COLLECTION).document(firestoreID);
@@ -386,6 +448,18 @@ public class StatsProvider extends ContentProvider {
                 break;
             case TEAMS:
                 table = StatsEntry.TEAMS_TABLE_NAME;
+                if (values.containsKey(StatsEntry.COLUMN_NAME)) {
+                    firestoreID = values.getAsString(StatsEntry.COLUMN_FIRESTORE_ID);
+                    mFirestore = FirebaseFirestore.getInstance();
+                    documentReference = mFirestore.collection(FirestoreAdapter.LEAGUE_COLLECTION).document(leagueID)
+                            .collection(FirestoreAdapter.TEAMS_COLLECTION).document(firestoreID);
+                    values.remove(StatsEntry.COLUMN_FIRESTORE_ID);
+                    String teamName = values.getAsString(StatsEntry.COLUMN_NAME);
+                    documentReference.update("name", teamName);
+                    DocumentReference documentReference1 = mFirestore
+                            .collection(FirestoreAdapter.LEAGUE_COLLECTION).document(leagueID);
+                    documentReference1.update("name", teamName);
+                }
                 break;
             case TEAMS_ID:
                 selection = StatsEntry._ID + "=?";
@@ -427,20 +501,20 @@ public class StatsProvider extends ContentProvider {
         }
         SQLiteDatabase database = mOpenHelper.getWritableDatabase();
         int rowsUpdated = database.update(table, values, selection, selectionArgs);
-        Log.d(LOG_TAG, " row table " + table + "   selectionargs " + Arrays.toString(selectionArgs));
+        Log.d(TAG, " row table " + table + "   selectionargs " + Arrays.toString(selectionArgs));
 
 
         if (rowsUpdated != 0) {
             getContext().getContentResolver().notifyChange(uri, null);
         } else {
-            Log.d(LOG_TAG, "NRFCUVHURCCUJUJC)");
+            Log.d(TAG, "NRFCUVHURCCUJUJC)");
         }
         return rowsUpdated;
     }
 
 
     public boolean containsName(Uri uri, ContentValues values, boolean isTeam) {
-        MyApp myApp = (MyApp)getContext().getApplicationContext();
+        MyApp myApp = (MyApp) getContext().getApplicationContext();
         String leagueID = myApp.getCurrentSelection().getId();
         String selection = StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
 
@@ -458,7 +532,7 @@ public class StatsProvider extends ContentProvider {
                 if (teamName.equals(name)) {
                     if (isTeam) {
                         Toast.makeText(getContext(), "This team already exists!", Toast.LENGTH_SHORT).show();
-                        Log.d(LOG_TAG, teamName + " already exists.");
+                        Log.d(TAG, teamName + " already exists.");
                     } else {
                         Toast.makeText(getContext(), "This player already exists!", Toast.LENGTH_SHORT).show();
                     }
@@ -467,7 +541,7 @@ public class StatsProvider extends ContentProvider {
                 }
             }
             cursor.close();
-            Log.d(LOG_TAG, name + "is good to go!");
+            Log.d(TAG, name + "is good to go!");
 
         }
         return false;

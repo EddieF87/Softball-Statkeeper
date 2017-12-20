@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -172,7 +173,7 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
     private static final String TAG = "TeamGameActivity: ";
     private static final String KEY_REDOENDSGAME = "keyRedoEndsGame";
 
-    private String leagueID;
+    private String teamID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -188,11 +189,11 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
             finish();
         }
         MainPageSelection mainPageSelection = myApp.getCurrentSelection();
-        leagueID = mainPageSelection.getId();
+        teamID = mainPageSelection.getId();
         String myTeamName = mainPageSelection.getName();
 
         Bundle b = getIntent().getExtras();
-        SharedPreferences pref = getSharedPreferences(leagueID, MODE_PRIVATE);
+        SharedPreferences pref = getSharedPreferences(teamID + "game", MODE_PRIVATE);
         if (b != null) {
             isHome = b.getBoolean("isHome");
             SharedPreferences.Editor editor = pref.edit();
@@ -275,7 +276,14 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
         RecyclerView rv = findViewById(R.id.team_lineup);
         rv.setLayoutManager(new LinearLayoutManager(this,
                 LinearLayoutManager.VERTICAL, false));
-        TeamListAdapter teamListAdapter = new TeamListAdapter(myTeam);
+        TeamListAdapter teamListAdapter;
+        SharedPreferences settingsPreferences = getSharedPreferences(teamID + "settings", Context.MODE_PRIVATE);
+        int genderSorter = settingsPreferences.getInt("genderSort", 0);
+        if(genderSorter == 0) {
+            teamListAdapter = new TeamListAdapter(myTeam);
+        } else {
+            teamListAdapter = new TeamListAdapter(myTeam, this);
+        }
         rv.setAdapter(teamListAdapter);
         TextView teamText = findViewById(R.id.team_text);
         teamText.setText(myTeamName);
@@ -290,9 +298,7 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
             undoRedo = pref.getBoolean(KEY_UNDOREDO, false);
             redoEndsGame = pref.getBoolean(KEY_REDOENDSGAME, false);
 
-            Log.d(TAG, "after getSharedPrefs  =  " + myTeamIndex);
             resumeGame();
-            Log.d(TAG, "after resumeGame =  " + myTeamIndex);
             return;
         }
         setInningDisplay();
@@ -311,15 +317,17 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
 
         int nameIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
         int idIndex = playerCursor.getColumnIndex(StatsEntry._ID);
+        int firestoreIDIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
+        int genderIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_GENDER);
 
         ArrayList<Player> team = new ArrayList<>();
         while (playerCursor.moveToNext()) {
             int playerId = playerCursor.getInt(idIndex);
             String playerName = playerCursor.getString(nameIndex);
-            int firestoreIDIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
             String firestoreID = playerCursor.getString(firestoreIDIndex);
-
-            team.add(new Player(playerName, teamName, playerId, firestoreID));
+            int gender = playerCursor.getInt(genderIndex);
+            Log.d("xxx tga", playerName + "g = " + gender);
+            team.add(new Player(playerName, teamName, gender, playerId, firestoreID));
         }
         return team;
     }
@@ -514,13 +522,12 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
                 nextInning();
                 if(isAlternate) {
                     increaseLineupIndex();
-                    Log.d(TAG, "myteamindex increased to  " + myTeamIndex);
                 }
             }
         } else {
             increaseLineupIndex();
-            Log.d(TAG, "myteamindex increased to  " + myTeamIndex);
         }
+        submitPlay.setEnabled(true);
         updateGameLogs();
     }
 
@@ -617,7 +624,7 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
     }
 
     private void saveGameState() {
-        SharedPreferences pref = getSharedPreferences(leagueID, MODE_PRIVATE);
+        SharedPreferences pref = getSharedPreferences(teamID + "game", MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
         editor.putInt(KEY_GAMELOGINDEX, gameLogIndex);
         editor.putInt(KEY_HIGHESTINDEX, highestIndex);
@@ -774,10 +781,6 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
             awayTeamRuns++;
         } else {
             homeTeamRuns++;
-//            if (finalInning && homeTeamRuns > awayTeamRuns) {
-//                setScoreDisplay();
-//                showFinishGameDialog();
-//            }
         }
         otherTeamRuns++;
         otherTeamRunsView.setText(String.valueOf(otherTeamRuns));
@@ -800,7 +803,6 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
 
     public void teamAddOut() {
         gameOuts++;
-        Log.d("xxx", "addout = " + gameOuts);
         otherTeamOutsView.setText(String.valueOf(gameOuts));
         if (gameOuts >= 3) {
             addOutButton.setEnabled(false);
@@ -809,7 +811,6 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
                 deleteGameLogs();
             }
             nextBatter();
-            Log.d("xxx", "resetOuts = " + gameOuts);
         }
     }
 
@@ -846,33 +847,8 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
         }
         fragmentTransaction.addToBackStack(null);
 
-
-//        FinishGameFragment dialog = FinishGameFragment.newInstance();
-
-//        dialog.onCreateDialog(null);
-//        dialog.show(fragmentManager, DIALOG_FINISH);
         DialogFragment newFragment = FinishGameFragment.newInstance();
         newFragment.show(fragmentTransaction, DIALOG_FINISH);
-
-//        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-//        builder.setMessage(R.string.end_game_msg);
-//        builder.setPositiveButton(R.string.end_msg, new DialogInterface.OnClickListener() {
-//            public void onClick(DialogInterface dialog, int id) {
-//                endGame();
-//            }
-//        });
-//        builder.setNegativeButton(R.string.undo, new DialogInterface.OnClickListener() {
-//            public void onClick(DialogInterface dialog, int id) {
-//                updateGameLogs();
-//                undoPlay();
-//                redoEndsGame = true;
-//                if (dialog != null) {
-//                    dialog.dismiss();
-//                }
-//            }
-//        });
-//        AlertDialog alertDialog = builder.create();
-//        alertDialog.show();
     }
 
     private void addTeamStatsToDB(String teamName, int teamRuns, int otherTeamRuns) {
@@ -906,7 +882,7 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
         String firestoreID = playerCursor.getString(firestoreIDIndex);
 
         final DocumentReference docRef = mFirestore.collection(FirestoreAdapter.LEAGUE_COLLECTION)
-                .document(leagueID).collection(FirestoreAdapter.TEAMS_COLLECTION).document(firestoreID)
+                .document(teamID).collection(FirestoreAdapter.TEAMS_COLLECTION).document(firestoreID)
                 .collection(FirestoreAdapter.TEAM_LOGS).document(String.valueOf(logId));
 
         if (teamRuns > otherTeamRuns) {
@@ -992,7 +968,7 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
                 logId = System.currentTimeMillis();
             }
             final DocumentReference docRef = mFirestore.collection(FirestoreAdapter.LEAGUE_COLLECTION)
-                    .document(leagueID).collection(FirestoreAdapter.PLAYERS_COLLECTION).document(firestoreID)
+                    .document(teamID).collection(FirestoreAdapter.PLAYERS_COLLECTION).document(firestoreID)
                     .collection(FirestoreAdapter.PLAYER_LOGS).document(String.valueOf(logId));
 
             PlayerLog playerLog = new PlayerLog(playerId, gameRBI, gameRun, game1b, game2b, game3b,
@@ -1271,7 +1247,6 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
         nextBatter();
         String outs = gameOuts + " outs";
         outsDisplay.setText(outs);
-        submitPlay.setEnabled(true);
     }
 
     private void deleteGameLogs(){
@@ -1503,10 +1478,8 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
                 updateGameLogs();
                 redoEndsGame = true;
             }
-//            else {
-//                redoPlay();
-//            }
             undoPlay();
+            submitPlay.setEnabled(true);
         }
     }
 

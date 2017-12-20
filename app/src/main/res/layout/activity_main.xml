@@ -87,7 +87,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:text="Player"
+        android:layout_marginLeft="16dp"
+        android:text="@string/playerStatKeeper"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -97,7 +98,7 @@
         android:id="@+id/textview_leagues_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="League"
+        android:text="@string/leagueStatKeeper"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="@+id/textview_teams_title"
@@ -133,7 +134,8 @@
         android:layout_marginBottom="24dp"
         android:layout_marginEnd="32dp"
         app:layout_constraintBottom_toTopOf="@+id/btn_create_join_tm"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginRight="32dp" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/btn_create_join_lg"
@@ -142,7 +144,8 @@
         android:layout_marginBottom="24dp"
         android:layout_marginEnd="32dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginRight="32dp" />
 
     <TextView
         android:id="@+id/textview_join_or_create"
@@ -169,13 +172,14 @@
         android:textStyle="italic"
         app:layout_constraintEnd_toStartOf="@+id/btn_create_plyr"
         app:layout_constraintStart_toStartOf="@+id/textview_players_title"
-        app:layout_constraintTop_toBottomOf="@+id/textview_players_title" />
+        app:layout_constraintTop_toBottomOf="@+id/textview_players_title"
+        android:layout_marginRight="32dp" />
 
     <TextView
         android:id="@+id/textview_teams_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Team"
+        android:text="@string/teamStatKeeper"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="@+id/textview_players_title"

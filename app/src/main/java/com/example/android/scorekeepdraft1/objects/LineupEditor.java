@@ -31,12 +31,12 @@ public class LineupEditor {
         boolean firstFemaleSet = false;
         for (Player player : team) {
             //TODO complete gendersort, add info to players and db/firestore
-//            if (player.getGender == 0) {
-//                females.add(player);
-//                firstFemaleSet = true;
-//            } else {
-//                males.add(player);
-//            }
+            if (player.getGender() == 1) {
+                females.add(player);
+                firstFemaleSet = true;
+            } else {
+                males.add(player);
+            }
             if (!firstFemaleSet) {
                 firstFemale++;
             }
@@ -80,15 +80,17 @@ public class LineupEditor {
 
         int nameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_NAME);
         int idIndex = cursor.getColumnIndex(StatsEntry._ID);
+        int genderIndex = cursor.getColumnIndex(StatsEntry.COLUMN_GENDER);
+        int firestoreIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
 
         ArrayList<Player> team = new ArrayList<>();
         while (cursor.moveToNext()) {
             int playerId = cursor.getInt(idIndex);
             String playerName = cursor.getString(nameIndex);
-            int firestoreIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
             String firestoreID = cursor.getString(firestoreIDIndex);
+            int gender = cursor.getInt(genderIndex);
 
-            team.add(new Player(playerName, teamName, playerId, firestoreID));
+            team.add(new Player(playerName, teamName, gender, playerId, firestoreID));
         }
         return team;
     }

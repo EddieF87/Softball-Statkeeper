@@ -108,10 +108,9 @@
     <string name="away">Away</string>
     <string name="start">Start</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="empty_avg">---</string>
     <string name="settings">Settings</string>
+    <string name="user_settings">User Settings</string>
     <string name="email">email</string>
     <string name="reset">Reset</string>
     <string name="add_user">Add User</string>
@@ -119,4 +118,13 @@
     <string name="save">Save</string>
     <string name="lineup">Lineup</string>
     <string name="submit_lineup">Submit Lineup</string>
+    <string name="OFF">OFF</string>
+    <string name="Innings">Innings</string>
+    <string name="set_gender_lineup">Lineup Gender Requirements</string>
+    <string name="game_settings">Game Settings</string>
+    <string name="player">Player</string>
+    <string name="league">League</string>
+    <string name="teamStatKeeper">Team StatKeeper</string>
+    <string name="leagueStatKeeper">League StatKeeper</string>
+    <string name="playerStatKeeper">Player StatKeeper</string>
 </resources>

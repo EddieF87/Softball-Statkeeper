@@ -1,5 +1,6 @@
 package com.example.android.scorekeepdraft1.activities;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
@@ -18,10 +19,8 @@ import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.fragments.CreateTeamFragment;
+import com.example.android.scorekeepdraft1.fragments.GameSettingsDialogFragment;
 import com.example.android.scorekeepdraft1.fragments.LineupFragment;
-import com.example.android.scorekeepdraft1.fragments.MatchupFragment;
-import com.example.android.scorekeepdraft1.fragments.StandingsFragment;
-import com.example.android.scorekeepdraft1.fragments.StatsFragment;
 import com.example.android.scorekeepdraft1.fragments.TeamFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.example.android.scorekeepdraft1.objects.Player;
@@ -30,10 +29,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TeamManagerActivity extends AppCompatActivity
-        implements CreateTeamFragment.OnListFragmentInteractionListener {
+        implements CreateTeamFragment.OnListFragmentInteractionListener,
+        GameSettingsDialogFragment.OnFragmentInteractionListener {
 
     private LineupFragment lineupFragment;
     private TeamFragment teamFragment;
+    private String teamID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +49,7 @@ public class TeamManagerActivity extends AppCompatActivity
             finish();
         }
         final String leagueName = mainPageSelection.getName();
-        final String leagueID = mainPageSelection.getId();
+        teamID = mainPageSelection.getId();
         final int leagueType = mainPageSelection.getType();
         final int level = mainPageSelection.getLevel();
         setTitle(leagueName);
@@ -70,13 +71,13 @@ public class TeamManagerActivity extends AppCompatActivity
             public Fragment getItem(int position) {
                 switch (position) {
                     case 0:
-                        teamFragment = TeamFragment.newInstance(leagueID, leagueType, leagueName, level);
+                        teamFragment = TeamFragment.newInstance(teamID, leagueType, leagueName, level);
                         return teamFragment;
                     case 1:
                         if (level < 3) {
                             return null;
                         }
-                        lineupFragment = LineupFragment.newInstance(leagueID, leagueType, leagueName);
+                        lineupFragment = LineupFragment.newInstance(teamID, leagueType, leagueName);
                         return lineupFragment;
                     default:
                         return null;
@@ -120,11 +121,17 @@ public class TeamManagerActivity extends AppCompatActivity
             values.put(StatsContract.StatsEntry.COLUMN_NAME, playerName);
             values.put(StatsContract.StatsEntry.COLUMN_GENDER, gender);
             values.put(StatsContract.StatsEntry.COLUMN_TEAM, team);
-            values.put(StatsContract.StatsEntry.COLUMN_ORDER, 99);
             Uri uri = getContentResolver().insert(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, values);
             if (uri != null) {
-                playerNames.add(playerName);
-                players.add(new Player(playerName, team, gender));
+                Cursor cursor = getContentResolver().query(uri, null, null,
+                        null, null);
+                if (cursor.moveToFirst()) {
+                    String firestoreID = cursor.getString(cursor
+                            .getColumnIndex(StatsContract.StatsEntry.COLUMN_FIRESTORE_ID));
+                    long id = ContentUris.parseId(uri);
+                    playerNames.add(playerName);
+                    players.add(new Player(playerName, team, gender, id, firestoreID));
+                }
             }
         }
         if (!players.isEmpty()) {
@@ -132,8 +139,17 @@ public class TeamManagerActivity extends AppCompatActivity
                 lineupFragment.updateBench(playerNames);
             }
             if (teamFragment != null) {
-                teamFragment.updateUI(players);
+                teamFragment.addPlayers(players);
             }
         }
+    }
+
+    @Override
+    public void onGameSettingsChanged(int innings, int femaleOrder) {
+//        SharedPreferences sharedPreferences = getSharedPreferences(teamID + "settings", MODE_PRIVATE);
+//        SharedPreferences.Editor editor = sharedPreferences.edit();
+//        editor.putInt("innings", innings);
+//        editor.putInt("genderSort", femaleOrder);
+//        editor.commit();
     }
 }

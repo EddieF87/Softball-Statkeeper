@@ -9,6 +9,7 @@ import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -17,7 +18,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.NavigationView;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -43,6 +43,7 @@ import com.example.android.scorekeepdraft1.gamelog.BaseLog;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.gamelog.PlayerLog;
 import com.example.android.scorekeepdraft1.gamelog.TeamLog;
+import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.example.android.scorekeepdraft1.objects.Player;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.firebase.firestore.DocumentReference;
@@ -65,6 +66,11 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     private Cursor playerCursor;
     private Cursor gameCursor;
     private FirebaseFirestore mFirestore;
+
+    private TeamListAdapter awayTeamListAdapter;
+    private TeamListAdapter homeTeamListAdapter;
+    private RecyclerView awayLineupRV;
+    private RecyclerView homeLineupRV;
 
     private TextView scoreboard;
     private TextView nowBatting;
@@ -161,7 +167,10 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
 
     private static final String KEY_GAMELOGINDEX = "keyGameLogIndex";
     private static final String KEY_HIGHESTINDEX = "keyHighestIndex";
+    private static final String KEY_GENDERSORT = "keyGenderSort";
+    private static final String KEY_FEMALEORDER = "keyFemaleOrder";
     private static final String KEY_INNINGNUMBER = "keyInningNumber";
+    private static final String KEY_TOTALINNINGS = "keyTotalInnings";
     private static final String KEY_AWAYTEAMNDEX = "keyAwayTeamIndex";
     private static final String KEY_HOMETEAMINDEX = "keyHomeTeamIndex";
     private static final String KEY_UNDOREDO = "keyUndoRedo";
@@ -176,7 +185,13 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         setContentView(R.layout.activity_game);
 
         MyApp myApp = (MyApp) getApplicationContext();
-        leagueID = myApp.getCurrentSelection().getId();
+        MainPageSelection mainPageSelection = myApp.getCurrentSelection();
+        if (mainPageSelection == null) {
+            Intent intent = new Intent(GameActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        }
+        leagueID = mainPageSelection.getId();
 
         playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEMP, null,
                 null, null, null);
@@ -188,6 +203,25 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         setTitle(awayTeamName + " @ " + homeTeamName);
         awayTeam = setTeam(awayTeamName);
         homeTeam = setTeam(homeTeamName);
+
+        Intent intent = getIntent();
+        Bundle args = intent.getExtras();
+
+        SharedPreferences settingsPreferences =
+                getSharedPreferences(leagueID + "settings", MODE_PRIVATE);
+        int genderSorter = settingsPreferences.getInt("genderSort", 0) + 1;
+
+        if (args != null) {
+            int sortArgument = args.getInt("sortArgument");
+            int totalInnings = settingsPreferences.getInt("innings", 7);
+            setGendersort(sortArgument, genderSorter);
+            SharedPreferences gamePreferences = getSharedPreferences(leagueID + "game", MODE_PRIVATE);
+            SharedPreferences.Editor editor = gamePreferences.edit();
+            editor.putInt(KEY_TOTALINNINGS, totalInnings);
+            editor.putInt(KEY_GENDERSORT, sortArgument);
+            editor.putInt(KEY_FEMALEORDER, genderSorter);
+            editor.commit();
+        }
 
         scoreboard = findViewById(R.id.scoreboard);
         nowBatting = findViewById(R.id.nowbatting);
@@ -235,17 +269,26 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         homeDisplay.setOnDragListener(new MyDragListener());
         outTrash.setOnDragListener(new MyDragListener());
 
-        RecyclerView rva = findViewById(R.id.away_lineup);
-        rva.setLayoutManager(new LinearLayoutManager(
+        awayLineupRV = findViewById(R.id.away_lineup);
+        awayLineupRV.setLayoutManager(new LinearLayoutManager(
                 this, LinearLayoutManager.VERTICAL, false));
-        TeamListAdapter teamListAdapter = new TeamListAdapter(awayTeam);
-        rva.setAdapter(teamListAdapter);
+        if(genderSorter == 0) {
+            awayTeamListAdapter = new TeamListAdapter(awayTeam);
+        } else {
+            awayTeamListAdapter = new TeamListAdapter(awayTeam, this);
+        }
+        awayLineupRV.setAdapter(awayTeamListAdapter);
 
-        RecyclerView rvh = findViewById(R.id.home_lineup);
-        rvh.setLayoutManager(new LinearLayoutManager(
+        homeLineupRV = findViewById(R.id.home_lineup);
+        homeLineupRV.setLayoutManager(new LinearLayoutManager(
                 this, LinearLayoutManager.VERTICAL, false));
-        TeamListAdapter teamListAdapter2 = new TeamListAdapter(homeTeam);
-        rvh.setAdapter(teamListAdapter2);
+        if(genderSorter == 0) {
+            homeTeamListAdapter = new TeamListAdapter(homeTeam);
+        } else {
+            homeTeamListAdapter = new TeamListAdapter(homeTeam, this);
+        }
+        homeLineupRV.setAdapter(homeTeamListAdapter);
+
         TextView awayText = findViewById(R.id.away_text);
         TextView homeText = findViewById(R.id.home_text);
         awayText.setText(awayTeamName);
@@ -254,14 +297,21 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         gameCursor = getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG, null,
                 null, null, null);
         if (gameCursor.moveToFirst()) {
-            SharedPreferences shared = getSharedPreferences(leagueID, MODE_PRIVATE);
-            gameLogIndex = shared.getInt(KEY_GAMELOGINDEX, 0);
-            highestIndex = shared.getInt(KEY_HIGHESTINDEX, 0);
-            inningNumber = shared.getInt(KEY_INNINGNUMBER, 2);
-            awayTeamIndex = shared.getInt(KEY_AWAYTEAMNDEX, 0);
-            homeTeamIndex = shared.getInt(KEY_HOMETEAMINDEX, 0);
-            undoRedo = shared.getBoolean(KEY_UNDOREDO, false);
-            redoEndsGame = shared.getBoolean(KEY_REDOENDSGAME, redoEndsGame);
+            SharedPreferences gamePreferences = getSharedPreferences(leagueID + "game", MODE_PRIVATE);
+            gameLogIndex = gamePreferences.getInt(KEY_GAMELOGINDEX, 0);
+            highestIndex = gamePreferences.getInt(KEY_HIGHESTINDEX, 0);
+            inningNumber = gamePreferences.getInt(KEY_INNINGNUMBER, 2);
+            totalInnings = gamePreferences.getInt(KEY_TOTALINNINGS, 7);
+            awayTeamIndex = gamePreferences.getInt(KEY_AWAYTEAMNDEX, 0);
+            homeTeamIndex = gamePreferences.getInt(KEY_HOMETEAMINDEX, 0);
+            undoRedo = gamePreferences.getBoolean(KEY_UNDOREDO, false);
+            redoEndsGame = gamePreferences.getBoolean(KEY_REDOENDSGAME, redoEndsGame);
+
+            int sortArgument = gamePreferences.getInt(KEY_GENDERSORT, 0);
+            if (sortArgument != 0) {
+                genderSorter = gamePreferences.getInt(KEY_FEMALEORDER, 0);
+                setGendersort(sortArgument, genderSorter);
+            }
 
             resumeGame();
             return;
@@ -270,6 +320,24 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         finalInning = false;
 
         startGame();
+    }
+
+    private void setGendersort(int sortArgument, int femaleOrder) {
+        switch (sortArgument) {
+            case 0:
+                genderSort(awayTeam, femaleOrder);
+                break;
+            case 1:
+                genderSort(homeTeam, femaleOrder);
+                break;
+            case 2:
+                genderSort(awayTeam, femaleOrder);
+                genderSort(homeTeam, femaleOrder);
+                break;
+            default:
+                Log.e(TAG, "error with gendersort sortArgument",
+                        new Throwable("error with gendersort"));
+        }
     }
 
     private ArrayList<Player> setTeam(String teamName) {
@@ -282,17 +350,20 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
 
         int nameIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
         int idIndex = playerCursor.getColumnIndex(StatsEntry._ID);
+        int genderIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_GENDER);
+        int firestoreIDIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
 
         ArrayList<Player> team = new ArrayList<>();
         while (playerCursor.moveToNext()) {
             int playerId = playerCursor.getInt(idIndex);
+            int gender = playerCursor.getInt(genderIndex);
             String playerName = playerCursor.getString(nameIndex);
-            int firestoreIDIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
             String firestoreID = playerCursor.getString(firestoreIDIndex);
-            team.add(new Player(playerName, teamName, playerId, firestoreID));
+            team.add(new Player(playerName, teamName, gender, playerId, firestoreID));
         }
         return team;
     }
+
 
     private List<Player> genderSort(List<Player> team, int femaleRequired) {
         List<Player> females = new ArrayList<>();
@@ -303,16 +374,17 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         boolean firstFemaleSet = false;
         for (Player player : team) {
             //TODO complete gendersort, add info to players and db/firestore
-//            if (player.getGender == 0) {
-//                females.add(player);
-//                firstFemaleSet = true;
-//            } else {
-//                males.add(player);
-//            }
+            if (player.getGender() == 1) {
+                females.add(player);
+                firstFemaleSet = true;
+            } else {
+                males.add(player);
+            }
             if (!firstFemaleSet) {
                 firstFemale++;
             }
         }
+        team.clear();
         if (firstFemale >= femaleRequired) {
             firstFemale = femaleRequired - 1;
         }
@@ -430,6 +502,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     }
 
     private void startGame() {
+
         awayTeamRuns = 0;
         homeTeamRuns = 0;
 
@@ -455,14 +528,12 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                 null, null, null);
         getGameColumnIndexes();
 
-        try {
-            startCursor();
-            setDisplays();
-            String outsText = "0 outs";
-            outsDisplay.setText(outsText);
-        } catch (Exception e) {
-            Log.v(TAG, "Error with startCursor() or setDisplays()!");
-        }
+        setLineupRVPosition(false);
+
+        startCursor();
+        setDisplays();
+        String outsText = "0 outs";
+        outsDisplay.setText(outsText);
     }
 
     private void resumeGame() {
@@ -478,6 +549,13 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         gameOuts = currentBaseLogStart.getOutCount();
         currentTeam = currentBaseLogStart.getTeam();
         currentBatter = currentBaseLogStart.getBatter();
+        if (currentTeam == homeTeam) {
+            awayTeamListAdapter.setCurrentLineupPosition(-1);
+            setLineupRVPosition(true);
+        } else {
+            homeTeamListAdapter.setCurrentLineupPosition(-1);
+            setLineupRVPosition(false);
+        }
         tempBatter = gameCursor.getString(prevBatterIndex);
         if (tempRunsLog == null) {
             tempRunsLog = new ArrayList<>();
@@ -509,6 +587,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             increaseLineupIndex();
         }
         updateGameLogs();
+        submitPlay.setEnabled(true);
     }
 
     private void updateGameLogs() {
@@ -595,8 +674,8 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     }
 
     private void saveGameState() {
-        SharedPreferences pref = getSharedPreferences(leagueID, MODE_PRIVATE);
-        SharedPreferences.Editor editor = pref.edit();
+        SharedPreferences gamePreferences = getSharedPreferences(leagueID + "game", MODE_PRIVATE);
+        SharedPreferences.Editor editor = gamePreferences.edit();
         editor.putInt(KEY_GAMELOGINDEX, gameLogIndex);
         editor.putInt(KEY_HIGHESTINDEX, highestIndex);
         editor.putInt(KEY_INNINGNUMBER, inningNumber);
@@ -621,8 +700,12 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                 return;
             }
             currentTeam = homeTeam;
+            awayTeamListAdapter.setCurrentLineupPosition(-1);
+            setLineupRVPosition(true);
         } else {
             currentTeam = awayTeam;
+            homeTeamListAdapter.setCurrentLineupPosition(-1);
+            setLineupRVPosition(false);
         }
         inningNumber++;
 
@@ -657,6 +740,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                     redoEndsGame = true;
                 }
                 undoPlay();
+                submitPlay.setEnabled(true);
                 if (dialog != null) {
                     dialog.dismiss();
                 }
@@ -1116,6 +1200,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             currentRunsLog.clear();
             currentRunsLog.addAll(tempRunsLog);
         }
+        submitPlay.setEnabled(false);
         updatePlayerStats(result, 1);
         gameOuts += tempOuts;
         nextBatter();
@@ -1171,6 +1256,14 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             if (inningChanged == 1) {
                 inningNumber--;
                 setInningDisplay();
+                if (currentTeam == awayTeam) {
+                    awayTeamListAdapter.setCurrentLineupPosition(-1);
+                    awayTeamListAdapter.notifyDataSetChanged();
+                } else if (currentTeam == homeTeam) {
+
+                    homeTeamListAdapter.setCurrentLineupPosition(-1);
+                    homeTeamListAdapter.notifyDataSetChanged();
+                }
             }
             gameLogIndex--;
             //redoButton.setVisibility(View.VISIBLE);
@@ -1225,9 +1318,13 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         if (inningChanged == 1) {
             inningNumber++;
             if (currentTeam == awayTeam) {
-                homeTeamIndex++;
+                increaseHomeIndex();
+                homeTeamListAdapter.setCurrentLineupPosition(-1);
+                homeTeamListAdapter.notifyDataSetChanged();
             } else if (currentTeam == homeTeam) {
-                awayTeamIndex++;
+                increaseAwayIndex();
+                awayTeamListAdapter.setCurrentLineupPosition(-1);
+                awayTeamListAdapter.notifyDataSetChanged();
             } else {
                 Log.v(TAG, "inningChanged logic error!");
             }
@@ -1488,18 +1585,28 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
 
     private void increaseLineupIndex() {
         if (currentTeam == awayTeam) {
-            awayTeamIndex++;
-            if (awayTeamIndex >= awayTeam.size()) {
-                awayTeamIndex = 0;
-            }
+            increaseAwayIndex();
         } else if (currentTeam == homeTeam) {
-            homeTeamIndex++;
-            if (homeTeamIndex >= homeTeam.size()) {
-                homeTeamIndex = 0;
-            }
+            increaseHomeIndex();
         } else {
             Log.v(TAG, "SOMETHING WENT WRONG WITH THE INDEXES!!!");
         }
+    }
+
+    private void increaseAwayIndex() {
+        awayTeamIndex++;
+        if (awayTeamIndex >= awayTeam.size()) {
+            awayTeamIndex = 0;
+        }
+        setLineupRVPosition(false);
+    }
+
+    private void increaseHomeIndex() {
+        homeTeamIndex++;
+        if (homeTeamIndex >= homeTeam.size()) {
+            homeTeamIndex = 0;
+        }
+        setLineupRVPosition(true);
     }
 
     private int getIndex() {
@@ -1516,10 +1623,24 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     private void setIndex(Player player) {
         if (currentTeam == awayTeam) {
             awayTeamIndex = awayTeam.indexOf(player);
+            setLineupRVPosition(false);
         } else if (currentTeam == homeTeam) {
             homeTeamIndex = homeTeam.indexOf(player);
+            setLineupRVPosition(true);
         } else {
             Log.v(TAG, "SOMETHING WENT WRONG WITH THE INDEXES!!!");
+        }
+    }
+
+    private void setLineupRVPosition(boolean home) {
+        if (home) {
+            homeTeamListAdapter.setCurrentLineupPosition(homeTeamIndex);
+            homeLineupRV.scrollToPosition(homeTeamIndex);
+            homeTeamListAdapter.notifyDataSetChanged();
+        } else {
+            awayTeamListAdapter.setCurrentLineupPosition(awayTeamIndex);
+            awayLineupRV.scrollToPosition(awayTeamIndex);
+            awayTeamListAdapter.notifyDataSetChanged();
         }
     }
 
@@ -1557,8 +1678,6 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             case R.id.action_finish_game:
                 showFinishConfirmationDialog();
                 break;
-//            case android.R.id.home:
-//                showQuitConfirmationDialog();
         }
         return super.onOptionsItemSelected(item);
     }

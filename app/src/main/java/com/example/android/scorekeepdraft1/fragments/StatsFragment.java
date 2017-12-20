@@ -1,7 +1,12 @@
 package com.example.android.scorekeepdraft1.fragments;
 
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -26,7 +31,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.R;
-import com.example.android.scorekeepdraft1.activities.SettingsActivity;
+import com.example.android.scorekeepdraft1.activities.UserSettingsActivity;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.PlayerStatsAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
@@ -50,7 +55,8 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
     private String[] projection;
     private TextView colorView;
     private Cursor mCursor;
-    private List<Player> players;
+    private List<Player> mPlayers;
+    private String leagueID;
     private int level;
     private static final int STATS_LOADER = 4;
     private HashMap<String, Integer> teamIDs;
@@ -59,9 +65,10 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         // Required empty public constructor
     }
 
-    public static StatsFragment newInstance(int level) {
+    public static StatsFragment newInstance(String leagueID, int level) {
         Bundle args = new Bundle();
         args.putInt(MainPageSelection.KEY_SELECTION_LEVEL, level);
+        args.putString(MainPageSelection.KEY_SELECTION_ID, leagueID);
         StatsFragment fragment = new StatsFragment();
         fragment.setArguments(args);
         return fragment;
@@ -72,6 +79,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         setHasOptionsMenu(true);
         Bundle args = getArguments();
         level = args.getInt(MainPageSelection.KEY_SELECTION_LEVEL);
+        leagueID = args.getString(MainPageSelection.KEY_SELECTION_ID);
     }
 
     @Override
@@ -142,18 +150,32 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
-            case R.id.goto_settings:
-                Intent settingsIntent = new Intent(getActivity(), SettingsActivity.class);
+            case R.id.change_user_settings:
+                Intent settingsIntent = new Intent(getActivity(), UserSettingsActivity.class);
                 startActivity(settingsIntent);
+                return true;
+            case R.id.change_game_settings:
+                SharedPreferences settingsPreferences = getActivity()
+                        .getSharedPreferences(leagueID + "settings", Context.MODE_PRIVATE);
+                int innings =  settingsPreferences.getInt("innings", 7);
+                int genderSorter = settingsPreferences.getInt("genderSort", 0);
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                DialogFragment newFragment = GameSettingsDialogFragment.newInstance(innings, genderSorter, leagueID);
+                newFragment.show(fragmentTransaction, "");
                 return true;
         }
         return false;
     }
 
     private void initRecyclerView() {
+        SharedPreferences settingsPreferences = getActivity()
+                .getSharedPreferences(leagueID + "settings", Context.MODE_PRIVATE);
+        int genderSorter = settingsPreferences.getInt("genderSort", 0);
+
         rv.setLayoutManager(new LinearLayoutManager(
                 getActivity(), LinearLayoutManager.VERTICAL, false));
-        PlayerStatsAdapter rvAdapter = new PlayerStatsAdapter(players, getActivity());
+        PlayerStatsAdapter rvAdapter = new PlayerStatsAdapter(mPlayers, getActivity(), genderSorter);
         rv.setAdapter(rvAdapter);
     }
 
@@ -271,16 +293,6 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         getLoaderManager().restartLoader(STATS_LOADER, null, this);
     }
 
-//    public void goToPlayerPage(View v) {
-//        Intent intent = new Intent(StatsActivity.this, PlayerActivity.class);
-//        TextView textView = (TextView) v;
-//        String player = textView.getText().toString();
-//        Bundle b = new Bundle();
-//        b.putString("player", player);
-//        intent.putExtras(b);
-//        startActivity(intent);
-//    }
-
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         String sortOrder;
@@ -317,7 +329,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        players = new ArrayList<>();
+        mPlayers = new ArrayList<>();
         mCursor = data;
         mCursor.moveToPosition(-1);
         while (mCursor.moveToNext()) {
@@ -334,10 +346,12 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
             int sfIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_SF);
             int gameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_G);
             int idIndex = mCursor.getColumnIndex(StatsEntry._ID);
+            int genderIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_GENDER);
             int firestoreIDIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
 
             String player = mCursor.getString(nameIndex);
             String team = mCursor.getString(teamIndex);
+            int gender = mCursor.getInt(genderIndex);
             int hr = mCursor.getInt(hrIndex);
             int tpl = mCursor.getInt(tripleIndex);
             int dbl = mCursor.getInt(doubleIndex);
@@ -362,9 +376,9 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
             int playerId = mCursor.getInt(idIndex);
             String  firestoreID = mCursor.getString(firestoreIDIndex);
 
-            players.add(new Player(player, team, sgl, dbl, tpl, hr, bb, run, rbi, out, sf, g, teamId, playerId, firestoreID));
+            mPlayers.add(new Player(player, team, gender, sgl, dbl, tpl, hr, bb, run, rbi, out, sf, g, teamId, playerId, firestoreID));
         }
-        if (players.isEmpty()) {
+        if (mPlayers.isEmpty()) {
             rv.setVisibility(View.GONE);
             emptyView.setVisibility(View.VISIBLE);
         }

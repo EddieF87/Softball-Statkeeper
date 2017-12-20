@@ -1,22 +1,17 @@
 package com.example.android.scorekeepdraft1.fragments;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
 
 import com.example.android.scorekeepdraft1.R;
-import com.example.android.scorekeepdraft1.activities.TeamGameActivity;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -97,25 +92,14 @@ public class FinishGameFragment extends DialogFragment {
         mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onFragmentInteraction(boolean isOver);
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        View v = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_finish_game, null);
+        View v = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_dialog, null);
 
         AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
                 .setView(v)

@@ -3,6 +3,9 @@ package com.example.android.scorekeepdraft1.fragments;
 
 import android.content.Context;
 import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;import android.content.ContentResolver;
@@ -31,7 +34,7 @@ import android.widget.Toast;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.activities.GameActivity;
 import com.example.android.scorekeepdraft1.activities.SetLineupActivity;
-import com.example.android.scorekeepdraft1.activities.SettingsActivity;
+import com.example.android.scorekeepdraft1.activities.UserSettingsActivity;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.TeamListAdapter;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.VerticalTextView;
 import com.example.android.scorekeepdraft1.data.StatsContract;
@@ -59,6 +62,8 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
 
     private int awayPlayers;
     private int homePlayers;
+    private boolean sortAwayLineup;
+    private boolean sortHomeLineup;
 
     private static final String SPINNER_STATE = "spinnerstates";
     private static final String KEY_AWAY_STATE = "awaystate";
@@ -98,9 +103,19 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
-            case R.id.goto_settings:
-                Intent settingsIntent = new Intent(getActivity(), SettingsActivity.class);
+            case R.id.change_user_settings:
+                Intent settingsIntent = new Intent(getActivity(), UserSettingsActivity.class);
                 startActivity(settingsIntent);
+                return true;
+            case R.id.change_game_settings:
+                SharedPreferences settingsPreferences = getActivity()
+                        .getSharedPreferences(leagueID + "settings", Context.MODE_PRIVATE);
+                int innings =  settingsPreferences.getInt("innings", 7);
+                int genderSorter = settingsPreferences.getInt("genderSort", 0);
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                DialogFragment newFragment = GameSettingsDialogFragment.newInstance(innings, genderSorter, leagueID);
+                newFragment.show(fragmentTransaction, "");
                 return true;
         }
         return false;
@@ -118,24 +133,6 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
 
         rvAway = rootView.findViewById(R.id.rv_left_team);
         rvHome = rootView.findViewById(R.id.rv_right_team);
-
-        Button continueGameButton = rootView.findViewById(R.id.continue_game);
-        continueGameButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), GameActivity.class);
-                startActivity(intent);
-
-            }
-        });
-        Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG,
-                null, null, null, null);
-        if (cursor.moveToFirst()) {
-            continueGameButton.setVisibility(View.VISIBLE);
-        } else {
-            continueGameButton.setVisibility(View.GONE);
-        }
-        cursor.close();
 
         VerticalTextView editAwayLineup = rootView.findViewById(R.id.away_lineup_editor);
         VerticalTextView editHomeLineup = rootView.findViewById(R.id.home_lineup_editor);
@@ -188,8 +185,23 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                     return;
                 }
                 clearGameDB();
-                setLineupsToDB();
+                if (setLineupsToDB()) {
+                    return;
+                }
                 Intent intent = new Intent(getActivity(), GameActivity.class);
+
+                if (sortAwayLineup || sortHomeLineup) {
+                    int sortArgument;
+                    if (sortAwayLineup && sortHomeLineup) {
+                        sortArgument = 2;
+                    } else if (sortHomeLineup) {
+                        sortArgument = 1;
+                    } else {
+                        sortArgument = 0;
+                    }
+                    intent.putExtra("sortArgument", sortArgument);
+                }
+
                 startActivity(intent);
             }
         });
@@ -198,37 +210,138 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         return rootView;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        Button continueGameButton = getView().findViewById(R.id.continue_game);
+        continueGameButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), GameActivity.class);
+                startActivity(intent);
+
+            }
+        });
+        Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG,
+                null, null, null, null);
+        if (cursor.moveToFirst()) {
+            continueGameButton.setVisibility(View.VISIBLE);
+        } else {
+            continueGameButton.setVisibility(View.GONE);
+        }
+        cursor.close();
+    }
+
     private void clearGameDB() {
         getActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, null, null);
         getActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, null, null);
-        SharedPreferences savedGamePreferences = getActivity().getSharedPreferences(leagueID, Context.MODE_PRIVATE);
+        SharedPreferences savedGamePreferences = getActivity()
+                .getSharedPreferences(leagueID + "game", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = savedGamePreferences.edit();
         editor.clear();
         editor.commit();
     }
 
-    private void setLineupsToDB() {
-        addTeamToTempDB(awayTeamSelection);
-        addTeamToTempDB(homeTeamSelection);
+    private int getFemaleOrder() {
+        SharedPreferences genderPreferences = getActivity()
+                .getSharedPreferences(leagueID + "settings", Context.MODE_PRIVATE);
+        return genderPreferences.getInt("genderSort", 0);
     }
 
-    private void addTeamToTempDB(String teamSelection){
+    private boolean setLineupsToDB() {
+        sortAwayLineup = false;
+        sortHomeLineup = false;
+        boolean cancel = false;
+        int requiredFemale = getFemaleOrder();
+
+        if (requiredFemale < 1) {
+            addTeamToTempDB(awayTeamSelection, requiredFemale);
+            addTeamToTempDB(homeTeamSelection, requiredFemale);
+            return false;
+        }
+
+        int lineupCheck = addTeamToTempDB(awayTeamSelection, requiredFemale);
+        if (lineupCheck == 1){
+            cancel = true;
+        } else if (lineupCheck == 2) {
+            sortAwayLineup = true;
+        }
+
+        lineupCheck = addTeamToTempDB(homeTeamSelection, requiredFemale);
+        if (lineupCheck == 1){
+            cancel = true;
+        } else if (lineupCheck == 2) {
+            sortHomeLineup = true;
+        }
+        return cancel;
+    }
+
+    private int addTeamToTempDB(String teamSelection, int requiredFemale){
         List<Player> lineup = getLineup(teamSelection);
         ContentResolver contentResolver = getActivity().getContentResolver();
+
+        int females = 0;
+        int males = 0;
+        int malesInRow = 0;
+        int firstMalesInRow = 0;
+        boolean beforeFirstFemale = true;
+        boolean notProperOrder = false;
+
         for(int i = 0; i < lineup.size(); i++) {
             Player player = lineup.get(i);
             long playerId = player.getPlayerId();
             String playerName = player.getName();
             String firestoreID = player.getFirestoreID();
+            if (firestoreID == null) {
+                Log.d("xxx matchup", "firestoreid = null");
+            } else {
+                Log.d("xxx matchup", "firestoreid = " + firestoreID);
+            }
+            int gender = player.getGender();
 
             ContentValues values = new ContentValues();
             values.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
             values.put(StatsEntry.COLUMN_PLAYERID, playerId);
             values.put(StatsEntry.COLUMN_NAME, playerName);
+            values.put(StatsEntry.COLUMN_GENDER, gender);
             values.put(StatsEntry.COLUMN_TEAM, teamSelection);
             values.put(StatsEntry.COLUMN_ORDER, i+1);
             contentResolver.insert(StatsEntry.CONTENT_URI_TEMP, values);
+
+            if(gender == 0) {
+                males++;
+                malesInRow++;
+                if(beforeFirstFemale) {
+                    firstMalesInRow++;
+                }
+                if(malesInRow > requiredFemale) {
+                    notProperOrder = true;
+                }
+            } else {
+                females++;
+                malesInRow = 0;
+                beforeFirstFemale = false;
+            }
         }
+        if (requiredFemale < 1) {
+            return 0;
+        }
+
+        int lastMalesInRow = malesInRow;
+        if (firstMalesInRow + lastMalesInRow > requiredFemale) {
+            notProperOrder = true;
+        }
+        if(notProperOrder) {
+            if(females * requiredFemale >= males) {
+                Toast.makeText(getActivity(),
+                        "Please set " + teamSelection + "'s lineup properly or change gender rules",
+                        Toast.LENGTH_LONG).show();
+                return 1;
+            } else {
+                return 2;
+            }
+        }
+        return 0;
     }
 
     @Override
@@ -307,7 +420,14 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     private void setAdapter(RecyclerView rv, List<Player> playerList) {
         rv.setLayoutManager(new LinearLayoutManager(
                 getActivity(), LinearLayoutManager.VERTICAL, false));
-        TeamListAdapter teamListAdapter = new TeamListAdapter(playerList);
+        TeamListAdapter teamListAdapter;
+        SharedPreferences settingsPreferences = getActivity().getSharedPreferences(leagueID + "settings", Context.MODE_PRIVATE);
+        int genderSorter = settingsPreferences.getInt("genderSort", 0);
+        if(genderSorter == 0) {
+            teamListAdapter = new TeamListAdapter(playerList);
+        } else {
+            teamListAdapter = new TeamListAdapter(playerList, getActivity());
+        }
         rv.setAdapter(teamListAdapter);
 
         if(rv == rvAway) {
@@ -321,29 +441,32 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         ArrayList<Player> lineup = new ArrayList<>();
         List<Player> benchList = new ArrayList<>();
         try {
-            String[] projection = new String[]{StatsContract.StatsEntry._ID, StatsContract.StatsEntry.COLUMN_ORDER, StatsEntry.COLUMN_NAME, StatsEntry.COLUMN_FIRESTORE_ID};
+            String[] projection = new String[]{StatsEntry._ID, StatsEntry.COLUMN_ORDER,
+                    StatsEntry.COLUMN_NAME, StatsEntry.COLUMN_FIRESTORE_ID, StatsEntry.COLUMN_GENDER};
             String selection = StatsContract.StatsEntry.COLUMN_TEAM + "=?";
             String[] selectionArgs = new String[]{team};
             String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
 
             Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS, projection,
                     selection, selectionArgs, sortOrder);
-            while (cursor.moveToNext()) {
-                int nameIndex = cursor.getColumnIndex(StatsContract.StatsEntry.COLUMN_NAME);
-                int orderIndex = cursor.getColumnIndex(StatsEntry.COLUMN_ORDER);
-                int idIndex = cursor.getColumnIndex(StatsEntry._ID);
-                int firestoreIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
 
+            int nameIndex = cursor.getColumnIndex(StatsContract.StatsEntry.COLUMN_NAME);
+            int orderIndex = cursor.getColumnIndex(StatsEntry.COLUMN_ORDER);
+            int idIndex = cursor.getColumnIndex(StatsEntry._ID);
+            int firestoreIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
+            int genderIndex = cursor.getColumnIndex(StatsEntry.COLUMN_GENDER);
+
+            while (cursor.moveToNext()) {
                 String playerName = cursor.getString(nameIndex);
                 int id = cursor.getInt(idIndex);
-
+                int gender = cursor.getInt(genderIndex);
                 String  firestoreID = cursor.getString(firestoreIDIndex);
 
                 int order = cursor.getInt(orderIndex);
                 if (order < 50) {
-                    lineup.add(new Player(playerName, team, id, firestoreID));
+                    lineup.add(new Player(playerName, team, gender, id, firestoreID));
                 } else {
-                    benchList.add(new Player(playerName, team, id, firestoreID));
+                    benchList.add(new Player(playerName, team, gender, id, firestoreID));
                 }
             }
             cursor.close();
@@ -372,14 +495,6 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
             }
         }
     }
-
-//    public TeamListAdapter getLeftListAdapter() {
-//        return leftListAdapter;
-//    }
-//
-//    public TeamListAdapter getRightListAdapter() {
-//        return rightListAdapter;
-//    }
 
     @Override
     public void onNothingSelected(AdapterView<?> parent) {

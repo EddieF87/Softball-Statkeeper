@@ -30,16 +30,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.activities.SetLineupActivity;
-import com.example.android.scorekeepdraft1.activities.SettingsActivity;
-import com.example.android.scorekeepdraft1.activities.TeamGameActivity;
+import com.example.android.scorekeepdraft1.activities.UserSettingsActivity;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapter;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.PlayerStatsAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
@@ -49,9 +46,7 @@ import com.example.android.scorekeepdraft1.objects.Player;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A simple {@link Fragment} subclass.
- */
+
 public class TeamFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private Uri mCurrentTeamUri;
@@ -59,19 +54,17 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
 
     private TextView teamNameView;
     private TextView teamRecordView;
-
     private RecyclerView rv;
     private PlayerStatsAdapter mAdapter;
 
-    private List<Player> players;
+    private List<Player> mPlayers;
     private String teamSelected;
     private boolean waivers;
 
-    private int selectionType;
-    private String selectionID;
-    private String selectionName;
+    private int mSelectionType;
+    private String mSelectionID;
+    private String mSelectionName;
     private int mLevel;
-
     private static final String KEY_TEAM_URI = "teamURI";
 
 
@@ -109,18 +102,16 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
         setHasOptionsMenu(true);
 
         Bundle args = getArguments();
-        selectionID = args.getString(MainPageSelection.KEY_SELECTION_ID);
-        selectionType = args.getInt(MainPageSelection.KEY_SELECTION_TYPE);
+        mSelectionID = args.getString(MainPageSelection.KEY_SELECTION_ID);
+        mSelectionType = args.getInt(MainPageSelection.KEY_SELECTION_TYPE);
         mLevel = args.getInt(MainPageSelection.KEY_SELECTION_LEVEL);
-        selectionName = args.getString(MainPageSelection.KEY_SELECTION_NAME);
+        mSelectionName = args.getString(MainPageSelection.KEY_SELECTION_NAME);
+        String uriString = args.getString(KEY_TEAM_URI, null);
 
-        if (selectionType == MainPageSelection.TYPE_LEAGUE) {
-            String uriString = args.getString(KEY_TEAM_URI);
-            if (uriString == null) {
-                mCurrentTeamUri = StatsEntry.CONTENT_URI_TEAMS;
-            } else {
-                mCurrentTeamUri = Uri.parse(uriString);
-            }
+        if (uriString != null) {
+            mCurrentTeamUri = Uri.parse(uriString);
+        } else {
+            mCurrentTeamUri = StatsEntry.CONTENT_URI_TEAMS;
         }
     }
 
@@ -131,8 +122,8 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
 
         waivers = false;
 
-        if (selectionType == MainPageSelection.TYPE_TEAM) {
-            teamSelected = selectionName;
+        if (mSelectionType == MainPageSelection.TYPE_TEAM) {
+            teamSelected = mSelectionName;
         } else {
             if (mCurrentTeamUri.equals(StatsEntry.CONTENT_URI_TEAMS)) {
                 waivers = true;
@@ -146,7 +137,7 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
 
         View addPlayerView = rootView.findViewById(R.id.item_player_adder);
         FloatingActionButton startAdderBtn = addPlayerView.findViewById(R.id.btn_start_adder);
-        if(levelAuthorized()) {
+        if (levelAuthorized(3)) {
             startAdderBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -175,11 +166,19 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
     }
 
 
-    private void initRecyclerView() {
-        rv.setLayoutManager(new LinearLayoutManager(
-                getActivity(), LinearLayoutManager.VERTICAL, false));
-        mAdapter = new PlayerStatsAdapter(players, getActivity());
-        rv.setAdapter(mAdapter);
+    private void updateTeamRV() {
+        if (mAdapter == null) {
+            SharedPreferences settingsPreferences = getActivity()
+                    .getSharedPreferences(mSelectionID + "settings", Context.MODE_PRIVATE);
+            int genderSorter = settingsPreferences.getInt("genderSort", 0);
+
+            rv.setLayoutManager(new LinearLayoutManager(
+                    getActivity(), LinearLayoutManager.VERTICAL, false));
+            mAdapter = new PlayerStatsAdapter(mPlayers, getActivity(), genderSorter);
+            rv.setAdapter(mAdapter);
+        } else {
+            mAdapter.notifyDataSetChanged();
+        }
     }
 
     @Override
@@ -187,21 +186,15 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
 
         String selection = null;
         String[] selectionArgs = null;
-        Uri uri;
 
-        if (selectionType == MainPageSelection.TYPE_TEAM) {
-            uri = StatsEntry.CONTENT_URI_TEAMS;
-        } else if (waivers) {
+        if (waivers) {
             selection = StatsEntry.COLUMN_NAME + "=?";
             selectionArgs = new String[]{"Free Agent"};
-            uri = StatsEntry.CONTENT_URI_TEAMS;
-        } else {
-            uri = mCurrentTeamUri;
         }
 
         return new CursorLoader(
                 getActivity(),
-                uri,
+                mCurrentTeamUri,
                 null,
                 selection,
                 selectionArgs,
@@ -248,7 +241,7 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
         cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS,
                 null, selection, selectionArgs, sortOrder);
 
-        players = new ArrayList<>();
+        mPlayers = new ArrayList<>();
 
         int nameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_NAME);
         int hrIndex = cursor.getColumnIndex(StatsEntry.COLUMN_HR);
@@ -262,6 +255,7 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
         int sfIndex = cursor.getColumnIndex(StatsEntry.COLUMN_SF);
         int gameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_G);
         int idIndex = cursor.getColumnIndex(StatsEntry._ID);
+        int genderIndex = cursor.getColumnIndex(StatsEntry.COLUMN_GENDER);
         int firestoreIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
 
         int sumHr = 0;
@@ -279,6 +273,7 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
 
             String firestoreID = cursor.getString(firestoreIDIndex);
             String player = cursor.getString(nameIndex);
+            int gender = cursor.getInt(genderIndex);
             int hr = cursor.getInt(hrIndex);
             sumHr += hr;
             int tpl = cursor.getInt(tripleIndex);
@@ -300,51 +295,38 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
             int g = cursor.getInt(gameIndex);
 
             int playerId = cursor.getInt(idIndex);
-            players.add(new Player(player, teamSelected, sgl, dbl, tpl, hr, bb,
+            mPlayers.add(new Player(player, teamSelected, gender, sgl, dbl, tpl, hr, bb,
                     run, rbi, out, sf, g, playerId, firestoreID));
         }
-        players.add(new Player("Total", teamSelected, sumSgl, sumDbl, sumTpl, sumHr, sumBb,
-                sumRun, sumRbi, sumOut, sumSf, sumG, 0, ""));
-
-        initRecyclerView();
+        if (mPlayers.size() >0) {
+            mPlayers.add(new Player("Total", teamSelected, 2, sumSgl, sumDbl, sumTpl, sumHr, sumBb,
+                    sumRun, sumRbi, sumOut, sumSf, sumG, 0, ""));
+        }
+        updateTeamRV();
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
     }
 
-    public void updateUI(List<Player> newPlayers) {
-        int position = players.size() - 1;
-        players.addAll(position, newPlayers);
-        if(mAdapter != null) {
-            mAdapter.notifyDataSetChanged();
+    public void addPlayers(List<Player> newPlayers) {
+        if (mPlayers.isEmpty()) {
+            mPlayers.add(new Player("Total", teamSelected, 2));
         }
+        int position = mPlayers.size() - 1;
+        mPlayers.addAll(position, newPlayers);
+        updateTeamRV();
     }
 
-    public void startNewGame() {
-        getActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, null, null);
-        getActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, null, null);
-        SharedPreferences savedGamePreferences = getActivity().getSharedPreferences(selectionID, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = savedGamePreferences.edit();
-        editor.clear();
-        editor.commit();
+    private boolean levelAuthorized(int level) {
 
-        Intent intent = new Intent(getActivity(), SetLineupActivity.class);
-        Bundle b = new Bundle();
-        b.putString("team", teamSelected);
-        intent.putExtras(b);
-        startActivity(intent);
-    }
-
-
-    private boolean levelAuthorized() {
-        return mLevel >= 3;
+        return mLevel >= level;
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        if (levelAuthorized()) {
+        if (levelAuthorized(3)) {
             inflater.inflate(R.menu.menu_team, menu);
         }
     }
@@ -352,13 +334,17 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
+        if(levelAuthorized(4)) {
+            menu.setGroupVisible(R.id.group_high_level_team_options, true);
+        }
         if (waivers) {
             menu.findItem(R.id.action_change_name).setVisible(false);
-//            menu.findItem(R.id.action_edit_photo).setVisible(false);
+            menu.findItem(R.id.action_edit_photo).setVisible(false);
             menu.findItem(R.id.action_delete_team).setVisible(false);
             menu.findItem(R.id.action_edit_lineup).setVisible(false);
-        } else if (selectionType == MainPageSelection.TYPE_TEAM) {
+        } else if (mSelectionType == MainPageSelection.TYPE_TEAM) {
             menu.findItem(R.id.action_edit_lineup).setVisible(false);
+            menu.findItem(R.id.action_delete_team).setVisible(false);
         }
     }
 
@@ -385,13 +371,19 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
             case R.id.action_delete_team:
                 showDeleteConfirmationDialog();
                 return true;
-            case R.id.action_add_players:
-                View itemPlayerAdder = getView().findViewById(R.id.item_player_adder);
-                itemPlayerAdder.setVisibility(View.VISIBLE);
-                return true;
-            case R.id.goto_settings:
-                Intent settingsIntent = new Intent(getActivity(), SettingsActivity.class);
+            case R.id.change_user_settings:
+                Intent settingsIntent = new Intent(getActivity(), UserSettingsActivity.class);
                 startActivity(settingsIntent);
+                return true;
+            case R.id.change_game_settings:
+                SharedPreferences settingsPreferences = getActivity()
+                        .getSharedPreferences(mSelectionID + "settings", Context.MODE_PRIVATE);
+                int innings = settingsPreferences.getInt("innings", 7);
+                int genderSorter = settingsPreferences.getInt("genderSort", 0);
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                DialogFragment newFragment = GameSettingsDialogFragment.newInstance(innings, genderSorter, mSelectionID);
+                newFragment.show(fragmentTransaction, "");
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -435,21 +427,32 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
     //todo
     private void showRemoveAllPlayersDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        if (waivers) {
-            builder.setMessage(R.string.remove_all_free_agents);
-        } else {
-            builder.setMessage(R.string.send_all_to_waivers);
-        }
-        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                if (waivers) {
-                    deletePlayers();
-                } else {
-                    updatePlayersTeam("Free Agent");
-                }
+        if (mSelectionType == MainPageSelection.TYPE_LEAGUE) {
+            if (waivers) {
+                builder.setMessage(R.string.remove_all_free_agents);
+            } else {
+                builder.setMessage(R.string.send_all_to_waivers);
             }
-        });
+            builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    if (waivers) {
+                        deletePlayers();
+                    } else {
+                        updatePlayersTeam("Free Agent");
+                    }
+                }
+            });
+        } else {
+            builder.setTitle("Delete all players?")
+                    .setMessage("Players and their stats will be permanently deleted.")
+                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            deletePlayers();
+                        }
+                    });
+        }
         builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
@@ -458,6 +461,7 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
                 }
             }
         });
+
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
     }
@@ -505,16 +509,24 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
     }
 
     private void deletePlayers() {
-        String selection = StatsEntry.COLUMN_TEAM + "=?";
-        String[] selectionArgs = new String[]{teamSelected};
-        getActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_PLAYERS, selection, selectionArgs);
-        getLoaderManager().restartLoader(EXISTING_TEAM_LOADER, null, this);
+        String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
+        for (int i = 0; i < mPlayers.size() - 1; i++) {
+            Player player = mPlayers.get(i);
+            String firestoreID = player.getFirestoreID();
+            if (firestoreID == null) {
+                Log.d("xxx team", "firestoreid = null");
+            } else {
+                Log.d("xxx team", "firestoreid = " + firestoreID);
+            }
+            String[] selectionArgs = new String[]{firestoreID};
+            getActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_PLAYERS, selection, selectionArgs);
+        }
+        mPlayers.clear();
+        updateTeamRV();
     }
 
     private void updateTeamName(String team) {
 
-        String selection = StatsEntry.COLUMN_NAME + "=?";
-        String[] selectionArgs = new String[]{team};
         String[] projection = new String[]{StatsEntry.COLUMN_FIRESTORE_ID};
         Cursor cursor = getActivity().getContentResolver().query(mCurrentTeamUri,
                 projection, null, null, null);
@@ -531,17 +543,26 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
                 contentValues, null, null);
         if (rowsUpdated > 0) {
             updatePlayersTeam(team);
+            teamSelected = team;
         }
-        teamSelected = team;
-        getLoaderManager().restartLoader(EXISTING_TEAM_LOADER, null, this);
     }
 
     public void updatePlayersTeam(String team) {
-        String selection = StatsEntry.COLUMN_TEAM + "=?";
-        String[] selectionArgs = new String[]{teamSelected};
         ContentValues contentValues = new ContentValues();
         contentValues.put(StatsEntry.COLUMN_TEAM, team);
-        getActivity().getContentResolver().update(StatsEntry.CONTENT_URI_PLAYERS, contentValues, selection, selectionArgs);
-        getLoaderManager().restartLoader(EXISTING_TEAM_LOADER, null, this);
+        for (int i = 0; i < mPlayers.size() - 1; i++) {
+            Player player = mPlayers.get(i);
+            long playerID = player.getPlayerId();
+            String firestoreID = player.getFirestoreID();
+            if (firestoreID == null) {
+                Log.d("xxx team", "firestoreid = null");
+            } else {
+                Log.d("xxx team", "firestoreid = " + firestoreID);
+            }
+            contentValues.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
+            Uri playerURI = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_PLAYERS, playerID);
+            getActivity().getContentResolver().update(playerURI, contentValues, null, null);
+        }
+        updateTeamRV();
     }
 }

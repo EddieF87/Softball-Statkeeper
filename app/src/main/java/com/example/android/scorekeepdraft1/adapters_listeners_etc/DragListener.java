@@ -15,11 +15,8 @@ import java.util.List;
 public class DragListener implements View.OnDragListener {
 
     private boolean isDropped = false;
-    private Listener listener;
 
-    DragListener(Listener listener) {
-        this.listener = listener;
-    }
+    DragListener() {}
 
     @Override
     public boolean onDrag(View v, DragEvent event) {

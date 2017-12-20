@@ -59,7 +59,6 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     private TextView runsText;
     private TextView rbiText;
     private TextView resultText;
-    private Button submit;
     private int runs;
     private int rbi;
     private int resultCount;
@@ -69,15 +68,6 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         // Required empty public constructor
     }
 
-
-//    public static PlayerFragment newInstance(int leagueType, int level) {
-//        Bundle args = new Bundle();
-//        args.putInt(MainPageSelection.KEY_SELECTION_TYPE, leagueType);
-//        args.putInt(MainPageSelection.KEY_SELECTION_LEVEL, level);
-//        PlayerFragment fragment = new PlayerFragment();
-//        fragment.setArguments(args);
-//        return fragment;
-//    }
 
     public static PlayerFragment newInstance(int leagueType, int level , Uri uri) {
         Bundle args = new Bundle();
@@ -118,7 +108,6 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_player, container, false);
     }
 
@@ -148,6 +137,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         if (cursor.moveToFirst()) {
             int nameIndex = cursor.getColumnIndex(StatsContract.StatsEntry.COLUMN_NAME);
             int teamIndex = cursor.getColumnIndex(StatsEntry.COLUMN_TEAM);
+            int genderIndex = cursor.getColumnIndex(StatsEntry.COLUMN_GENDER);
             int hrIndex = cursor.getColumnIndex(StatsEntry.COLUMN_HR);
             int tripleIndex = cursor.getColumnIndex(StatsEntry.COLUMN_3B);
             int doubleIndex = cursor.getColumnIndex(StatsEntry.COLUMN_2B);
@@ -162,6 +152,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
 
             playerString = cursor.getString(nameIndex);
             teamString = cursor.getString(teamIndex);
+            int gender = cursor.getInt(genderIndex);
             int hr = cursor.getInt(hrIndex);
             int tpl = cursor.getInt(tripleIndex);
             int dbl = cursor.getInt(doubleIndex);
@@ -174,7 +165,11 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             int g = cursor.getInt(gameIndex);
             firestoreID = cursor.getString(firestoreIDIndex);
 
-            Player player = new Player(playerString, teamString, sgl, dbl, tpl, hr, bb, run, rbi, out, sf, g, 0, firestoreID);
+            Player player = new Player(playerString, teamString, gender, sgl, dbl, tpl, hr, bb,
+                    run, rbi, out, sf, g, 0, firestoreID);
+
+            //todo add gender signifier view
+
             TextView hitView = rootView.findViewById(R.id.playerboard_hit);
             TextView hrView = rootView.findViewById(R.id.player_hr);
             TextView rbiView = rootView.findViewById(R.id.player_rbi);
@@ -367,14 +362,13 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        if (levelAuthorized()) {
+        if (levelAuthorized(3)) {
             inflater.inflate(R.menu.menu_player, menu);
         }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // StatKeepUser clicked on a menu option in the app bar overflow menu
         switch (item.getItemId()) {
             case R.id.action_change_name:
                 editNameDialog();
@@ -383,7 +377,6 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 changeTeamDialog();
                 return true;
             case R.id.action_edit_photo:
-
                 return true;
             case R.id.action_delete_player:
                 showDeleteConfirmationDialog();
@@ -392,19 +385,28 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        if (levelAuthorized(4)) {
+            menu.findItem(R.id.action_delete_player).setVisible(true);
+        }
+        if (selectionType == MainPageSelection.TYPE_LEAGUE) {
+            menu.findItem(R.id.action_change_team).setVisible(true);
+        }
+
+    }
+
     private void showDeleteConfirmationDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setMessage(R.string.delete_dialog_msg);
         builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                // StatKeepUser clicked the "Delete" button, so delete the pet.
                 deletePlayer();
             }
         });
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                // StatKeepUser clicked the "Cancel" button, so dismiss the dialog
-                // and continue editing the pet.
                 if (dialog != null) {
                     dialog.dismiss();
                 }
@@ -472,9 +474,13 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         alertDialog.show();
     }
 
+    //todo notifydatachanged for lineupfragment
+
     private void deletePlayer() {
         if (mCurrentPlayerUri != null) {
-            int rowsDeleted = getActivity().getContentResolver().delete(mCurrentPlayerUri, null, null);
+            String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
+            String[] selectionArgs = new String[]{firestoreID};
+            int rowsDeleted = getActivity().getContentResolver().delete(mCurrentPlayerUri, selection, selectionArgs);
             if (rowsDeleted == 1) {
                 Toast.makeText(getActivity(), playerString + " " + getString(R.string.editor_delete_player_successful), Toast.LENGTH_SHORT).show();
             } else {
@@ -515,27 +521,9 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         return true;
     }
 
-    private boolean levelAuthorized() {
-        return mLevel >= 3;
+    private boolean levelAuthorized(int level) {
+        return mLevel >= level;
     }
 
-//    public void goToTeamPage(View v) {
-//        if (teamString != null) {
-//            Intent intent = new Intent(getActivity(), TeamActivity.class);
-//
-//            String selection = StatsEntry.COLUMN_NAME + "=?";
-//            String[] selectionArgs = new String[]{teamString};
-//            Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
-//                    null, selection, selectionArgs, null);
-//            if (cursor.moveToFirst()) {
-//                int playerId = cursor.getInt(cursor.getColumnIndex(StatsEntry._ID));
-//                Uri teamUri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_TEAMS, playerId);
-//                intent.setData(teamUri);
-//            }
-//            startActivity(intent);
-//        } else {
-//            Log.v("PlayerActivity", "Error going to team page");
-//        }
-//    }
 
 }

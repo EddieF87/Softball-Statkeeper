@@ -162,7 +162,8 @@
             android:layout_height="match_parent"
             android:layout_weight="25"
             android:paddingBottom="16dp"
-            android:paddingTop="16dp" />
+            android:paddingTop="16dp"
+            />
 
         <com.example.android.scorekeepdraft1.adapters_listeners_etc.VerticalTextView
             android:id="@+id/home_lineup_editor"

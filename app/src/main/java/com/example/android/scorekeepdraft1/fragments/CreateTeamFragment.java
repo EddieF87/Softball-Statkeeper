@@ -9,12 +9,15 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 
 
 import com.example.android.scorekeepdraft1.R;
+import com.example.android.scorekeepdraft1.adapters_listeners_etc.CreateTeamRecyclerViewAdapter;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -87,6 +90,13 @@ public class CreateTeamFragment extends DialogFragment {
                 .setTitle("Add new players to " + mTeam)
                 .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
+                        View view = getActivity().getCurrentFocus();
+                        if (view != null) {
+                            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                            if (imm != null) {
+                                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                            }
+                        }
                         onButtonPressed(true);
                     }
                 })

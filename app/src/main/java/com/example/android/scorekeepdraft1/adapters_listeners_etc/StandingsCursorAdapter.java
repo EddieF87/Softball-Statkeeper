@@ -37,6 +37,8 @@ public class StandingsCursorAdapter extends CursorAdapter {
     public void bindView(View view, Context context, Cursor data) {
         if (data.getPosition() % 2 == 1) {
             view.setBackgroundColor(Color.parseColor("#dfdfdf"));
+        } else {
+            view.setBackgroundColor(Color.WHITE);
         }
         TextView teamV = view.findViewById(R.id.name);
         TextView winV = view.findViewById(R.id.win);
@@ -75,4 +77,5 @@ public class StandingsCursorAdapter extends CursorAdapter {
         runsAV.setText(String.valueOf(runsAgainst));
         runDV.setText(String.valueOf(runDifferential));
     }
+
 }

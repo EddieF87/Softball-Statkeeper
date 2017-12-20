@@ -1,6 +1,8 @@
 package com.example.android.scorekeepdraft1.adapters_listeners_etc;
 
+import android.app.Fragment;
 import android.content.ClipData;
+import android.content.Context;
 import android.os.Build;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -12,6 +14,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.example.android.scorekeepdraft1.R;
+import com.example.android.scorekeepdraft1.fragments.LineupFragment;
 
 import java.util.List;
 
@@ -23,12 +26,10 @@ public class LineupListAdapter extends RecyclerView.Adapter<LineupListAdapter.Li
         implements View.OnTouchListener {
 
     private List<String> list;
-    private Listener listener;
     private boolean isBench;
 
-    public LineupListAdapter(List<String> list, Listener listener, boolean isBench) {
+    public LineupListAdapter(List<String> list, boolean isBench) {
         this.list = list;
-        this.listener = listener;
         this.isBench = isBench;
     }
 
@@ -54,7 +55,7 @@ public class LineupListAdapter extends RecyclerView.Adapter<LineupListAdapter.Li
         }
         frameLayout.setTag(position);
         frameLayout.setOnTouchListener(this);
-        frameLayout.setOnDragListener(new DragListener(listener));
+        frameLayout.setOnDragListener(new DragListener());
     }
 
     @Override
@@ -86,12 +87,7 @@ public class LineupListAdapter extends RecyclerView.Adapter<LineupListAdapter.Li
 
 
     public DragListener getDragInstance() {
-        if (listener != null) {
-            return new DragListener(listener);
-        } else {
-            Log.e("LineupListAdapter", "Listener wasn't initialized!");
-            return null;
-        }
+            return new DragListener();
     }
 
     static class LineupListViewHolder extends RecyclerView.ViewHolder {

@@ -10,7 +10,7 @@ import android.view.Gravity;
 import android.widget.TextView;
 
 /**
- * Created by Eddie on 12/11/2017.
+ * Created by Found on StackOverflow on 12/11/2017.
  */
 
 public class VerticalTextView extends android.support.v7.widget.AppCompatTextView {

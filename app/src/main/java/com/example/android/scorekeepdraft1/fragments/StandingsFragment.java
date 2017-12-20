@@ -5,6 +5,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -33,8 +34,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.R;
-import com.example.android.scorekeepdraft1.activities.LeagueManagerActivity;
-import com.example.android.scorekeepdraft1.activities.SettingsActivity;
+import com.example.android.scorekeepdraft1.activities.UserSettingsActivity;
 import com.example.android.scorekeepdraft1.activities.TeamPagerActivity;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.StandingsCursorAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract;
@@ -45,7 +45,7 @@ import com.example.android.scorekeepdraft1.objects.MainPageSelection;
  * A simple {@link Fragment} subclass.
  */
 public class StandingsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
-        View.OnClickListener  {
+        View.OnClickListener {
 
 
     private String[] projection = new String[]{"*, (CAST ((" + StatsEntry.COLUMN_WINS + ") AS FLOAT) / (" + StatsEntry.COLUMN_WINS + " + "
@@ -55,17 +55,19 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
     private EditText addEditText;
     private Button addSubmitButton;
     private int level;
+    private String leagueID;
     private StandingsCursorAdapter mAdapter;
 
     public StandingsFragment() {
         // Required empty public constructor
     }
 
-    public static StandingsFragment newInstance(int level) {
+    public static StandingsFragment newInstance(String leagueID, int level) {
 
         Bundle args = new Bundle();
         StandingsFragment fragment = new StandingsFragment();
         args.putInt(MainPageSelection.KEY_SELECTION_LEVEL, level);
+        args.putString(MainPageSelection.KEY_SELECTION_ID, leagueID);
         fragment.setArguments(args);
         return fragment;
     }
@@ -76,6 +78,7 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
         setHasOptionsMenu(true);
         Bundle args = getArguments();
         level = args.getInt(MainPageSelection.KEY_SELECTION_LEVEL);
+        leagueID = args.getString(MainPageSelection.KEY_SELECTION_ID);
     }
 
     @Override
@@ -149,10 +152,20 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
-            case R.id.goto_settings:
-                Intent settingsIntent = new Intent(getActivity(), SettingsActivity.class);
+        switch (item.getItemId()) {
+            case R.id.change_user_settings:
+                Intent settingsIntent = new Intent(getActivity(), UserSettingsActivity.class);
                 startActivity(settingsIntent);
+                return true;
+            case R.id.change_game_settings:
+                SharedPreferences settingsPreferences = getActivity()
+                        .getSharedPreferences(leagueID + "settings", Context.MODE_PRIVATE);
+                int innings = settingsPreferences.getInt("innings", 7);
+                int genderSorter = settingsPreferences.getInt("genderSort", 0);
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                DialogFragment newFragment = GameSettingsDialogFragment.newInstance(innings, genderSorter, leagueID);
+                newFragment.show(fragmentTransaction, "");
                 return true;
         }
         return false;
@@ -166,22 +179,20 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
     }
 
     public void addTeam() {
-        InputMethodManager inputManager = (InputMethodManager)
-                getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-
-        inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(),
-                InputMethodManager.HIDE_NOT_ALWAYS);
-
         String teamName = addEditText.getText().toString();
 
         ContentValues values = new ContentValues();
         values.put(StatsEntry.COLUMN_NAME, teamName);
         Uri teamUri = getActivity().getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
         addEditText.setText("");
-        if(teamUri == null) {
+        if (teamUri == null) {
+            InputMethodManager inputManager = (InputMethodManager)
+                    getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+
+            inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(),
+                    InputMethodManager.HIDE_NOT_ALWAYS);
             return;
         }
-        //todo createteamfrag
         createTeamFragment(teamName);
     }
 
@@ -202,7 +213,8 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
                 null,
                 null,
                 sortOrder
-        );    }
+        );
+    }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {

@@ -19,10 +19,11 @@
         android:theme="@style/AppTheme"
         android:windowSoftInputMode="stateHidden|adjustResize"
         >
-        <activity android:name=".activities.MainActivity">
+        <activity android:name=".activities.MainActivity"
+            android:screenOrientation="portrait"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -40,12 +41,6 @@
             android:label="Lineup Editor"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
-        <!--<activity-->
-            <!--android:name=".activities.MatchupActivity"-->
-            <!--android:label="Matchup Selector"-->
-            <!--android:launchMode="singleTask"-->
-            <!--android:parentActivityName=".activities.LeagueManagerActivity"-->
-            <!--android:screenOrientation="portrait" />-->
         <activity
             android:name=".activities.BoxScoreActivity"
             android:label="Box Score"
@@ -64,7 +59,9 @@
         <activity android:name=".activities.PlayerManagerActivity"
             android:screenOrientation="portrait" />
 
-        <activity android:name=".activities.SettingsActivity"/>
+        <activity android:name=".activities.UserSettingsActivity"
+            android:screenOrientation="portrait"
+            />
 
         <provider
             android:name=".data.StatsProvider"

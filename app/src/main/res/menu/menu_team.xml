@@ -5,15 +5,30 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".activities.TeamManagerActivity">
 
-    <item
-        android:id="@+id/action_change_name"
-        android:title="@string/edit_name"
-        app:showAsAction="never" />
+    <group android:id="@+id/group_high_level_team_options"
+        android:visible="false"
+        >
+        <item
+            android:id="@+id/action_change_name"
+            android:title="@string/edit_name"
+            app:showAsAction="never" />
 
-    <item
-        android:id="@+id/action_edit_photo"
-        android:title="@string/edit_photo"
-        app:showAsAction="never" />
+        <item
+            android:id="@+id/action_edit_photo"
+            android:title="@string/edit_photo"
+            app:showAsAction="never" />
+
+        <item
+            android:id="@+id/action_remove_players"
+            android:title="@string/remove_all_players"
+            app:showAsAction="never" />
+
+        <item
+            android:id="@+id/action_delete_team"
+            android:title="@string/delete_team"
+            app:showAsAction="never" />
+    </group>
+
 
     <item
         android:id="@+id/action_edit_lineup"
@@ -21,22 +36,14 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_add_players"
-        android:title="@string/add_players"
+        android:id="@+id/change_user_settings"
+        android:title="@string/user_settings"
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_remove_players"
-        android:title="@string/remove_all_players"
+        android:id="@+id/change_game_settings"
+        android:title="@string/game_settings"
         app:showAsAction="never" />
 
-    <item
-        android:id="@+id/action_delete_team"
-        android:title="@string/delete_team"
-        app:showAsAction="never" />
 
-    <item android:id="@+id/goto_settings"
-        android:title="@string/settings"
-        app:showAsAction="never"
-        />
 </menu>

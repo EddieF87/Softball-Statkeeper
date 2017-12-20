@@ -11,8 +11,6 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -20,19 +18,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
-import com.example.android.scorekeepdraft1.adapters_listeners_etc.MainPageAdapter;
 import com.example.android.scorekeepdraft1.fragments.UserFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.example.android.scorekeepdraft1.objects.StatKeepUser;
-import com.google.android.gms.common.api.Batch;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -48,9 +41,10 @@ import java.util.Map;
 import static com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapter.LEAGUE_COLLECTION;
 import static com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapter.USERS;
 
-public class SettingsActivity extends AppCompatActivity implements UserFragment.OnListFragmentInteractionListener {
+public class UserSettingsActivity extends AppCompatActivity
+        implements UserFragment.OnListFragmentInteractionListener {
 
-    private static final String TAG = "SettingsActivity";
+    private static final String TAG = "UserSettingsActivity";
     private static final String SAVED_MAP = "map";
     private static final String SAVED_USERLIST = "userlist";
     private static final String SAVED_REQUESTLIST = "requestlist";
@@ -87,7 +81,7 @@ public class SettingsActivity extends AppCompatActivity implements UserFragment.
         MyApp myApp = (MyApp) getApplicationContext();
 
         if (myApp.getCurrentSelection() == null) {
-            Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
+            Intent intent = new Intent(UserSettingsActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
         }
@@ -297,7 +291,7 @@ public class SettingsActivity extends AppCompatActivity implements UserFragment.
     }
 
     @Override
-    public void onListFragmentInteraction(String name, int level) {
+    public void onUserLevelChanged(String name, int level) {
         if (levelChanges == null) {
             levelChanges = new HashMap<>();
         }

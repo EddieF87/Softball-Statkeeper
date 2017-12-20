@@ -43,7 +43,6 @@ import android.widget.Toast;
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.LineupListAdapter;
-import com.example.android.scorekeepdraft1.adapters_listeners_etc.Listener;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.fragments.CreateTeamFragment;
@@ -54,9 +53,7 @@ import com.example.android.scorekeepdraft1.objects.Player;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author Paul Burke (ipaulpro)
- */
+
 public class SetLineupActivity extends SingleFragmentActivity
         implements CreateTeamFragment.OnListFragmentInteractionListener{
 

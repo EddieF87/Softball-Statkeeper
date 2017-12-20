@@ -34,11 +34,8 @@ public class BoxScoreArrayAdapter extends
 
     @Override
     public void onBindViewHolder(BoxScoreListViewHolder holder, int position) {
-        LinearLayout linearLayout = holder.linearLayout;
-        TextView numberView = linearLayout.findViewById(R.id.inning_number_row);
-        TextView topView = linearLayout.findViewById(R.id.inning_top_row);
-        TextView bottomView = linearLayout.findViewById(R.id.inning_bottom_row);
-        numberView.setText(String.valueOf(position + 1));
+
+        holder.numberView.setText(String.valueOf(position + 1));
 
         int topScore = data.get(position).getTop();
         String topScoreString;
@@ -47,7 +44,7 @@ public class BoxScoreArrayAdapter extends
         } else {
             topScoreString = String.valueOf(topScore);
         }
-        topView.setText(topScoreString);
+        holder.topView.setText(topScoreString);
 
         int bottomScore = data.get(position).getBottom();
         String bottomScoreString;
@@ -56,7 +53,7 @@ public class BoxScoreArrayAdapter extends
         } else {
             bottomScoreString = String.valueOf(bottomScore);
         }
-        bottomView.setText(bottomScoreString);
+        holder.bottomView.setText(bottomScoreString);
     }
 
     @Override
@@ -66,9 +63,15 @@ public class BoxScoreArrayAdapter extends
 
     static class BoxScoreListViewHolder extends RecyclerView.ViewHolder{
         LinearLayout linearLayout;
+        TextView numberView;
+        TextView topView;
+        TextView bottomView;
+
         BoxScoreListViewHolder(View itemView) {
             super(itemView);
             linearLayout = (LinearLayout) itemView;
-        }
+            numberView = linearLayout.findViewById(R.id.inning_number_row);
+            topView = linearLayout.findViewById(R.id.inning_top_row);
+            bottomView = linearLayout.findViewById(R.id.inning_bottom_row);}
     }
 }

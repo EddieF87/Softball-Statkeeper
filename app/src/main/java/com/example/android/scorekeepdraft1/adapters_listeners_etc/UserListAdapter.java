@@ -65,7 +65,7 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserLi
                     holder.levelView.setTextColor(Color.BLUE);
                 }
                 if (null != mListener) {
-                    mListener.onListFragmentInteraction(id, i);
+                    mListener.onUserLevelChanged(id, i);
                 }
             }
 

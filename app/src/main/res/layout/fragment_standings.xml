@@ -58,7 +58,9 @@
         android:layout_width="0dp"
         android:layout_height="6dp"
         android:background="@color/colorPrimary"
-        app:layout_constraintTop_toBottomOf="@+id/list" />
+        app:layout_constraintTop_toBottomOf="@+id/list"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"/>
 
     <include
         android:id="@+id/item_team_adder"

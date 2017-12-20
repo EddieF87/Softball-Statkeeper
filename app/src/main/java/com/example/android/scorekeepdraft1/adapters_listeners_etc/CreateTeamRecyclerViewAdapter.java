@@ -1,6 +1,5 @@
-package com.example.android.scorekeepdraft1.fragments;
+package com.example.android.scorekeepdraft1.adapters_listeners_etc;
 
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -14,7 +13,6 @@ import android.widget.ToggleButton;
 import com.example.android.scorekeepdraft1.R;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 

@@ -5,13 +5,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".activities.TeamManagerActivity">
 
-    <item android:id="@+id/goto_settings"
-        android:title="@string/settings"
+    <item android:id="@+id/change_user_settings"
+        android:title="@string/user_settings"
         app:showAsAction="never"
         />
 
-    <item android:id="@+id/create_team"
-        android:title="create team"
+    <item android:id="@+id/change_game_settings"
+        android:title="@string/game_settings"
         app:showAsAction="never"
         />
 </menu>
