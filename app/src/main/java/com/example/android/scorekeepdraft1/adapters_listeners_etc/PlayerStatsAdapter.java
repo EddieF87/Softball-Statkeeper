@@ -37,9 +37,10 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
     private final NumberFormat formatter = new DecimalFormat("#.000");
     private int visibility;
     private boolean isTeam = false;
+    private boolean genderSettingsOff;
     private Context mContext;
-    private final int colorMale;
-    private final int colorFemale;
+    private int colorMale;
+    private int colorFemale;
 
 
     public PlayerStatsAdapter(List<Player> players, Context context, int genderSorter) {
@@ -53,7 +54,8 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             visibility = View.VISIBLE;
             isTeam = false;
         }
-        if (genderSorter == 0) {
+        this.genderSettingsOff = genderSorter == 0;
+        if (genderSettingsOff) {
             colorMale = Color.parseColor("#666666");
             colorFemale = Color.parseColor("#666666");
         } else {
@@ -171,6 +173,25 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             }
         }
 
+    }
+
+    public boolean changeColors(boolean genderSettingsOn){
+        if (genderSettingsOn) {
+            if (!genderSettingsOff) {
+                return false;
+            }
+            colorMale = ContextCompat.getColor(mContext, R.color.male);
+            colorFemale = ContextCompat.getColor(mContext, R.color.female);
+            genderSettingsOff = false;
+        } else {
+            if (genderSettingsOff) {
+                return false;
+            }
+            colorMale = Color.parseColor("#666666");
+            colorFemale = Color.parseColor("#666666");
+            genderSettingsOff = true;
+        }
+        return true;
     }
 
     @Override

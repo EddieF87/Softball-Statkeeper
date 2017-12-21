@@ -1,11 +1,11 @@
 package com.example.android.scorekeepdraft1.adapters_listeners_etc;
 
-import android.app.Fragment;
 import android.content.ClipData;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Build;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -14,7 +14,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.example.android.scorekeepdraft1.R;
-import com.example.android.scorekeepdraft1.fragments.LineupFragment;
+import com.example.android.scorekeepdraft1.objects.Player;
 
 import java.util.List;
 
@@ -25,12 +25,25 @@ import java.util.List;
 public class LineupListAdapter extends RecyclerView.Adapter<LineupListAdapter.LineupListViewHolder>
         implements View.OnTouchListener {
 
-    private List<String> list;
+    private List<Player> mPlayerList;
+    private Context mContext;
     private boolean isBench;
+    private boolean genderSettingsOff;
+    private int colorMale;
+    private int colorFemale;
 
-    public LineupListAdapter(List<String> list, boolean isBench) {
-        this.list = list;
+    public LineupListAdapter(List<Player> list, Context context, boolean isBench, int genderSorter) {
+        this.mPlayerList = list;
+        this.mContext = context;
         this.isBench = isBench;
+        genderSettingsOff = genderSorter == 0;
+        if (genderSettingsOff) {
+            colorMale = Color.TRANSPARENT;
+            colorFemale = Color.TRANSPARENT;
+        } else {
+            colorMale = ContextCompat.getColor(context, R.color.male);
+            colorFemale = ContextCompat.getColor(context, R.color.female);
+        }
     }
 
     @Override
@@ -43,24 +56,32 @@ public class LineupListAdapter extends RecyclerView.Adapter<LineupListAdapter.Li
 
     @Override
     public void onBindViewHolder(LineupListAdapter.LineupListViewHolder holder, int position) {
-        FrameLayout frameLayout = holder.mFrameLayout;
-        TextView textView = frameLayout.findViewById(R.id.lineup_text);
+        Player player = mPlayerList.get(position);
+        String name = player.getName();
+        int gender = player.getGender();
+
+        if (gender == 0) {
+            holder.mFrameLayout.setBackgroundColor(colorMale);
+        } else {
+            holder.mFrameLayout.setBackgroundColor(colorFemale);
+        }
 
         if(isBench) {
-            String benchPlayer = "B:   " + list.get(position);
-            textView.setText(benchPlayer);
+            String benchPlayer = "B:   " + name;
+            holder.mTextView.setText(benchPlayer);
         } else {
-            String positionText = (position + 1) + ". " + list.get(position);
-            textView.setText(positionText);
+            String positionText = (position + 1) + ". " + name;
+            holder.mTextView.setText(positionText);
         }
-        frameLayout.setTag(position);
-        frameLayout.setOnTouchListener(this);
-        frameLayout.setOnDragListener(new DragListener());
+
+        holder.mFrameLayout.setTag(position);
+        holder.mFrameLayout.setOnTouchListener(this);
+        holder.mFrameLayout.setOnDragListener(new DragListener());
     }
 
     @Override
     public int getItemCount() {
-        return list.size();
+        return mPlayerList.size();
     }
 
     @Override
@@ -79,10 +100,29 @@ public class LineupListAdapter extends RecyclerView.Adapter<LineupListAdapter.Li
         return false;
     }
 
-    public List<String> getList() {return list;    }
+    public boolean changeColors(boolean genderSettingsOn){
+        if (genderSettingsOn) {
+            if (!genderSettingsOff) {
+                return false;
+            }
+            colorMale = ContextCompat.getColor(mContext, R.color.male);
+            colorFemale = ContextCompat.getColor(mContext, R.color.female);
+            genderSettingsOff = false;
+        } else {
+            if (genderSettingsOff) {
+                return false;
+            }
+            colorMale = Color.TRANSPARENT;
+            colorFemale = Color.TRANSPARENT;
+            genderSettingsOff = true;
+        }
+        return true;
+    }
 
-    void updateList(List<String> list) {
-        this.list = list;
+    public List<Player> getPlayerList() {return mPlayerList;    }
+
+    void updateList(List<Player> list) {
+        this.mPlayerList = list;
     }
 
 
@@ -91,13 +131,14 @@ public class LineupListAdapter extends RecyclerView.Adapter<LineupListAdapter.Li
     }
 
     static class LineupListViewHolder extends RecyclerView.ViewHolder {
-
         FrameLayout mFrameLayout;
+        TextView mTextView;
 
-         LineupListViewHolder(View itemView) {
+
+        LineupListViewHolder(View itemView) {
             super(itemView);
             mFrameLayout = (FrameLayout) itemView;
+            mTextView = mFrameLayout.findViewById(R.id.lineup_text);
         }
-
     }
 }

@@ -49,6 +49,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
 
     private static final String TAG = "StatActivity: ";
     private RecyclerView rv;
+    private PlayerStatsAdapter mAdapter;
     private TextView emptyView;
     private String statSort;
     private String teamFilter;
@@ -168,15 +169,29 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         return false;
     }
 
-    private void initRecyclerView() {
-        SharedPreferences settingsPreferences = getActivity()
-                .getSharedPreferences(leagueID + "settings", Context.MODE_PRIVATE);
-        int genderSorter = settingsPreferences.getInt("genderSort", 0);
+    private void updateStatsRV() {
+        if (mAdapter == null) {
+            SharedPreferences settingsPreferences = getActivity()
+                    .getSharedPreferences(leagueID + "settings", Context.MODE_PRIVATE);
+            int genderSorter = settingsPreferences.getInt("genderSort", 0);
 
-        rv.setLayoutManager(new LinearLayoutManager(
-                getActivity(), LinearLayoutManager.VERTICAL, false));
-        PlayerStatsAdapter rvAdapter = new PlayerStatsAdapter(mPlayers, getActivity(), genderSorter);
-        rv.setAdapter(rvAdapter);
+            rv.setLayoutManager(new LinearLayoutManager(
+                    getActivity(), LinearLayoutManager.VERTICAL, false));
+            mAdapter = new PlayerStatsAdapter(mPlayers, getActivity(), genderSorter);
+            rv.setAdapter(mAdapter);
+        } else {
+            mAdapter.notifyDataSetChanged();
+        }
+    }
+
+    public void changeColorsRV(boolean genderSettingsOn) {
+        boolean update = true;
+        if (mAdapter != null) {
+            update = mAdapter.changeColors(genderSettingsOn);
+        }
+        if (update) {
+            updateStatsRV();
+        }
     }
 
 
@@ -386,7 +401,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
             rv.setVisibility(View.VISIBLE);
             emptyView.setVisibility(View.GONE);
         }
-        initRecyclerView();
+        updateStatsRV();
     }
 
     @Override

@@ -163,7 +163,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
     private int playerOutIndex;
     private int playerRunIndex;
     private int rbiIndex;
-    private int totalInnings = 1;
+    private int totalInnings;
 
     private static final String KEY_GAMELOGINDEX = "keyGameLogIndex";
     private static final String KEY_HIGHESTINDEX = "keyHighestIndex";
@@ -210,10 +210,10 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         SharedPreferences settingsPreferences =
                 getSharedPreferences(leagueID + "settings", MODE_PRIVATE);
         int genderSorter = settingsPreferences.getInt("genderSort", 0) + 1;
+        totalInnings = settingsPreferences.getInt("innings", 7);
 
         if (args != null) {
             int sortArgument = args.getInt("sortArgument");
-            int totalInnings = settingsPreferences.getInt("innings", 7);
             setGendersort(sortArgument, genderSorter);
             SharedPreferences gamePreferences = getSharedPreferences(leagueID + "game", MODE_PRIVATE);
             SharedPreferences.Editor editor = gamePreferences.edit();
@@ -272,21 +272,13 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         awayLineupRV = findViewById(R.id.away_lineup);
         awayLineupRV.setLayoutManager(new LinearLayoutManager(
                 this, LinearLayoutManager.VERTICAL, false));
-        if(genderSorter == 0) {
-            awayTeamListAdapter = new TeamListAdapter(awayTeam);
-        } else {
-            awayTeamListAdapter = new TeamListAdapter(awayTeam, this);
-        }
+        awayTeamListAdapter = new TeamListAdapter(awayTeam, this, genderSorter);
         awayLineupRV.setAdapter(awayTeamListAdapter);
 
         homeLineupRV = findViewById(R.id.home_lineup);
         homeLineupRV.setLayoutManager(new LinearLayoutManager(
                 this, LinearLayoutManager.VERTICAL, false));
-        if(genderSorter == 0) {
-            homeTeamListAdapter = new TeamListAdapter(homeTeam);
-        } else {
-            homeTeamListAdapter = new TeamListAdapter(homeTeam, this);
-        }
+        homeTeamListAdapter = new TeamListAdapter(homeTeam, this, genderSorter);
         homeLineupRV.setAdapter(homeTeamListAdapter);
 
         TextView awayText = findViewById(R.id.away_text);
@@ -373,7 +365,6 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         int firstFemale = 0;
         boolean firstFemaleSet = false;
         for (Player player : team) {
-            //TODO complete gendersort, add info to players and db/firestore
             if (player.getGender() == 1) {
                 females.add(player);
                 firstFemaleSet = true;
@@ -562,7 +553,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         } else {
             tempRunsLog.clear();
         }
-        setIndex(currentBatter);
+//        setIndex(currentBatter);
         resetBases(currentBaseLogStart);
         startCursor();
         setDisplays();
@@ -1109,7 +1100,8 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                 values.put(StatsEntry.COLUMN_OUT, newValue);
                 break;
             default:
-                Log.v(TAG, "Wrong action entered.");
+                Log.e(TAG, "",
+                        new Throwable("Wrong action entered!"));
                 break;
         }
 
@@ -1142,7 +1134,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             values.put(StatsEntry.COLUMN_RUN, newValue);
             getContentResolver().update(StatsEntry.CONTENT_URI_TEMP, values, selection, selectionArgs);
         } else {
-            Log.v(TAG, "Error with updating player runs.");
+            Log.e(TAG, "", new Throwable("Error with updating player runs."));
         }
         if (!undoRedo) {
             if (currentTeam == homeTeam) {
@@ -1252,7 +1244,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             undoRedo = true;
             tempBatter = gameCursor.getString(prevBatterIndex);
             undoResult = gameCursor.getString(playIndex);
-            int inningChanged = gameCursor.getInt(inningChangedIndex);
+            inningChanged = gameCursor.getInt(inningChangedIndex);
             if (inningChanged == 1) {
                 inningNumber--;
                 setInningDisplay();
@@ -1284,7 +1276,14 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         gameOuts = currentBaseLogStart.getOutCount();
         currentTeam = currentBaseLogStart.getTeam();
         currentBatter = currentBaseLogStart.getBatter();
-        setIndex(currentBatter);
+
+        if (currentTeam == awayTeam) {
+            decreaseAwayIndex();
+        } else if (currentTeam == homeTeam) {
+            decreaseHomeIndex();
+        }
+        inningChanged = 0;
+
         resetBases(currentBaseLogStart);
         updatePlayerStats(undoResult, -1);
     }
@@ -1319,19 +1318,26 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             inningNumber++;
             if (currentTeam == awayTeam) {
                 increaseHomeIndex();
+                setLineupRVPosition(false);
                 homeTeamListAdapter.setCurrentLineupPosition(-1);
                 homeTeamListAdapter.notifyDataSetChanged();
             } else if (currentTeam == homeTeam) {
                 increaseAwayIndex();
+                setLineupRVPosition(true);
                 awayTeamListAdapter.setCurrentLineupPosition(-1);
                 awayTeamListAdapter.notifyDataSetChanged();
             } else {
-                Log.v(TAG, "inningChanged logic error!");
+                Log.e(TAG, "inningChanged", new Throwable("inningChanged logic error!"));
             }
             setInningDisplay();
+        }
+//        setIndex(currentBatter);
+        if (inningChanged == 0) {
+            increaseLineupIndex();
+        } else {
             inningChanged = 0;
         }
-        setIndex(currentBatter);
+
         resetBases(currentBaseLogStart);
         updatePlayerStats(redoResult, 1);
         if (redoEndsGame) {
@@ -1358,7 +1364,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         } else if (team == 1) {
             teamLineup = homeTeam;
         } else {
-            Log.v(TAG, "Error with reloading BaseLog.");
+            Log.e(TAG, "BaseLog", new Throwable("Error with reloading BaseLog!"));
             return;
         }
         Player batter = findBatterByName(batterName, teamLineup);
@@ -1371,7 +1377,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                 return player;
             }
         }
-        Log.v(TAG, "Error with finding batter.");
+        Log.e(TAG, "findBatterByName", new Throwable("Error with finding batter!"));
         return null;
     }
 
@@ -1565,7 +1571,8 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                         secondDisplay.setOnDragListener(null);
                         break;
                     default:
-                        Log.v(TAG, "SOMETHING WENT WRONG WITH THE SWITCH");
+                        Log.e(TAG, "MyTouchListener",
+                                new Throwable("SOMETHING WENT WRONG WITH THE SWITCH"));
                         break;
                 }
 
@@ -1589,7 +1596,8 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         } else if (currentTeam == homeTeam) {
             increaseHomeIndex();
         } else {
-            Log.v(TAG, "SOMETHING WENT WRONG WITH THE INDEXES!!!");
+            Log.e(TAG, "",
+                    new Throwable("SOMETHING WENT WRONG WITH THE INDEXES!"));
         }
     }
 
@@ -1609,13 +1617,30 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         setLineupRVPosition(true);
     }
 
+    private void decreaseAwayIndex() {
+        awayTeamIndex--;
+        if (awayTeamIndex < 0) {
+            awayTeamIndex = awayTeam.size() - 1;
+        }
+        setLineupRVPosition(false);
+    }
+
+    private void decreaseHomeIndex() {
+        homeTeamIndex--;
+        if (homeTeamIndex < 0) {
+            homeTeamIndex = homeTeam.size() - 1;
+        }
+        setLineupRVPosition(true);
+    }
+
     private int getIndex() {
         if (currentTeam == awayTeam) {
             return awayTeamIndex;
         } else if (currentTeam == homeTeam) {
             return homeTeamIndex;
         } else {
-            Log.v(TAG, "SOMETHING WENT WRONG WITH THE INDEXES!!!");
+            Log.e(TAG, "",
+                    new Throwable("SOMETHING WENT WRONG WITH THE INDEXES!"));
         }
         return 0;
     }
@@ -1628,7 +1653,8 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             homeTeamIndex = homeTeam.indexOf(player);
             setLineupRVPosition(true);
         } else {
-            Log.v(TAG, "SOMETHING WENT WRONG WITH THE INDEXES!!!");
+            Log.e(TAG, "",
+                    new Throwable("SOMETHING WENT WRONG WITH THE INDEXES!"));
         }
     }
 

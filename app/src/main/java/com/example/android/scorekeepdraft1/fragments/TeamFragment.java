@@ -166,7 +166,7 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
     }
 
 
-    private void updateTeamRV() {
+    public void updateTeamRV() {
         if (mAdapter == null) {
             SharedPreferences settingsPreferences = getActivity()
                     .getSharedPreferences(mSelectionID + "settings", Context.MODE_PRIVATE);
@@ -180,6 +180,17 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
             mAdapter.notifyDataSetChanged();
         }
     }
+
+    public void changeColorsRV(boolean genderSettingsOn) {
+        boolean update = true;
+        if (mAdapter != null) {
+            update = mAdapter.changeColors(genderSettingsOn);
+        }
+        if (update) {
+            updateTeamRV();
+        }
+    }
+
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {

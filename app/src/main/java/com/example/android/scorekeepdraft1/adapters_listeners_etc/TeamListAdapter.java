@@ -25,20 +25,42 @@ import java.util.List;
 public class TeamListAdapter extends RecyclerView.Adapter<TeamListAdapter.ListViewHolder> {
 
     private List<Player> list;
-    private final int colorMale;
-    private final int colorFemale;
+    private Context mContext;
+    private int colorMale;
+    private int colorFemale;
+    private boolean genderSettingsOff;
     private int currentLineupPosition = -1;
 
-    public TeamListAdapter(List<Player> list, Context context) {
-        colorMale = ContextCompat.getColor(context, R.color.male);
-        colorFemale = ContextCompat.getColor(context, R.color.female);
+    public TeamListAdapter(List<Player> list, Context context, int genderSorter) {
         this.list = list;
+        this.mContext = context;
+        this.genderSettingsOff = genderSorter == 0;
+        if(genderSettingsOff) {
+            colorMale = Color.parseColor("#666666");
+            colorFemale = Color.parseColor("#666666");
+        } else {
+            colorMale = ContextCompat.getColor(context, R.color.male);
+            colorFemale = ContextCompat.getColor(context, R.color.female);
+        }
     }
 
-    public TeamListAdapter(List<Player> list) {
-        colorMale = Color.parseColor("#666666");
-        colorFemale = Color.parseColor("#666666");
-        this.list = list;
+    public boolean changeColors(boolean genderSettingsOn){
+        if (genderSettingsOn) {
+            if (!genderSettingsOff) {
+                return false;
+            }
+            colorMale = ContextCompat.getColor(mContext, R.color.male);
+            colorFemale = ContextCompat.getColor(mContext, R.color.female);
+            genderSettingsOff = false;
+        } else {
+            if (genderSettingsOff) {
+                return false;
+            }
+            colorMale = Color.parseColor("#666666");
+            colorFemale = Color.parseColor("#666666");
+            genderSettingsOff = true;
+        }
+        return true;
     }
 
     @Override
@@ -67,10 +89,8 @@ public class TeamListAdapter extends RecyclerView.Adapter<TeamListAdapter.ListVi
         } else {
             holder.mTextView.setTypeface(null, Typeface.NORMAL);
             if (gender == 0) {
-                Log.d("xxx tla", name + "g = " + gender);
                 holder.mTextView.setTextColor(colorMale);
             } else {
-                Log.d("xxx tla", name + "g = " + gender);
                 holder.mTextView.setTextColor(colorFemale);
             }
         }
@@ -97,7 +117,6 @@ public class TeamListAdapter extends RecyclerView.Adapter<TeamListAdapter.ListVi
     }
 
     static class ListViewHolder extends RecyclerView.ViewHolder {
-
         FrameLayout mFrameLayout;
         TextView mTextView;
 

@@ -3,7 +3,6 @@ package com.example.android.scorekeepdraft1.activities;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -13,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 
 import com.example.android.scorekeepdraft1.MyApp;
@@ -31,7 +31,12 @@ public class LeagueManagerActivity extends AppCompatActivity
         implements CreateTeamFragment.OnListFragmentInteractionListener,
         GameSettingsDialogFragment.OnFragmentInteractionListener {
 
+    private StandingsFragment standingsFragment;
+    private StatsFragment statsFragment;
+    private MatchupFragment matchupFragment;
+
     private String leagueID;
+    private int level;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,61 +45,24 @@ public class LeagueManagerActivity extends AppCompatActivity
 
         MyApp myApp = (MyApp) getApplicationContext();
         MainPageSelection mainPageSelection = myApp.getCurrentSelection();
-        if(mainPageSelection == null) {
+        if (mainPageSelection == null) {
             Intent intent = new Intent(LeagueManagerActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
         }
         String leagueName = mainPageSelection.getName();
         leagueID = mainPageSelection.getId();
-        final int level = mainPageSelection.getLevel();
+        level = mainPageSelection.getLevel();
         setTitle(leagueName);
 
         ViewPager viewPager = findViewById(R.id.league_view_pager);
-
         FragmentManager fragmentManager = getSupportFragmentManager();
-        viewPager.setAdapter(new FragmentPagerAdapter(fragmentManager) {
-            @Override
-            public Fragment getItem(int position) {
-                switch (position) {
-                    case 0:
-                        return StandingsFragment.newInstance(leagueID, level);
-                    case 1:
-                        return StatsFragment.newInstance(leagueID, level);
-                    case 2:
-                        if(level < 3) {
-                            return null;
-                        }
-                        return MatchupFragment.newInstance(leagueID);
-                    default:
-                        return null;
-                }
-            }
-            @Override
-            public CharSequence getPageTitle(int position) {
-                switch (position) {
-                    case 0:
-                        return "Standings";
-                    case 1:
-                        return "Stats";
-                    case 2:
-                        return "Game";
-                    default:
-                        return null;
-                }
-            }
-            @Override
-            public int getCount() {
-                if (level < 3) {
-                    return 2;
-                }
-                return 3;
-            }
-        });
+        viewPager.setAdapter(new LeagueManagerPagerAdapter(fragmentManager));
 
         TabLayout tabLayout = findViewById(R.id.league_tab_layout);
         tabLayout.setupWithViewPager(viewPager);
     }
+
 
     @Override
     public void onSubmitPlayersListener(List<String> names, List<Integer> genders, String team) {
@@ -125,12 +93,78 @@ public class LeagueManagerActivity extends AppCompatActivity
     }
 
     @Override
-    public void onGameSettingsChanged(int innings, int femaleOrder) {
-//        SharedPreferences sharedPreferences = getSharedPreferences(leagueID + "settings", MODE_PRIVATE);
-//        SharedPreferences.Editor editor = sharedPreferences.edit();
-//        editor.putInt("innings", innings);
-//        editor.putInt("genderSort", femaleOrder);
-//        editor.commit();
+    public void onGameSettingsChanged(int innings, int genderSorter) {
+        boolean genderSettingsOn = genderSorter != 0;
 
+        if (statsFragment != null) {
+            statsFragment.changeColorsRV(genderSettingsOn);
+        }
+
+        if (matchupFragment != null) {
+            matchupFragment.changeColorsRV(genderSettingsOn);
+        }
+    }
+
+    private class LeagueManagerPagerAdapter extends FragmentPagerAdapter {
+
+        public LeagueManagerPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            switch (position) {
+                case 0:
+                    return StandingsFragment.newInstance(leagueID, level);
+                case 1:
+                    return StatsFragment.newInstance(leagueID, level);
+                case 2:
+                    if (level < 3) {
+                        return null;
+                    }
+                    return MatchupFragment.newInstance(leagueID);
+                default:
+                    return null;
+            }
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            switch (position) {
+                case 0:
+                    return "Standings";
+                case 1:
+                    return "Stats";
+                case 2:
+                    return "Game";
+                default:
+                    return null;
+            }
+        }
+
+        @Override
+        public int getCount() {
+            if (level < 3) {
+                return 2;
+            }
+            return 3;
+        }
+
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            Fragment createdFragment = (Fragment) super.instantiateItem(container, position);
+
+            switch (position) {
+                case 0:
+                    standingsFragment = (StandingsFragment) createdFragment;
+                    break;
+                case 1:
+                    statsFragment = (StatsFragment) createdFragment;
+                    break;
+                case 2:
+                    matchupFragment = (MatchupFragment) createdFragment;
+            }
+            return createdFragment;
+        }
     }
 }

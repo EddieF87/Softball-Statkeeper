@@ -49,9 +49,10 @@ public class LineupFragment extends Fragment {
 
     private RecyclerView rvLeftLineup;
     private RecyclerView rvRightLineup;
+    private boolean sortLineup;
 
-    private List<String> mLineup;
-    private List<String> mBench;
+    private List<Player> mLineup;
+    private List<Player> mBench;
     private String mTeam;
     private int mType;
     private String mSelectionID;
@@ -94,63 +95,20 @@ public class LineupFragment extends Fragment {
 
         rvLeftLineup = rootView.findViewById(R.id.rvLeft);
         rvRightLineup = rootView.findViewById(R.id.rvRight);
-//        mLineup = new ArrayList<>();
-//        mBench = new ArrayList<>();
-//
-//        String[] projection = new String[]{StatsEntry._ID, StatsEntry.COLUMN_NAME, StatsEntry.COLUMN_ORDER};
-//        String selection = StatsEntry.COLUMN_TEAM + "=?";
-//        String[] selectionArgs = new String[]{mTeam};
-//        String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
-//
-//        Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS, projection,
-//                selection, selectionArgs, sortOrder);
-//
-//        while (cursor.moveToNext()) {
-//            int nameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_NAME);
-//            int orderIndex = cursor.getColumnIndex(StatsEntry.COLUMN_ORDER);
-//            String playerName = cursor.getString(nameIndex);
-//            int playerOrder = cursor.getInt(orderIndex);
-//            if (playerOrder > 50) {
-//                mBench.add(playerName);
-//            } else {
-//                mLineup.add(playerName);
-//            }
-//        }
-//        cursor.close();
 
         Button lineupSubmitButton = rootView.findViewById(R.id.lineup_submit);
-//        if (mType == MainPageSelection.TYPE_TEAM) {
-//            lineupSubmitButton.setText(R.string.start);
-//            View radioButtonGroup = rootView.findViewById(R.id.radiobtns_away_or_home_team);
-//            radioButtonGroup.setVisibility(View.VISIBLE);
-//
-//            Button continueGameButton = rootView.findViewById(R.id.continue_game);
-//            continueGameButton.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View view) {
-//                    Intent intent = new Intent(getActivity(), TeamGameActivity.class);
-//                    startActivity(intent);
-//                }
-//            });
-//            continueGameButton.setVisibility(View.VISIBLE);
-//
-//            Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG,
-//                    null, null, null, null);
-//            if (cursor.moveToFirst()) {
-//                continueGameButton.setVisibility(View.VISIBLE);
-//            } else {
-//                continueGameButton.setVisibility(View.GONE);
-//            }
-//            cursor.close();
-//        }
         lineupSubmitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mType == MainPageSelection.TYPE_TEAM) {
-                    if(isLineupOK()) {
+                    int genderSorter = getGenderSorter();
+
+                    if (isLineupOK()) {
                         clearGameDB();
-                        addTeamToTempDB();
-                        startGame(isHome());
+                        boolean lineupCheck = addTeamToTempDB(genderSorter);
+                        if (lineupCheck) {
+                            startGame(isHome());
+                        }
                     } else {
                         Toast.makeText(getActivity(), "Add more players to lineup first.",
                                 Toast.LENGTH_SHORT).show();
@@ -187,7 +145,8 @@ public class LineupFragment extends Fragment {
         mLineup = new ArrayList<>();
         mBench = new ArrayList<>();
 
-        String[] projection = new String[]{StatsEntry._ID, StatsEntry.COLUMN_NAME, StatsEntry.COLUMN_ORDER};
+        String[] projection = new String[]{StatsEntry._ID, StatsEntry.COLUMN_NAME,
+                StatsEntry.COLUMN_ORDER, StatsEntry.COLUMN_GENDER};
         String selection = StatsEntry.COLUMN_TEAM + "=?";
         String[] selectionArgs = new String[]{mTeam};
         String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
@@ -198,12 +157,15 @@ public class LineupFragment extends Fragment {
         while (cursor.moveToNext()) {
             int nameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_NAME);
             int orderIndex = cursor.getColumnIndex(StatsEntry.COLUMN_ORDER);
+            int genderIndex = cursor.getColumnIndex(StatsEntry.COLUMN_GENDER);
             String playerName = cursor.getString(nameIndex);
+            int gender = cursor.getInt(genderIndex);
+            Player player = new Player(playerName, gender);
             int playerOrder = cursor.getInt(orderIndex);
             if (playerOrder > 50) {
-                mBench.add(playerName);
+                mBench.add(player);
             } else {
-                mLineup.add(playerName);
+                mLineup.add(player);
             }
         }
         cursor.close();
@@ -237,7 +199,7 @@ public class LineupFragment extends Fragment {
         }
     }
 
-    public void updateBench(List<String> players) {
+    public void updateBench(List<Player> players) {
         mBench.addAll(players);
         updateBenchRV();
     }
@@ -253,11 +215,19 @@ public class LineupFragment extends Fragment {
     private void startGame(boolean isHome) {
         Intent intent = new Intent(getActivity(), TeamGameActivity.class);
         intent.putExtra("isHome", isHome);
+        intent.putExtra("sortArgument", sortLineup);
         startActivity(intent);
     }
 
+
     private boolean isLineupOK() {
         return updateAndSubmitLineup() > 3;
+    }
+
+    private int getGenderSorter() {
+        SharedPreferences genderPreferences = getActivity()
+                .getSharedPreferences(mSelectionID + "settings", Context.MODE_PRIVATE);
+        return genderPreferences.getInt("genderSort", 0);
     }
 
     private boolean isHome() {
@@ -283,9 +253,17 @@ public class LineupFragment extends Fragment {
         editor.commit();
     }
 
-    private void addTeamToTempDB() {
+    private boolean addTeamToTempDB(int requiredFemale) {
         List<Player> lineup = getLineup();
         ContentResolver contentResolver = getActivity().getContentResolver();
+        int females = 0;
+        int males = 0;
+        int malesInRow = 0;
+        int firstMalesInRow = 0;
+        boolean beforeFirstFemale = true;
+        boolean notProperOrder = false;
+        sortLineup = false;
+
         for (int i = 0; i < lineup.size(); i++) {
             Player player = lineup.get(i);
             long playerId = player.getPlayerId();
@@ -305,7 +283,41 @@ public class LineupFragment extends Fragment {
             values.put(StatsEntry.COLUMN_ORDER, i + 1);
             values.put(StatsEntry.COLUMN_GENDER, gender);
             contentResolver.insert(StatsEntry.CONTENT_URI_TEMP, values);
+
+            if(gender == 0) {
+                males++;
+                malesInRow++;
+                if(beforeFirstFemale) {
+                    firstMalesInRow++;
+                }
+                if(malesInRow > requiredFemale) {
+                    notProperOrder = true;
+                }
+            } else {
+                females++;
+                malesInRow = 0;
+                beforeFirstFemale = false;
+            }
         }
+
+        if (requiredFemale < 1) {
+            return true;
+        }
+
+        int lastMalesInRow = malesInRow;
+        if (firstMalesInRow + lastMalesInRow > requiredFemale) {
+            notProperOrder = true;
+        }
+        if(notProperOrder) {
+            if(females * requiredFemale >= males) {
+                Toast.makeText(getActivity(),
+                        "Please set " + mTeam + "'s lineup properly or change gender rules",
+                        Toast.LENGTH_LONG).show();
+                return false;
+            }
+            sortLineup = true;
+        }
+        return true;
     }
 
     private ArrayList<Player> getLineup() {
@@ -344,12 +356,13 @@ public class LineupFragment extends Fragment {
         }
     }
 
-    private void updateLineupRV() {
+    public void updateLineupRV() {
         if (leftListAdapter == null) {
+            int genderSorter = getGenderSorter();
+
             rvLeftLineup.setLayoutManager(new LinearLayoutManager(
                     getActivity(), LinearLayoutManager.VERTICAL, false));
-
-            leftListAdapter = new LineupListAdapter(mLineup, false);
+            leftListAdapter = new LineupListAdapter(mLineup, getContext(), false, genderSorter);
             rvLeftLineup.setAdapter(leftListAdapter);
             rvLeftLineup.setOnDragListener(leftListAdapter.getDragInstance());
         } else {
@@ -357,16 +370,30 @@ public class LineupFragment extends Fragment {
         }
     }
 
-    private void updateBenchRV() {
+    public void updateBenchRV() {
         if (rightListAdapter == null) {
+            int genderSorter = getGenderSorter();
+
             rvRightLineup.setLayoutManager(new LinearLayoutManager(
                     getActivity(), LinearLayoutManager.VERTICAL, false));
 
-            rightListAdapter = new LineupListAdapter(mBench, true);
+            rightListAdapter = new LineupListAdapter(mBench, getContext(), true, genderSorter);
             rvRightLineup.setAdapter(rightListAdapter);
             rvRightLineup.setOnDragListener(rightListAdapter.getDragInstance());
         } else {
             rightListAdapter.notifyDataSetChanged();
+        }
+    }
+
+    public void changeColorsRV(boolean genderSettingsOn) {
+        boolean update = true;
+        if (leftListAdapter != null && rightListAdapter != null) {
+            update = leftListAdapter.changeColors(genderSettingsOn);
+            rightListAdapter.changeColors(genderSettingsOn);
+        }
+        if (update) {
+            updateLineupRV();
+            updateBenchRV();
         }
     }
 
@@ -375,9 +402,10 @@ public class LineupFragment extends Fragment {
         String[] selectionArgs;
 
         int i = 1;
-        List<String> lineupList = getLeftListAdapter().getList();
-        for (String player : lineupList) {
-            selectionArgs = new String[]{player};
+        List<Player> lineupList = getLeftListAdapter().getPlayerList();
+        for (Player player : lineupList) {
+            String name = player.getName();
+            selectionArgs = new String[]{name};
             ContentValues values = new ContentValues();
             values.put(StatsEntry.COLUMN_ORDER, i);
             getActivity().getContentResolver().update(StatsEntry.CONTENT_URI_PLAYERS, values,
@@ -386,9 +414,10 @@ public class LineupFragment extends Fragment {
         }
 
         i = 99;
-        List<String> benchList = getRightListAdapter().getList();
-        for (String player : benchList) {
-            selectionArgs = new String[]{player};
+        List<Player> benchList = getRightListAdapter().getPlayerList();
+        for (Player player : benchList) {
+            String name = player.getName();
+            selectionArgs = new String[]{name};
             ContentValues values = new ContentValues();
             values.put(StatsContract.StatsEntry.COLUMN_ORDER, i);
             getActivity().getContentResolver().update(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, values,
@@ -401,6 +430,7 @@ public class LineupFragment extends Fragment {
     public LineupListAdapter getLeftListAdapter() {
         return leftListAdapter;
     }
+
     public LineupListAdapter getRightListAdapter() {
         return rightListAdapter;
     }
@@ -412,7 +442,7 @@ public class LineupFragment extends Fragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.change_user_settings:
                 Intent settingsIntent = new Intent(getActivity(), UserSettingsActivity.class);
                 startActivity(settingsIntent);
@@ -420,7 +450,7 @@ public class LineupFragment extends Fragment {
             case R.id.change_game_settings:
                 SharedPreferences settingsPreferences = getActivity()
                         .getSharedPreferences(mSelectionID + "settings", Context.MODE_PRIVATE);
-                int innings =  settingsPreferences.getInt("innings", 7);
+                int innings = settingsPreferences.getInt("innings", 7);
                 int genderSorter = settingsPreferences.getInt("genderSort", 0);
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();

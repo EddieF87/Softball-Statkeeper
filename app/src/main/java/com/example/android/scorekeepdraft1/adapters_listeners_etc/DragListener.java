@@ -5,6 +5,7 @@ import android.view.DragEvent;
 import android.view.View;
 
 import com.example.android.scorekeepdraft1.R;
+import com.example.android.scorekeepdraft1.objects.Player;
 
 import java.util.List;
 
@@ -56,19 +57,19 @@ public class DragListener implements View.OnDragListener {
                             int positionSource = (int) viewSource.getTag();
                             int sourceId = source.getId();
 
-                            String list = adapterSource.getList().get(positionSource);
-                            List<String> listSource = adapterSource.getList();
+                            Player player = adapterSource.getPlayerList().get(positionSource);
+                            List<Player> listSource = adapterSource.getPlayerList();
 
                             listSource.remove(positionSource);
                             adapterSource.updateList(listSource);
                             adapterSource.notifyDataSetChanged();
 
                             LineupListAdapter adapterTarget = (LineupListAdapter) target.getAdapter();
-                            List<String> customListTarget = adapterTarget.getList();
+                            List<Player> customListTarget = adapterTarget.getPlayerList();
                             if (positionTarget >= 0) {
-                                customListTarget.add(positionTarget, list);
+                                customListTarget.add(positionTarget, player);
                             } else {
-                                customListTarget.add(list);
+                                customListTarget.add(player);
                             }
                             adapterTarget.updateList(customListTarget);
                             adapterTarget.notifyDataSetChanged();

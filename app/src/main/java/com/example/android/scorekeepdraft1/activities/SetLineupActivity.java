@@ -83,19 +83,20 @@ public class SetLineupActivity extends SingleFragmentActivity
 
     @Override
     public void onSubmitPlayersListener(List<String> names, List<Integer> genders, String team) {
-        List<String> players = new ArrayList<>();
+        List<Player> players = new ArrayList<>();
         for (int i = 0; i < names.size() - 1; i++) {
             ContentValues values = new ContentValues();
-            String player = names.get(i);
-            if (player.isEmpty()) {
+            String name = names.get(i);
+            if (name.isEmpty()) {
                 continue;
             }
             int gender = genders.get(i);
-            values.put(StatsEntry.COLUMN_NAME, player);
+            values.put(StatsEntry.COLUMN_NAME, name);
             values.put(StatsEntry.COLUMN_GENDER, gender);
             values.put(StatsEntry.COLUMN_TEAM, team);
             values.put(StatsEntry.COLUMN_ORDER, 99);
             Uri uri = getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
+            Player player = new Player(name, team, gender);
             if (uri != null) {
                 players.add(player);
             }
