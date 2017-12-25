@@ -1,4 +1,4 @@
-package com.example.android.scorekeepdraft1.fragments;
+package com.example.android.scorekeepdraft1.dialogs;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -9,7 +9,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
@@ -23,17 +22,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-/**
- * A fragment representing a list of Items.
- * <p/>
- * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
- * interface.
- */
 public class CreateTeamFragment extends DialogFragment {
 
-    // TODO: Customize parameter argument names
-    private static final String ARG_COLUMN_COUNT = "column-count";
-    // TODO: Customize parameters
     private CreateTeamRecyclerViewAdapter mAdapter;
     private OnListFragmentInteractionListener mListener;
     private static final String KEY_NAMES = "names";
@@ -97,12 +87,11 @@ public class CreateTeamFragment extends DialogFragment {
                                 imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                             }
                         }
-                        onButtonPressed(true);
+                        onButtonPressed();
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        onButtonPressed(false);
                         if (dialog != null) {
                             dialog.dismiss();
                         }
@@ -117,8 +106,8 @@ public class CreateTeamFragment extends DialogFragment {
         return alertDialog;
     }
 
-    public void onButtonPressed(boolean save) {
-        if (save && mListener != null) {
+    public void onButtonPressed() {
+        if (mListener != null) {
             ArrayList<String> names = new ArrayList<>(mAdapter.getmNameEntries());
             ArrayList<Integer> genders = new ArrayList<>(mAdapter.getmGenderEntries());
             mListener.onSubmitPlayersListener(names, genders, mTeam);
@@ -158,18 +147,7 @@ public class CreateTeamFragment extends DialogFragment {
         mListener = null;
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnListFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onSubmitPlayersListener(List<String> names, List<Integer> genders, String team);
     }
 }

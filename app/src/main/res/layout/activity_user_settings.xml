@@ -13,10 +13,11 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView">
+        app:layout_constraintTop_toBottomOf="@+id/admin_title_view">
 
         <TextView
             android:id="@+id/admin_name_view"
@@ -24,7 +25,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:textSize="14sp" />
+            android:textSize="18sp"
+            tools:text="Edward John" />
 
         <TextView
             android:id="@+id/admin_email_view"
@@ -32,15 +34,17 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:textSize="14sp" />
+            android:textSize="18sp"
+            tools:text="edsxcrtyghrt@gmail.cooom" />
 
     </LinearLayout>
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/admin_title_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
         android:layout_marginTop="24dp"
         android:text="Head Admin"
         android:textSize="18sp"
@@ -57,29 +61,10 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
-        app:layout_constraintBottom_toTopOf="@id/btn_save_changes"
+        app:layout_constraintBottom_toTopOf="@id/user_adder"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/admin_details" />
-
-
-    <Button
-        android:id="@+id/btn_save_changes"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="saveChanges"
-        android:text="Save"
-        app:layout_constraintBottom_toTopOf="@+id/user_adder"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <Button
-        android:id="@+id/btn_reset"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="resetChanges"
-        android:text="@string/reset"
-        app:layout_constraintEnd_toStartOf="@+id/btn_save_changes"
-        app:layout_constraintTop_toTopOf="@+id/btn_save_changes" />
 
     <ProgressBar
         android:id="@+id/progressBar2"
@@ -91,7 +76,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@+id/btn_save_changes"
+        app:layout_constraintBottom_toTopOf="@+id/user_adder"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/admin_details" />
@@ -102,38 +87,39 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="end"
-        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <EditText
-            android:id="@+id/add_player_text"
+        <Button
+            android:id="@+id/btn_reset"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
+            android:layout_height="wrap_content"
             android:layout_weight="2"
-            android:hint="@string/add_email"
-            android:inputType="text"
-            android:maxLines="1"
-            android:textSize="30sp"
-            android:textStyle="bold"
-            android:visibility="gone"/>
+            android:layout_marginEnd="16dp"
+            android:layout_marginRight="16dp"
+            android:onClick="resetChanges"
+            android:text="@string/reset" />
 
         <Button
-            android:id="@+id/add_player_submit"
+            android:id="@+id/btn_save_changes"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="@string/add"
-            android:visibility="gone"/>
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:layout_marginEnd="16dp"
+            android:layout_marginRight="16dp"
+            android:onClick="saveChanges"
+            android:text="@string/save" />
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/btn_start_adder"
             style="@style/FloatingActionButtonStyle"
+            android:layout_width="0dp"
             android:layout_margin="8dp"
-            />
+            android:layout_weight="1"
+            android:layout_gravity="end"/>
 
     </LinearLayout>
 

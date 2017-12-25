@@ -6,12 +6,16 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,11 +24,11 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.android.scorekeepdraft1.BuildConfig;
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.MainPageAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
+import com.example.android.scorekeepdraft1.dialogs.InviteListDialogFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -33,24 +37,29 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapter.LEAGUE_COLLECTION;
 import static com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapter.USERS;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity
+        implements View.OnClickListener, InviteListDialogFragment.OnFragmentInteractionListener {
 
     private static final String TAG = "MainActivity";
     private static final String AUTH = "FirebaseAuth";
     private FirebaseAuth mAuth;
     private static final int RC_SIGN_IN = 0;
+    private List<MainPageSelection> selections;
+    private List<MainPageSelection> inviteList;
+    private String userID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,40 +132,50 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ProgressBar progressBar = findViewById(R.id.progressBarMain);
         progressBar.setVisibility(View.VISIBLE);
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        final String userID = currentUser.getUid();
+        userID = currentUser.getUid();
+
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         firestore.collection(LEAGUE_COLLECTION)
-                .whereGreaterThan(userID, -1).get()
+                .whereLessThan(userID, 99)
+                .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        ArrayList<MainPageSelection> selections = new ArrayList<>();
+                        inviteList = new ArrayList<>();
+                        selections = new ArrayList<>();
                         if (task.isSuccessful()) {
                             for (DocumentSnapshot documentSnapshot : task.getResult()) {
                                 int level = documentSnapshot.getLong(userID).intValue();
-                                if (level == 0) {
-                                    //todo add logic for accepting invites
+                                String selectionID = documentSnapshot.getId();
+                                String name = documentSnapshot.getString("name");
+                                int type = documentSnapshot.getLong("type").intValue();
+                                MainPageSelection mainPageSelection = new MainPageSelection(
+                                        selectionID, name, type, level);
+                                if (level < -1) {
+                                    inviteList.add(mainPageSelection);
                                 } else if (level > 1) {
-                                    String selectionID = documentSnapshot.getId();
-                                    String name = documentSnapshot.getString("name");
-                                    int type = documentSnapshot.getLong("type").intValue();
-                                    MainPageSelection mainPageSelection = new MainPageSelection(
-                                            selectionID, name, type, level);
                                     selections.add(mainPageSelection);
                                 }
                             }
+                            ProgressBar progressBar = findViewById(R.id.progressBarMain);
                             if (selections.isEmpty()) {
                                 TextView rvErrorView = findViewById(R.id.error_rv_main);
-                                rvErrorView.setText("Please add a selection!");
+                                rvErrorView.setText("Please create a StatKeeper!");
+                                progressBar.setVisibility(View.GONE);
                                 rvErrorView.setVisibility(View.VISIBLE);
                             } else {
                                 MainPageAdapter mainPageAdapter = new MainPageAdapter(selections, MainActivity.this);
                                 RecyclerView recyclerView = findViewById(R.id.rv_main);
                                 recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this, LinearLayoutManager.VERTICAL, false));
                                 recyclerView.setAdapter(mainPageAdapter);
-                                ProgressBar progressBar = findViewById(R.id.progressBarMain);
                                 progressBar.setVisibility(View.GONE);
                                 recyclerView.setVisibility(View.VISIBLE);
+                            }
+                            if (!inviteList.isEmpty()) {
+                                FragmentManager fragmentManager = getSupportFragmentManager();
+                                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                                DialogFragment newFragment = InviteListDialogFragment.newInstance(inviteList);
+                                newFragment.show(fragmentTransaction, "");
                             }
                         } else {
                             TextView rvErrorView = findViewById(R.id.error_rv_main);
@@ -242,7 +261,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void joinCreateDialog(final int type, String selection) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        final String dialogMessage = "Join or Create a " + selection;
+        final String dialogMessage = "Create a new" + selection;
         builder.setMessage(dialogMessage).
                 setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
@@ -314,7 +333,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             }
                             return;
                         }
-                        String userID = currentUser.getUid();
                         String userEmail = currentUser.getEmail();
                         String userDisplayName = currentUser.getDisplayName();
                         Dialog dialog1 = (Dialog) dialogInterface;
@@ -350,8 +368,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         startActivity(intent);
                     }
                 });
-
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
+    }
+
+    @Override
+    public void onFragmentInteraction(List<MainPageSelection> list, SparseIntArray changes) {
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        if (userID == null) {
+            FirebaseUser currentUser = mAuth.getCurrentUser();
+            userID = currentUser.getUid();
+        }
+
+        for(int i = 0; i < changes.size(); i++) {
+            int key = changes.keyAt(i);
+            int level = changes.get(key);
+
+            if(level < 0) {continue;}
+
+            MainPageSelection mainPageSelection;
+            mainPageSelection = list.get(key);
+            mainPageSelection.setLevel(level);
+            String selectionID = mainPageSelection.getId();
+
+            DocumentReference docRef = firestore.collection(LEAGUE_COLLECTION).document(selectionID);
+
+            Map<String,Object> updates = new HashMap<>();
+            if (level == 0) {
+                updates.put(userID, FieldValue.delete());
+            } else if (level > 0) {
+                updates.put(userID, level);
+            }
+            docRef.update(updates);
+        }
     }
 }

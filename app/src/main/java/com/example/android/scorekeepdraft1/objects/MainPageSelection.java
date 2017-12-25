@@ -1,10 +1,13 @@
 package com.example.android.scorekeepdraft1.objects;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by Eddie on 11/9/2017.
  */
 
-public class MainPageSelection {
+public class MainPageSelection implements Parcelable {
 
     public static final String KEY_SELECTION_ID = "selectionID";
     public static final String KEY_SELECTION_TYPE = "selectionType";
@@ -61,4 +64,37 @@ public class MainPageSelection {
     public void setLevel(int level) {
         this.level = level;
     }
+
+    protected MainPageSelection(Parcel in) {
+        id = in.readString();
+        name = in.readString();
+        type = in.readInt();
+        level = in.readInt();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(name);
+        dest.writeInt(type);
+        dest.writeInt(level);
+    }
+
+    @SuppressWarnings("unused")
+    public static final Parcelable.Creator<MainPageSelection> CREATOR = new Parcelable.Creator<MainPageSelection>() {
+        @Override
+        public MainPageSelection createFromParcel(Parcel in) {
+            return new MainPageSelection(in);
+        }
+
+        @Override
+        public MainPageSelection[] newArray(int size) {
+            return new MainPageSelection[size];
+        }
+    };
 }

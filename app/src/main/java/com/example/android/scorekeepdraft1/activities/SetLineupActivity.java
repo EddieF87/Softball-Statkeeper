@@ -16,36 +16,17 @@ package com.example.android.scorekeepdraft1.activities;
  * limitations under the License.
  */
 
-import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
-import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.TextView;
-import android.widget.Toast;
 
 
 import com.example.android.scorekeepdraft1.MyApp;
-import com.example.android.scorekeepdraft1.R;
-import com.example.android.scorekeepdraft1.adapters_listeners_etc.LineupListAdapter;
-import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
-import com.example.android.scorekeepdraft1.fragments.CreateTeamFragment;
+import com.example.android.scorekeepdraft1.dialogs.CreateTeamFragment;
+import com.example.android.scorekeepdraft1.dialogs.GameSettingsDialogFragment;
 import com.example.android.scorekeepdraft1.fragments.LineupFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.example.android.scorekeepdraft1.objects.Player;
@@ -55,7 +36,8 @@ import java.util.List;
 
 
 public class SetLineupActivity extends SingleFragmentActivity
-        implements CreateTeamFragment.OnListFragmentInteractionListener{
+        implements CreateTeamFragment.OnListFragmentInteractionListener,
+        GameSettingsDialogFragment.OnFragmentInteractionListener {
 
     private LineupFragment lineupFragment;
 
@@ -70,12 +52,12 @@ public class SetLineupActivity extends SingleFragmentActivity
         }
         MyApp myApp = (MyApp) getApplicationContext();
         MainPageSelection mainPageSelection = myApp.getCurrentSelection();
-        if(mainPageSelection == null) {
+        if (mainPageSelection == null) {
             Intent intent = new Intent(SetLineupActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
         }
-        int type= mainPageSelection.getType();
+        int type = mainPageSelection.getType();
         String leagueId = mainPageSelection.getId();
         lineupFragment = LineupFragment.newInstance(leagueId, type, team);
         return lineupFragment;
@@ -103,6 +85,15 @@ public class SetLineupActivity extends SingleFragmentActivity
         }
         if (!players.isEmpty() && lineupFragment != null) {
             lineupFragment.updateBench(players);
+        }
+    }
+
+    @Override
+    public void onGameSettingsChanged(int innings, int genderSorter) {
+        boolean genderSettingsOn = genderSorter != 0;
+
+        if (lineupFragment != null) {
+            lineupFragment.changeColorsRV(genderSettingsOn);
         }
     }
 }

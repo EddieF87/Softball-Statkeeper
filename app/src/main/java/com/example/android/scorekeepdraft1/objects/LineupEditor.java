@@ -30,7 +30,6 @@ public class LineupEditor {
         int firstFemale = 0;
         boolean firstFemaleSet = false;
         for (Player player : team) {
-            //TODO complete gendersort, add info to players and db/firestore
             if (player.getGender() == 1) {
                 females.add(player);
                 firstFemaleSet = true;

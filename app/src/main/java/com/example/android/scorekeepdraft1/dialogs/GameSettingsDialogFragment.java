@@ -1,4 +1,4 @@
-package com.example.android.scorekeepdraft1.fragments;
+package com.example.android.scorekeepdraft1.dialogs;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -23,7 +23,7 @@ import com.example.android.scorekeepdraft1.R;
 public class GameSettingsDialogFragment extends DialogFragment {
 
     private OnFragmentInteractionListener mListener;
-    private int femaleOrder;
+    private int genderSorter;
     private int innings;
     private String mSelectionID;
     private TextView mGenderDisplay;
@@ -33,12 +33,12 @@ public class GameSettingsDialogFragment extends DialogFragment {
         // Required empty public constructor
     }
 
-    public static GameSettingsDialogFragment newInstance(int innings, int genderSorter, String selectionID) {
+    public static GameSettingsDialogFragment newInstance(int innings, int genderSortArg, String selectionID) {
 
         Bundle args = new Bundle();
         GameSettingsDialogFragment fragment = new GameSettingsDialogFragment();
         args.putInt("innings", innings);
-        args.putInt("genderSort", genderSorter);
+        args.putInt("genderSort", genderSortArg);
         args.putString("mSelectionID", selectionID);
         fragment.setArguments(args);
         return fragment;
@@ -49,7 +49,7 @@ public class GameSettingsDialogFragment extends DialogFragment {
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
         innings = args.getInt("innings");
-        femaleOrder = args.getInt("genderSort");
+        genderSorter = args.getInt("genderSort");
         mSelectionID = args.getString("mSelectionID");
     }
 
@@ -75,8 +75,8 @@ public class GameSettingsDialogFragment extends DialogFragment {
 
         final SeekBar genderSeekBar = v.findViewById(R.id.gender_sort_seekbar);
         mGenderDisplay = v.findViewById(R.id.gender_sort_textview);
-        genderSeekBar.setProgress(femaleOrder);
-        setDisplay(femaleOrder);
+        genderSeekBar.setProgress(genderSorter);
+        setDisplay(genderSorter);
         genderSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -94,7 +94,7 @@ public class GameSettingsDialogFragment extends DialogFragment {
                 .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         innings = inningSeekBar.getProgress() + 1;
-                        femaleOrder = genderSeekBar.getProgress();
+                        genderSorter = genderSeekBar.getProgress();
                         onButtonPressed();
                     }
                 })
@@ -134,10 +134,10 @@ public class GameSettingsDialogFragment extends DialogFragment {
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences(mSelectionID + "settings", 0);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt("innings", innings);
-        editor.putInt("genderSort", femaleOrder);
+        editor.putInt("genderSort", genderSorter);
         editor.commit();
         if (mListener != null) {
-            mListener.onGameSettingsChanged(innings, femaleOrder);
+            mListener.onGameSettingsChanged(innings, genderSorter);
         }
     }
 
@@ -159,6 +159,6 @@ public class GameSettingsDialogFragment extends DialogFragment {
     }
 
     public interface OnFragmentInteractionListener {
-        void onGameSettingsChanged(int innings, int femaleOrder);
+        void onGameSettingsChanged(int innings, int genderSorter);
     }
 }

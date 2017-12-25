@@ -127,4 +127,9 @@
     <string name="teamStatKeeper">Team StatKeeper</string>
     <string name="leagueStatKeeper">League StatKeeper</string>
     <string name="playerStatKeeper">Player StatKeeper</string>
+    <string name="view_only">View Only</string>
+    <string name="view_manage">View/Manage</string>
+    <string name="admin">Admin</string>
+    <string name="access_requested">Access Requested</string>
+    <string name="remove_user">Remove User</string>
 </resources>

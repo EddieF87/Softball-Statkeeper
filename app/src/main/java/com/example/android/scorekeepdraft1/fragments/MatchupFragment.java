@@ -2,6 +2,7 @@
 
 
         import android.content.Context;
+        import android.graphics.Color;
         import android.support.annotation.Nullable;
         import android.support.v4.app.DialogFragment;
         import android.support.v4.app.FragmentManager;
@@ -40,6 +41,7 @@
         import com.example.android.scorekeepdraft1.adapters_listeners_etc.VerticalTextView;
         import com.example.android.scorekeepdraft1.data.StatsContract;
         import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
+        import com.example.android.scorekeepdraft1.dialogs.GameSettingsDialogFragment;
         import com.example.android.scorekeepdraft1.objects.MainPageSelection;
         import com.example.android.scorekeepdraft1.objects.Player;
 
@@ -98,7 +100,6 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         leagueID = args.getString(MainPageSelection.KEY_SELECTION_ID);
     }
 
-    //TODO add menu options so I can put "Create new team there" and have more space
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
@@ -449,8 +450,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     }
 
     private void initAwayRV() {
-        SharedPreferences settingsPreferences = getActivity().getSharedPreferences(leagueID + "settings", Context.MODE_PRIVATE);
-        int genderSorter = settingsPreferences.getInt("genderSort", 0);
+        int genderSorter = getGenderSorter();
 
         rvAway.setLayoutManager(new LinearLayoutManager(
                 getActivity(), LinearLayoutManager.VERTICAL, false));
@@ -475,8 +475,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     }
 
     private void initHomeRV() {
-        SharedPreferences settingsPreferences = getActivity().getSharedPreferences(leagueID + "settings", Context.MODE_PRIVATE);
-        int genderSorter = settingsPreferences.getInt("genderSort", 0);
+        int genderSorter = getGenderSorter();
 
         rvHome.setLayoutManager(new LinearLayoutManager(
                 getActivity(), LinearLayoutManager.VERTICAL, false));
@@ -485,9 +484,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         homePlayersCount = homeLineupAdapter.getItemCount();
     }
 
-
-//todo colors issue on rotation
-        public void changeColorsRV(boolean genderSettingsOn) {
+     public void changeColorsRV(boolean genderSettingsOn) {
         if (awayLineupAdapter != null) {
             if(awayLineupAdapter.changeColors(genderSettingsOn)){
                 awayLineupAdapter.notifyDataSetChanged();
@@ -540,21 +537,32 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         }
     }
 
+    public void updateBenchColors(){
+        getLineup(awayTeamSelection);
+        getLineup(homeTeamSelection);
+    }
+
     private void addToBench(List<Player> benchList, String team) {
         TextView benchView;
-        int color = ContextCompat.getColor(getContext(), R.color.male);
+        boolean genderSortOn = getGenderSorter() != 0;
+        int color;
+        if (genderSortOn) {
+            color = ContextCompat.getColor(getContext(), R.color.male);
+        } else {
+            color = Color.parseColor("#666666");
+        }
 
         if (team.equals(awayTeamSelection) || team.equals(homeTeamSelection)) {
             StringBuilder builder = new StringBuilder();
             for (Player player : benchList) {
                 String string = player.getName() + "  ";
                 int gender = player.getGender();
-                if (gender == 0) {
-                    builder.append(string);
-                } else  {
+                if (genderSortOn && gender == 1) {
                     builder.append("<font color='#f99da2'>");
                     builder.append(string);
                     builder.append("</font>");
+                } else  {
+                    builder.append(string);
                 }
             }
             if (team.equals(awayTeamSelection)){

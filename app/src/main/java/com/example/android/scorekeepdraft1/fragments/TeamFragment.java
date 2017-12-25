@@ -40,6 +40,8 @@ import com.example.android.scorekeepdraft1.activities.UserSettingsActivity;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapter;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.PlayerStatsAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
+import com.example.android.scorekeepdraft1.dialogs.CreateTeamFragment;
+import com.example.android.scorekeepdraft1.dialogs.GameSettingsDialogFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.example.android.scorekeepdraft1.objects.Player;
 
@@ -234,7 +236,6 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
             teamRecordView.setText(recordText);
         } else {
             //todo add dialog about adding teams/players
-
         }
         int sumG = wins + losses + ties;
 
@@ -330,7 +331,6 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
     }
 
     private boolean levelAuthorized(int level) {
-
         return mLevel >= level;
     }
 
@@ -515,7 +515,6 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
                         Toast.LENGTH_SHORT).show();
             }
         }
-        //todo
         getActivity().finish();
     }
 

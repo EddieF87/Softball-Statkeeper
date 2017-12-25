@@ -16,10 +16,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-/**
 
- * TODO: Replace the implementation with code for your data type.
- */
 public class CreateTeamRecyclerViewAdapter extends RecyclerView.Adapter<CreateTeamRecyclerViewAdapter.EditViewHolder> {
 
     private static final String TAG = "CreateTeamRVA";

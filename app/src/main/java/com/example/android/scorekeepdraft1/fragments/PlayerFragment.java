@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.graphics.Color;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -29,6 +30,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.activities.LeagueManagerActivity;
 import com.example.android.scorekeepdraft1.activities.TeamManagerActivity;
@@ -168,8 +170,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             Player player = new Player(playerString, teamString, gender, sgl, dbl, tpl, hr, bb,
                     run, rbi, out, sf, g, 0, firestoreID);
 
-            //todo add gender signifier view
-
+            TextView abView = rootView.findViewById(R.id.playerboard_ab);
             TextView hitView = rootView.findViewById(R.id.playerboard_hit);
             TextView hrView = rootView.findViewById(R.id.player_hr);
             TextView rbiView = rootView.findViewById(R.id.player_rbi);
@@ -212,8 +213,16 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             }
 
 
+            int color;
+            if (gender == 0) {
+                color = R.color.male;
+            } else {
+                color = R.color.female;
+            }
+            nameView.setTextColor(getResources().getColor(color));
             nameView.setText(player.getName());
             teamView.setText(teamString);
+            abView.setText(String.valueOf(player.getABs()));
             hitView.setText(String.valueOf(player.getHits()));
             hrView.setText(String.valueOf(hr));
             rbiView.setText(String.valueOf(rbi));
@@ -230,6 +239,11 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             if (selectionType == MainPageSelection.TYPE_PLAYER) {
                 setPlayerManager();
             }
+        } else if (selectionType == MainPageSelection.TYPE_PLAYER) {
+            ContentValues values = new ContentValues();
+            values.put(StatsEntry.COLUMN_NAME, playerString);
+            getActivity().getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
+            setPlayerManager();
         }
     }
 
@@ -340,8 +354,6 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                     values.put(StatsEntry.COLUMN_RBI, rbi);
                     getActivity().getContentResolver().update(mCurrentPlayerUri,
                             values, null, null);
-                } else {
-                    Toast.makeText(getActivity(), "FEGTFWEVV", Toast.LENGTH_LONG).show();
                 }
                 cursor.close();
 
@@ -473,8 +485,6 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
     }
-
-    //todo notifydatachanged for lineupfragment
 
     private void deletePlayer() {
         if (mCurrentPlayerUri != null) {

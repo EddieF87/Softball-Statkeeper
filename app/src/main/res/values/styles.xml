@@ -51,10 +51,10 @@
     </style>
 
     <style name="StatsTitleStyle" parent="StatsStyle">
-        <item name="android:paddingBottom">4dp</item>
+        <item name="android:paddingBottom">8dp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:background">@color/stat_title</item>
-        <item name="android:paddingTop">2dp</item>
+        <item name="android:paddingTop">8dp</item>
         <item name="android:textColor">#FFFFFF</item>
     </style>
 
@@ -93,6 +93,16 @@
         <item name="android:scaleType">center</item>
         <item name="android:clickable">true</item>
         <item name="android:src">@android:drawable/ic_input_add</item>
+    </style>
+
+    <style name="PlayerBoardStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">3</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_marginTop">6dp</item>
+        <item name="android:text">0</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
 </resources>

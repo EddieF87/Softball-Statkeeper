@@ -61,14 +61,14 @@ public class UserFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_user_list, container, false);
 
         recyclerView = view.findViewById(R.id.list);
-        recyclerView.setAdapter(new UserListAdapter(mUserList, mListener));
+        recyclerView.setAdapter(new UserListAdapter(mUserList, getActivity(), mListener));
 
         return view;
     }
 
     public void swapList(List<StatKeepUser> list) {
         mUserList = cloneList(list);
-        recyclerView.setAdapter(new UserListAdapter(mUserList, mListener));
+        recyclerView.setAdapter(new UserListAdapter(mUserList, getActivity(), mListener));
     }
 
     @Override
@@ -103,7 +103,6 @@ public class UserFragment extends Fragment {
 
 
     public interface OnListFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onUserLevelChanged(String name, int level);
     }
 }

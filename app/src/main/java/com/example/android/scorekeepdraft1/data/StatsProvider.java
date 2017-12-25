@@ -73,7 +73,6 @@ public class StatsProvider extends ContentProvider {
         return matcher;
     }
 
-    //TODO prevent sql injection when player enters info and elsewhere
     @Override
     public boolean onCreate() {
         mOpenHelper = new StatsDbHelper(getContext());
@@ -154,7 +153,6 @@ public class StatsProvider extends ContentProvider {
                 return StatsEntry.CONTENT_PLAYERS_TYPE;
             case PLAYERS_ID:
                 return StatsEntry.CONTENT_TEAMS_TYPE;
-            //TODO: learn/fix getType?
             default:
                 throw new IllegalStateException("Unknown URI " + uri + " with match " + match);
         }
@@ -450,12 +448,24 @@ public class StatsProvider extends ContentProvider {
                 table = StatsEntry.TEAMS_TABLE_NAME;
                 if (values.containsKey(StatsEntry.COLUMN_NAME)) {
                     firestoreID = values.getAsString(StatsEntry.COLUMN_FIRESTORE_ID);
+
+                    if(firestoreID == null) {
+                        break;
+                    }
+
                     mFirestore = FirebaseFirestore.getInstance();
+
+                    String teamName = values.getAsString(StatsEntry.COLUMN_NAME);
+
+                    if(teamName == null) {
+                        break;
+                    }
+
                     documentReference = mFirestore.collection(FirestoreAdapter.LEAGUE_COLLECTION).document(leagueID)
                             .collection(FirestoreAdapter.TEAMS_COLLECTION).document(firestoreID);
                     values.remove(StatsEntry.COLUMN_FIRESTORE_ID);
-                    String teamName = values.getAsString(StatsEntry.COLUMN_NAME);
                     documentReference.update("name", teamName);
+
                     DocumentReference documentReference1 = mFirestore
                             .collection(FirestoreAdapter.LEAGUE_COLLECTION).document(leagueID);
                     documentReference1.update("name", teamName);

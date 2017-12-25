@@ -1,26 +1,25 @@
 package com.example.android.scorekeepdraft1.activities;
 
-import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
+import com.example.android.scorekeepdraft1.dialogs.InviteUserDialogFragment;
 import com.example.android.scorekeepdraft1.fragments.UserFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.example.android.scorekeepdraft1.objects.StatKeepUser;
@@ -42,7 +41,8 @@ import static com.example.android.scorekeepdraft1.adapters_listeners_etc.Firesto
 import static com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapter.USERS;
 
 public class UserSettingsActivity extends AppCompatActivity
-        implements UserFragment.OnListFragmentInteractionListener {
+        implements UserFragment.OnListFragmentInteractionListener,
+        InviteUserDialogFragment.OnFragmentInteractionListener{
 
     private static final String TAG = "UserSettingsActivity";
     private static final String SAVED_MAP = "map";
@@ -66,15 +66,15 @@ public class UserSettingsActivity extends AppCompatActivity
     private UserFragment requestFragment;
     private ViewPager mViewPager;
     private ProgressBar mProgressBar;
-    private String leagueID;
+    private FloatingActionButton startAdderBtn;
 
-    private EditText addUserText;
+    private String leagueID;
     private FirebaseFirestore firestore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
+        setContentView(R.layout.activity_user_settings);
 
         Log.d(TAG, "hoppy start!");
 
@@ -95,22 +95,15 @@ public class UserSettingsActivity extends AppCompatActivity
         mViewPager = findViewById(R.id.user_view_pager);
         mProgressBar = findViewById(R.id.progressBar2);
 
-        addUserText = findViewById(R.id.add_player_text);
-        final Button submitUserBtn = findViewById(R.id.add_player_submit);
-        submitUserBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                addUser();
-            }
-        });
-
-        final FloatingActionButton startAdderBtn = findViewById(R.id.btn_start_adder);
+        startAdderBtn = findViewById(R.id.btn_start_adder);
         startAdderBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startAdderBtn.setVisibility(View.GONE);
-                addUserText.setVisibility(View.VISIBLE);
-                submitUserBtn.setVisibility(View.VISIBLE);
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                DialogFragment newFragment = new InviteUserDialogFragment();
+                newFragment.show(fragmentTransaction, "");
             }
         });
 
@@ -165,46 +158,6 @@ public class UserSettingsActivity extends AppCompatActivity
                         }
                     }
                 });
-    }
-
-    public void addUser() {
-        InputMethodManager inputManager = (InputMethodManager)
-                this.getSystemService(Context.INPUT_METHOD_SERVICE);
-
-        inputManager.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(),
-                InputMethodManager.HIDE_NOT_ALWAYS);
-
-        final String userEmail = addUserText.getText().toString();
-        firestore.collection(USERS).whereEqualTo("email", userEmail)
-                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    List<DocumentSnapshot> documentSnapshots = task.getResult().getDocuments();
-                    if (!documentSnapshots.isEmpty()){
-                        DocumentSnapshot documentSnapshot = documentSnapshots.get(0);
-                        String userID = documentSnapshot.getId();
-                        //todo level
-                        int level = 3;
-
-                        Map<String, Object> data = new HashMap<>();
-                        data.put("email", userEmail);
-                        data.put("name", null);
-                        data.put("level", level);
-                        firestore.collection(LEAGUE_COLLECTION).document(leagueID)
-                                .collection(USERS).document(userID).set(data);
-
-                        Map<String, Integer> data2 = new HashMap<>();
-                        data2.put(userID, level);
-                        firestore.collection(LEAGUE_COLLECTION).document(leagueID)
-                                .set(data2, SetOptions.merge());
-                    }
-                } else {
-                    Log.d(TAG, "Error getting documents: ", task.getException());
-                }
-            }
-        });
-        addUserText.setText("");
     }
 
     private void setCreator(StatKeepUser statKeepUser) {
@@ -269,7 +222,7 @@ public class UserSettingsActivity extends AppCompatActivity
             DocumentReference leagueUser = firestore.collection(LEAGUE_COLLECTION).document(leagueID)
                     .collection(USERS).document(id);
             if (level == 0) {
-                batch.update(league, id, -1);
+                batch.update(league, id, 0);
                 batch.delete(leagueUser);
             } else {
                 batch.update(league, id, level);
@@ -312,5 +265,37 @@ public class UserSettingsActivity extends AppCompatActivity
         outState.putParcelableArrayList(SAVED_USERLIST, mUserList);
         outState.putParcelableArrayList(SAVED_REQUESTLIST, mRequestList);
         outState.putParcelable(SAVED_CREATOR, creator);
+    }
+
+    @Override
+    public void onInviteUser(final String email, final int level) {
+        firestore.collection(USERS).whereEqualTo("email", email)
+                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    List<DocumentSnapshot> documentSnapshots = task.getResult().getDocuments();
+                    if (!documentSnapshots.isEmpty()){
+                        DocumentSnapshot documentSnapshot = documentSnapshots.get(0);
+                        String userID = documentSnapshot.getId();
+
+                        Map<String, Object> data = new HashMap<>();
+                        data.put("email", email);
+                        data.put("name", null);
+                        data.put("level", level);
+                        firestore.collection(LEAGUE_COLLECTION).document(leagueID)
+                                .collection(USERS).document(userID).set(data, SetOptions.merge());
+
+                        Map<String, Integer> data2 = new HashMap<>();
+                        data2.put(userID, -level);
+                        firestore.collection(LEAGUE_COLLECTION).document(leagueID)
+                                .set(data2, SetOptions.merge());
+                    }
+                } else {
+                    Log.d(TAG, "Error getting documents: ", task.getException());
+                }
+            }
+        });
+        startAdderBtn.setVisibility(View.VISIBLE);
     }
 }

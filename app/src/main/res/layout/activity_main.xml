@@ -154,7 +154,7 @@
         android:layout_marginBottom="16dp"
         android:background="@color/stat_title"
         android:padding="4dp"
-        android:text="Join or Create a StatKeeper..."
+        android:text="Create a new StatKeeper!"
         android:textColor="#ffffff"
         android:textSize="18sp"
         android:textStyle="bold|italic"

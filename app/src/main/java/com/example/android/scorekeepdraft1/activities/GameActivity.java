@@ -1452,7 +1452,6 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                             v.setBackground(getDrawable(R.drawable.base));
                         }
                     }
-                    //TODO: check later whether can shorten this section
                     if (v.getId() == R.id.trash) {
                         if (eventView instanceof TextView) {
                             TextView draggedView = (TextView) eventView;

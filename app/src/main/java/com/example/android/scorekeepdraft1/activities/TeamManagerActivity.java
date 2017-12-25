@@ -12,6 +12,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
@@ -19,12 +20,9 @@ import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract;
-import com.example.android.scorekeepdraft1.fragments.CreateTeamFragment;
-import com.example.android.scorekeepdraft1.fragments.GameSettingsDialogFragment;
+import com.example.android.scorekeepdraft1.dialogs.CreateTeamFragment;
+import com.example.android.scorekeepdraft1.dialogs.GameSettingsDialogFragment;
 import com.example.android.scorekeepdraft1.fragments.LineupFragment;
-import com.example.android.scorekeepdraft1.fragments.MatchupFragment;
-import com.example.android.scorekeepdraft1.fragments.StandingsFragment;
-import com.example.android.scorekeepdraft1.fragments.StatsFragment;
 import com.example.android.scorekeepdraft1.fragments.TeamFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.example.android.scorekeepdraft1.objects.Player;
@@ -34,7 +32,8 @@ import java.util.List;
 
 public class TeamManagerActivity extends AppCompatActivity
         implements CreateTeamFragment.OnListFragmentInteractionListener,
-        GameSettingsDialogFragment.OnFragmentInteractionListener {
+        GameSettingsDialogFragment.OnFragmentInteractionListener,
+        FirestoreAdapter.onFirestoreSyncListener{
 
     private LineupFragment lineupFragment;
     private TeamFragment teamFragment;
@@ -54,21 +53,17 @@ public class TeamManagerActivity extends AppCompatActivity
             Intent intent = new Intent(TeamManagerActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
+        } else {
+            leagueName = mainPageSelection.getName();
+            teamID = mainPageSelection.getId();
+            leagueType = mainPageSelection.getType();
+            level = mainPageSelection.getLevel();
+            setTitle(leagueName);
         }
-        leagueName = mainPageSelection.getName();
-        teamID = mainPageSelection.getId();
-        leagueType = mainPageSelection.getType();
-        level = mainPageSelection.getLevel();
-        setTitle(leagueName);
 
-        Cursor cursor = getContentResolver().query(StatsContract.StatsEntry.CONTENT_URI_TEAMS,
-                null, null, null, null);
-        if (!cursor.moveToFirst()) {
-            Toast.makeText(this, "syncing", Toast.LENGTH_SHORT).show();
-            FirestoreAdapter firestoreAdapter = new FirestoreAdapter(this);
-            firestoreAdapter.syncStats();
-        }
-        cursor.close();
+        Toast.makeText(this, "syncing", Toast.LENGTH_SHORT).show();
+        FirestoreAdapter firestoreAdapter = new FirestoreAdapter(this);
+        firestoreAdapter.syncStats();
 
         ViewPager viewPager = findViewById(R.id.league_view_pager);
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -125,9 +120,18 @@ public class TeamManagerActivity extends AppCompatActivity
         }
     }
 
+    @Override
+    public void onFirestoreSync() {
+        Log.d("yyy", "firestoresyncccccc");
+        Toast.makeText(TeamManagerActivity.this, "gfdfggg", Toast.LENGTH_LONG).show();
+        if (teamFragment != null) {
+            teamFragment.onResume();
+        }
+    }
+
     private class TeamManagerPagerAdapter extends FragmentPagerAdapter {
 
-        public TeamManagerPagerAdapter(FragmentManager fm) {
+        TeamManagerPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 

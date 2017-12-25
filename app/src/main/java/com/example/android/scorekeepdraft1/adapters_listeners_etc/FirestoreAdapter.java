@@ -38,6 +38,7 @@ public class FirestoreAdapter {
     public static final String TEAM_LOGS = "teamlogs";
     public static final String USER = "id";
     public static final String USERS = "users";
+    private onFirestoreSyncListener mListener;
 
     private Context mContext;
     private FirebaseFirestore mFirestore;
@@ -45,6 +46,12 @@ public class FirestoreAdapter {
     public FirestoreAdapter(Context context) {
         this.mContext = context;
         mFirestore = FirebaseFirestore.getInstance();
+        if (context instanceof onFirestoreSyncListener) {
+            mListener = (onFirestoreSyncListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
     }
 
     public void syncStats() {
@@ -168,6 +175,7 @@ public class FirestoreAdapter {
 
                                             }
                                         });
+                                mListener.onFirestoreSync();
                             }
                         } else {
                             Log.d(TAG, "Error getting documents: ", task.getException());
@@ -265,6 +273,7 @@ public class FirestoreAdapter {
                                                         mContext.getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
                                                     }
                                                 }
+                                                mListener.onFirestoreSync();
                                             }
                                         });
                             }
@@ -339,5 +348,9 @@ public class FirestoreAdapter {
         });
         cursor.close();
 
+    }
+
+    public interface onFirestoreSyncListener {
+        void onFirestoreSync();
     }
 }

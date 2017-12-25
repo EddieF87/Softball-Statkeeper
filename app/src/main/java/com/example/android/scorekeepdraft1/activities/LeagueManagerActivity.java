@@ -18,8 +18,8 @@ import android.view.inputmethod.InputMethodManager;
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.data.StatsContract;
-import com.example.android.scorekeepdraft1.fragments.CreateTeamFragment;
-import com.example.android.scorekeepdraft1.fragments.GameSettingsDialogFragment;
+import com.example.android.scorekeepdraft1.dialogs.CreateTeamFragment;
+import com.example.android.scorekeepdraft1.dialogs.GameSettingsDialogFragment;
 import com.example.android.scorekeepdraft1.fragments.MatchupFragment;
 import com.example.android.scorekeepdraft1.fragments.StandingsFragment;
 import com.example.android.scorekeepdraft1.fragments.StatsFragment;
@@ -63,51 +63,9 @@ public class LeagueManagerActivity extends AppCompatActivity
         tabLayout.setupWithViewPager(viewPager);
     }
 
-
-    @Override
-    public void onSubmitPlayersListener(List<String> names, List<Integer> genders, String team) {
-
-        for (int i = 0; i < names.size() - 1; i++) {
-            ContentValues values = new ContentValues();
-            String player = names.get(i);
-            if (player.isEmpty()) {
-                continue;
-            }
-            int gender = genders.get(i);
-            values.put(StatsContract.StatsEntry.COLUMN_NAME, player);
-            values.put(StatsContract.StatsEntry.COLUMN_GENDER, gender);
-            values.put(StatsContract.StatsEntry.COLUMN_TEAM, team);
-            getContentResolver().insert(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, values);
-
-            View view = getCurrentFocus();
-
-            if (view != null) {
-                Log.d("xxx", "view = " + view.toString());
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                if (imm != null) {
-                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                    Log.d("xxx", "lma hide keyboard!!");
-                }
-            }
-        }
-    }
-
-    @Override
-    public void onGameSettingsChanged(int innings, int genderSorter) {
-        boolean genderSettingsOn = genderSorter != 0;
-
-        if (statsFragment != null) {
-            statsFragment.changeColorsRV(genderSettingsOn);
-        }
-
-        if (matchupFragment != null) {
-            matchupFragment.changeColorsRV(genderSettingsOn);
-        }
-    }
-
     private class LeagueManagerPagerAdapter extends FragmentPagerAdapter {
 
-        public LeagueManagerPagerAdapter(FragmentManager fm) {
+        LeagueManagerPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 
@@ -165,6 +123,48 @@ public class LeagueManagerActivity extends AppCompatActivity
                     matchupFragment = (MatchupFragment) createdFragment;
             }
             return createdFragment;
+        }
+    }
+
+    @Override
+    public void onSubmitPlayersListener(List<String> names, List<Integer> genders, String team) {
+
+        for (int i = 0; i < names.size() - 1; i++) {
+            ContentValues values = new ContentValues();
+            String player = names.get(i);
+            if (player.isEmpty()) {
+                continue;
+            }
+            int gender = genders.get(i);
+            values.put(StatsContract.StatsEntry.COLUMN_NAME, player);
+            values.put(StatsContract.StatsEntry.COLUMN_GENDER, gender);
+            values.put(StatsContract.StatsEntry.COLUMN_TEAM, team);
+            getContentResolver().insert(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, values);
+
+            View view = getCurrentFocus();
+
+            if (view != null) {
+                Log.d("xxx", "view = " + view.toString());
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null) {
+                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                    Log.d("xxx", "lma hide keyboard!!");
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onGameSettingsChanged(int innings, int genderSorter) {
+        boolean genderSettingsOn = genderSorter != 0;
+
+        if (statsFragment != null) {
+            statsFragment.changeColorsRV(genderSettingsOn);
+        }
+
+        if (matchupFragment != null) {
+            matchupFragment.updateBenchColors();
+            matchupFragment.changeColorsRV(genderSettingsOn);
         }
     }
 }

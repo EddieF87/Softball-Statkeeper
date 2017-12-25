@@ -1,5 +1,6 @@
 package com.example.android.scorekeepdraft1.adapters_listeners_etc;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -23,12 +24,14 @@ import java.util.List;
 public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserListViewHolder> {
 
     private List<StatKeepUser> mUserList;
+    private Context mContext;
     private final OnListFragmentInteractionListener mListener;
     private static final String TAG = "UserListAdapter";
 
-    public UserListAdapter(List<StatKeepUser> list, OnListFragmentInteractionListener listener) {
+    public UserListAdapter(List<StatKeepUser> list, Context context, OnListFragmentInteractionListener listener) {
         super();
         this.mUserList = list;
+        this.mContext = context;
         this.mListener = listener;
         Log.d(TAG, "hoppy UserListAdapter created");
     }
@@ -93,22 +96,22 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserLi
         String level;
         switch (i) {
             case 0:
-                level = "remove user";
+                level = mContext.getString(R.string.remove_user);
                 break;
             case 1:
-                level = "request access";
+                level = mContext.getString(R.string.access_requested);
                 break;
             case 2:
-                level = "view only";
+                level = mContext.getString(R.string.view_only);
                 break;
             case 3:
-                level = "view/manage";
+                level = mContext.getString(R.string.view_manage);
                 break;
             case 4:
-                level = "admin";
+                level = mContext.getString(R.string.admin);
                 break;
             default:
-                level = "error";
+                level = mContext.getString(R.string.error);
         }
         return level;
     }
@@ -121,7 +124,6 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserLi
     static class UserListViewHolder extends RecyclerView.ViewHolder {
 
         LinearLayout mLinearLayout;
-        TextView nameView;
         TextView emailView;
         TextView levelView;
         SeekBar seekBar;
@@ -129,7 +131,6 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserLi
         UserListViewHolder(View itemView) {
             super(itemView);
             mLinearLayout = (LinearLayout) itemView;
-            nameView = mLinearLayout.findViewById(R.id.user_name_view);
             emailView = mLinearLayout.findViewById(R.id.user_email_view);
             levelView = mLinearLayout.findViewById(R.id.user_level_view);
             seekBar = mLinearLayout.findViewById(R.id.user_level_seekbar);

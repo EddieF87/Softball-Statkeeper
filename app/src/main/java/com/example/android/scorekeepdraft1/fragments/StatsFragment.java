@@ -35,6 +35,7 @@ import com.example.android.scorekeepdraft1.activities.UserSettingsActivity;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.PlayerStatsAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
+import com.example.android.scorekeepdraft1.dialogs.GameSettingsDialogFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.example.android.scorekeepdraft1.objects.Player;
 
@@ -74,6 +75,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         fragment.setArguments(args);
         return fragment;
     }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -150,7 +152,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.change_user_settings:
                 Intent settingsIntent = new Intent(getActivity(), UserSettingsActivity.class);
                 startActivity(settingsIntent);
@@ -158,7 +160,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
             case R.id.change_game_settings:
                 SharedPreferences settingsPreferences = getActivity()
                         .getSharedPreferences(leagueID + "settings", Context.MODE_PRIVATE);
-                int innings =  settingsPreferences.getInt("innings", 7);
+                int innings = settingsPreferences.getInt("innings", 7);
                 int genderSorter = settingsPreferences.getInt("genderSort", 0);
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -211,7 +213,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
     @Override
     public void onClick(View v) {
         if (colorView != null) {
-            colorView.setBackgroundColor(ContextCompat.getColor(getActivity(),R.color.stat_title));
+            colorView.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.stat_title));
         }
         TextView textView = (TextView) v;
         colorView = textView;
@@ -344,7 +346,11 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mPlayers = new ArrayList<>();
+        if (mPlayers == null) {
+            mPlayers = new ArrayList<>();
+        } else {
+            mPlayers.clear();
+        }
         mCursor = data;
         mCursor.moveToPosition(-1);
         while (mCursor.moveToNext()) {
@@ -378,7 +384,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
             int sf = mCursor.getInt(sfIndex);
             int g = mCursor.getInt(gameIndex);
             int teamId;
-            if(team.equals("Free Agent") || team.equals("")) {
+            if (team.equals("Free Agent") || team.equals("")) {
                 teamId = -1;
             } else {
                 try {
@@ -389,15 +395,14 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
                 }
             }
             int playerId = mCursor.getInt(idIndex);
-            String  firestoreID = mCursor.getString(firestoreIDIndex);
+            String firestoreID = mCursor.getString(firestoreIDIndex);
 
             mPlayers.add(new Player(player, team, gender, sgl, dbl, tpl, hr, bb, run, rbi, out, sf, g, teamId, playerId, firestoreID));
         }
         if (mPlayers.isEmpty()) {
             rv.setVisibility(View.GONE);
             emptyView.setVisibility(View.VISIBLE);
-        }
-        else {
+        } else {
             rv.setVisibility(View.VISIBLE);
             emptyView.setVisibility(View.GONE);
         }
@@ -408,32 +413,19 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
     public void onLoaderReset(Loader<Cursor> loader) {
     }
 
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//        mCursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
-//                new String[]{StatsEntry._ID, StatsEntry.COLUMN_NAME}, null, null, null);
-//
-//        teams = new ArrayList<>();
-//        teams.add("All Teams");
-//        teamIDs = new HashMap<>();
-//        while (mCursor.moveToNext()) {
-//            int teamNameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
-//            String teamName = mCursor.getString(teamNameIndex);
-//            int idIndex = mCursor.getColumnIndex(StatsEntry._ID);
-//            int teamId = mCursor.getInt(idIndex);
-//            teamIDs.put(teamName, teamId);
-//            teams.add(teamName);
-//        }
-//        teams.add("Free Agent");
-//        teamSpinner = findViewById(R.id.spinner_stats_teams);
-//
-//        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(getActivity(),
-//                R.layout.spinner_layout, teams);
-//
-//        teamSpinner.setAdapter(spinnerArrayAdapter);
-//        teamSpinner.setOnItemSelectedListener(this);
-//    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mPlayers == null || mAdapter == null) {
+            return;
+        }
+
+        SharedPreferences settingsPreferences = getActivity()
+                .getSharedPreferences(leagueID + "settings", Context.MODE_PRIVATE);
+        int genderSorter = settingsPreferences.getInt("genderSort", 0);
+        boolean genderSettingsOn = genderSorter != 0;
+        mAdapter.changeColors(genderSettingsOn);
+    }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {

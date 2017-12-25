@@ -19,7 +19,7 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:autoSizeTextType="uniform"
         android:autoSizeMinTextSize="8sp"
-        android:textSize="16sp"
+        android:textSize="24sp"
         android:maxLines="1"/>
 
 </FrameLayout>

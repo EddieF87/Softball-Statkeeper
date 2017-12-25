@@ -38,13 +38,11 @@
                     android:id="@+id/name_title"
                     style="@style/StatsTitleStyle"
                     android:layout_width="100dp"
-                    android:gravity="start"
                     android:paddingEnd="20dp"
                     android:paddingLeft="8dp"
                     android:paddingRight="20dp"
                     android:paddingStart="8dp"
                     android:text="@string/name"
-                    android:textAlignment="textStart"
                     />
 
                 <TextView

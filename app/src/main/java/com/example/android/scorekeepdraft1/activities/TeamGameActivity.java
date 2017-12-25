@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -41,7 +40,7 @@ import com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapt
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.TeamListAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
-import com.example.android.scorekeepdraft1.fragments.FinishGameFragment;
+import com.example.android.scorekeepdraft1.dialogs.FinishGameFragment;
 import com.example.android.scorekeepdraft1.gamelog.BaseLog;
 import com.example.android.scorekeepdraft1.gamelog.PlayerLog;
 import com.example.android.scorekeepdraft1.gamelog.TeamLog;
@@ -1516,7 +1515,7 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
     }
 
     @Override
-    public void onFragmentInteraction(boolean isOver) {
+    public void finishGame(boolean isOver) {
         if (isOver) {
             endGame();
         } else {
@@ -1569,7 +1568,6 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
                             v.setBackground(getDrawable(R.drawable.base));
                         }
                     }
-                    //TODO: check later whether can shorten this section
                     if (v.getId() == R.id.trash) {
                         if (eventView instanceof TextView) {
                             TextView draggedView = (TextView) eventView;

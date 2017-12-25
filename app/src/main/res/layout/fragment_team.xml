@@ -71,7 +71,7 @@
 
             <include
                 android:id="@+id/team_stats_titles"
-                layout="@layout/item_team_title" />
+                layout="@layout/item_stats_title" />
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/rv_players"

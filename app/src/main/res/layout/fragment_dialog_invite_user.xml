@@ -1,0 +1,39 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.example.android.scorekeepdraft1.dialogs.InviteUserDialogFragment"
+    android:padding="8dp">
+
+    <TextView
+        android:id="@+id/new_user_level_view"
+        style="@style/ItemUserStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/view_manage"
+        android:textSize="18sp"
+        android:layout_marginTop="16dp"
+        />
+
+    <SeekBar
+        android:id="@+id/new_user_level_seekbar"
+        style="@style/Widget.AppCompat.SeekBar.Discrete"
+        android:layout_width="240dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:max="2"
+        android:progress="1"
+        android:layout_marginTop="16dp"
+        />
+
+    <EditText
+        android:id="@+id/new_user_textview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:hint="User Email"
+        android:layout_marginTop="32dp"
+        />
+
+</LinearLayout>
