@@ -349,6 +349,11 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
                 firstFemale++;
             }
         }
+
+        if (females.isEmpty() || males.isEmpty()) {
+            return;
+        }
+
         myTeam.clear();
         if (firstFemale >= femaleRequired) {
             firstFemale = femaleRequired - 1;

@@ -375,6 +375,9 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                 firstFemale++;
             }
         }
+        if (females.isEmpty() || males.isEmpty()) {
+            return team;
+        }
         team.clear();
         if (firstFemale >= femaleRequired) {
             firstFemale = femaleRequired - 1;

@@ -73,7 +73,7 @@ public class InviteListDialogFragment extends DialogFragment {
         AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
                 .setView(view)
                 .setTitle("Your Invites")
-                .setMessage("You've been invited to StatKeepers")
+                .setMessage("You've been invited to StatKeepers:")
                 .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
