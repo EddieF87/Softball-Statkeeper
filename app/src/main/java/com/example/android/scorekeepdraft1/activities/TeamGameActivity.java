@@ -40,7 +40,7 @@ import com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapt
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.TeamListAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
-import com.example.android.scorekeepdraft1.dialogs.FinishGameFragment;
+import com.example.android.scorekeepdraft1.dialogs.FinishGameDialogFragment;
 import com.example.android.scorekeepdraft1.gamelog.BaseLog;
 import com.example.android.scorekeepdraft1.gamelog.PlayerLog;
 import com.example.android.scorekeepdraft1.gamelog.TeamLog;
@@ -57,7 +57,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class TeamGameActivity extends AppCompatActivity implements FinishGameFragment.OnFragmentInteractionListener {
+public class TeamGameActivity extends AppCompatActivity implements FinishGameDialogFragment.OnFragmentInteractionListener {
 
     private Cursor playerCursor;
     private Cursor gameCursor;
@@ -920,7 +920,7 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameFra
         }
         fragmentTransaction.addToBackStack(null);
 
-        DialogFragment newFragment = FinishGameFragment.newInstance();
+        DialogFragment newFragment = FinishGameDialogFragment.newInstance();
         newFragment.show(fragmentTransaction, DIALOG_FINISH);
     }
 

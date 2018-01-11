@@ -84,36 +84,36 @@
         android:id="@+id/item_player_adder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="16dp"
         android:layout_marginBottom="8dp"
         android:gravity="end"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout4"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        android:layout_margin="16dp">
+        app:layout_constraintRight_toRightOf="parent">
 
         <RadioGroup
             android:id="@+id/radiobtns_away_or_home_team"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_toLeftOf="@id/btn_start_adder"
+            android:layout_toStartOf="@id/btn_start_adder"
             android:orientation="horizontal"
             android:textAlignment="center"
             android:textSize="30sp"
             android:textStyle="bold"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"
-            android:layout_toStartOf="@id/btn_start_adder"
-            android:layout_toLeftOf="@id/btn_start_adder"
             android:visibility="gone">
 
             <RadioButton
                 android:id="@+id/radio_away"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_marginRight="36dp"
                 android:layout_marginLeft="36dp"
+                android:layout_marginRight="36dp"
                 android:checked="true"
-                android:text="@string/away"
-                />
+                android:text="@string/away" />
+
             <RadioButton
                 android:id="@+id/radio_home"
                 android:layout_width="wrap_content"
@@ -125,11 +125,10 @@
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/btn_start_adder"
             style="@style/FloatingActionButtonStyle"
-            android:layout_marginRight="20dp"
-            android:layout_marginEnd="20dp"
-            android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            />
+            android:layout_alignParentRight="true"
+            android:layout_marginEnd="20dp"
+            android:layout_marginRight="20dp" />
 
     </RelativeLayout>
 
@@ -153,7 +152,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="@string/continue_game"
-            android:visibility="gone"/>
+            android:visibility="gone" />
 
         <Button
             android:id="@+id/lineup_submit"
@@ -184,9 +183,9 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@drawable/back_accent_left"
+            android:paddingBottom="8dp"
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
-            android:paddingBottom="8dp"
             android:paddingTop="8dp"
             android:scrollbars="vertical" />
 
@@ -202,5 +201,18 @@
             android:paddingTop="8dp"
             android:scrollbars="vertical" />
     </LinearLayout>
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginBottom="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_toEndOf="@+id/radiobtns_away_or_home_team"
+        android:layout_toRightOf="@+id/radiobtns_away_or_home_team"
+        android:text="temp"
+        app:layout_constraintBottom_toBottomOf="@+id/item_player_adder"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

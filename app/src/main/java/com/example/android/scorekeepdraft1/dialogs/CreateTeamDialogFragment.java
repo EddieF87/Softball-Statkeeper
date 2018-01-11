@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-public class CreateTeamFragment extends DialogFragment {
+public class CreateTeamDialogFragment extends DialogFragment {
 
     private CreateTeamRecyclerViewAdapter mAdapter;
     private OnListFragmentInteractionListener mListener;
@@ -32,11 +32,11 @@ public class CreateTeamFragment extends DialogFragment {
     private static final String KEY_TEAM = "team";
     private String mTeam;
 
-    public CreateTeamFragment() {
+    public CreateTeamDialogFragment() {
     }
 
-    public static CreateTeamFragment newInstance(String team) {
-        CreateTeamFragment fragment = new CreateTeamFragment();
+    public static CreateTeamDialogFragment newInstance(String team) {
+        CreateTeamDialogFragment fragment = new CreateTeamDialogFragment();
         Bundle args = new Bundle();
         args.putString(KEY_TEAM, team);
         fragment.setArguments(args);

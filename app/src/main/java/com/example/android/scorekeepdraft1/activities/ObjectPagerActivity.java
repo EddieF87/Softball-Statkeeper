@@ -18,7 +18,7 @@ import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
-import com.example.android.scorekeepdraft1.dialogs.CreateTeamFragment;
+import com.example.android.scorekeepdraft1.dialogs.CreateTeamDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.GameSettingsDialogFragment;
 import com.example.android.scorekeepdraft1.fragments.PlayerFragment;
 import com.example.android.scorekeepdraft1.fragments.TeamFragment;
@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ObjectPagerActivity extends AppCompatActivity
-        implements CreateTeamFragment.OnListFragmentInteractionListener,
+        implements CreateTeamDialogFragment.OnListFragmentInteractionListener,
         GameSettingsDialogFragment.OnFragmentInteractionListener {
 
     private List<Integer> objectIDs;

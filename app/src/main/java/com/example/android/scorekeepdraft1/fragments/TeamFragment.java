@@ -40,7 +40,7 @@ import com.example.android.scorekeepdraft1.activities.UserSettingsActivity;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapter;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.PlayerStatsAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
-import com.example.android.scorekeepdraft1.dialogs.CreateTeamFragment;
+import com.example.android.scorekeepdraft1.dialogs.CreateTeamDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.GameSettingsDialogFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.example.android.scorekeepdraft1.objects.Player;
@@ -129,10 +129,16 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
         } else {
             if (mCurrentTeamUri.equals(StatsEntry.CONTENT_URI_TEAMS)) {
                 waivers = true;
+                View titleLayout = rootView.findViewById(R.id.team_stats_titles);
+                View teamAbvView = titleLayout.findViewById(R.id.team_abv_title);
+                teamAbvView.setVisibility(View.VISIBLE);
             }
             teamSelected = "Free Agent";
         }
 
+
+
+        teamNameView = rootView.findViewById(R.id.teamName);
         teamNameView = rootView.findViewById(R.id.teamName);
         teamRecordView = rootView.findViewById(R.id.teamRecord);
         rv = rootView.findViewById(R.id.rv_players);
@@ -157,7 +163,7 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
     private void createTeamFragment(String team) {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = CreateTeamFragment.newInstance(team);
+        DialogFragment newFragment = CreateTeamDialogFragment.newInstance(team);
         newFragment.show(fragmentTransaction, "");
     }
 
@@ -310,7 +316,7 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
             mPlayers.add(new Player(player, teamSelected, gender, sgl, dbl, tpl, hr, bb,
                     run, rbi, out, sf, g, playerId, firestoreID));
         }
-        if (mPlayers.size() >0) {
+        if (mPlayers.size() >0 && !waivers) {
             mPlayers.add(new Player("Total", teamSelected, 2, sumSgl, sumDbl, sumTpl, sumHr, sumBb,
                     sumRun, sumRbi, sumOut, sumSf, sumG, 0, ""));
         }
@@ -400,7 +406,6 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
         return super.onOptionsItemSelected(item);
     }
 
-    //todo
     private void showDeleteConfirmationDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setMessage(R.string.delete_team_msg);
@@ -435,7 +440,6 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
         alertDialog.show();
     }
 
-    //todo
     private void showRemoveAllPlayersDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         if (mSelectionType == MainPageSelection.TYPE_LEAGUE) {
@@ -451,6 +455,7 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
                         deletePlayers();
                     } else {
                         updatePlayersTeam("Free Agent");
+                        clearPlayers();
                     }
                 }
             });
@@ -523,14 +528,13 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
         for (int i = 0; i < mPlayers.size() - 1; i++) {
             Player player = mPlayers.get(i);
             String firestoreID = player.getFirestoreID();
-            if (firestoreID == null) {
-                Log.d("xxx team", "firestoreid = null");
-            } else {
-                Log.d("xxx team", "firestoreid = " + firestoreID);
-            }
             String[] selectionArgs = new String[]{firestoreID};
             getActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_PLAYERS, selection, selectionArgs);
         }
+        clearPlayers();
+    }
+
+    private void clearPlayers() {
         mPlayers.clear();
         updateTeamRV();
     }

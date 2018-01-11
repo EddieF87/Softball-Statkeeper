@@ -39,7 +39,7 @@ import com.example.android.scorekeepdraft1.activities.TeamPagerActivity;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.StandingsCursorAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
-import com.example.android.scorekeepdraft1.dialogs.CreateTeamFragment;
+import com.example.android.scorekeepdraft1.dialogs.CreateTeamDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.GameSettingsDialogFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 
@@ -56,6 +56,7 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
     private static final int STANDINGS_LOADER = 3;
     private EditText addEditText;
     private Button addSubmitButton;
+    private Button waiversButton;
     private int level;
     private String leagueID;
     private StandingsCursorAdapter mAdapter;
@@ -65,7 +66,6 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
     }
 
     public static StandingsFragment newInstance(String leagueID, int level) {
-
         Bundle args = new Bundle();
         StandingsFragment fragment = new StandingsFragment();
         args.putInt(MainPageSelection.KEY_SELECTION_LEVEL, level);
@@ -103,6 +103,16 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
         });
         View emptyView = rootView.findViewById(R.id.empty_text);
         listView.setEmptyView(emptyView);
+
+        waiversButton = rootView.findViewById(R.id.btn_waivers);
+        waiversButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), TeamPagerActivity.class);
+                startActivity(intent);
+            }
+        });
+
 
         TextView title = rootView.findViewById(R.id.standings_header);
         title.setVisibility(View.GONE);
@@ -176,9 +186,11 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
     private void createTeamFragment(String team) {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = CreateTeamFragment.newInstance(team);
+        DialogFragment newFragment = CreateTeamDialogFragment.newInstance(team);
         newFragment.show(fragmentTransaction, "");
     }
+
+
 
     public void addTeam() {
         String teamName = addEditText.getText().toString();
@@ -219,9 +231,7 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mAdapter.swapCursor(data);
-    }
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {mAdapter.swapCursor(data);}
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {

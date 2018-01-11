@@ -25,7 +25,7 @@ import android.os.Bundle;
 
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
-import com.example.android.scorekeepdraft1.dialogs.CreateTeamFragment;
+import com.example.android.scorekeepdraft1.dialogs.CreateTeamDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.GameSettingsDialogFragment;
 import com.example.android.scorekeepdraft1.fragments.LineupFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
@@ -36,7 +36,7 @@ import java.util.List;
 
 
 public class SetLineupActivity extends SingleFragmentActivity
-        implements CreateTeamFragment.OnListFragmentInteractionListener,
+        implements CreateTeamDialogFragment.OnListFragmentInteractionListener,
         GameSettingsDialogFragment.OnFragmentInteractionListener {
 
     private LineupFragment lineupFragment;

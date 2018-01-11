@@ -20,7 +20,7 @@ import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract;
-import com.example.android.scorekeepdraft1.dialogs.CreateTeamFragment;
+import com.example.android.scorekeepdraft1.dialogs.CreateTeamDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.GameSettingsDialogFragment;
 import com.example.android.scorekeepdraft1.fragments.LineupFragment;
 import com.example.android.scorekeepdraft1.fragments.TeamFragment;
@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TeamManagerActivity extends AppCompatActivity
-        implements CreateTeamFragment.OnListFragmentInteractionListener,
+        implements CreateTeamDialogFragment.OnListFragmentInteractionListener,
         GameSettingsDialogFragment.OnFragmentInteractionListener,
         FirestoreAdapter.onFirestoreSyncListener{
 

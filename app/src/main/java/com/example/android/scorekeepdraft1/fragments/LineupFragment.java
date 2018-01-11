@@ -34,7 +34,7 @@ import com.example.android.scorekeepdraft1.activities.UserSettingsActivity;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.LineupListAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
-import com.example.android.scorekeepdraft1.dialogs.CreateTeamFragment;
+import com.example.android.scorekeepdraft1.dialogs.CreateTeamDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.GameSettingsDialogFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.example.android.scorekeepdraft1.objects.Player;
@@ -126,6 +126,18 @@ public class LineupFragment extends Fragment {
         final TextView teamNameTextView = rootView.findViewById(R.id.team_name_display);
         teamNameTextView.setText(mTeam);
 
+        Button test = rootView.findViewById(R.id.button2);
+        test.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (isLineupOK()) {
+                    setNewLineupToTempDB(0, getPreviousLineup(mTeam));
+                    Intent intent = new Intent(getActivity(), TeamGameActivity.class);
+                    startActivity(intent);
+                }
+            }
+        });
+
         View addPlayerView = rootView.findViewById(R.id.item_player_adder);
         final FloatingActionButton addPlayersButton = addPlayerView.findViewById(R.id.btn_start_adder);
         addPlayersButton.setOnClickListener(new View.OnClickListener() {
@@ -134,9 +146,6 @@ public class LineupFragment extends Fragment {
                 createTeamFragment(mTeam);
             }
         });
-
-//        updateLineupRV();
-//        updateBenchRV();
 
         return rootView;
     }
@@ -209,7 +218,7 @@ public class LineupFragment extends Fragment {
     private void createTeamFragment(String team) {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = CreateTeamFragment.newInstance(team);
+        DialogFragment newFragment = CreateTeamDialogFragment.newInstance(team);
         newFragment.show(fragmentTransaction, "");
     }
 
@@ -255,6 +264,183 @@ public class LineupFragment extends Fragment {
         editor.commit();
     }
 
+    private List<Player> getPreviousLineup(String team) {
+        Cursor playerCursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEMP,
+                null, null, null, null);
+
+        int playerIdIndex;
+        int playerNameIndex;
+        int genderIndex;
+        int firestoreIdIndex;
+        int singleIndex;
+        int doubleIndex;
+        int tripleIndex;
+        int hrIndex;
+        int bbIndex;
+        int sfIndex;
+        int playerOutIndex;
+        int playerRunIndex;
+        int rbiIndex;
+
+        if (playerCursor.moveToFirst()) {
+            playerIdIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_PLAYERID);
+            playerNameIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
+            genderIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_GENDER);
+            firestoreIdIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
+            singleIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_1B);
+            doubleIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_2B);
+            tripleIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_3B);
+            hrIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_HR);
+            bbIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_BB);
+            sfIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_SF);
+            playerOutIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_OUT);
+            playerRunIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_RUN);
+            rbiIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_RBI);
+            playerCursor.moveToPrevious();
+        } else {
+            return null;
+        }
+
+        List<Player> previousLineup = new ArrayList<>();
+
+        while (playerCursor.moveToNext()) {
+            Long id = playerCursor.getLong(playerIdIndex);
+            String name = playerCursor.getString(playerNameIndex);
+            int gameRBI = playerCursor.getInt(rbiIndex);
+            int gameRun = playerCursor.getInt(playerRunIndex);
+            int game1b = playerCursor.getInt(singleIndex);
+            int game2b = playerCursor.getInt(doubleIndex);
+            int game3b = playerCursor.getInt(tripleIndex);
+            int gameHR = playerCursor.getInt(hrIndex);
+            int gameOuts = playerCursor.getInt(playerOutIndex);
+            int gameBB = playerCursor.getInt(bbIndex);
+            int gameSF = playerCursor.getInt(sfIndex);
+            int gender = playerCursor.getInt(genderIndex);
+            String firestoreID = playerCursor.getString(firestoreIdIndex);
+
+            previousLineup.add(new Player(name, team, gender, game1b, game2b, game3b, gameHR,
+                    gameBB, gameRun, gameRBI, gameOuts, gameSF, 0, id, firestoreID));
+        }
+        return previousLineup;
+    }
+
+    private boolean setNewLineupToTempDB(int requiredFemale, List<Player> previousLineup) {
+
+        List<Player> lineup = getLineup();
+        ContentResolver contentResolver = getActivity().getContentResolver();
+        contentResolver.delete(StatsEntry.CONTENT_URI_TEMP, null, null);
+
+//        int females = 0;
+//        int males = 0;
+//        int malesInRow = 0;
+//        int firstMalesInRow = 0;
+//        boolean beforeFirstFemale = true;
+//        boolean notProperOrder = false;
+//        sortLineup = false;
+
+        for (int i = 0; i < lineup.size(); i++) {
+            Player player = lineup.get(i);
+            long playerId = player.getPlayerId();
+            String playerName = player.getName();
+            int gender = player.getGender();
+            String firestoreID = player.getFirestoreID();
+
+            ContentValues values = new ContentValues();
+            values.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
+            values.put(StatsEntry.COLUMN_PLAYERID, playerId);
+            values.put(StatsEntry.COLUMN_NAME, playerName);
+            values.put(StatsEntry.COLUMN_TEAM, mTeam);
+            values.put(StatsEntry.COLUMN_ORDER, i + 1);
+            values.put(StatsEntry.COLUMN_GENDER, gender);
+
+            Player existingPlayer = checkIfPlayerExists(playerId, previousLineup);
+            if (existingPlayer != null) {
+                values.put(StatsEntry.COLUMN_HR, existingPlayer.getHrs());
+                values.put(StatsEntry.COLUMN_3B, existingPlayer.getTriples());
+                values.put(StatsEntry.COLUMN_2B, existingPlayer.getDoubles());
+                values.put(StatsEntry.COLUMN_1B, existingPlayer.getSingles());
+                values.put(StatsEntry.COLUMN_BB, existingPlayer.getWalks());
+                values.put(StatsEntry.COLUMN_OUT, existingPlayer.getOuts());
+                values.put(StatsEntry.COLUMN_SF, existingPlayer.getSacFlies());
+                values.put(StatsEntry.COLUMN_RUN, existingPlayer.getRuns());
+                values.put(StatsEntry.COLUMN_RBI, existingPlayer.getRbis());
+                previousLineup.remove(existingPlayer);
+            }
+            contentResolver.insert(StatsEntry.CONTENT_URI_TEMP, values);
+
+//            if (gender == 0) {
+//                males++;
+//                malesInRow++;
+//                if (beforeFirstFemale) {
+//                    firstMalesInRow++;
+//                }
+//                if (malesInRow > requiredFemale) {
+//                    notProperOrder = true;
+//                }
+//            } else {
+//                females++;
+//                malesInRow = 0;
+//                beforeFirstFemale = false;
+//            }
+        }
+
+        if (!previousLineup.isEmpty()) {
+            for (Player existingPlayer : previousLineup) {
+                ContentValues values = new ContentValues();
+
+                values.put(StatsEntry.COLUMN_FIRESTORE_ID, existingPlayer.getFirestoreID());
+                values.put(StatsEntry.COLUMN_PLAYERID, existingPlayer.getPlayerId());
+                values.put(StatsEntry.COLUMN_NAME, existingPlayer.getName());
+                values.put(StatsEntry.COLUMN_TEAM, mTeam);
+                values.put(StatsEntry.COLUMN_ORDER, 999);
+                values.put(StatsEntry.COLUMN_GENDER, existingPlayer.getGender());
+                values.put(StatsEntry.COLUMN_HR, existingPlayer.getHrs());
+                values.put(StatsEntry.COLUMN_3B, existingPlayer.getTriples());
+                values.put(StatsEntry.COLUMN_2B, existingPlayer.getDoubles());
+                values.put(StatsEntry.COLUMN_1B, existingPlayer.getSingles());
+                values.put(StatsEntry.COLUMN_BB, existingPlayer.getWalks());
+                values.put(StatsEntry.COLUMN_OUT, existingPlayer.getOuts());
+                values.put(StatsEntry.COLUMN_SF, existingPlayer.getSacFlies());
+                values.put(StatsEntry.COLUMN_RUN, existingPlayer.getRuns());
+                values.put(StatsEntry.COLUMN_RBI, existingPlayer.getRbis());
+
+                previousLineup.remove(existingPlayer);
+
+                contentResolver.insert(StatsEntry.CONTENT_URI_TEMP, values);
+            }
+        }
+
+
+//        if (requiredFemale < 1) {
+//            return true;
+//        }
+//
+//        int lastMalesInRow = malesInRow;
+//        if (firstMalesInRow + lastMalesInRow > requiredFemale) {
+//            notProperOrder = true;
+//        }
+//        if(notProperOrder) {
+//            if(females * requiredFemale >= males) {
+//                Toast.makeText(getActivity(),
+//                        "Please set " + mTeam + "'s lineup properly or change gender rules",
+//                        Toast.LENGTH_LONG).show();
+//                return false;
+//            }
+//            sortLineup = true;
+//        }
+        return true;
+    }
+
+    private Player checkIfPlayerExists(long playerID, List<Player> players) {
+        for (Player player : players) {
+            if (playerID == player.getPlayerId()) {
+                return player;
+            }
+        }
+        return null;
+    }
+
+
     private boolean addTeamToTempDB(int requiredFemale) {
         List<Player> lineup = getLineup();
         ContentResolver contentResolver = getActivity().getContentResolver();
@@ -272,11 +458,7 @@ public class LineupFragment extends Fragment {
             String playerName = player.getName();
             int gender = player.getGender();
             String firestoreID = player.getFirestoreID();
-            if (firestoreID == null) {
-                Log.d("xxx lineup", "firestoreid = null");
-            } else {
-                Log.d("xxx lineup", "firestoreid = " + firestoreID);
-            }
+
             ContentValues values = new ContentValues();
             values.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
             values.put(StatsEntry.COLUMN_PLAYERID, playerId);
@@ -286,13 +468,13 @@ public class LineupFragment extends Fragment {
             values.put(StatsEntry.COLUMN_GENDER, gender);
             contentResolver.insert(StatsEntry.CONTENT_URI_TEMP, values);
 
-            if(gender == 0) {
+            if (gender == 0) {
                 males++;
                 malesInRow++;
-                if(beforeFirstFemale) {
+                if (beforeFirstFemale) {
                     firstMalesInRow++;
                 }
-                if(malesInRow > requiredFemale) {
+                if (malesInRow > requiredFemale) {
                     notProperOrder = true;
                 }
             } else {
@@ -310,8 +492,8 @@ public class LineupFragment extends Fragment {
         if (firstMalesInRow + lastMalesInRow > requiredFemale) {
             notProperOrder = true;
         }
-        if(notProperOrder) {
-            if(females * requiredFemale >= males) {
+        if (notProperOrder) {
+            if (females * requiredFemale >= males) {
                 Toast.makeText(getActivity(),
                         "Please set " + mTeam + "'s lineup properly or change gender rules",
                         Toast.LENGTH_LONG).show();

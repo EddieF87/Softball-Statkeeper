@@ -1,8 +1,12 @@
 package com.example.android.scorekeepdraft1.adapters_listeners_etc;
 
+import android.app.AlertDialog;
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
@@ -17,12 +21,14 @@ import android.widget.TextView;
 import com.example.android.scorekeepdraft1.activities.PlayerPagerActivity;
 import com.example.android.scorekeepdraft1.activities.TeamManagerActivity;
 import com.example.android.scorekeepdraft1.activities.TeamPagerActivity;
+import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.objects.Player;
 import com.example.android.scorekeepdraft1.R;
-import com.example.android.scorekeepdraft1.data.StatsContract;
+import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 import static android.support.v4.content.ContextCompat.startActivity;
@@ -77,11 +83,14 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
         if (position % 2 == 1) {
             holder.linearLayout.setBackgroundColor(Color.parseColor("#dfdfdf"));
         }
-        Player player = players.get(position);
+        final Player player = players.get(position);
         String team = player.getTeam();
         String teamabv;
+        boolean FA = false;
+
         if (team == null || team.equals("Free Agent")) {
             teamabv = "FA";
+            FA = true;
         } else if (team.length() > 2) {
             teamabv = ("" + team.charAt(0) + team.charAt(1) + team.charAt(2)).toUpperCase();
         } else {
@@ -93,6 +102,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
 
         int teamId = player.getTeamId();
         holder.teamView.setTag(teamId);
+
         if (!isTeam) {
             holder.teamView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -139,6 +149,20 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
         }
         holder.linearLayout.setTag(position);
         holder.teamView.setVisibility(visibility);
+        if(FA && isTeam) {
+            holder.teamView.setVisibility(View.VISIBLE);
+            holder.teamView.setText("+");
+            int color = ContextCompat.getColor(mContext, R.color.colorPrimaryDark);
+            holder.teamView.setTextColor(color);
+            holder.teamView.setTypeface(Typeface.DEFAULT_BOLD);
+            holder.teamView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    changeTeamDialog(player);
+                }
+            });
+        }
+
         if (isTeam && position == players.size() - 1 && player.getName().equals("Total")) {
             holder.abView.setTypeface(Typeface.DEFAULT_BOLD);
             holder.hitView.setTypeface(Typeface.DEFAULT_BOLD);
@@ -173,6 +197,41 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             }
         }
 
+    }
+
+    private void changeTeamDialog(final Player player) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        Cursor mCursor = mContext.getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
+                new String[]{StatsEntry.COLUMN_NAME}, null, null, null);
+        ArrayList<String> teams = new ArrayList<>();
+        while (mCursor.moveToNext()) {
+            int teamNameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
+            String teamName = mCursor.getString(teamNameIndex);
+            teams.add(teamName);
+        }
+        final CharSequence[] teams_array = teams.toArray(new CharSequence[teams.size()]);
+        builder.setTitle(R.string.edit_player_name);
+        builder.setItems(teams_array, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int item) {
+                String teamString = teams_array[item].toString();
+                updatePlayerTeam(player, teamString);
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    private void updatePlayerTeam(Player player, String team) {
+        long playerId = player.getPlayerId();
+        Uri playerUri = ContentUris.withAppendedId(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, playerId);
+        String firestoreID = player.getFirestoreID();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(StatsEntry.COLUMN_TEAM, team);
+        contentValues.put(StatsEntry.COLUMN_ORDER, 99);
+        contentValues.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
+        mContext.getContentResolver().update(playerUri, contentValues, null, null);
+        players.remove(player);
+        notifyDataSetChanged();
     }
 
     public boolean changeColors(boolean genderSettingsOn){

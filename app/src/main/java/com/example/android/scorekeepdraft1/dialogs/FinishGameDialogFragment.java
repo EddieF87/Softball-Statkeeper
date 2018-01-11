@@ -12,16 +12,16 @@ import android.view.View;
 
 import com.example.android.scorekeepdraft1.R;
 
-public class FinishGameFragment extends DialogFragment {
+public class FinishGameDialogFragment extends DialogFragment {
 
     private OnFragmentInteractionListener mListener;
 
-    public FinishGameFragment() {
+    public FinishGameDialogFragment() {
         // Required empty public constructor
     }
 
-    public static FinishGameFragment newInstance() {
-        return new FinishGameFragment();
+    public static FinishGameDialogFragment newInstance() {
+        return new FinishGameDialogFragment();
     }
 
     public void onButtonPressed(boolean isOver) {
