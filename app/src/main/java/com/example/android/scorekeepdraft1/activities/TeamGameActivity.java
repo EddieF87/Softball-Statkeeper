@@ -2,6 +2,7 @@ package com.example.android.scorekeepdraft1.activities;
 
 import android.app.AlertDialog;
 import android.content.ClipData;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.DialogInterface;
@@ -392,11 +393,16 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameDia
 
         int nameIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
         int idIndex = playerCursor.getColumnIndex(StatsEntry._ID);
+        int orderIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_ORDER);
         int firestoreIDIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
         int genderIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_GENDER);
 
         ArrayList<Player> team = new ArrayList<>();
         while (playerCursor.moveToNext()) {
+            int order = playerCursor.getInt(orderIndex);
+            if (order >100) {
+                continue;
+            }
             int playerId = playerCursor.getInt(idIndex);
             String playerName = playerCursor.getString(nameIndex);
             String firestoreID = playerCursor.getString(firestoreIDIndex);
@@ -560,6 +566,18 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameDia
         homeTeamRuns = currentBaseLogStart.getHomeTeamRuns();
         gameOuts = currentBaseLogStart.getOutCount();
         currentBatter = currentBaseLogStart.getBatter();
+        if (currentBatter == myTeam.get(myTeamIndex)) {
+            Log.d("xxx", "equal");
+        } else {
+            Log.d("xxx", "UNequal");
+            currentBatter = myTeam.get(myTeamIndex);
+            ContentValues values = new ContentValues();
+            values.put(StatsEntry.COLUMN_ONDECK, currentBatter.getName());
+            ContentResolver contentResolver = getContentResolver();
+            int gameID = gameCursor.getInt(idIndex);
+            Uri gameURI = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_GAMELOG, gameID);
+            contentResolver.update(gameURI, values, null, null);
+        }
         tempBatter = gameCursor.getString(prevBatterIndex);
         if (tempRunsLog == null) {
             tempRunsLog = new ArrayList<>();

@@ -124,7 +124,7 @@ public class TeamManagerActivity extends AppCompatActivity
     public void onFirestoreSync() {
         Log.d("yyy", "firestoresyncccccc");
         Toast.makeText(TeamManagerActivity.this, "gfdfggg", Toast.LENGTH_LONG).show();
-        if (teamFragment != null) {
+        if (teamFragment != null && teamFragment.isAdded()) {
             teamFragment.onResume();
         }
     }

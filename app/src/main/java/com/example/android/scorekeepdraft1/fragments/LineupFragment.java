@@ -131,8 +131,13 @@ public class LineupFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 if (isLineupOK()) {
-                    setNewLineupToTempDB(0, getPreviousLineup(mTeam));
+                    setNewLineupToTempDB(getPreviousLineup(mTeam));
                     Intent intent = new Intent(getActivity(), TeamGameActivity.class);
+                    SharedPreferences gamePreferences = getActivity().getSharedPreferences(mSelectionID + "game", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = gamePreferences.edit();
+                    editor.putBoolean("keyGenderSort", false);
+                    editor.putInt("keyFemaleOrder", 0);
+                    editor.commit();
                     startActivity(intent);
                 }
             }
@@ -318,30 +323,25 @@ public class LineupFragment extends Fragment {
             int gender = playerCursor.getInt(genderIndex);
             String firestoreID = playerCursor.getString(firestoreIdIndex);
 
-            previousLineup.add(new Player(name, team, gender, game1b, game2b, game3b, gameHR,
+            previousLineup.add(new Player(name, team, gender,
+                    game1b, game2b, game3b, gameHR,
                     gameBB, gameRun, gameRBI, gameOuts, gameSF, 0, id, firestoreID));
+            Log.d("xxx", "prev: " + name);
         }
         return previousLineup;
     }
 
-    private boolean setNewLineupToTempDB(int requiredFemale, List<Player> previousLineup) {
+    private boolean setNewLineupToTempDB(List<Player> previousLineup) {
 
         List<Player> lineup = getLineup();
         ContentResolver contentResolver = getActivity().getContentResolver();
         contentResolver.delete(StatsEntry.CONTENT_URI_TEMP, null, null);
 
-//        int females = 0;
-//        int males = 0;
-//        int malesInRow = 0;
-//        int firstMalesInRow = 0;
-//        boolean beforeFirstFemale = true;
-//        boolean notProperOrder = false;
-//        sortLineup = false;
-
         for (int i = 0; i < lineup.size(); i++) {
             Player player = lineup.get(i);
             long playerId = player.getPlayerId();
             String playerName = player.getName();
+            Log.d("xxx", "getLU: " + playerName);
             int gender = player.getGender();
             String firestoreID = player.getFirestoreID();
 
@@ -366,26 +366,14 @@ public class LineupFragment extends Fragment {
                 values.put(StatsEntry.COLUMN_RBI, existingPlayer.getRbis());
                 previousLineup.remove(existingPlayer);
             }
-            contentResolver.insert(StatsEntry.CONTENT_URI_TEMP, values);
 
-//            if (gender == 0) {
-//                males++;
-//                malesInRow++;
-//                if (beforeFirstFemale) {
-//                    firstMalesInRow++;
-//                }
-//                if (malesInRow > requiredFemale) {
-//                    notProperOrder = true;
-//                }
-//            } else {
-//                females++;
-//                malesInRow = 0;
-//                beforeFirstFemale = false;
-//            }
+            Log.d("xxx", "currentLineup: " + playerName);
+            contentResolver.insert(StatsEntry.CONTENT_URI_TEMP, values);
         }
 
         if (!previousLineup.isEmpty()) {
-            for (Player existingPlayer : previousLineup) {
+            for (int i = 0; i < previousLineup.size(); i++) {
+                Player existingPlayer = previousLineup.get(i);
                 ContentValues values = new ContentValues();
 
                 values.put(StatsEntry.COLUMN_FIRESTORE_ID, existingPlayer.getFirestoreID());
@@ -404,30 +392,11 @@ public class LineupFragment extends Fragment {
                 values.put(StatsEntry.COLUMN_RUN, existingPlayer.getRuns());
                 values.put(StatsEntry.COLUMN_RBI, existingPlayer.getRbis());
 
-                previousLineup.remove(existingPlayer);
-
                 contentResolver.insert(StatsEntry.CONTENT_URI_TEMP, values);
+                Log.d("xxx", "removedPlayer: " + existingPlayer.getName());
             }
+            previousLineup.clear();
         }
-
-
-//        if (requiredFemale < 1) {
-//            return true;
-//        }
-//
-//        int lastMalesInRow = malesInRow;
-//        if (firstMalesInRow + lastMalesInRow > requiredFemale) {
-//            notProperOrder = true;
-//        }
-//        if(notProperOrder) {
-//            if(females * requiredFemale >= males) {
-//                Toast.makeText(getActivity(),
-//                        "Please set " + mTeam + "'s lineup properly or change gender rules",
-//                        Toast.LENGTH_LONG).show();
-//                return false;
-//            }
-//            sortLineup = true;
-//        }
         return true;
     }
 
