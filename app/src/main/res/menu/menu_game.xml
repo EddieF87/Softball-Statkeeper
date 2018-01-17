@@ -16,6 +16,11 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/action_edit_lineup"
+        android:title="@string/edit_lineup"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_goto_stats"
         android:title="@string/stats"
         app:showAsAction="never" />
@@ -26,8 +31,8 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_finish_game"
-        android:title="@string/finish"
-        app:showAsAction="never" />
+    android:id="@+id/action_finish_game"
+    android:title="@string/finish"
+    app:showAsAction="never" />
 
 </menu>

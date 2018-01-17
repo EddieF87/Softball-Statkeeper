@@ -29,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.R;
+import com.example.android.scorekeepdraft1.activities.GameActivity;
 import com.example.android.scorekeepdraft1.activities.TeamGameActivity;
 import com.example.android.scorekeepdraft1.activities.UserSettingsActivity;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.LineupListAdapter;
@@ -58,8 +59,12 @@ public class LineupFragment extends Fragment {
     private String mTeam;
     private int mType;
     private String mSelectionID;
+    private boolean inGame;
+    private boolean editedAway;
 
     private static final String KEY_TEAM = "team";
+    private static final String KEY_INGAME = "ingame";
+    private static final String KEY_AWAY = "editaway";
 
     public LineupFragment() {
         // Required empty public constructor
@@ -70,6 +75,20 @@ public class LineupFragment extends Fragment {
         args.putString(MainPageSelection.KEY_SELECTION_ID, selectionID);
         args.putInt(MainPageSelection.KEY_SELECTION_TYPE, selectionType);
         args.putString(KEY_TEAM, team);
+        args.putBoolean(KEY_INGAME, false);
+        args.putBoolean(KEY_AWAY, false);
+        LineupFragment fragment = new LineupFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public static LineupFragment newInstance(String selectionID, int selectionType, String team, boolean isAway) {
+        Bundle args = new Bundle();
+        args.putString(MainPageSelection.KEY_SELECTION_ID, selectionID);
+        args.putInt(MainPageSelection.KEY_SELECTION_TYPE, selectionType);
+        args.putString(KEY_TEAM, team);
+        args.putBoolean(KEY_INGAME, true);
+        args.putBoolean(KEY_AWAY, isAway);
         LineupFragment fragment = new LineupFragment();
         fragment.setArguments(args);
         return fragment;
@@ -85,6 +104,8 @@ public class LineupFragment extends Fragment {
             mSelectionID = args.getString(MainPageSelection.KEY_SELECTION_ID);
             mType = args.getInt(MainPageSelection.KEY_SELECTION_TYPE);
             mTeam = args.getString(KEY_TEAM);
+            inGame = args.getBoolean(KEY_INGAME);
+            editedAway = args.getBoolean(KEY_AWAY);
         } else {
             getActivity().finish();
         }
@@ -102,46 +123,20 @@ public class LineupFragment extends Fragment {
         lineupSubmitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mType == MainPageSelection.TYPE_TEAM) {
-                    int genderSorter = getGenderSorter();
-
-                    if (isLineupOK()) {
-                        clearGameDB();
-                        boolean lineupCheck = addTeamToTempDB(genderSorter);
-                        if (lineupCheck) {
-                            startGame(isHome());
-                        }
-                    } else {
-                        Toast.makeText(getActivity(), "Add more players to lineup first.",
-                                Toast.LENGTH_SHORT).show();
-                    }
+                if (inGame) {
+                    onSubmitEdit();
                 } else {
-                    updateAndSubmitLineup();
-                    getActivity().setResult(RESULT_OK);
-                    getActivity().finish();
+                    onSubmitLineup();
                 }
             }
         });
+
+        if(inGame) {
+            lineupSubmitButton.setText("Save Edit");
+        }
 
         final TextView teamNameTextView = rootView.findViewById(R.id.team_name_display);
         teamNameTextView.setText(mTeam);
-
-        Button test = rootView.findViewById(R.id.button2);
-        test.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (isLineupOK()) {
-                    setNewLineupToTempDB(getPreviousLineup(mTeam));
-                    Intent intent = new Intent(getActivity(), TeamGameActivity.class);
-                    SharedPreferences gamePreferences = getActivity().getSharedPreferences(mSelectionID + "game", Context.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = gamePreferences.edit();
-                    editor.putBoolean("keyGenderSort", false);
-                    editor.putInt("keyFemaleOrder", 0);
-                    editor.commit();
-                    startActivity(intent);
-                }
-            }
-        });
 
         View addPlayerView = rootView.findViewById(R.id.item_player_adder);
         final FloatingActionButton addPlayersButton = addPlayerView.findViewById(R.id.btn_start_adder);
@@ -153,6 +148,48 @@ public class LineupFragment extends Fragment {
         });
 
         return rootView;
+    }
+
+    public void onSubmitEdit() {
+        if (isLineupOK()) {
+            setNewLineupToTempDB(getPreviousLineup(mTeam));
+            Intent intent;
+            SharedPreferences gamePreferences = getActivity().getSharedPreferences(mSelectionID + "game", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = gamePreferences.edit();
+            if (mType == MainPageSelection.TYPE_LEAGUE) {
+                intent = new Intent(getActivity(), GameActivity.class);
+                editor.putInt("keyGenderSort", 0);
+            } else {
+                intent = new Intent(getActivity(), TeamGameActivity.class);
+                editor.putBoolean("keyGenderSort", false);
+            }
+            editor.putInt("keyFemaleOrder", 0);
+            editor.commit();
+            intent.putExtra("editedaway", editedAway);
+            startActivity(intent);
+            getActivity().finish();
+        }
+    }
+
+    public void onSubmitLineup() {
+        if (mType == MainPageSelection.TYPE_TEAM) {
+            int genderSorter = getGenderSorter();
+
+            if (isLineupOK()) {
+                clearGameDB();
+                boolean lineupCheck = addTeamToTempDB(genderSorter);
+                if (lineupCheck) {
+                    startGame(isHome());
+                }
+            } else {
+                Toast.makeText(getActivity(), "Add more players to lineup first.",
+                        Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            updateAndSubmitLineup();
+            getActivity().setResult(RESULT_OK);
+            getActivity().finish();
+        }
     }
 
     @Override
@@ -270,8 +307,10 @@ public class LineupFragment extends Fragment {
     }
 
     private List<Player> getPreviousLineup(String team) {
+        String selection = StatsEntry.COLUMN_TEAM + "=?";
+        String[] selectionArgs = new String[]{team};
         Cursor playerCursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEMP,
-                null, null, null, null);
+                null, selection, selectionArgs, null);
 
         int playerIdIndex;
         int playerNameIndex;
@@ -334,8 +373,12 @@ public class LineupFragment extends Fragment {
     private boolean setNewLineupToTempDB(List<Player> previousLineup) {
 
         List<Player> lineup = getLineup();
+
+        String selection = StatsEntry.COLUMN_TEAM + "=?";
+        String[] selectionArgs = new String[]{mTeam};
+
         ContentResolver contentResolver = getActivity().getContentResolver();
-        contentResolver.delete(StatsEntry.CONTENT_URI_TEMP, null, null);
+        contentResolver.delete(StatsEntry.CONTENT_URI_TEMP, selection, selectionArgs);
 
         for (int i = 0; i < lineup.size(); i++) {
             Player player = lineup.get(i);

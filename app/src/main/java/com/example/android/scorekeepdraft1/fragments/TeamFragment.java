@@ -379,6 +379,7 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
                 Intent setLineupIntent = new Intent(getActivity(), SetLineupActivity.class);
                 Bundle b = new Bundle();
                 b.putString("team", teamSelected);
+                b.putBoolean("ingame", false);
                 setLineupIntent.putExtras(b);
                 startActivity(setLineupIntent);
                 return true;

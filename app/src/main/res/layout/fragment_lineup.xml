@@ -202,17 +202,4 @@
             android:scrollbars="vertical" />
     </LinearLayout>
 
-    <Button
-        android:id="@+id/button2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_marginBottom="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_toEndOf="@+id/radiobtns_away_or_home_team"
-        android:layout_toRightOf="@+id/radiobtns_away_or_home_team"
-        android:text="temp"
-        app:layout_constraintBottom_toBottomOf="@+id/item_player_adder"
-        app:layout_constraintStart_toStartOf="parent" />
-
 </android.support.constraint.ConstraintLayout>

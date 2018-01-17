@@ -151,6 +151,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                 Intent intent = new Intent(getActivity(), SetLineupActivity.class);
                 Bundle b = new Bundle();
                 b.putString("team", awayTeamSelection);
+                b.putBoolean("ingame", false);
                 intent.putExtras(b);
                 startActivityForResult(intent, LINEUP_REQUEST);
             }
@@ -164,6 +165,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                 Intent intent = new Intent(getActivity(), SetLineupActivity.class);
                 Bundle b = new Bundle();
                 b.putString("team", homeTeamSelection);
+                b.putBoolean("ingame", false);
                 intent.putExtras(b);
                 startActivityForResult(intent, LINEUP_REQUEST);
             }

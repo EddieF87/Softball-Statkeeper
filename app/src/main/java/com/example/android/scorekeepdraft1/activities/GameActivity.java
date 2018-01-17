@@ -7,6 +7,7 @@ package com.example.android.scorekeepdraft1.activities;
 
 import android.app.AlertDialog;
 import android.content.ClipData;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -18,6 +19,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -33,11 +36,13 @@ import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapter;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.TeamListAdapter;
+import com.example.android.scorekeepdraft1.fragments.LineupFragment;
 import com.example.android.scorekeepdraft1.gamelog.BaseLog;
 
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
@@ -193,19 +198,31 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         }
         leagueID = mainPageSelection.getId();
 
+        Intent intent = getIntent();
+        Bundle args = intent.getExtras();
+
         playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEMP, null,
                 null, null, null);
         playerCursor.moveToFirst();
         getPlayerColumnIndexes();
-        awayTeamName = playerCursor.getString(teamIndex);
-        playerCursor.moveToLast();
-        homeTeamName = playerCursor.getString(teamIndex);
+
+        if (args != null && args.getBoolean("editedaway") == true) {
+            Toast.makeText(GameActivity.this, "TRUETRUE", Toast.LENGTH_SHORT).show();
+            homeTeamName = playerCursor.getString(teamIndex);
+            playerCursor.moveToLast();
+            awayTeamName = playerCursor.getString(teamIndex);
+        } else {
+            Toast.makeText(GameActivity.this, "FAAAAALSE", Toast.LENGTH_SHORT).show();
+            awayTeamName = playerCursor.getString(teamIndex);
+            playerCursor.moveToLast();
+            homeTeamName = playerCursor.getString(teamIndex);
+        }
+
         setTitle(awayTeamName + " @ " + homeTeamName);
         awayTeam = setTeam(awayTeamName);
         homeTeam = setTeam(homeTeamName);
 
-        Intent intent = getIntent();
-        Bundle args = intent.getExtras();
+
 
         SharedPreferences settingsPreferences =
                 getSharedPreferences(leagueID + "settings", MODE_PRIVATE);
@@ -285,6 +302,18 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         TextView homeText = findViewById(R.id.home_text);
         awayText.setText(awayTeamName);
         homeText.setText(homeTeamName);
+        awayText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                gotoLineupEditor(awayTeamName);
+            }
+        });
+        homeText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                gotoLineupEditor(homeTeamName);
+            }
+        });
 
         gameCursor = getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG, null,
                 null, null, null);
@@ -342,11 +371,17 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
 
         int nameIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
         int idIndex = playerCursor.getColumnIndex(StatsEntry._ID);
+        int orderIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_ORDER);
         int genderIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_GENDER);
         int firestoreIDIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
 
         ArrayList<Player> team = new ArrayList<>();
         while (playerCursor.moveToNext()) {
+            int order = playerCursor.getInt(orderIndex);
+            if (order >100) {
+                continue;
+            }
+
             int playerId = playerCursor.getInt(idIndex);
             int gender = playerCursor.getInt(genderIndex);
             String playerName = playerCursor.getString(nameIndex);
@@ -543,12 +578,24 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         gameOuts = currentBaseLogStart.getOutCount();
         currentTeam = currentBaseLogStart.getTeam();
         currentBatter = currentBaseLogStart.getBatter();
+        int lineupIndex;
         if (currentTeam == homeTeam) {
             awayTeamListAdapter.setCurrentLineupPosition(-1);
             setLineupRVPosition(true);
+            lineupIndex = homeTeamIndex;
         } else {
             homeTeamListAdapter.setCurrentLineupPosition(-1);
             setLineupRVPosition(false);
+            lineupIndex = awayTeamIndex;
+        }
+        if (currentBatter != currentTeam.get(lineupIndex)) {
+            currentBatter = currentTeam.get(lineupIndex);
+            ContentValues values = new ContentValues();
+            values.put(StatsEntry.COLUMN_ONDECK, currentBatter.getName());
+            ContentResolver contentResolver = getContentResolver();
+            int gameID = gameCursor.getInt(idIndex);
+            Uri gameURI = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_GAMELOG, gameID);
+            contentResolver.update(gameURI, values, null, null);
         }
         tempBatter = gameCursor.getString(prevBatterIndex);
         if (tempRunsLog == null) {
@@ -1678,6 +1725,14 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         return true;
     }
 
+    public void gotoLineupEditor(String teamName) {
+        Intent editorIntent = new Intent(GameActivity.this, SetLineupActivity.class);
+        editorIntent.putExtra("team", teamName);
+        editorIntent.putExtra("ingame", true);
+        startActivity(editorIntent);
+        finish();
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -1687,20 +1742,23 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             case R.id.action_redo_play:
                 redoPlay();
                 break;
+            case R.id.action_edit_lineup:
+                gotoLineupEditor(homeTeamName);
+                break;
             case R.id.action_goto_stats:
-                Intent intent = new Intent(GameActivity.this, BoxScoreActivity.class);
+                Intent statsIntent = new Intent(GameActivity.this, BoxScoreActivity.class);
                 Bundle b = new Bundle();
                 b.putString("awayTeam", awayTeamName);
                 b.putString("homeTeam", homeTeamName);
                 b.putInt("totalInnings", totalInnings);
                 b.putInt("awayTeamRuns", awayTeamRuns);
                 b.putInt("homeTeamRuns", homeTeamRuns);
-                intent.putExtras(b);
-                startActivity(intent);
+                statsIntent.putExtras(b);
+                startActivity(statsIntent);
                 break;
             case R.id.action_exit_game:
-                intent = new Intent(GameActivity.this, LeagueManagerActivity.class);
-                startActivity(intent);
+                Intent exitIntent = new Intent(GameActivity.this, LeagueManagerActivity.class);
+                startActivity(exitIntent);
                 finish();
                 break;
             case R.id.action_finish_game:

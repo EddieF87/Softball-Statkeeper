@@ -42,6 +42,7 @@ import com.example.android.scorekeepdraft1.adapters_listeners_etc.TeamListAdapte
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.dialogs.FinishGameDialogFragment;
+import com.example.android.scorekeepdraft1.fragments.LineupFragment;
 import com.example.android.scorekeepdraft1.gamelog.BaseLog;
 import com.example.android.scorekeepdraft1.gamelog.PlayerLog;
 import com.example.android.scorekeepdraft1.gamelog.TeamLog;
@@ -180,6 +181,7 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameDia
 
     private int totalInnings;
     private String teamID;
+    private String myTeamName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -195,7 +197,7 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameDia
         }
         MainPageSelection mainPageSelection = myApp.getCurrentSelection();
         teamID = mainPageSelection.getId();
-        String myTeamName = mainPageSelection.getName();
+        myTeamName = mainPageSelection.getName();
 
         SharedPreferences settingsPreferences =
                 getSharedPreferences(teamID + "settings", MODE_PRIVATE);
@@ -398,11 +400,14 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameDia
         int genderIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_GENDER);
 
         ArrayList<Player> team = new ArrayList<>();
+
         while (playerCursor.moveToNext()) {
+
             int order = playerCursor.getInt(orderIndex);
             if (order >100) {
                 continue;
             }
+
             int playerId = playerCursor.getInt(idIndex);
             String playerName = playerCursor.getString(nameIndex);
             String firestoreID = playerCursor.getString(firestoreIDIndex);
@@ -566,10 +571,7 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameDia
         homeTeamRuns = currentBaseLogStart.getHomeTeamRuns();
         gameOuts = currentBaseLogStart.getOutCount();
         currentBatter = currentBaseLogStart.getBatter();
-        if (currentBatter == myTeam.get(myTeamIndex)) {
-            Log.d("xxx", "equal");
-        } else {
-            Log.d("xxx", "UNequal");
+        if (currentBatter != myTeam.get(myTeamIndex)) {
             currentBatter = myTeam.get(myTeamIndex);
             ContentValues values = new ContentValues();
             values.put(StatsEntry.COLUMN_ONDECK, currentBatter.getName());
@@ -1756,20 +1758,27 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameDia
             case R.id.action_redo_play:
                 redoPlay();
                 break;
+            case R.id.action_edit_lineup:
+                Intent editorIntent = new Intent(TeamGameActivity.this, SetLineupActivity.class);
+                editorIntent.putExtra("team", myTeamName);
+                editorIntent.putExtra("ingame", true);
+                startActivity(editorIntent);
+                finish();
+                break;
             case R.id.action_goto_stats:
-                Intent intent = new Intent(TeamGameActivity.this, BoxScoreActivity.class);
+                Intent statsIntent = new Intent(TeamGameActivity.this, BoxScoreActivity.class);
                 Bundle b = new Bundle();
                 b.putString("awayTeam", awayTeamName);
                 b.putString("homeTeam", homeTeamName);
                 b.putInt("totalInnings", totalInnings);
                 b.putInt("awayTeamRuns", awayTeamRuns);
                 b.putInt("homeTeamRuns", homeTeamRuns);
-                intent.putExtras(b);
-                startActivity(intent);
+                statsIntent.putExtras(b);
+                startActivity(statsIntent);
                 break;
             case R.id.action_exit_game:
-                intent = new Intent(TeamGameActivity.this, TeamManagerActivity.class);
-                startActivity(intent);
+                Intent exitIntent = new Intent(TeamGameActivity.this, TeamManagerActivity.class);
+                startActivity(exitIntent);
                 finish();
                 break;
             case R.id.action_finish_game:
