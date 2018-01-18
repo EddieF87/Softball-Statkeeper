@@ -60,35 +60,21 @@ public class LineupFragment extends Fragment {
     private int mType;
     private String mSelectionID;
     private boolean inGame;
-    private boolean editedAway;
 
     private static final String KEY_TEAM = "team";
     private static final String KEY_INGAME = "ingame";
-    private static final String KEY_AWAY = "editaway";
 
     public LineupFragment() {
         // Required empty public constructor
     }
 
-    public static LineupFragment newInstance(String selectionID, int selectionType, String team) {
+    public static LineupFragment newInstance(String selectionID, int selectionType,
+                                             String team, boolean isInGame) {
         Bundle args = new Bundle();
         args.putString(MainPageSelection.KEY_SELECTION_ID, selectionID);
         args.putInt(MainPageSelection.KEY_SELECTION_TYPE, selectionType);
         args.putString(KEY_TEAM, team);
-        args.putBoolean(KEY_INGAME, false);
-        args.putBoolean(KEY_AWAY, false);
-        LineupFragment fragment = new LineupFragment();
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    public static LineupFragment newInstance(String selectionID, int selectionType, String team, boolean isAway) {
-        Bundle args = new Bundle();
-        args.putString(MainPageSelection.KEY_SELECTION_ID, selectionID);
-        args.putInt(MainPageSelection.KEY_SELECTION_TYPE, selectionType);
-        args.putString(KEY_TEAM, team);
-        args.putBoolean(KEY_INGAME, true);
-        args.putBoolean(KEY_AWAY, isAway);
+        args.putBoolean(KEY_INGAME, isInGame);
         LineupFragment fragment = new LineupFragment();
         fragment.setArguments(args);
         return fragment;
@@ -105,7 +91,6 @@ public class LineupFragment extends Fragment {
             mType = args.getInt(MainPageSelection.KEY_SELECTION_TYPE);
             mTeam = args.getString(KEY_TEAM);
             inGame = args.getBoolean(KEY_INGAME);
-            editedAway = args.getBoolean(KEY_AWAY);
         } else {
             getActivity().finish();
         }
@@ -155,17 +140,43 @@ public class LineupFragment extends Fragment {
             setNewLineupToTempDB(getPreviousLineup(mTeam));
             Intent intent;
             SharedPreferences gamePreferences = getActivity().getSharedPreferences(mSelectionID + "game", Context.MODE_PRIVATE);
+
             SharedPreferences.Editor editor = gamePreferences.edit();
             if (mType == MainPageSelection.TYPE_LEAGUE) {
+                String awayTeam = gamePreferences.getString("keyAwayTeam", null);
+                String homeTeam = gamePreferences.getString("keyHomeTeam", null);
+                int sortArgument = gamePreferences.getInt("keyGenderSort", 0);
+
+                switch (sortArgument) {
+                    case 3:
+                        if (mTeam.equals(awayTeam)) {
+                            sortArgument = 2;
+                        } else if (mTeam.equals(homeTeam)) {
+                            sortArgument = 1;
+                        }
+                        break;
+
+                    case 2:
+                        if (mTeam.equals(homeTeam)) {
+                            sortArgument = 0;
+                        }
+                        break;
+
+                    case 1:
+                        if (mTeam.equals(awayTeam)) {
+                            sortArgument = 0;
+                        }
+                        break;
+                }
+
                 intent = new Intent(getActivity(), GameActivity.class);
-                editor.putInt("keyGenderSort", 0);
+                editor.putInt("keyGenderSort", sortArgument);
             } else {
                 intent = new Intent(getActivity(), TeamGameActivity.class);
                 editor.putBoolean("keyGenderSort", false);
             }
-            editor.putInt("keyFemaleOrder", 0);
             editor.commit();
-            intent.putExtra("editedaway", editedAway);
+            intent.putExtra("edited", true);
             startActivity(intent);
             getActivity().finish();
         }
@@ -225,7 +236,7 @@ public class LineupFragment extends Fragment {
         updateLineupRV();
         updateBenchRV();
 
-        if (mType == MainPageSelection.TYPE_TEAM) {
+        if (mType == MainPageSelection.TYPE_TEAM && !inGame) {
             Button lineupSubmitButton = getView().findViewById(R.id.lineup_submit);
             lineupSubmitButton.setText(R.string.start);
             View radioButtonGroup = getView().findViewById(R.id.radiobtns_away_or_home_team);

@@ -308,6 +308,14 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameDia
         TextView teamText = findViewById(R.id.team_text);
         teamText.setText(myTeamName);
 
+        Button teamEdit = findViewById(R.id.team_edit);
+        teamEdit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                gotoLineupEditor();
+            }
+        });
+
         gameCursor = getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG, null,
                 null, null, null);
         if (gameCursor.moveToFirst()) {
@@ -318,6 +326,14 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameDia
             myTeamIndex = gamePreferences.getInt(KEY_MYTEAMINDEX, 0);
             undoRedo = gamePreferences.getBoolean(KEY_UNDOREDO, false);
             redoEndsGame = gamePreferences.getBoolean(KEY_REDOENDSGAME, false);
+
+            if (args != null) {
+                if (args.getBoolean("edited") && undoRedo) {
+                    deleteGameLogs();
+                    highestIndex = gameLogIndex;
+                    invalidateOptionsMenu();
+                }
+            }
 
             sortArgument = gamePreferences.getBoolean(KEY_GENDERSORT, false);
             if (sortArgument) {
@@ -332,6 +348,14 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameDia
         finalInning = false;
 
         startGame();
+    }
+
+    public void gotoLineupEditor() {
+        Intent editorIntent = new Intent(TeamGameActivity.this, SetLineupActivity.class);
+        editorIntent.putExtra("team", myTeamName);
+        editorIntent.putExtra("ingame", true);
+        startActivity(editorIntent);
+        finish();
     }
 
     private void genderSort(int femaleRequired) {
@@ -903,6 +927,8 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameDia
             currentBatter = null;
             if (undoRedo) {
                 deleteGameLogs();
+                currentRunsLog.clear();
+                currentRunsLog.addAll(tempRunsLog);
             }
             nextBatter();
         }
@@ -1328,6 +1354,8 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameDia
         submitPlay.setEnabled(false);
         if (undoRedo) {
             deleteGameLogs();
+            currentRunsLog.clear();
+            currentRunsLog.addAll(tempRunsLog);
         }
         updatePlayerStats(result, 1);
         gameOuts += tempOuts;
@@ -1345,8 +1373,6 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameDia
         getContentResolver().delete(toDelete, null, null);
         undoRedo = false;
         redoEndsGame = false;
-        currentRunsLog.clear();
-        currentRunsLog.addAll(tempRunsLog);
     }
 
     public void getGameColumnIndexes() {
@@ -1759,11 +1785,7 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameDia
                 redoPlay();
                 break;
             case R.id.action_edit_lineup:
-                Intent editorIntent = new Intent(TeamGameActivity.this, SetLineupActivity.class);
-                editorIntent.putExtra("team", myTeamName);
-                editorIntent.putExtra("ingame", true);
-                startActivity(editorIntent);
-                finish();
+                gotoLineupEditor();
                 break;
             case R.id.action_goto_stats:
                 Intent statsIntent = new Intent(TeamGameActivity.this, BoxScoreActivity.class);

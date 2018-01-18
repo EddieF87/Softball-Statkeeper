@@ -144,7 +144,7 @@ public class TeamManagerActivity extends AppCompatActivity
                     if (level < 3) {
                         return null;
                     }
-                    return LineupFragment.newInstance(teamID, leagueType, leagueName);
+                    return LineupFragment.newInstance(teamID, leagueType, leagueName, false);
                 default:
                     return null;
             }

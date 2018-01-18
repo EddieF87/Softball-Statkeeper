@@ -46,12 +46,10 @@ public class SetLineupActivity extends SingleFragmentActivity
         Bundle args = getIntent().getExtras();
         String team = null;
         boolean inGame = false;
-        boolean editedAway = false;
 
         if (args != null) {
             team = args.getString("team");
             inGame = args.getBoolean("ingame");
-            editedAway = args.getBoolean("editedaway");
         } else {
             finish();
         }
@@ -64,11 +62,8 @@ public class SetLineupActivity extends SingleFragmentActivity
         }
         int type = mainPageSelection.getType();
         String leagueId = mainPageSelection.getId();
-        if (inGame) {
-            lineupFragment = LineupFragment.newInstance(leagueId, type, team, editedAway);
-        } else {
-            lineupFragment = LineupFragment.newInstance(leagueId, type, team);
-        }
+
+        lineupFragment = LineupFragment.newInstance(leagueId, type, team, inGame);
         return lineupFragment;
     }
 
