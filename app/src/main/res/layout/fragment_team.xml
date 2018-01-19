@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     tools:context="com.example.android.scorekeepdraft1.activities.TeamManagerActivity">
 
@@ -25,72 +24,86 @@
             android:id="@+id/teamName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="4"
-            android:textSize="48sp"
-            android:autoSizeTextType="uniform"
-            android:autoSizeMinTextSize="24sp"
-            android:textAlignment="center"
             android:layout_marginLeft="8dp"
-            android:layout_marginTop="8dp"
             android:layout_marginStart="8dp"
-            android:maxLines="1"/>
+            android:layout_marginTop="8dp"
+            android:layout_weight="4"
+            android:autoSizeMinTextSize="24sp"
+            android:autoSizeTextType="uniform"
+            android:maxLines="1"
+            android:textAlignment="center"
+            android:textSize="48sp" />
 
         <TextView
             android:id="@+id/teamRecord"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textSize="24sp"
-            android:gravity="start"
             android:layout_marginLeft="8dp"
-            android:layout_marginTop="8dp"
             android:layout_marginStart="8dp"
-            android:maxLines="1"/>
+            android:layout_marginTop="8dp"
+            android:layout_weight="1"
+            android:gravity="start"
+            android:maxLines="1"
+            android:textSize="24sp" />
     </LinearLayout>
 
 
-    <HorizontalScrollView
-        android:id="@+id/scrollView1"
+    <FrameLayout
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@drawable/back_white"
-        android:padding="6dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="16dp"
         app:layout_constraintBottom_toTopOf="@+id/item_player_adder"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/team_header">
 
-        <LinearLayout
-            android:layout_width="wrap_content"
+
+        <HorizontalScrollView
+            android:id="@+id/team_scroll_view"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/back_white"
+            android:padding="6dp">
 
-            <include
-                android:id="@+id/team_stats_titles"
-                layout="@layout/item_stats_title" />
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/rv_players"
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
-        </LinearLayout>
-    </HorizontalScrollView>
+                <include
+                    android:id="@+id/team_stats_titles"
+                    layout="@layout/item_stats_title" />
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/rv_players"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        <TextView
+            android:id="@+id/empty_team_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="Add players below!"
+            android:visibility="gone"
+            />
+    </FrameLayout>
 
     <include
         android:id="@+id/item_player_adder"
         layout="@layout/item_adder"
-        android:layout_height="wrap_content"
         android:layout_width="0dp"
+        android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        />
+        app:layout_constraintStart_toStartOf="parent" />
 
 
 </android.support.constraint.ConstraintLayout>

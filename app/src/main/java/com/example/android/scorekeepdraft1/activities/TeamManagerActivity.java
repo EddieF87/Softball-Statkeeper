@@ -18,7 +18,6 @@ import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
-import com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.dialogs.CreateTeamDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.GameSettingsDialogFragment;
@@ -32,8 +31,7 @@ import java.util.List;
 
 public class TeamManagerActivity extends AppCompatActivity
         implements CreateTeamDialogFragment.OnListFragmentInteractionListener,
-        GameSettingsDialogFragment.OnFragmentInteractionListener,
-        FirestoreAdapter.onFirestoreSyncListener{
+        GameSettingsDialogFragment.OnFragmentInteractionListener {
 
     private LineupFragment lineupFragment;
     private TeamFragment teamFragment;
@@ -60,10 +58,6 @@ public class TeamManagerActivity extends AppCompatActivity
             level = mainPageSelection.getLevel();
             setTitle(leagueName);
         }
-
-        Toast.makeText(this, "syncing", Toast.LENGTH_SHORT).show();
-        FirestoreAdapter firestoreAdapter = new FirestoreAdapter(this);
-        firestoreAdapter.syncStats();
 
         ViewPager viewPager = findViewById(R.id.league_view_pager);
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -109,6 +103,12 @@ public class TeamManagerActivity extends AppCompatActivity
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        Log.d("xxx", "teammanager onResume()");
+    }
+
+    @Override
     public void onGameSettingsChanged(int innings, int genderSorter) {
         boolean genderSettingsOn = genderSorter != 0;
 
@@ -120,14 +120,7 @@ public class TeamManagerActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public void onFirestoreSync() {
-        Log.d("yyy", "firestoresyncccccc");
-        Toast.makeText(TeamManagerActivity.this, "gfdfggg", Toast.LENGTH_LONG).show();
-        if (teamFragment != null && teamFragment.isAdded()) {
-            teamFragment.onResume();
-        }
-    }
+
 
     private class TeamManagerPagerAdapter extends FragmentPagerAdapter {
 
@@ -142,6 +135,7 @@ public class TeamManagerActivity extends AppCompatActivity
                     return TeamFragment.newInstance(teamID, leagueType, leagueName, level);
                 case 1:
                     if (level < 3) {
+                        Log.d("xxx", "level < 3");
                         return null;
                     }
                     return LineupFragment.newInstance(teamID, leagueType, leagueName, false);

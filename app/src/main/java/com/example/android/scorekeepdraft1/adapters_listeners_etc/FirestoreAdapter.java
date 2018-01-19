@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.example.android.scorekeepdraft1.MyApp;
@@ -15,14 +14,11 @@ import com.example.android.scorekeepdraft1.gamelog.PlayerLog;
 import com.example.android.scorekeepdraft1.gamelog.TeamLog;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.Transaction;
 import com.google.firebase.firestore.WriteBatch;
 
 /**
@@ -57,6 +53,7 @@ public class FirestoreAdapter {
     public void syncStats() {
         MyApp myApp = (MyApp) mContext.getApplicationContext();
         final String leagueID = myApp.getCurrentSelection().getId();
+        mListener.onFirestoreSync();
 
         mFirestore.collection(LEAGUE_COLLECTION).document(leagueID).collection(PLAYERS_COLLECTION)
                 .get()
@@ -64,11 +61,16 @@ public class FirestoreAdapter {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            for (DocumentSnapshot document : task.getResult()) {
+
+                            QuerySnapshot querySnapshot = task.getResult();
+                            int numberOfPlayers = querySnapshot.size();
+                            mListener.onSyncStart(numberOfPlayers, false);
+
+                            for (DocumentSnapshot document : querySnapshot) {
                                 Log.d(TAG, document.getId() + " => " + document.getData());
                                 final Player player = document.toObject(Player.class);
                                 final String playerIdString = document.getId();
-                                int id = player.getTeamId();
+//                                int id = player.getTeamId();
 
                                 mFirestore.collection(LEAGUE_COLLECTION).document(leagueID).collection(PLAYERS_COLLECTION)
                                         .document(playerIdString).collection(PLAYER_LOGS)
@@ -171,13 +173,15 @@ public class FirestoreAdapter {
                                                         values.put(StatsEntry.COLUMN_FIRESTORE_ID, playerIdString);
                                                         mContext.getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
                                                     }
+                                                    mListener.onSyncUpdate(false);
+                                                } else {
+                                                    mListener.onSyncError();
                                                 }
-
                                             }
                                         });
-                                mListener.onFirestoreSync();
                             }
                         } else {
+                            mListener.onSyncError();
                             Log.d(TAG, "Error getting documents: ", task.getException());
                         }
                     }
@@ -190,14 +194,15 @@ public class FirestoreAdapter {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
+                            QuerySnapshot querySnapshot = task.getResult();
+                            int numberOfTeams = querySnapshot.size();
+                            mListener.onSyncStart(numberOfTeams, true);
 
-                            int batchNum = 0;
                             //loop through teams
-                            for (DocumentSnapshot document : task.getResult()) {
+                            for (DocumentSnapshot document : querySnapshot) {
                                 //Get the document data and ID of a team
                                 final Team team = document.toObject(Team.class);
                                 final String teamIdString = document.getId();
-                                Log.d(TAG, "Batch #" + batchNum);
 
                                 //Get the logs for a team
                                 mFirestore.collection(LEAGUE_COLLECTION).document(leagueID).collection(TEAMS_COLLECTION)
@@ -272,12 +277,15 @@ public class FirestoreAdapter {
                                                         values.put(StatsEntry.COLUMN_FIRESTORE_ID, teamIdString);
                                                         mContext.getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
                                                     }
+                                                    mListener.onSyncUpdate(true);
+                                                } else {
+                                                    mListener.onSyncError();
                                                 }
-                                                mListener.onFirestoreSync();
                                             }
                                         });
                             }
                         } else {
+                            mListener.onSyncError();
                             Log.d(TAG, "Error getting documents: ", task.getException());
                         }
                     }
@@ -352,5 +360,11 @@ public class FirestoreAdapter {
 
     public interface onFirestoreSyncListener {
         void onFirestoreSync();
+
+        void onSyncStart(int numberOf, boolean teams);
+
+        void onSyncUpdate(boolean teams);
+
+        void onSyncError();
     }
 }

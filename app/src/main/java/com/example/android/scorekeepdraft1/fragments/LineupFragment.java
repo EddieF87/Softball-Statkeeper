@@ -206,6 +206,7 @@ public class LineupFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        Log.d("xxx", "lineupfragment onResume()");
         mLineup = new ArrayList<>();
         mBench = new ArrayList<>();
 

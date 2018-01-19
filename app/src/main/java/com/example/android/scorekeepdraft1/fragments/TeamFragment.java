@@ -74,6 +74,12 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
         // Required empty public constructor
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d("xxx", "teamfragment onResume()");
+    }
+
     public static TeamFragment newInstance(String leagueID, int leagueType, String leagueName, int level) {
         Bundle args = new Bundle();
         args.putString(MainPageSelection.KEY_SELECTION_ID, leagueID);
@@ -155,7 +161,7 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
         } else {
             addPlayerView.setVisibility(View.INVISIBLE);
         }
-        getLoaderManager();
+        getLoaderManager().initLoader(EXISTING_TEAM_LOADER, null, this);
 
         return rootView;
     }
@@ -165,12 +171,6 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         DialogFragment newFragment = CreateTeamDialogFragment.newInstance(team);
         newFragment.show(fragmentTransaction, "");
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        getLoaderManager().restartLoader(EXISTING_TEAM_LOADER, null, this);
     }
 
 
@@ -241,8 +241,9 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
             String recordText = wins + "-" + losses + "-" + ties;
             teamRecordView.setText(recordText);
         } else {
-            //todo add dialog about adding teams/players
+            return;
         }
+
         int sumG = wins + losses + ties;
 
         if (waivers) {
@@ -319,8 +320,21 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
         if (mPlayers.size() >0 && !waivers) {
             mPlayers.add(new Player("Total", teamSelected, 2, sumSgl, sumDbl, sumTpl, sumHr, sumBb,
                     sumRun, sumRbi, sumOut, sumSf, sumG, 0, ""));
+            setRecyclerViewVisible();
+        } else if (!waivers) {
+            setEmptyViewVisible();
         }
         updateTeamRV();
+    }
+
+    public void setEmptyViewVisible () {
+        getView().findViewById(R.id.team_scroll_view).setVisibility(View.GONE);
+        getView().findViewById(R.id.empty_team_text).setVisibility(View.VISIBLE);
+    }
+
+    public void setRecyclerViewVisible () {
+        getView().findViewById(R.id.empty_team_text).setVisibility(View.GONE);
+        getView().findViewById(R.id.team_scroll_view).setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -330,6 +344,7 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
     public void addPlayers(List<Player> newPlayers) {
         if (mPlayers.isEmpty()) {
             mPlayers.add(new Player("Total", teamSelected, 2));
+            setRecyclerViewVisible();
         }
         int position = mPlayers.size() - 1;
         mPlayers.addAll(position, newPlayers);
@@ -457,6 +472,7 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
                     } else {
                         updatePlayersTeam("Free Agent");
                         clearPlayers();
+                        setEmptyViewVisible();
                     }
                 }
             });
@@ -467,6 +483,7 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             deletePlayers();
+                            setEmptyViewVisible();
                         }
                     });
         }

@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.activities.LeagueManagerActivity;
+import com.example.android.scorekeepdraft1.activities.LoadingActivity;
 import com.example.android.scorekeepdraft1.activities.PlayerManagerActivity;
 import com.example.android.scorekeepdraft1.activities.TeamManagerActivity;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
@@ -52,14 +53,15 @@ public class MainPageAdapter extends RecyclerView.Adapter<MainPageAdapter.MainPa
         final int selectionType = mainPageSelection.getType();
         final Intent intent;
         String name;
+
         switch (selectionType) {
             case MainPageSelection.TYPE_LEAGUE:
-                intent = new Intent(mContext, LeagueManagerActivity.class);
+                intent = new Intent(mContext, LoadingActivity.class);
                 name = mainPageSelection.getName() + "  (League)";
                 nameView.setTextColor(Color.MAGENTA);
                 break;
             case MainPageSelection.TYPE_TEAM:
-                intent = new Intent(mContext, TeamManagerActivity.class);
+                intent = new Intent(mContext, LoadingActivity.class);
                 name = mainPageSelection.getName() + "  (Team)";
                 nameView.setTextColor(Color.BLUE);
                 break;
@@ -71,8 +73,8 @@ public class MainPageAdapter extends RecyclerView.Adapter<MainPageAdapter.MainPa
             default:
                 return;
         }
-        nameView.setText(name);
 
+        nameView.setText(name);
         nameView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

@@ -310,7 +310,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             redoEndsGame = gamePreferences.getBoolean(KEY_REDOENDSGAME, redoEndsGame);
 
             Bundle args = getIntent().getExtras();
-            if(args != null) {
+            if (args != null) {
                 if (args.getBoolean("edited") && undoRedo) {
                     deleteGameLogs();
                     highestIndex = gameLogIndex;
@@ -570,14 +570,14 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         if (currentTeam == homeTeam) {
             awayTeamListAdapter.setCurrentLineupPosition(-1);
             setLineupRVPosition(true);
-            if(homeTeamIndex >= currentTeam.size()) {
+            if (homeTeamIndex >= currentTeam.size()) {
                 homeTeamIndex = 0;
             }
             lineupIndex = homeTeamIndex;
         } else {
             homeTeamListAdapter.setCurrentLineupPosition(-1);
             setLineupRVPosition(false);
-            if(awayTeamIndex >= currentTeam.size()) {
+            if (awayTeamIndex >= currentTeam.size()) {
                 awayTeamIndex = 0;
             }
             lineupIndex = awayTeamIndex;
@@ -1733,7 +1733,7 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
                 redoPlay();
                 break;
             case R.id.action_edit_lineup:
-                gotoLineupEditor(homeTeamName);
+                chooseTeamToEditDialog();
                 break;
             case R.id.action_goto_stats:
                 Intent statsIntent = new Intent(GameActivity.this, BoxScoreActivity.class);
@@ -1803,5 +1803,39 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         });
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
+    }
+
+    private void chooseTeamToEditDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Choose team to edit:");
+        builder.setNegativeButton(awayTeamName, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int i) {
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+                gotoLineupEditor(awayTeamName);
+            }
+        });
+        builder.setPositiveButton(homeTeamName, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int i) {
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+                gotoLineupEditor(homeTeamName);
+            }
+        });
+        builder.setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int i) {
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+
     }
 }
