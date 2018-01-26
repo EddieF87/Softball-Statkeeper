@@ -19,6 +19,7 @@ import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.dialogs.CreateTeamDialogFragment;
+import com.example.android.scorekeepdraft1.dialogs.DeleteConfirmationDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.GameSettingsDialogFragment;
 import com.example.android.scorekeepdraft1.fragments.PlayerFragment;
 import com.example.android.scorekeepdraft1.fragments.TeamFragment;
@@ -30,7 +31,8 @@ import java.util.List;
 
 public class ObjectPagerActivity extends AppCompatActivity
         implements CreateTeamDialogFragment.OnListFragmentInteractionListener,
-        GameSettingsDialogFragment.OnFragmentInteractionListener {
+        GameSettingsDialogFragment.OnFragmentInteractionListener,
+        DeleteConfirmationDialogFragment.OnFragmentInteractionListener{
 
     private List<Integer> objectIDs;
     private ViewPager mViewPager;
@@ -41,6 +43,8 @@ public class ObjectPagerActivity extends AppCompatActivity
     private int mObjectType;
     private Uri mUri;
     private MyFragmentStatePagerAdapter mAdapter;
+    private static final int KEY_TEAM_PAGER = 0;
+    private static final int KEY_PLAYER_PAGER = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,16 +70,21 @@ public class ObjectPagerActivity extends AppCompatActivity
         setTitle(leagueName);
 
         objectIDs = new ArrayList<>();
-
+        String sortOrder;
+        if (mObjectType == KEY_PLAYER_PAGER) {
+            sortOrder = StatsEntry.COLUMN_TEAM + " COLLATE NOCASE ASC, " + StatsEntry.COLUMN_NAME + " COLLATE NOCASE ASC";
+        } else {
+            sortOrder = StatsEntry.COLUMN_NAME + " COLLATE NOCASE ASC";
+        }
         Cursor cursor = getContentResolver().query(uri, null,
-                null, null, null);
+                null, null, sortOrder);
         while (cursor.moveToNext()) {
             int objectID = cursor.getInt(cursor.getColumnIndex(StatsEntry._ID));
             objectIDs.add(objectID);
         }
         cursor.close();
 
-        if (mObjectType == 0) {
+        if (mObjectType == KEY_TEAM_PAGER) {
             objectIDs.add(-1);
         }
 
@@ -143,6 +152,26 @@ public class ObjectPagerActivity extends AppCompatActivity
         TeamFragment teamFragment = (TeamFragment) mAdapter.getRegisteredFragment(pos);
         if (teamFragment != null) {
             teamFragment.changeColorsRV(genderSettingsOn);
+        }
+    }
+
+    @Override
+    public void onDeletionChoice(boolean delete) {
+        if(!delete) {
+            return;
+        }
+        int pos = mViewPager.getCurrentItem();
+
+        if (mObjectType == KEY_PLAYER_PAGER) {
+            PlayerFragment playerFragment = (PlayerFragment) mAdapter.getRegisteredFragment(pos);
+            if (playerFragment != null) {
+                playerFragment.deletePlayer();
+            }
+        } else if (mObjectType == KEY_TEAM_PAGER){
+            TeamFragment teamFragment = (TeamFragment) mAdapter.getRegisteredFragment(pos);
+            if (teamFragment != null) {
+                teamFragment.deleteTeam();
+            }
         }
     }
 

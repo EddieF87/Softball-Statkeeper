@@ -29,4 +29,11 @@ public class PlayerPagerActivity extends ObjectPagerActivity {
         super.onCreate(savedInstanceState);
         startPager(1, StatsContract.StatsEntry.CONTENT_URI_PLAYERS);
     }
+
+    public void returnResult(boolean deleted) {
+        Intent intent = getIntent();
+        intent.putExtra("keyDeleted", deleted);
+        setResult(RESULT_OK, intent);
+        finish();
+    }
 }

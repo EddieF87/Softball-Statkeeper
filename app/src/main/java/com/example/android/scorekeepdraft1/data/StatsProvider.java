@@ -511,8 +511,6 @@ public class StatsProvider extends ContentProvider {
         }
         SQLiteDatabase database = mOpenHelper.getWritableDatabase();
         int rowsUpdated = database.update(table, values, selection, selectionArgs);
-        Log.d(TAG, " row table " + table + "   selectionargs " + Arrays.toString(selectionArgs));
-
 
         if (rowsUpdated != 0) {
             getContext().getContentResolver().notifyChange(uri, null);

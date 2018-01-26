@@ -14,6 +14,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.content.Intent;
@@ -46,10 +47,12 @@ import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.example.android.scorekeepdraft1.objects.Player;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
-public class TeamFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class TeamFragment extends Fragment
+        implements LoaderManager.LoaderCallbacks<Cursor>, View.OnClickListener {
 
     private Uri mCurrentTeamUri;
     private static final int EXISTING_TEAM_LOADER = 3;
@@ -63,11 +66,15 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
     private String teamSelected;
     private boolean waivers;
 
+    private int statSort;
+    private TextView colorView;
+
     private int mSelectionType;
     private String mSelectionID;
     private String mSelectionName;
     private int mLevel;
     private static final String KEY_TEAM_URI = "teamURI";
+    private static final String KEY_STAT_SORT = "keyStatSort";
 
 
     public TeamFragment() {
@@ -77,7 +84,6 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onResume() {
         super.onResume();
-        Log.d("xxx", "teamfragment onResume()");
     }
 
     public static TeamFragment newInstance(String leagueID, int leagueType, String leagueName, int level) {
@@ -126,9 +132,17 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        if (savedInstanceState != null) {
+            statSort = savedInstanceState.getInt(KEY_STAT_SORT, -1);
+        } else {
+            statSort = -1;
+        }
+
         View rootView = inflater.inflate(R.layout.fragment_team, container, false);
 
         waivers = false;
+
 
         if (mSelectionType == MainPageSelection.TYPE_TEAM) {
             teamSelected = mSelectionName;
@@ -149,6 +163,22 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
         teamRecordView = rootView.findViewById(R.id.teamRecord);
         rv = rootView.findViewById(R.id.rv_players);
 
+        rootView.findViewById(R.id.name_title).setOnClickListener(this);
+        rootView.findViewById(R.id.hr_title).setOnClickListener(this);
+        rootView.findViewById(R.id.ab_title).setOnClickListener(this);
+        rootView.findViewById(R.id.hit_title).setOnClickListener(this);
+        rootView.findViewById(R.id.rbi_title).setOnClickListener(this);
+        rootView.findViewById(R.id.run_title).setOnClickListener(this);
+        rootView.findViewById(R.id.avg_title).setOnClickListener(this);
+        rootView.findViewById(R.id.obp_title).setOnClickListener(this);
+        rootView.findViewById(R.id.slg_title).setOnClickListener(this);
+        rootView.findViewById(R.id.ops_title).setOnClickListener(this);
+        rootView.findViewById(R.id.sgl_title).setOnClickListener(this);
+        rootView.findViewById(R.id.dbl_title).setOnClickListener(this);
+        rootView.findViewById(R.id.tpl_title).setOnClickListener(this);
+        rootView.findViewById(R.id.bb_title).setOnClickListener(this);
+        rootView.findViewById(R.id.game_title).setOnClickListener(this);
+
         View addPlayerView = rootView.findViewById(R.id.item_player_adder);
         FloatingActionButton startAdderBtn = addPlayerView.findViewById(R.id.btn_start_adder);
         if (levelAuthorized(3)) {
@@ -164,6 +194,10 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
         getLoaderManager().initLoader(EXISTING_TEAM_LOADER, null, this);
 
         return rootView;
+    }
+
+    public void restartLoader() {
+        getLoaderManager().restartLoader(EXISTING_TEAM_LOADER, null, this);
     }
 
     private void createTeamFragment(String team) {
@@ -219,7 +253,6 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
                 selectionArgs,
                 null
         );
-
     }
 
     @Override
@@ -240,7 +273,7 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
 
             String recordText = wins + "-" + losses + "-" + ties;
             teamRecordView.setText(recordText);
-        } else {
+        } else if (!waivers) {
             return;
         }
 
@@ -260,7 +293,11 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
         cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS,
                 null, selection, selectionArgs, sortOrder);
 
-        mPlayers = new ArrayList<>();
+        if(mPlayers == null) {
+            mPlayers = new ArrayList<>();
+        } else {
+            mPlayers.clear();
+        }
 
         int nameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_NAME);
         int hrIndex = cursor.getColumnIndex(StatsEntry.COLUMN_HR);
@@ -319,12 +356,17 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
         }
         if (mPlayers.size() >0 && !waivers) {
             mPlayers.add(new Player("Total", teamSelected, 2, sumSgl, sumDbl, sumTpl, sumHr, sumBb,
-                    sumRun, sumRbi, sumOut, sumSf, sumG, 0, ""));
+                    sumRun, sumRbi, sumOut, sumSf, sumG, -1, ""));
             setRecyclerViewVisible();
         } else if (!waivers) {
             setEmptyViewVisible();
         }
-        updateTeamRV();
+
+        if (statSort != -1) {
+            sortStats(statSort);
+        } else {
+            updateTeamRV();
+        }
     }
 
     public void setEmptyViewVisible () {
@@ -387,8 +429,6 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
                 editNameDialog();
                 return true;
             case R.id.action_edit_photo:
-                FirestoreAdapter statsTransfer = new FirestoreAdapter(getActivity());
-                statsTransfer.syncStats();
                 return true;
             case R.id.action_edit_lineup:
                 Intent setLineupIntent = new Intent(getActivity(), SetLineupActivity.class);
@@ -424,6 +464,7 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
 
     private void showDeleteConfirmationDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("Delete " + teamSelected + "?");
         builder.setMessage(R.string.delete_team_msg);
         builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
@@ -500,10 +541,11 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
         alertDialog.show();
     }
 
-    //todo
     private void editNameDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage(R.string.edit_team_name);
+        String titleString = getContext().getResources().getString(R.string.edit_object_name);
+        String title = String.format(titleString, teamSelected);
+        builder.setTitle(title);
         final LayoutInflater inflater = getLayoutInflater();
         builder.setView(inflater.inflate(R.layout.dialog_edit_name, null))
                 .setPositiveButton("Save", new DialogInterface.OnClickListener() {
@@ -526,7 +568,7 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
         alertDialog.show();
     }
 
-    private void deleteTeam() {
+    public void deleteTeam() {
         if (mCurrentTeamUri != null) {
             int rowsDeleted = getActivity().getContentResolver().delete(mCurrentTeamUri, null, null);
 
@@ -543,7 +585,12 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
 
     private void deletePlayers() {
         String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
-        for (int i = 0; i < mPlayers.size() - 1; i++) {
+        int total = 1;
+        if (waivers) {
+            total--;
+        }
+
+        for (int i = 0; i < mPlayers.size() - total; i++) {
             Player player = mPlayers.get(i);
             String firestoreID = player.getFirestoreID();
             String[] selectionArgs = new String[]{firestoreID};
@@ -586,15 +633,108 @@ public class TeamFragment extends Fragment implements LoaderManager.LoaderCallba
             Player player = mPlayers.get(i);
             long playerID = player.getPlayerId();
             String firestoreID = player.getFirestoreID();
-            if (firestoreID == null) {
-                Log.d("xxx team", "firestoreid = null");
-            } else {
-                Log.d("xxx team", "firestoreid = " + firestoreID);
-            }
+
             contentValues.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
+
             Uri playerURI = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_PLAYERS, playerID);
             getActivity().getContentResolver().update(playerURI, contentValues, null, null);
         }
         updateTeamRV();
+    }
+
+    @Override
+    public void onClick(View v) {
+        statSort = v.getId();
+        sortStats(statSort);
+    }
+
+    private void sortStats (int statSorter) {
+        if (colorView != null) {
+            colorView.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.stat_title));
+        }
+        colorView = getView().findViewById(statSorter);
+        colorView.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorPrimaryLight));
+
+        Player total = mPlayers.get(mPlayers.size() - 1);
+        mPlayers.remove(total);
+
+        switch (statSorter) {
+
+            case R.id.name_title:
+                Collections.sort(mPlayers, Player.nameComparator());
+                break;
+
+            case R.id.team_abv_title:
+                Collections.sort(mPlayers, Player.teamComparator());
+                break;
+
+            case R.id.ab_title:
+                Collections.sort(mPlayers, Player.atbatComparator());
+                break;
+
+            case R.id.hit_title:
+                Collections.sort(mPlayers, Player.hitComparator());
+                break;
+
+            case R.id.hr_title:
+                Collections.sort(mPlayers, Player.hrComparator());
+
+                break;
+            case R.id.run_title:
+                Collections.sort(mPlayers, Player.runComparator());
+
+                break;
+            case R.id.rbi_title:
+                Collections.sort(mPlayers, Player.rbiComparator());
+
+                break;
+            case R.id.avg_title:
+                Collections.sort(mPlayers, Player.avgComparator());
+                break;
+
+            case R.id.obp_title:
+                Collections.sort(mPlayers, Player.obpComparator());
+                break;
+
+            case R.id.slg_title:
+                Collections.sort(mPlayers, Player.slgComparator());
+                break;
+
+            case R.id.ops_title:
+                Collections.sort(mPlayers, Player.opsComparator());
+                break;
+
+            case R.id.sgl_title:
+                Collections.sort(mPlayers, Player.singleComparator());
+                break;
+
+            case R.id.dbl_title:
+                Collections.sort(mPlayers, Player.doubleComparator());
+                break;
+
+            case R.id.tpl_title:
+                Collections.sort(mPlayers, Player.tripleComparator());
+                break;
+
+            case R.id.game_title:
+                Collections.sort(mPlayers, Player.gamesplayedComparator());
+                break;
+
+            case R.id.bb_title:
+                Collections.sort(mPlayers, Player.walkComparator());
+                break;
+
+            default:
+                Toast.makeText(getActivity(), "SOMETHING WRONG WITH onClick", Toast.LENGTH_LONG).show();
+        }
+
+        mPlayers.add(total);
+        updateTeamRV();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(KEY_STAT_SORT, statSort);
     }
 }

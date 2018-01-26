@@ -63,6 +63,7 @@ public class LoadingActivity extends AppCompatActivity
                 return;
         }
         startActivity(intent);
+        finish();
     }
 
     private void decreaseCountDown() {

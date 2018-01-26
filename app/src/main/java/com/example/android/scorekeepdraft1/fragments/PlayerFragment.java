@@ -5,8 +5,10 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.graphics.Color;
 import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -30,13 +32,14 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.activities.LeagueManagerActivity;
-import com.example.android.scorekeepdraft1.activities.TeamManagerActivity;
+import com.example.android.scorekeepdraft1.activities.PlayerPagerActivity;
 import com.example.android.scorekeepdraft1.activities.TeamPagerActivity;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
+import com.example.android.scorekeepdraft1.dialogs.CreateTeamDialogFragment;
+import com.example.android.scorekeepdraft1.dialogs.DeleteConfirmationDialogFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.example.android.scorekeepdraft1.objects.Player;
 
@@ -55,6 +58,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     private Uri mCurrentPlayerUri;
     private int mLevel;
     private String teamString;
+    private String playerName;
     private String firestoreID;
     private static final String KEY_PLAYER_URI = "playerURI";
     private int selectionType;
@@ -220,7 +224,8 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 color = R.color.female;
             }
             nameView.setTextColor(getResources().getColor(color));
-            nameView.setText(player.getName());
+            playerName = player.getName();
+            nameView.setText(playerName);
             teamView.setText(teamString);
             abView.setText(String.valueOf(player.getABs()));
             hitView.setText(String.valueOf(player.getHits()));
@@ -410,27 +415,17 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     }
 
     private void showDeleteConfirmationDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage(R.string.delete_dialog_msg);
-        builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                deletePlayer();
-            }
-        });
-        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                if (dialog != null) {
-                    dialog.dismiss();
-                }
-            }
-        });
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        DialogFragment newFragment = DeleteConfirmationDialogFragment.newInstance(playerName);
+        newFragment.show(fragmentTransaction, "");
     }
 
     private void editNameDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage(R.string.edit_player_name);
+        String titleString = getContext().getResources().getString(R.string.edit_object_name);
+        String title = String.format(titleString, playerName);
+        builder.setTitle(title);
         final LayoutInflater inflater = getLayoutInflater();
         builder.setView(inflater.inflate(R.layout.dialog_edit_name, null))
                 .setPositiveButton("Save", new DialogInterface.OnClickListener() {
@@ -461,9 +456,10 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
 
     private void changeTeamDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        String sortOrder = StatsEntry.COLUMN_NAME + " COLLATE NOCASE ASC";
 
         Cursor mCursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
-                new String[]{StatsEntry.COLUMN_NAME}, null, null, null);
+                new String[]{StatsEntry.COLUMN_NAME}, null, null, sortOrder);
         ArrayList<String> teams = new ArrayList<>();
         while (mCursor.moveToNext()) {
             int teamNameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
@@ -472,7 +468,9 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         }
         teams.add(getString(R.string.waivers));
         final CharSequence[] teams_array = teams.toArray(new CharSequence[teams.size()]);
-        builder.setTitle(R.string.edit_player_name);
+        String titleString = getContext().getResources().getString(R.string.edit_player_team);
+        String title = String.format(titleString, playerName);
+        builder.setTitle(title);
         builder.setItems(teams_array, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
                 teamString = teams_array[item].toString();
@@ -486,7 +484,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         alertDialog.show();
     }
 
-    private void deletePlayer() {
+    public void deletePlayer() {
         if (mCurrentPlayerUri != null) {
             String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
             String[] selectionArgs = new String[]{firestoreID};
@@ -497,7 +495,9 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 Toast.makeText(getActivity(), getString(R.string.editor_delete_player_failed), Toast.LENGTH_SHORT).show();
             }
         }
-        getActivity().finish();
+        if (getActivity() instanceof PlayerPagerActivity) {
+            ((PlayerPagerActivity) getActivity()).returnResult(true);
+        };
     }
 
     private void updatePlayerName(String player) {
@@ -534,6 +534,5 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     private boolean levelAuthorized(int level) {
         return mLevel >= level;
     }
-
 
 }

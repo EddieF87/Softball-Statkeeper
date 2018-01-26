@@ -93,6 +93,8 @@ public class FirestoreAdapter {
                                                     int outs = 0;
                                                     int sfs = 0;
                                                     for (DocumentSnapshot document : task.getResult()) {
+                                                        Log.d("xxx", "excalibur!!!!");
+
                                                         Log.d(TAG, document.getId() + " => " + document.getData());
                                                         PlayerLog playerLog = document.toObject(PlayerLog.class);
                                                         games++;
@@ -141,6 +143,7 @@ public class FirestoreAdapter {
                                                     for (DocumentSnapshot snapshot : querySnapshot) {
                                                         batch.delete(snapshot.getReference());
                                                     }
+
                                                     batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
                                                         @Override
                                                         public void onComplete(@NonNull Task<Void> task) {

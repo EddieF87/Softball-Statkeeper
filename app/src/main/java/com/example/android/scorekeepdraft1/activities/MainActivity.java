@@ -143,7 +143,9 @@ public class MainActivity extends AppCompatActivity
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         inviteList = new ArrayList<>();
                         selections = new ArrayList<>();
+                        TextView rvErrorView = findViewById(R.id.error_rv_main);
                         if (task.isSuccessful()) {
+                            rvErrorView.setVisibility(View.GONE);
                             for (DocumentSnapshot documentSnapshot : task.getResult()) {
                                 int level = documentSnapshot.getLong(userID).intValue();
                                 String selectionID = documentSnapshot.getId();
@@ -159,7 +161,7 @@ public class MainActivity extends AppCompatActivity
                             }
                             ProgressBar progressBar = findViewById(R.id.progressBarMain);
                             if (selections.isEmpty()) {
-                                TextView rvErrorView = findViewById(R.id.error_rv_main);
+                                rvErrorView = findViewById(R.id.error_rv_main);
                                 rvErrorView.setText("Please create a StatKeeper!");
                                 progressBar.setVisibility(View.GONE);
                                 rvErrorView.setVisibility(View.VISIBLE);
@@ -178,7 +180,7 @@ public class MainActivity extends AppCompatActivity
                                 newFragment.show(fragmentTransaction, "");
                             }
                         } else {
-                            TextView rvErrorView = findViewById(R.id.error_rv_main);
+                            rvErrorView = findViewById(R.id.error_rv_main);
                             rvErrorView.setVisibility(View.VISIBLE);
                             Log.d(TAG, "Error getting documents: ", task.getException());
                         }

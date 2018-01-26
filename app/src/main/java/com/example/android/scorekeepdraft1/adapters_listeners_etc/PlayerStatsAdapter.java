@@ -47,6 +47,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
     private Context mContext;
     private int colorMale;
     private int colorFemale;
+    public static final int REQUEST_CODE = 1;
 
 
     public PlayerStatsAdapter(List<Player> players, Context context, int genderSorter) {
@@ -149,7 +150,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
         }
         holder.linearLayout.setTag(position);
         holder.teamView.setVisibility(visibility);
-        if(FA && isTeam) {
+        if (FA && isTeam) {
             holder.teamView.setVisibility(View.VISIBLE);
             holder.teamView.setText("+");
             int color = ContextCompat.getColor(mContext, R.color.colorPrimaryDark);
@@ -186,7 +187,13 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
                     long playerId = (long) holder.nameView.getTag();
                     Uri playerUri = ContentUris.withAppendedId(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, playerId);
                     intent.setData(playerUri);
-                    startActivity(mContext, intent, null);
+                    if (mContext instanceof TeamPagerActivity) {
+                        ((TeamPagerActivity) mContext).startActivityForResult(intent, REQUEST_CODE);
+                    } else if (mContext instanceof TeamManagerActivity) {
+                        ((TeamManagerActivity) mContext).startActivityForResult(intent, REQUEST_CODE);
+                    } else {
+                        startActivity(mContext, intent, null);
+                    }
                 }
             });
             int gender = player.getGender();
@@ -201,8 +208,9 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
 
     private void changeTeamDialog(final Player player) {
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        String sortOrder = StatsEntry.COLUMN_NAME + " COLLATE NOCASE ASC";
         Cursor mCursor = mContext.getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
-                new String[]{StatsEntry.COLUMN_NAME}, null, null, null);
+                new String[]{StatsEntry.COLUMN_NAME}, null, null, sortOrder);
         ArrayList<String> teams = new ArrayList<>();
         while (mCursor.moveToNext()) {
             int teamNameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
@@ -210,7 +218,9 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             teams.add(teamName);
         }
         final CharSequence[] teams_array = teams.toArray(new CharSequence[teams.size()]);
-        builder.setTitle(R.string.edit_player_name);
+        String titleString = mContext.getResources().getString(R.string.edit_player_team);
+        String title = String.format(titleString, player.getName());
+        builder.setTitle(title);
         builder.setItems(teams_array, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
                 String teamString = teams_array[item].toString();
@@ -234,7 +244,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
         notifyDataSetChanged();
     }
 
-    public boolean changeColors(boolean genderSettingsOn){
+    public boolean changeColors(boolean genderSettingsOn) {
         if (genderSettingsOn) {
             if (!genderSettingsOff) {
                 return false;

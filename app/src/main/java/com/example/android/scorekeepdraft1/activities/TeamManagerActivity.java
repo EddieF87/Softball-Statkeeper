@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
+import com.example.android.scorekeepdraft1.adapters_listeners_etc.PlayerStatsAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.dialogs.CreateTeamDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.GameSettingsDialogFragment;
@@ -47,7 +48,7 @@ public class TeamManagerActivity extends AppCompatActivity
 
         MyApp myApp = (MyApp) getApplicationContext();
         MainPageSelection mainPageSelection = myApp.getCurrentSelection();
-        if(mainPageSelection == null) {
+        if (mainPageSelection == null) {
             Intent intent = new Intent(TeamManagerActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
@@ -103,12 +104,6 @@ public class TeamManagerActivity extends AppCompatActivity
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        Log.d("xxx", "teammanager onResume()");
-    }
-
-    @Override
     public void onGameSettingsChanged(int innings, int genderSorter) {
         boolean genderSettingsOn = genderSorter != 0;
 
@@ -119,8 +114,6 @@ public class TeamManagerActivity extends AppCompatActivity
             teamFragment.changeColorsRV(genderSettingsOn);
         }
     }
-
-
 
     private class TeamManagerPagerAdapter extends FragmentPagerAdapter {
 
@@ -143,6 +136,7 @@ public class TeamManagerActivity extends AppCompatActivity
                     return null;
             }
         }
+
         @Override
         public CharSequence getPageTitle(int position) {
             switch (position) {
@@ -154,6 +148,7 @@ public class TeamManagerActivity extends AppCompatActivity
                     return null;
             }
         }
+
         @Override
         public int getCount() {
             if (level < 3) {
@@ -177,4 +172,24 @@ public class TeamManagerActivity extends AppCompatActivity
             return createdFragment;
         }
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        try {
+            super.onActivityResult(requestCode, resultCode, data);
+
+            if (requestCode == PlayerStatsAdapter.REQUEST_CODE && resultCode == RESULT_OK) {
+                boolean deleted = data.getBooleanExtra("keyDeleted", false);
+                if (deleted) {
+                    if (teamFragment != null) {
+                        teamFragment.restartLoader();
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            Toast.makeText(TeamManagerActivity.this, ex.toString(),
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
 }

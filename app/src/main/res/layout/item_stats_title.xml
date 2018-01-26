@@ -105,6 +105,6 @@
     <TextView
         android:id="@+id/bb_title"
         style="@style/StatsTitleStyle"
-        android:text="@string/bb" />
+        android:text="@string/bb"/>
 
 </LinearLayout>

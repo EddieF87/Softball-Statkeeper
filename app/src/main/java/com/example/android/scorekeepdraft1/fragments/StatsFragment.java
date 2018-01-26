@@ -40,6 +40,7 @@ import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.example.android.scorekeepdraft1.objects.Player;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -52,15 +53,17 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
     private RecyclerView rv;
     private PlayerStatsAdapter mAdapter;
     private TextView emptyView;
-    private String statSort;
+    private int statSort;
     private String teamFilter;
-    private String[] projection;
     private TextView colorView;
     private Cursor mCursor;
     private List<Player> mPlayers;
     private String leagueID;
     private int level;
     private static final int STATS_LOADER = 4;
+    private static final String KEY_STAT_SORT = "keyStatSort";
+    private static final String KEY_TEAM_FILTER = "keyTeamFilter";
+
     private HashMap<String, Integer> teamIDs;
 
     public StatsFragment() {
@@ -88,7 +91,14 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+
+        if (savedInstanceState != null) {
+            statSort = savedInstanceState.getInt(KEY_STAT_SORT, -1);
+            teamFilter = savedInstanceState.getString(KEY_TEAM_FILTER);
+        } else {
+            statSort = -1;
+        }
+
         View rootView = inflater.inflate(R.layout.fragment_stats, container, false);
 
         rv = rootView.findViewById(R.id.rv_stats);
@@ -133,9 +143,6 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
 
         teamSpinner.setAdapter(spinnerArrayAdapter);
         teamSpinner.setOnItemSelectedListener(this);
-        if (colorView != null) {
-            onClick(colorView);
-        }
 
         getLoaderManager().initLoader(STATS_LOADER, null, this);
 
@@ -201,9 +208,12 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         if (view != null) {
             TextView textView = (TextView) view;
-            teamFilter = textView.getText().toString();
+            String newFilter = textView.getText().toString();
+            if (teamFilter == null || !teamFilter.equals(newFilter)) {
+                teamFilter = newFilter;
+                getLoaderManager().restartLoader(STATS_LOADER, null, this);
+            }
         }
-        getLoaderManager().restartLoader(STATS_LOADER, null, this);
     }
 
     @Override
@@ -212,117 +222,13 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
 
     @Override
     public void onClick(View v) {
-        if (colorView != null) {
-            colorView.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.stat_title));
-        }
-        TextView textView = (TextView) v;
-        colorView = textView;
-        colorView.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.stat_selected));
-
-        switch (v.getId()) {
-            case R.id.name_title:
-                statSort = StatsEntry.COLUMN_NAME;
-                projection = null;
-                break;
-            case R.id.team_abv_title:
-                statSort = StatsEntry.COLUMN_TEAM;
-                projection = null;
-                break;
-            case R.id.ab_title:
-                statSort = "atbats";
-                projection = new String[]{"*, (" + StatsEntry.COLUMN_1B + " + " + StatsEntry.COLUMN_2B + " + " +
-                        StatsEntry.COLUMN_3B + " + " + StatsEntry.COLUMN_HR + " + " + StatsEntry.COLUMN_OUT + ") AS atbats"};
-                break;
-            case R.id.hit_title:
-                statSort = "hits";
-                projection = new String[]{"*, (" + StatsEntry.COLUMN_1B + " + " + StatsEntry.COLUMN_2B + " + " +
-                        StatsEntry.COLUMN_3B + " + " + StatsEntry.COLUMN_HR + ") AS hits"};
-                break;
-            case R.id.hr_title:
-                statSort = StatsEntry.COLUMN_HR;
-                projection = null;
-                break;
-            case R.id.run_title:
-                statSort = StatsEntry.COLUMN_RUN;
-                projection = null;
-                break;
-            case R.id.rbi_title:
-                statSort = StatsEntry.COLUMN_RBI;
-                projection = null;
-                break;
-            case R.id.avg_title:
-                statSort = "avg";
-                projection = new String[]{"*, (CAST ((" + StatsEntry.COLUMN_1B + " + " + StatsEntry.COLUMN_2B +
-                        " + " + StatsEntry.COLUMN_3B + " + " + StatsEntry.COLUMN_HR +
-                        ") AS FLOAT) / (" + StatsEntry.COLUMN_1B + " + " + StatsEntry.COLUMN_2B +
-                        " + " + StatsEntry.COLUMN_3B + " + " + StatsEntry.COLUMN_HR +
-                        " + " + StatsEntry.COLUMN_OUT + ")) AS avg"};
-                break;
-            case R.id.obp_title:
-                statSort = "obp";
-                projection = new String[]{"*, (CAST ((" + StatsEntry.COLUMN_1B + " + " + StatsEntry.COLUMN_2B +
-                        " + " + StatsEntry.COLUMN_3B + " + " + StatsEntry.COLUMN_HR +
-                        " + " + StatsEntry.COLUMN_BB + ") AS FLOAT) / (" + StatsEntry.COLUMN_1B +
-                        " + " + StatsEntry.COLUMN_2B + " + " + StatsEntry.COLUMN_3B + " + " +
-                        StatsEntry.COLUMN_HR + " + " + StatsEntry.COLUMN_OUT + " + " + StatsEntry.COLUMN_BB +
-                        " + " + StatsEntry.COLUMN_SF + ")) AS obp"};
-                break;
-            case R.id.slg_title:
-                statSort = "slg";
-                projection = new String[]{"*, (CAST ((" + StatsEntry.COLUMN_1B + " + " + StatsEntry.COLUMN_2B +
-                        " * 2 + " + StatsEntry.COLUMN_3B + " * 3 + " + StatsEntry.COLUMN_HR +
-                        " * 4) AS FLOAT) / (" + StatsEntry.COLUMN_1B + " + " + StatsEntry.COLUMN_2B +
-                        " + " + StatsEntry.COLUMN_3B + " + " + StatsEntry.COLUMN_HR +
-                        " + " + StatsEntry.COLUMN_OUT + ")) AS slg"};
-                break;
-            case R.id.ops_title:
-                statSort = "ops";
-                projection = new String[]{"*, (CAST ((" + StatsEntry.COLUMN_1B + " + " + StatsEntry.COLUMN_2B +
-                        " * 2 + " + StatsEntry.COLUMN_3B + " * 3 + " + StatsEntry.COLUMN_HR +
-                        " * 4) AS FLOAT) / (" + StatsEntry.COLUMN_1B + " + " + StatsEntry.COLUMN_2B +
-                        " + " + StatsEntry.COLUMN_3B + " + " + StatsEntry.COLUMN_HR +
-                        " + " + StatsEntry.COLUMN_OUT + ") + " + "CAST ((" + StatsEntry.COLUMN_1B + " + " + StatsEntry.COLUMN_2B +
-                        " + " + StatsEntry.COLUMN_3B + " + " + StatsEntry.COLUMN_HR +
-                        " + " + StatsEntry.COLUMN_BB + ") AS FLOAT) / (" + StatsEntry.COLUMN_1B +
-                        " + " + StatsEntry.COLUMN_2B + " + " + StatsEntry.COLUMN_3B + " + " +
-                        StatsEntry.COLUMN_HR + " + " + StatsEntry.COLUMN_OUT + " + " + StatsEntry.COLUMN_BB +
-                        " + " + StatsEntry.COLUMN_SF + ")) AS ops"};
-                break;
-            case R.id.sgl_title:
-                statSort = StatsEntry.COLUMN_1B;
-                projection = null;
-                break;
-            case R.id.dbl_title:
-                statSort = StatsEntry.COLUMN_2B;
-                projection = null;
-                break;
-            case R.id.tpl_title:
-                statSort = StatsEntry.COLUMN_3B;
-                projection = null;
-                break;
-            case R.id.game_title:
-                statSort = StatsEntry.COLUMN_G;
-                projection = null;
-                break;
-            default:
-                Toast.makeText(getActivity(), "SOMETHING WRONG WITH onClick", Toast.LENGTH_LONG).show();
-        }
-        getLoaderManager().restartLoader(STATS_LOADER, null, this);
+        statSort = v.getId();
+        sortStats(statSort);
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        String sortOrder;
-        if (statSort != null) {
-            if (statSort.equals(StatsEntry.COLUMN_NAME) || statSort.equals(StatsEntry.COLUMN_TEAM)) {
-                sortOrder = statSort + " COLLATE NOCASE ASC";
-            } else {
-                sortOrder = statSort + " DESC";
-            }
-        } else {
-            sortOrder = StatsEntry.COLUMN_G + " DESC";
-        }
-
+        String sortOrder = StatsEntry.COLUMN_G + " DESC";
         String selection;
         String[] selectionArgs;
 
@@ -337,7 +243,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         return new CursorLoader(
                 getActivity(),
                 StatsContract.StatsEntry.CONTENT_URI_PLAYERS,
-                projection,
+                null,
                 selection,
                 selectionArgs,
                 sortOrder
@@ -406,7 +312,11 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
             rv.setVisibility(View.VISIBLE);
             emptyView.setVisibility(View.GONE);
         }
-        updateStatsRV();
+        if (statSort != -1) {
+            sortStats(statSort);
+        } else {
+            updateStatsRV();
+        }
     }
 
     @Override
@@ -430,34 +340,86 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        String tempStatSort = statSort;
-        if (projection != null) {
-            String tempProjection = projection[0];
-            outState.putString("tP", tempProjection);
-        }
-        outState.putString("tSS", tempStatSort);
-        if (colorView != null) {
-            outState.putInt("tV", colorView.getId());
-        }
+        outState.putInt(KEY_STAT_SORT, statSort);
+        outState.putString(KEY_TEAM_FILTER, teamFilter);
     }
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        if (savedInstanceState != null) {
-            statSort = savedInstanceState.getString("tSS");
-            String savedProjection = savedInstanceState.getString("tP");
-            if (savedProjection == null) {
-                projection = null;
-            } else {
-                projection = new String[]{savedProjection};
-            }
-            int savedId = savedInstanceState.getInt("tV");
-            if (savedId != 0) {
-                colorView = getView().findViewById(savedId);
-                colorView.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.stat_selected));
-            }
+    private void sortStats (int statSorter) {
+        if (colorView != null) {
+            colorView.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.stat_title));
         }
+        colorView = getView().findViewById(statSorter);
+        colorView.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorPrimaryLight));
+
+        switch (statSorter) {
+            case R.id.name_title:
+                Collections.sort(mPlayers, Player.nameComparator());
+                break;
+
+            case R.id.team_abv_title:
+                Collections.sort(mPlayers, Player.teamComparator());
+                break;
+
+            case R.id.ab_title:
+                Collections.sort(mPlayers, Player.atbatComparator());
+                break;
+
+            case R.id.hit_title:
+                Collections.sort(mPlayers, Player.hitComparator());
+                break;
+
+            case R.id.hr_title:
+                Collections.sort(mPlayers, Player.hrComparator());
+
+                break;
+            case R.id.run_title:
+                Collections.sort(mPlayers, Player.runComparator());
+
+                break;
+            case R.id.rbi_title:
+                Collections.sort(mPlayers, Player.rbiComparator());
+
+                break;
+            case R.id.avg_title:
+                Collections.sort(mPlayers, Player.avgComparator());
+                break;
+
+            case R.id.obp_title:
+                Collections.sort(mPlayers, Player.obpComparator());
+                break;
+
+            case R.id.slg_title:
+                Collections.sort(mPlayers, Player.slgComparator());
+                break;
+
+            case R.id.ops_title:
+                Collections.sort(mPlayers, Player.opsComparator());
+                break;
+
+            case R.id.sgl_title:
+                Collections.sort(mPlayers, Player.singleComparator());
+                break;
+
+            case R.id.dbl_title:
+                Collections.sort(mPlayers, Player.doubleComparator());
+                break;
+
+            case R.id.tpl_title:
+                Collections.sort(mPlayers, Player.tripleComparator());
+                break;
+
+            case R.id.bb_title:
+                Collections.sort(mPlayers, Player.walkComparator());
+                break;
+
+            case R.id.game_title:
+                Collections.sort(mPlayers, Player.gamesplayedComparator());
+                break;
+
+            default:
+                Toast.makeText(getActivity(), "SOMETHING WRONG WITH onClick", Toast.LENGTH_LONG).show();
+        }
+        updateStatsRV();
     }
 
 }
