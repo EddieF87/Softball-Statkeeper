@@ -1,6 +1,7 @@
 package com.example.android.scorekeepdraft1.fragments;
 
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentUris;
@@ -38,6 +39,7 @@ import com.example.android.scorekeepdraft1.activities.PlayerPagerActivity;
 import com.example.android.scorekeepdraft1.activities.TeamPagerActivity;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
+import com.example.android.scorekeepdraft1.dialogs.ChangeTeamDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.CreateTeamDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.DeleteConfirmationDialogFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
@@ -455,33 +457,23 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     }
 
     private void changeTeamDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        String sortOrder = StatsEntry.COLUMN_NAME + " COLLATE NOCASE ASC";
+        ArrayList<String> teams = new ArrayList<>();
 
+        String sortOrder = StatsEntry.COLUMN_NAME + " COLLATE NOCASE ASC";
         Cursor mCursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
                 new String[]{StatsEntry.COLUMN_NAME}, null, null, sortOrder);
-        ArrayList<String> teams = new ArrayList<>();
+
         while (mCursor.moveToNext()) {
             int teamNameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
             String teamName = mCursor.getString(teamNameIndex);
             teams.add(teamName);
         }
         teams.add(getString(R.string.waivers));
-        final CharSequence[] teams_array = teams.toArray(new CharSequence[teams.size()]);
-        String titleString = getContext().getResources().getString(R.string.edit_player_team);
-        String title = String.format(titleString, playerName);
-        builder.setTitle(title);
-        builder.setItems(teams_array, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int item) {
-                teamString = teams_array[item].toString();
-                if (teamString.equals(getString(R.string.waivers))) {
-                    teamString = "Free Agent";
-                }
-                updatePlayerTeam(teamString);
-            }
-        });
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
+
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        DialogFragment newFragment = ChangeTeamDialogFragment.newInstance(teams, playerName);
+        newFragment.show(fragmentTransaction, "");
     }
 
     public void deletePlayer() {
@@ -496,7 +488,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             }
         }
         if (getActivity() instanceof PlayerPagerActivity) {
-            ((PlayerPagerActivity) getActivity()).returnResult(true);
+            ((PlayerPagerActivity) getActivity()).returnDeleteResult(Activity.RESULT_OK);
         };
     }
 
@@ -510,12 +502,11 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         getLoaderManager().restartLoader(EXISTING_PLAYER_LOADER, null, this);
     }
 
-    private void updatePlayerTeam(String team) {
+    public void updatePlayerTeam(String team) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(StatsEntry.COLUMN_TEAM, team);
         contentValues.put(StatsEntry.COLUMN_ORDER, 99);
         contentValues.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
-
         getActivity().getContentResolver().update(mCurrentPlayerUri, contentValues, null, null);
     }
 

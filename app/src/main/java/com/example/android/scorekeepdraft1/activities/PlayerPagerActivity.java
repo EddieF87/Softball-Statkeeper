@@ -15,6 +15,7 @@ import android.os.Bundle;
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.data.StatsContract;
+import com.example.android.scorekeepdraft1.dialogs.ChangeTeamDialogFragment;
 import com.example.android.scorekeepdraft1.fragments.PlayerFragment;
 import com.example.android.scorekeepdraft1.fragments.TeamFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
@@ -22,7 +23,8 @@ import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlayerPagerActivity extends ObjectPagerActivity {
+public class PlayerPagerActivity extends ObjectPagerActivity
+        implements ChangeTeamDialogFragment.OnFragmentInteractionListener{
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -30,10 +32,17 @@ public class PlayerPagerActivity extends ObjectPagerActivity {
         startPager(1, StatsContract.StatsEntry.CONTENT_URI_PLAYERS);
     }
 
-    public void returnResult(boolean deleted) {
+    public void returnDeleteResult(int result) {
         Intent intent = getIntent();
-        intent.putExtra("keyDeleted", deleted);
-        setResult(RESULT_OK, intent);
+        setResult(result, intent);
         finish();
+    }
+
+
+    @Override
+    public void onTeamChosen(String team) {
+        teamChosen(team);
+        Intent intent = getIntent();
+        setResult(RESULT_OK, intent);
     }
 }

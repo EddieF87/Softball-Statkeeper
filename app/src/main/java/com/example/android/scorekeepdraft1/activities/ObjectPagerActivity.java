@@ -175,6 +175,17 @@ public class ObjectPagerActivity extends AppCompatActivity
         }
     }
 
+    public void teamChosen(String team) {
+        int pos = mViewPager.getCurrentItem();
+
+        if (mObjectType == KEY_PLAYER_PAGER) {
+            PlayerFragment playerFragment = (PlayerFragment) mAdapter.getRegisteredFragment(pos);
+            if (playerFragment != null) {
+                playerFragment.updatePlayerTeam(team);
+            }
+        }
+    }
+
     private class MyFragmentStatePagerAdapter extends FragmentStatePagerAdapter{
 
         SparseArray<Fragment> registeredFragments = new SparseArray<>();

@@ -179,11 +179,8 @@ public class TeamManagerActivity extends AppCompatActivity
             super.onActivityResult(requestCode, resultCode, data);
 
             if (requestCode == PlayerStatsAdapter.REQUEST_CODE && resultCode == RESULT_OK) {
-                boolean deleted = data.getBooleanExtra("keyDeleted", false);
-                if (deleted) {
-                    if (teamFragment != null) {
-                        teamFragment.restartLoader();
-                    }
+                if (teamFragment != null) {
+                    teamFragment.restartLoader();
                 }
             }
         } catch (Exception ex) {

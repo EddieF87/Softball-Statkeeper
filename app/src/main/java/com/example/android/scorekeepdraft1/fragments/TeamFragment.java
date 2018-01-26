@@ -36,6 +36,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.R;
+import com.example.android.scorekeepdraft1.activities.ExportActivity;
 import com.example.android.scorekeepdraft1.activities.SetLineupActivity;
 import com.example.android.scorekeepdraft1.activities.UserSettingsActivity;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapter;
@@ -52,7 +53,7 @@ import java.util.List;
 
 
 public class TeamFragment extends Fragment
-        implements LoaderManager.LoaderCallbacks<Cursor>, View.OnClickListener {
+        implements LoaderManager.LoaderCallbacks<Cursor>, View.OnClickListener{
 
     private Uri mCurrentTeamUri;
     private static final int EXISTING_TEAM_LOADER = 3;
@@ -429,6 +430,9 @@ public class TeamFragment extends Fragment
                 editNameDialog();
                 return true;
             case R.id.action_edit_photo:
+                Intent csv = new Intent(getActivity(), ExportActivity.class);
+                startActivity(csv);
+
                 return true;
             case R.id.action_edit_lineup:
                 Intent setLineupIntent = new Intent(getActivity(), SetLineupActivity.class);
