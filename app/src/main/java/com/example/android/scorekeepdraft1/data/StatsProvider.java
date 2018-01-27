@@ -280,6 +280,7 @@ public class StatsProvider extends ContentProvider {
 
         int rowsDeleted;
         String firestoreID;
+        String table;
 
         switch (match) {
             case PLAYERS:
@@ -305,12 +306,13 @@ public class StatsProvider extends ContentProvider {
                             }
                         });
 
+                table = StatsEntry.PLAYERS_TABLE_NAME;
                 rowsDeleted = database.delete(StatsEntry.PLAYERS_TABLE_NAME, selection, selectionArgs);
                 break;
 
             case PLAYERS_ID:
                 if (selectionArgs != null) {
-                    firestoreID = selectionArgs[0].toString();
+                    firestoreID = selectionArgs[0];
                 } else {
                     return -1;
                 }
@@ -333,58 +335,83 @@ public class StatsProvider extends ContentProvider {
 
                 selection = StatsEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
-                rowsDeleted = database.delete(StatsEntry.PLAYERS_TABLE_NAME, selection, selectionArgs);
+                table = StatsEntry.PLAYERS_TABLE_NAME;
                 break;
 
             case TEAMS_ID:
+                if (selectionArgs != null) {
+                    firestoreID = selectionArgs[0];
+                } else {
+                    return -1;
+                }
+                mFirestore = FirebaseFirestore.getInstance();
+
+                mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION).document(leagueID)
+                        .collection(FirestoreHelper.TEAMS_COLLECTION).document(firestoreID)
+                        .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "DocumentSnapshot successfully deleted!");
+                    }
+                })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG, "Error deleting document", e);
+                            }
+                        });
+
                 selection = StatsEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
-                rowsDeleted = database.delete(StatsEntry.TEAMS_TABLE_NAME, selection, selectionArgs);
+                table = StatsEntry.TEAMS_TABLE_NAME;
                 break;
 
             case TEMP:
-                rowsDeleted = database.delete(StatsEntry.TEMPPLAYERS_TABLE_NAME, selection, selectionArgs);
+                table = StatsEntry.TEMPPLAYERS_TABLE_NAME;
                 break;
 
             case TEMP_ID:
                 selection = StatsEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
-                rowsDeleted = database.delete(StatsEntry.TEMPPLAYERS_TABLE_NAME, selection, selectionArgs);
+                table = StatsEntry.TEMPPLAYERS_TABLE_NAME;
                 break;
 
             case GAME:
-                rowsDeleted = database.delete(StatsEntry.GAME_TABLE_NAME, selection, selectionArgs);
+                table = StatsEntry.GAME_TABLE_NAME;
                 break;
 
             case GAME_ID:
                 selection = StatsEntry._ID + ">?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
-                rowsDeleted = database.delete(StatsEntry.GAME_TABLE_NAME, selection, selectionArgs);
+                table = StatsEntry.GAME_TABLE_NAME;
                 break;
 
             case BACKUP_PLAYERS:
-                rowsDeleted = database.delete(StatsEntry.BACKUP_PLAYERS_TABLE_NAME, selection, selectionArgs);
+                table = StatsEntry.BACKUP_PLAYERS_TABLE_NAME;
                 break;
 
             case BACKUP_PLAYERS_ID:
                 selection = StatsEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
-                rowsDeleted = database.delete(StatsEntry.BACKUP_PLAYERS_TABLE_NAME, selection, selectionArgs);
+                table = StatsEntry.BACKUP_PLAYERS_TABLE_NAME;
                 break;
 
             case BACKUP_TEAMS:
-                rowsDeleted = database.delete(StatsEntry.BACKUP_TEAMS_TABLE_NAME, selection, selectionArgs);
+                table = StatsEntry.BACKUP_TEAMS_TABLE_NAME;
                 break;
 
             case BACKUP_TEAMS_ID:
                 selection = StatsEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
-                rowsDeleted = database.delete(StatsEntry.BACKUP_TEAMS_TABLE_NAME, selection, selectionArgs);
+                table = StatsEntry.BACKUP_TEAMS_TABLE_NAME;
                 break;
 
             default:
                 throw new IllegalArgumentException("Deletion is not supported for " + uri);
         }
+
+        rowsDeleted = database.delete(table, selection, selectionArgs);
+
         if (rowsDeleted < 1) {
             Log.e(TAG, "Failed to delete row for " + uri);
         } else {

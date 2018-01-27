@@ -64,6 +64,7 @@ public class TeamFragment extends Fragment
     private List<Player> mPlayers;
     private String teamSelected;
     private boolean waivers;
+    private String firestoreID;
 
     private int statSort;
     private TextView colorView;
@@ -260,15 +261,17 @@ public class TeamFragment extends Fragment
         int losses = 0;
         int ties = 0;
         if (cursor.moveToFirst()) {
-            int nameColumnIndex = cursor.getColumnIndex(StatsEntry.COLUMN_NAME);
-            int winColumnIndex = cursor.getColumnIndex(StatsEntry.COLUMN_WINS);
-            int lossColumnIndex = cursor.getColumnIndex(StatsEntry.COLUMN_LOSSES);
-            int tieColumnIndex = cursor.getColumnIndex(StatsEntry.COLUMN_TIES);
+            int firestoreIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
+            int nameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_NAME);
+            int winIndex = cursor.getColumnIndex(StatsEntry.COLUMN_WINS);
+            int lossIndex = cursor.getColumnIndex(StatsEntry.COLUMN_LOSSES);
+            int tieIndex = cursor.getColumnIndex(StatsEntry.COLUMN_TIES);
 
-            teamSelected = cursor.getString(nameColumnIndex);
-            wins = cursor.getInt(winColumnIndex);
-            losses = cursor.getInt(lossColumnIndex);
-            ties = cursor.getInt(tieColumnIndex);
+            firestoreID = cursor.getString(firestoreIDIndex);
+            teamSelected = cursor.getString(nameIndex);
+            wins = cursor.getInt(winIndex);
+            losses = cursor.getInt(lossIndex);
+            ties = cursor.getInt(tieIndex);
 
             String recordText = wins + "-" + losses + "-" + ties;
             teamRecordView.setText(recordText);
@@ -572,7 +575,9 @@ public class TeamFragment extends Fragment
 
     public void deleteTeam() {
         if (mCurrentTeamUri != null) {
-            int rowsDeleted = getActivity().getContentResolver().delete(mCurrentTeamUri, null, null);
+            String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
+            String[] selectionArgs = new String[]{firestoreID};
+            int rowsDeleted = getActivity().getContentResolver().delete(mCurrentTeamUri, selection, selectionArgs);
 
             if (rowsDeleted == 1) {
                 Toast.makeText(getActivity(), teamSelected + " " + getString(R.string.editor_delete_player_successful),

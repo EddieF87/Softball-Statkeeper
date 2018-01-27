@@ -79,9 +79,8 @@ public class FirestoreHelper {
                                             @Override
                                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                                 if (task.isSuccessful()) {
-                                                    WriteBatch batch = mFirestore.batch();
 
-                                                    final QuerySnapshot querySnapshot = task.getResult();
+                                                    QuerySnapshot querySnapshot = task.getResult();
                                                     int games = 0;
                                                     int rbi = 0;
                                                     int runs = 0;
@@ -92,7 +91,8 @@ public class FirestoreHelper {
                                                     int walks = 0;
                                                     int outs = 0;
                                                     int sfs = 0;
-                                                    for (DocumentSnapshot document : task.getResult()) {
+
+                                                    for (DocumentSnapshot document : querySnapshot) {
                                                         Log.d("xxx", "excalibur!!!!");
 
                                                         Log.d(TAG, document.getId() + " => " + document.getData());
@@ -138,18 +138,19 @@ public class FirestoreHelper {
                                                     player.setRuns(totalRuns);
                                                     player.setSacFlies(totalSFs);
 
-                                                    batch.set(docRef, player);
+                                                    if (querySnapshot.size() > 0) {
+                                                        WriteBatch batch = mFirestore.batch();
+                                                        batch.set(docRef, player);
 
-                                                    for (DocumentSnapshot snapshot : querySnapshot) {
-                                                        batch.delete(snapshot.getReference());
-                                                    }
-
-                                                    batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                        @Override
-                                                        public void onComplete(@NonNull Task<Void> task) {
-                                                            Log.d(TAG, "Deletion successful for " + playerIdString);
+                                                        for (DocumentSnapshot snapshot : querySnapshot) {
+                                                            batch.delete(snapshot.getReference());
                                                         }
-                                                    });
+                                                        batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                            @Override
+                                                            public void onComplete(@NonNull Task<Void> task) {
+                                                            }
+                                                        });
+                                                    }
 
                                                     ContentValues values = new ContentValues();
                                                     values.put(StatsEntry.COLUMN_NAME, player.getName());
@@ -173,6 +174,7 @@ public class FirestoreHelper {
                                                         values.put("sync", 0);
                                                         values.put(StatsEntry.COLUMN_NAME, player.getName());
                                                         values.put(StatsEntry.COLUMN_TEAM, player.getTeam());
+                                                        values.put(StatsEntry.COLUMN_GENDER, player.getGender());
                                                         values.put(StatsEntry.COLUMN_FIRESTORE_ID, playerIdString);
                                                         mContext.getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
                                                     }
@@ -216,9 +218,7 @@ public class FirestoreHelper {
                                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                                 if (task.isSuccessful()) {
 
-                                                    WriteBatch batch = mFirestore.batch();
-
-                                                    final QuerySnapshot querySnapshot = task.getResult();
+                                                    QuerySnapshot querySnapshot = task.getResult();
                                                     int wins = 0;
                                                     int losses = 0;
                                                     int ties = 0;
@@ -253,13 +253,15 @@ public class FirestoreHelper {
                                                     team.setTotalRunsScored(totalRunsScored);
                                                     team.setTotalRunsAllowed(totalRunsAllowed);
 
-                                                    batch.set(docRef, team);
+                                                    if (querySnapshot.size() > 0) {
+                                                        WriteBatch batch = mFirestore.batch();
+                                                        batch.set(docRef, team);
 
-                                                    for (DocumentSnapshot snapshot : querySnapshot) {
-                                                        batch.delete(snapshot.getReference());
+                                                        for (DocumentSnapshot snapshot : querySnapshot) {
+                                                            batch.delete(snapshot.getReference());
+                                                        }
+                                                        batch.commit();
                                                     }
-
-                                                    batch.commit();
 
                                                     ContentValues values = new ContentValues();
                                                     values.put(StatsEntry.COLUMN_NAME, team.getName());
