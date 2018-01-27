@@ -2,21 +2,19 @@ package com.example.android.scorekeepdraft1.activities;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
-import com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapter;
+import com.example.android.scorekeepdraft1.data.FirestoreHelper;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 
 public class LoadingActivity extends AppCompatActivity
-        implements FirestoreAdapter.onFirestoreSyncListener {
+        implements FirestoreHelper.onFirestoreSyncListener {
 
     private int countdown;
     private int numberOfTeams;
@@ -46,8 +44,8 @@ public class LoadingActivity extends AppCompatActivity
         } else {
             Log.d("xxx", "wifi fail");
         }
-        FirestoreAdapter firestoreAdapter = new FirestoreAdapter(this);
-        firestoreAdapter.syncStats();
+        FirestoreHelper firestoreHelper = new FirestoreHelper(this);
+        firestoreHelper.syncStats();
     }
 
     private void onCountDownFinished() {

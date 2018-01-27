@@ -37,12 +37,11 @@ import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
-import com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapter;
+import com.example.android.scorekeepdraft1.data.FirestoreHelper;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.TeamListAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.dialogs.FinishGameDialogFragment;
-import com.example.android.scorekeepdraft1.fragments.LineupFragment;
 import com.example.android.scorekeepdraft1.gamelog.BaseLog;
 import com.example.android.scorekeepdraft1.gamelog.PlayerLog;
 import com.example.android.scorekeepdraft1.gamelog.TeamLog;
@@ -998,9 +997,9 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameDia
         int firestoreIDIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
         String firestoreID = playerCursor.getString(firestoreIDIndex);
 
-        final DocumentReference docRef = mFirestore.collection(FirestoreAdapter.LEAGUE_COLLECTION)
-                .document(teamID).collection(FirestoreAdapter.TEAMS_COLLECTION).document(firestoreID)
-                .collection(FirestoreAdapter.TEAM_LOGS).document(String.valueOf(logId));
+        final DocumentReference docRef = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION)
+                .document(teamID).collection(FirestoreHelper.TEAMS_COLLECTION).document(firestoreID)
+                .collection(FirestoreHelper.TEAM_LOGS).document(String.valueOf(logId));
 
         if (teamRuns > otherTeamRuns) {
             int valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_WINS);
@@ -1084,9 +1083,9 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameDia
             } else {
                 logId = System.currentTimeMillis();
             }
-            final DocumentReference docRef = mFirestore.collection(FirestoreAdapter.LEAGUE_COLLECTION)
-                    .document(teamID).collection(FirestoreAdapter.PLAYERS_COLLECTION).document(firestoreID)
-                    .collection(FirestoreAdapter.PLAYER_LOGS).document(String.valueOf(logId));
+            final DocumentReference docRef = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION)
+                    .document(teamID).collection(FirestoreHelper.PLAYERS_COLLECTION).document(firestoreID)
+                    .collection(FirestoreHelper.PLAYER_LOGS).document(String.valueOf(logId));
 
             PlayerLog playerLog = new PlayerLog(playerId, gameRBI, gameRun, game1b, game2b, game3b,
                     gameHR, gameOuts, gameBB, gameSF);

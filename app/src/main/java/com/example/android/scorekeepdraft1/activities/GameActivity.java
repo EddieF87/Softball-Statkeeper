@@ -10,7 +10,6 @@ import android.content.ClipData;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -19,8 +18,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -36,13 +33,11 @@ import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
-import com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapter;
+import com.example.android.scorekeepdraft1.data.FirestoreHelper;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.TeamListAdapter;
-import com.example.android.scorekeepdraft1.fragments.LineupFragment;
 import com.example.android.scorekeepdraft1.gamelog.BaseLog;
 
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
@@ -54,8 +49,6 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
-
-import org.w3c.dom.Text;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -814,9 +807,9 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
         int firestoreIDIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
         String firestoreID = playerCursor.getString(firestoreIDIndex);
 
-        final DocumentReference docRef = mFirestore.collection(FirestoreAdapter.LEAGUE_COLLECTION)
-                .document(leagueID).collection(FirestoreAdapter.TEAMS_COLLECTION).document(firestoreID)
-                .collection(FirestoreAdapter.TEAM_LOGS).document(String.valueOf(logId));
+        final DocumentReference docRef = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION)
+                .document(leagueID).collection(FirestoreHelper.TEAMS_COLLECTION).document(firestoreID)
+                .collection(FirestoreHelper.TEAM_LOGS).document(String.valueOf(logId));
 
         if (teamRuns > otherTeamRuns) {
             int valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_WINS);
@@ -900,9 +893,9 @@ public class GameActivity extends AppCompatActivity /*implements LoaderManager.L
             } else {
                 logId = System.currentTimeMillis();
             }
-            final DocumentReference docRef = mFirestore.collection(FirestoreAdapter.LEAGUE_COLLECTION)
-                    .document(leagueID).collection(FirestoreAdapter.PLAYERS_COLLECTION).document(firestoreID)
-                    .collection(FirestoreAdapter.PLAYER_LOGS).document(String.valueOf(logId));
+            final DocumentReference docRef = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION)
+                    .document(leagueID).collection(FirestoreHelper.PLAYERS_COLLECTION).document(firestoreID)
+                    .collection(FirestoreHelper.PLAYER_LOGS).document(String.valueOf(logId));
 
             PlayerLog playerLog = new PlayerLog(playerId, gameRBI, gameRun, game1b, game2b, game3b,
                     gameHR, gameOuts, gameBB, gameSF);

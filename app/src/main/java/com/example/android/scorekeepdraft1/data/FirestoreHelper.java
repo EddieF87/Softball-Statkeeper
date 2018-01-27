@@ -1,4 +1,4 @@
-package com.example.android.scorekeepdraft1.adapters_listeners_etc;
+package com.example.android.scorekeepdraft1.data;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -25,8 +25,8 @@ import com.google.firebase.firestore.WriteBatch;
  * Created by Eddie on 11/7/2017.
  */
 
-public class FirestoreAdapter {
-    private static final String TAG = "FirestoreAdapter: ";
+public class FirestoreHelper {
+    private static final String TAG = "FirestoreHelper: ";
     public static final String LEAGUE_COLLECTION = "leagues";
     public static final String PLAYERS_COLLECTION = "players";
     public static final String TEAMS_COLLECTION = "teams";
@@ -39,7 +39,7 @@ public class FirestoreAdapter {
     private Context mContext;
     private FirebaseFirestore mFirestore;
 
-    public FirestoreAdapter(Context context) {
+    public FirestoreHelper(Context context) {
         this.mContext = context;
         mFirestore = FirebaseFirestore.getInstance();
         if (context instanceof onFirestoreSyncListener) {

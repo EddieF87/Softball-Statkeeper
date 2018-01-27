@@ -47,8 +47,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapter.LEAGUE_COLLECTION;
-import static com.example.android.scorekeepdraft1.adapters_listeners_etc.FirestoreAdapter.USERS;
+import static com.example.android.scorekeepdraft1.data.FirestoreHelper.LEAGUE_COLLECTION;
+import static com.example.android.scorekeepdraft1.data.FirestoreHelper.USERS;
 
 public class MainActivity extends AppCompatActivity
         implements View.OnClickListener, InviteListDialogFragment.OnFragmentInteractionListener {

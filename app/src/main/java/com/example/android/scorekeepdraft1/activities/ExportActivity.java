@@ -21,10 +21,10 @@ import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
+import com.example.android.scorekeepdraft1.data.MyFileProvider;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
-import com.example.android.scorekeepdraft1.objects.Player;
 import com.opencsv.CSVWriter;
 
 import java.io.File;
@@ -40,6 +40,7 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 public class ExportActivity extends AppCompatActivity {
 
+    private String leagueName;
     private static final int PERMISSION_REQUEST_CODE = 200;
     private static final int KEY_TEAMS = 0;
     private static final int KEY_PLAYERS = 1;
@@ -57,21 +58,18 @@ public class ExportActivity extends AppCompatActivity {
             startActivity(nullIntent);
             finish();
         }
+        leagueName = mainPageSelection.getName();
 
         Button exportBtn = findViewById(R.id.btn_export);
         exportBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (!checkPermission()) {
-                    Log.d("xxx", "!checkpermission");
-
                     tryExport();
                 } else {
                     if (checkPermission()) {
                         requestPermissionAndContinue();
                     } else {
-                        Log.d("xxx", "wtf how i get here?");
-
                         tryExport();
                     }
                 }
@@ -198,9 +196,9 @@ public class ExportActivity extends AppCompatActivity {
                 String obpString;
                 String slgString;
                 if (slg == -1) {
-                    slgString = "---";
+                    slgString = "";
                     if (obp == -1) {
-                        obpString = "---";
+                        obpString = "";
                     } else {
                         obpString = String.valueOf(formatter.format(obp));
                     }
@@ -247,6 +245,8 @@ public class ExportActivity extends AppCompatActivity {
         teamWriter.writeAll(teamData);
         teamWriter.close();
 
+        Uri pathTeams = MyFileProvider.getUriForFile(this,
+                this.getApplicationContext().getPackageName() + ".data.fileprovider", teamFile);
 
 
         List<String[]> playerData = gatherData(KEY_PLAYERS);
@@ -258,25 +258,29 @@ public class ExportActivity extends AppCompatActivity {
         playerWriter.writeAll(playerData);
         playerWriter.close();
 
-//        String filename="contacts_sid.vcf";
-//        File filelocation = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), filename);
-//        Uri path = Uri.fromFile(filelocation);
-//        Intent emailIntent = new Intent(Intent.ACTION_SEND);
-//// set the type to 'email'
-//        emailIntent .setType("vnd.android.cursor.dir/email");
-//        String to[] = {"asd@gmail.com"};
-//        emailIntent .putExtra(Intent.EXTRA_EMAIL, to);
-//// the attachment
-//        emailIntent .putExtra(Intent.EXTRA_STREAM, path);
-//// the mail subject
-//        emailIntent .putExtra(Intent.EXTRA_SUBJECT, "Subject");
-//        startActivity(Intent.createChooser(emailIntent , "Send email..."));
+        Uri pathPlayers = MyFileProvider.getUriForFile(this,
+                this.getApplicationContext().getPackageName() + ".data.fileprovider", playerFile);
+
+        ArrayList<Uri> uris = new ArrayList<>();
+        uris.add(pathTeams);
+        uris.add(pathPlayers);
+
+        Intent emailIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
+// set the type to 'email'
+        emailIntent .setType("vnd.android.cursor.dir/email");
+// the attachment
+        emailIntent .putExtra(Intent.EXTRA_STREAM, uris);
+// the mail subject
+        emailIntent .putExtra(Intent.EXTRA_SUBJECT, leagueName + " Stats");
+        emailIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+        startActivity(Intent.createChooser(emailIntent , "Send email..."));
     }
 
 
     public String getAVG(int ab, int hit) {
         if (ab == 0) {
-            return "---";
+            return "";
         }
         return String.valueOf(formatter.format(((double) hit) / ab));
     }
@@ -299,7 +303,7 @@ public class ExportActivity extends AppCompatActivity {
 
     public String getOPS(double obp, double slg) {
         if (obp == -1) {
-            return "---";
+            return "";
         }
         if (slg == -1) {
             slg = 0;
@@ -339,8 +343,6 @@ public class ExportActivity extends AppCompatActivity {
                         READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST_CODE);
             }
         } else {
-            Log.d("xxx", "permission already granted");
-
             tryExport();
         }
     }
@@ -357,8 +359,6 @@ public class ExportActivity extends AppCompatActivity {
                     }
                 }
                 if (flag) {
-                    Log.d("xxx", "permission already granted");
-
                     tryExport();
                 } else {
                     finish();
