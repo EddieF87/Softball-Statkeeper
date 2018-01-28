@@ -3,34 +3,34 @@ package com.example.android.scorekeepdraft1.dialogs;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.support.v4.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 
 import com.example.android.scorekeepdraft1.R;
 
-/**
- * A simple {@link Fragment} subclass.
- */
-public class DeleteConfirmationDialogFragment extends DialogFragment {
+
+public class DeleteVsWaiversDialogFragment extends DialogFragment {
 
     private OnFragmentInteractionListener mListener;
     private String objectToDelete;
+    public static final int CHOICE_CANCEL = 0;
+    public static final int CHOICE_WAIVERS = 1;
+    public static final int CHOICE_DELETE = 2;
 
-    public DeleteConfirmationDialogFragment() {
+    public DeleteVsWaiversDialogFragment() {
         // Required empty public constructor
     }
 
-    public static DeleteConfirmationDialogFragment newInstance(String objectToDelete) {
+    public static DeleteVsWaiversDialogFragment newInstance(String objectToDelete) {
 
         Bundle args = new Bundle();
-        DeleteConfirmationDialogFragment fragment = new DeleteConfirmationDialogFragment();
+        DeleteVsWaiversDialogFragment fragment = new DeleteVsWaiversDialogFragment();
         args.putString("objectToDelete", objectToDelete);
         fragment.setArguments(args);
         return fragment;
@@ -47,38 +47,41 @@ public class DeleteConfirmationDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         View v = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_dialog, null);
-        String message = String.format(getString(R.string.delete_dialog_msg), objectToDelete);
 
-        AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
-                .setView(v)
-                .setTitle("Delete " + objectToDelete + "?")
-                .setMessage(message)
-                .setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+        AlertDialog choiceDialog = new AlertDialog.Builder(getActivity())
+                .setMessage(R.string.delete_or_freeagency_msg)
+                .setPositiveButton(R.string.waivers, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        onButtonPressed(true);
+                        onButtonPressed(1);
                     }
                 })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.delete, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        onButtonPressed(false);
+                        onButtonPressed(2);
+                    }
+                })
+                .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        onButtonPressed(0);
                     }
                 })
                 .create();
-        return alertDialog;
+        return choiceDialog;
     }
 
 
-    public void onButtonPressed(boolean delete) {
+    public void onButtonPressed(int choice) {
         if (mListener != null) {
-            mListener.onDeletionChoice(delete);
+            mListener.onDeleteVsWaiversChoice(choice);
         }
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
+        if (context instanceof DeleteVsWaiversDialogFragment.OnFragmentInteractionListener) {
+            mListener = (DeleteVsWaiversDialogFragment.OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -92,6 +95,6 @@ public class DeleteConfirmationDialogFragment extends DialogFragment {
     }
 
     public interface OnFragmentInteractionListener {
-        void onDeletionChoice(boolean delete);
+        void onDeleteVsWaiversChoice(int choice);
     }
 }

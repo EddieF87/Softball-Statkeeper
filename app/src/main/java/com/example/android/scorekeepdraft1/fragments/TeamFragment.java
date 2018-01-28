@@ -39,9 +39,14 @@ import com.example.android.scorekeepdraft1.activities.ExportActivity;
 import com.example.android.scorekeepdraft1.activities.SetLineupActivity;
 import com.example.android.scorekeepdraft1.activities.UserSettingsActivity;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.PlayerStatsAdapter;
+import com.example.android.scorekeepdraft1.data.FirestoreHelper;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.dialogs.CreateTeamDialogFragment;
+import com.example.android.scorekeepdraft1.dialogs.DeleteConfirmationDialogFragment;
+import com.example.android.scorekeepdraft1.dialogs.DeleteVsWaiversDialogFragment;
+import com.example.android.scorekeepdraft1.dialogs.EditNameDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.GameSettingsDialogFragment;
+import com.example.android.scorekeepdraft1.dialogs.RemoveAllPlayersDialogFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.example.android.scorekeepdraft1.objects.Player;
 
@@ -51,7 +56,7 @@ import java.util.List;
 
 
 public class TeamFragment extends Fragment
-        implements LoaderManager.LoaderCallbacks<Cursor>, View.OnClickListener{
+        implements LoaderManager.LoaderCallbacks<Cursor>, View.OnClickListener {
 
     private Uri mCurrentTeamUri;
     private static final int EXISTING_TEAM_LOADER = 3;
@@ -155,7 +160,6 @@ public class TeamFragment extends Fragment
             }
             teamSelected = "Free Agent";
         }
-
 
 
         teamNameView = rootView.findViewById(R.id.teamName);
@@ -295,7 +299,7 @@ public class TeamFragment extends Fragment
         cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS,
                 null, selection, selectionArgs, sortOrder);
 
-        if(mPlayers == null) {
+        if (mPlayers == null) {
             mPlayers = new ArrayList<>();
         } else {
             mPlayers.clear();
@@ -356,7 +360,7 @@ public class TeamFragment extends Fragment
             mPlayers.add(new Player(player, teamSelected, gender, sgl, dbl, tpl, hr, bb,
                     run, rbi, out, sf, g, playerId, firestoreID));
         }
-        if (mPlayers.size() >0 && !waivers) {
+        if (mPlayers.size() > 0 && !waivers) {
             mPlayers.add(new Player("Total", teamSelected, 2, sumSgl, sumDbl, sumTpl, sumHr, sumBb,
                     sumRun, sumRbi, sumOut, sumSf, sumG, -1, ""));
             setRecyclerViewVisible();
@@ -371,12 +375,12 @@ public class TeamFragment extends Fragment
         }
     }
 
-    public void setEmptyViewVisible () {
+    public void setEmptyViewVisible() {
         getView().findViewById(R.id.team_scroll_view).setVisibility(View.GONE);
         getView().findViewById(R.id.empty_team_text).setVisibility(View.VISIBLE);
     }
 
-    public void setRecyclerViewVisible () {
+    public void setRecyclerViewVisible() {
         getView().findViewById(R.id.empty_team_text).setVisibility(View.GONE);
         getView().findViewById(R.id.team_scroll_view).setVisibility(View.VISIBLE);
     }
@@ -410,7 +414,7 @@ public class TeamFragment extends Fragment
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        if(levelAuthorized(4)) {
+        if (levelAuthorized(4)) {
             menu.setGroupVisible(R.id.group_high_level_team_options, true);
         }
         if (waivers) {
@@ -427,14 +431,16 @@ public class TeamFragment extends Fragment
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+
             case R.id.action_change_name:
                 editNameDialog();
                 return true;
+
             case R.id.action_edit_photo:
                 Intent csv = new Intent(getActivity(), ExportActivity.class);
                 startActivity(csv);
-
                 return true;
+
             case R.id.action_edit_lineup:
                 Intent setLineupIntent = new Intent(getActivity(), SetLineupActivity.class);
                 Bundle b = new Bundle();
@@ -443,16 +449,25 @@ public class TeamFragment extends Fragment
                 setLineupIntent.putExtras(b);
                 startActivity(setLineupIntent);
                 return true;
+
             case R.id.action_remove_players:
-                showRemoveAllPlayersDialog();
+                if (mPlayers.isEmpty()) {
+                    Toast.makeText(getActivity(), teamSelected + " has no players."
+                            , Toast.LENGTH_LONG).show();
+                } else {
+                    showRemoveAllPlayersDialog();
+                }
                 return true;
+
             case R.id.action_delete_team:
                 showDeleteConfirmationDialog();
                 return true;
+
             case R.id.change_user_settings:
                 Intent settingsIntent = new Intent(getActivity(), UserSettingsActivity.class);
                 startActivity(settingsIntent);
                 return true;
+
             case R.id.change_game_settings:
                 SharedPreferences settingsPreferences = getActivity()
                         .getSharedPreferences(mSelectionID + "settings", Context.MODE_PRIVATE);
@@ -468,109 +483,38 @@ public class TeamFragment extends Fragment
     }
 
     private void showDeleteConfirmationDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Delete " + teamSelected + "?");
-        builder.setMessage(R.string.delete_team_msg);
-        builder.setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                AlertDialog.Builder choice = new AlertDialog.Builder(getActivity());
-                choice.setMessage(R.string.delete_or_freeagency_msg);
-                choice.setPositiveButton(R.string.waivers, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        updatePlayersTeam("Free Agent");
-                        deleteTeam();
-                    }
-                });
-                choice.setNegativeButton(R.string.delete, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        deletePlayers();
-                        deleteTeam();
-                    }
-                });
-                AlertDialog alertDialog2 = choice.create();
-                alertDialog2.show();
-            }
-        });
-        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                if (dialog != null) {
-                    dialog.dismiss();
-                }
-            }
-        });
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        DialogFragment newFragment = DeleteConfirmationDialogFragment.newInstance(teamSelected);
+        newFragment.show(fragmentTransaction, "");
     }
 
-    private void showRemoveAllPlayersDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        if (mSelectionType == MainPageSelection.TYPE_LEAGUE) {
-            if (waivers) {
-                builder.setMessage(R.string.remove_all_free_agents);
-            } else {
-                builder.setMessage(R.string.send_all_to_waivers);
-            }
-            builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    if (waivers) {
-                        deletePlayers();
-                    } else {
-                        updatePlayersTeam("Free Agent");
-                        clearPlayers();
-                        setEmptyViewVisible();
-                    }
-                }
-            });
+    public void showDeleteVsWaiversDialog() {
+        if (mPlayers.isEmpty()) {
+            deleteTeam();
         } else {
-            builder.setTitle("Delete all players?")
-                    .setMessage("Players and their stats will be permanently deleted.")
-                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            deletePlayers();
-                            setEmptyViewVisible();
-                        }
-                    });
+            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            DialogFragment newFragment = DeleteVsWaiversDialogFragment.newInstance(teamSelected);
+            newFragment.show(fragmentTransaction, "");
         }
-        builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                if (dialogInterface != null) {
-                    dialogInterface.dismiss();
-                }
-            }
-        });
+    }
 
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
+
+    private void showRemoveAllPlayersDialog() {
+        boolean isLeague = mSelectionType == MainPageSelection.TYPE_LEAGUE;
+
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        DialogFragment newFragment = RemoveAllPlayersDialogFragment.newInstance(teamSelected, isLeague, waivers);
+        newFragment.show(fragmentTransaction, "");
     }
 
     private void editNameDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        String titleString = getContext().getResources().getString(R.string.edit_object_name);
-        String title = String.format(titleString, teamSelected);
-        builder.setTitle(title);
-        final LayoutInflater inflater = getLayoutInflater();
-        builder.setView(inflater.inflate(R.layout.dialog_edit_name, null))
-                .setPositiveButton("Save", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        Dialog dialog1 = (Dialog) dialog;
-                        EditText editText = dialog1.findViewById(R.id.username);
-                        String enteredTeam = editText.getText().toString();
-                        updateTeamName(enteredTeam);
-                    }
-                })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        if (dialog != null) {
-                            dialog.dismiss();
-                        }
-                    }
-                });
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        DialogFragment newFragment = EditNameDialogFragment.newInstance(teamSelected);
+        newFragment.show(fragmentTransaction, "");
     }
 
     public void deleteTeam() {
@@ -590,7 +534,7 @@ public class TeamFragment extends Fragment
         getActivity().finish();
     }
 
-    private void deletePlayers() {
+    public void deletePlayers() {
         String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
         int total = 1;
         if (waivers) {
@@ -606,12 +550,12 @@ public class TeamFragment extends Fragment
         clearPlayers();
     }
 
-    private void clearPlayers() {
+    public void clearPlayers() {
         mPlayers.clear();
         updateTeamRV();
     }
 
-    private void updateTeamName(String team) {
+    public boolean updateTeamName(String team) {
 
         String[] projection = new String[]{StatsEntry.COLUMN_FIRESTORE_ID};
         Cursor cursor = getActivity().getContentResolver().query(mCurrentTeamUri,
@@ -630,7 +574,9 @@ public class TeamFragment extends Fragment
         if (rowsUpdated > 0) {
             updatePlayersTeam(team);
             teamSelected = team;
+            return true;
         }
+        return false;
     }
 
     public void updatePlayersTeam(String team) {
@@ -655,7 +601,7 @@ public class TeamFragment extends Fragment
         sortStats(statSort);
     }
 
-    private void sortStats (int statSorter) {
+    private void sortStats(int statSorter) {
         if (colorView != null) {
             colorView.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.stat_title));
         }

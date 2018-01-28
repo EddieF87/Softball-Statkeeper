@@ -22,7 +22,10 @@ import com.example.android.scorekeepdraft1.adapters_listeners_etc.PlayerStatsAda
 import com.example.android.scorekeepdraft1.data.FirestoreHelper;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.dialogs.CreateTeamDialogFragment;
+import com.example.android.scorekeepdraft1.dialogs.DeleteVsWaiversDialogFragment;
+import com.example.android.scorekeepdraft1.dialogs.EditNameDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.GameSettingsDialogFragment;
+import com.example.android.scorekeepdraft1.dialogs.RemoveAllPlayersDialogFragment;
 import com.example.android.scorekeepdraft1.fragments.LineupFragment;
 import com.example.android.scorekeepdraft1.fragments.TeamFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
@@ -33,7 +36,9 @@ import java.util.List;
 
 public class TeamManagerActivity extends AppCompatActivity
         implements CreateTeamDialogFragment.OnListFragmentInteractionListener,
-        GameSettingsDialogFragment.OnFragmentInteractionListener {
+        GameSettingsDialogFragment.OnFragmentInteractionListener,
+        RemoveAllPlayersDialogFragment.OnFragmentInteractionListener,
+        EditNameDialogFragment.OnFragmentInteractionListener {
 
     private LineupFragment lineupFragment;
     private TeamFragment teamFragment;
@@ -114,6 +119,32 @@ public class TeamManagerActivity extends AppCompatActivity
         }
         if (teamFragment != null) {
             teamFragment.changeColorsRV(genderSettingsOn);
+        }
+    }
+
+    @Override
+    public void onRemoveChoice(int choice) {
+        if (choice == DeleteVsWaiversDialogFragment.CHOICE_DELETE) {
+            if (teamFragment != null) {
+                teamFragment.deletePlayers();
+                teamFragment.setEmptyViewVisible();
+            }
+        }
+    }
+
+    @Override
+    public void onEdit(String enteredText) {
+        if (enteredText.isEmpty()) {
+            return;
+        }
+        boolean update = false;
+
+        if (teamFragment != null) {
+            update = teamFragment.updateTeamName(enteredText);
+        }
+
+        if (update) {
+            new FirestoreHelper(this, teamID).updateTimeStamps();
         }
     }
 

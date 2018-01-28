@@ -6,10 +6,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import com.example.android.scorekeepdraft1.MyApp;
+import com.example.android.scorekeepdraft1.data.FirestoreHelper;
+import com.example.android.scorekeepdraft1.dialogs.EditNameDialogFragment;
 import com.example.android.scorekeepdraft1.fragments.PlayerFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 
-public class PlayerManagerActivity extends SingleFragmentActivity {
+public class PlayerManagerActivity extends SingleFragmentActivity
+        implements EditNameDialogFragment.OnFragmentInteractionListener {
+
+    private PlayerFragment playerFragment;
 
     @Override
     protected Fragment createFragment() {
@@ -21,6 +26,18 @@ public class PlayerManagerActivity extends SingleFragmentActivity {
             finish();
         }
         String playerName = mainPageSelection.getName();
-        return PlayerFragment.newInstance(MainPageSelection.TYPE_PLAYER, playerName);
+        playerFragment = PlayerFragment.newInstance(MainPageSelection.TYPE_PLAYER, playerName);
+        return playerFragment;
+    }
+
+    @Override
+    public void onEdit(String enteredText) {
+        if (enteredText.isEmpty()) {
+            return;
+        }
+
+        if (playerFragment != null) {
+            playerFragment.updatePlayerName(enteredText);
+        }
     }
 }

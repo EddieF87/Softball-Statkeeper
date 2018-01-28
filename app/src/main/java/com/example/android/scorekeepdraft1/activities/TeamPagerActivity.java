@@ -22,8 +22,8 @@ public class TeamPagerActivity extends ObjectPagerActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         try {
             super.onActivityResult(requestCode, resultCode, data);
-            if (requestCode == PlayerStatsAdapter.REQUEST_CODE  && resultCode  == RESULT_OK) {
-                    startPager(0, StatsContract.StatsEntry.CONTENT_URI_TEAMS);
+            if (requestCode == PlayerStatsAdapter.REQUEST_CODE && resultCode == RESULT_OK) {
+                startPager(0, StatsContract.StatsEntry.CONTENT_URI_TEAMS);
             }
         } catch (Exception ex) {
             Toast.makeText(TeamPagerActivity.this, ex.toString(),

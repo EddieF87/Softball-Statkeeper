@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -21,7 +22,10 @@ import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.dialogs.CreateTeamDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.DeleteConfirmationDialogFragment;
+import com.example.android.scorekeepdraft1.dialogs.DeleteVsWaiversDialogFragment;
+import com.example.android.scorekeepdraft1.dialogs.EditNameDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.GameSettingsDialogFragment;
+import com.example.android.scorekeepdraft1.dialogs.RemoveAllPlayersDialogFragment;
 import com.example.android.scorekeepdraft1.fragments.PlayerFragment;
 import com.example.android.scorekeepdraft1.fragments.TeamFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
@@ -33,7 +37,10 @@ import java.util.List;
 public class ObjectPagerActivity extends AppCompatActivity
         implements CreateTeamDialogFragment.OnListFragmentInteractionListener,
         GameSettingsDialogFragment.OnFragmentInteractionListener,
-        DeleteConfirmationDialogFragment.OnFragmentInteractionListener{
+        DeleteConfirmationDialogFragment.OnFragmentInteractionListener,
+        DeleteVsWaiversDialogFragment.OnFragmentInteractionListener,
+        RemoveAllPlayersDialogFragment.OnFragmentInteractionListener,
+        EditNameDialogFragment.OnFragmentInteractionListener {
 
     private List<Integer> objectIDs;
     private ViewPager mViewPager;
@@ -171,10 +178,27 @@ public class ObjectPagerActivity extends AppCompatActivity
         } else if (mObjectType == KEY_TEAM_PAGER){
             TeamFragment teamFragment = (TeamFragment) mAdapter.getRegisteredFragment(pos);
             if (teamFragment != null) {
-                teamFragment.deleteTeam();
+                teamFragment.showDeleteVsWaiversDialog();
             }
         }
         new FirestoreHelper(this, selectionID).updateTimeStamps();
+    }
+
+    @Override
+    public void onDeleteVsWaiversChoice(int choice) {
+        if (mObjectType != KEY_TEAM_PAGER){
+            return;
+        }
+        int pos = mViewPager.getCurrentItem();
+        TeamFragment teamFragment = (TeamFragment) mAdapter.getRegisteredFragment(pos);
+
+        if (choice == DeleteVsWaiversDialogFragment.CHOICE_WAIVERS) {
+            teamFragment.updatePlayersTeam("Free Agent");
+            teamFragment.deleteTeam();
+        } else if (choice == DeleteVsWaiversDialogFragment.CHOICE_DELETE) {
+            teamFragment.deletePlayers();
+            teamFragment.deleteTeam();
+        }
     }
 
     public void teamChosen(String team) {
@@ -187,6 +211,49 @@ public class ObjectPagerActivity extends AppCompatActivity
             }
         }
         new FirestoreHelper(this, selectionID).updateTimeStamps();
+    }
+
+    @Override
+    public void onRemoveChoice(int choice) {
+        if (mObjectType != KEY_TEAM_PAGER){
+            return;
+        }
+        int pos = mViewPager.getCurrentItem();
+        TeamFragment teamFragment = (TeamFragment) mAdapter.getRegisteredFragment(pos);
+
+        if (choice == DeleteVsWaiversDialogFragment.CHOICE_WAIVERS) {
+            teamFragment.updatePlayersTeam("Free Agent");
+            teamFragment.clearPlayers();
+            teamFragment.setEmptyViewVisible();
+
+        } else if (choice == DeleteVsWaiversDialogFragment.CHOICE_DELETE) {
+            teamFragment.deletePlayers();
+        }
+    }
+
+    @Override
+    public void onEdit(String enteredText) {
+        if (enteredText.isEmpty()) {
+            return;
+        }
+        int pos = mViewPager.getCurrentItem();
+        boolean update = false;
+
+        if (mObjectType == KEY_PLAYER_PAGER) {
+            PlayerFragment playerFragment = (PlayerFragment) mAdapter.getRegisteredFragment(pos);
+            if (playerFragment != null) {
+                update = playerFragment.updatePlayerName(enteredText);
+            }
+        } else if (mObjectType == KEY_TEAM_PAGER) {
+            TeamFragment teamFragment = (TeamFragment) mAdapter.getRegisteredFragment(pos);
+            if (teamFragment != null) {
+                update = teamFragment.updateTeamName(enteredText);
+            }
+        }
+
+        if(update) {
+            new FirestoreHelper(this, selectionID).updateTimeStamps();
+        }
     }
 
     private class MyFragmentStatePagerAdapter extends FragmentStatePagerAdapter{
@@ -217,6 +284,7 @@ public class ObjectPagerActivity extends AppCompatActivity
             }
         }
 
+        @NonNull
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             Fragment fragment = (Fragment) super.instantiateItem(container, position);

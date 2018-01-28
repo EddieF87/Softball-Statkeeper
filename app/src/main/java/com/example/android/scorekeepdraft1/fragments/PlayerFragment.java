@@ -40,8 +40,8 @@ import com.example.android.scorekeepdraft1.activities.TeamPagerActivity;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.dialogs.ChangeTeamDialogFragment;
-import com.example.android.scorekeepdraft1.dialogs.CreateTeamDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.DeleteConfirmationDialogFragment;
+import com.example.android.scorekeepdraft1.dialogs.EditNameDialogFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.example.android.scorekeepdraft1.objects.Player;
 
@@ -54,7 +54,6 @@ import java.util.ArrayList;
  */
 public class PlayerFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
 
-    private String playerString;
     private NumberFormat formatter = new DecimalFormat("#.000");
     private static final int EXISTING_PLAYER_LOADER = 0;
     private Uri mCurrentPlayerUri;
@@ -105,7 +104,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         selectionType = args.getInt(MainPageSelection.KEY_SELECTION_TYPE);
         mLevel = args.getInt(MainPageSelection.KEY_SELECTION_LEVEL);
         if (selectionType == MainPageSelection.TYPE_PLAYER) {
-            playerString = args.getString(MainPageSelection.KEY_SELECTION_NAME);
+            playerName = args.getString(MainPageSelection.KEY_SELECTION_NAME);
             mCurrentPlayerUri = StatsEntry.CONTENT_URI_PLAYERS;
         } else {
             String uriString = args.getString(KEY_PLAYER_URI);
@@ -158,7 +157,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             int gameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_G);
             int firestoreIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
 
-            playerString = cursor.getString(nameIndex);
+            playerName = cursor.getString(nameIndex);
             teamString = cursor.getString(teamIndex);
             int gender = cursor.getInt(genderIndex);
             int hr = cursor.getInt(hrIndex);
@@ -173,7 +172,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             int g = cursor.getInt(gameIndex);
             firestoreID = cursor.getString(firestoreIDIndex);
 
-            Player player = new Player(playerString, teamString, gender, sgl, dbl, tpl, hr, bb,
+            Player player = new Player(playerName, teamString, gender, sgl, dbl, tpl, hr, bb,
                     run, rbi, out, sf, g, 0, firestoreID);
 
             TextView abView = rootView.findViewById(R.id.playerboard_ab);
@@ -248,7 +247,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             }
         } else if (selectionType == MainPageSelection.TYPE_PLAYER) {
             ContentValues values = new ContentValues();
-            values.put(StatsEntry.COLUMN_NAME, playerString);
+            values.put(StatsEntry.COLUMN_NAME, playerName);
             getActivity().getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
             setPlayerManager();
         }
@@ -424,36 +423,10 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     }
 
     private void editNameDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        String titleString = getContext().getResources().getString(R.string.edit_object_name);
-        String title = String.format(titleString, playerName);
-        builder.setTitle(title);
-        final LayoutInflater inflater = getLayoutInflater();
-        builder.setView(inflater.inflate(R.layout.dialog_edit_name, null))
-                .setPositiveButton("Save", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int id) {
-                        Dialog dialog1 = (Dialog) dialog;
-                        EditText editText = dialog1.findViewById(R.id.username);
-                        String enteredPlayer = editText.getText().toString();
-                        if (nameAlreadyInDB(enteredPlayer)) {
-                            Toast.makeText(getActivity(), enteredPlayer + " already exists!",
-                                    Toast.LENGTH_SHORT).show();
-                            editNameDialog();
-                        } else {
-                            updatePlayerName(enteredPlayer);
-                        }
-                    }
-                })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        if (dialog != null) {
-                            dialog.dismiss();
-                        }
-                    }
-                });
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        DialogFragment newFragment = EditNameDialogFragment.newInstance(playerName);
+        newFragment.show(fragmentTransaction, "");
     }
 
     private void changeTeamDialog() {
@@ -482,7 +455,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             String[] selectionArgs = new String[]{firestoreID};
             int rowsDeleted = getActivity().getContentResolver().delete(mCurrentPlayerUri, selection, selectionArgs);
             if (rowsDeleted == 1) {
-                Toast.makeText(getActivity(), playerString + " " + getString(R.string.editor_delete_player_successful), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), playerName + " " + getString(R.string.editor_delete_player_successful), Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(getActivity(), getString(R.string.editor_delete_player_failed), Toast.LENGTH_SHORT).show();
             }
@@ -492,14 +465,15 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         };
     }
 
-    private void updatePlayerName(String player) {
-        playerString = player;
+    public boolean updatePlayerName(String player) {
+        playerName = player;
         ContentValues contentValues = new ContentValues();
-        contentValues.put(StatsEntry.COLUMN_NAME, playerString);
+        contentValues.put(StatsEntry.COLUMN_NAME, playerName);
         contentValues.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
 
-        getActivity().getContentResolver().update(mCurrentPlayerUri, contentValues, null, null);
+        int rowsUpdated = getActivity().getContentResolver().update(mCurrentPlayerUri, contentValues, null, null);
         getLoaderManager().restartLoader(EXISTING_PLAYER_LOADER, null, this);
+        return rowsUpdated > 0;
     }
 
     public void updatePlayerTeam(String team) {
