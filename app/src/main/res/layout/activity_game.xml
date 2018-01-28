@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
     android:padding="8dp"
-    tools:context="com.example.android.scorekeepdraft1.activities.GameActivity">
+    tools:context="com.example.android.scorekeepdraft1.activities.LeagueGameActivity">
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"

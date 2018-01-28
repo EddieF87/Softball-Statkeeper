@@ -29,7 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.R;
-import com.example.android.scorekeepdraft1.activities.GameActivity;
+import com.example.android.scorekeepdraft1.activities.LeagueGameActivity;
 import com.example.android.scorekeepdraft1.activities.TeamGameActivity;
 import com.example.android.scorekeepdraft1.activities.UserSettingsActivity;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.LineupListAdapter;
@@ -169,7 +169,7 @@ public class LineupFragment extends Fragment {
                         break;
                 }
 
-                intent = new Intent(getActivity(), GameActivity.class);
+                intent = new Intent(getActivity(), LeagueGameActivity.class);
                 editor.putInt("keyGenderSort", sortArgument);
             } else {
                 intent = new Intent(getActivity(), TeamGameActivity.class);
@@ -206,7 +206,6 @@ public class LineupFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        Log.d("xxx", "lineupfragment onResume()");
         mLineup = new ArrayList<>();
         mBench = new ArrayList<>();
 

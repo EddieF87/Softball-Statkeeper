@@ -52,6 +52,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
     private static final String TAG = "StatActivity: ";
     private RecyclerView rv;
     private PlayerStatsAdapter mAdapter;
+    private ArrayAdapter<String> mSpinnerAdapter;
     private TextView emptyView;
     private int statSort;
     private String teamFilter;
@@ -63,6 +64,9 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
     private static final int STATS_LOADER = 4;
     private static final String KEY_STAT_SORT = "keyStatSort";
     private static final String KEY_TEAM_FILTER = "keyTeamFilter";
+    private List<String> teamsArray;
+    private static final String ALL_TEAMS = "All Teams";
+    private static final String FREE_AGENT = "Free Agent";
 
     private HashMap<String, Integer> teamIDs;
 
@@ -122,10 +126,11 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         rootView.findViewById(R.id.game_title).setOnClickListener(this);
 
         mCursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
-                new String[]{StatsEntry._ID, StatsEntry.COLUMN_NAME}, null, null, null);
+                new String[]{StatsEntry._ID, StatsEntry.COLUMN_NAME},
+                null, null, StatsEntry.COLUMN_NAME + " COLLATE NOCASE");
 
-        List<String> teams = new ArrayList<>();
-        teams.add("All Teams");
+        teamsArray = new ArrayList<>();
+        teamsArray.add(ALL_TEAMS);
         teamIDs = new HashMap<>();
         while (mCursor.moveToNext()) {
             int teamNameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
@@ -133,15 +138,14 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
             int idIndex = mCursor.getColumnIndex(StatsEntry._ID);
             int id = mCursor.getInt(idIndex);
             teamIDs.put(teamName, id);
-            teams.add(teamName);
+            teamsArray.add(teamName);
         }
-        teams.add("Free Agent");
+        teamsArray.add(FREE_AGENT);
+
         Spinner teamSpinner = rootView.findViewById(R.id.spinner_stats_teams);
-
-        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(getActivity(),
-                R.layout.spinner_layout, teams);
-
-        teamSpinner.setAdapter(spinnerArrayAdapter);
+        mSpinnerAdapter = new ArrayAdapter<>(getActivity(),
+                R.layout.spinner_layout, teamsArray);
+        teamSpinner.setAdapter(mSpinnerAdapter);
         teamSpinner.setOnItemSelectedListener(this);
 
         getLoaderManager().initLoader(STATS_LOADER, null, this);
@@ -232,7 +236,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         String selection;
         String[] selectionArgs;
 
-        if (teamFilter != null && !teamFilter.equals("All Teams")) {
+        if (teamFilter != null && !teamFilter.equals(ALL_TEAMS)) {
             selection = StatsEntry.COLUMN_TEAM + "=?";
             selectionArgs = new String[]{teamFilter};
         } else {
@@ -290,14 +294,14 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
             int sf = mCursor.getInt(sfIndex);
             int g = mCursor.getInt(gameIndex);
             int teamId;
-            if (team.equals("Free Agent") || team.equals("")) {
+            if (team.equals(FREE_AGENT) || team.equals("")) {
                 teamId = -1;
             } else {
                 try {
                     teamId = teamIDs.get(team);
                 } catch (Exception e) {
                     teamId = -1;
-                    Log.e(TAG, " error with teamIDs.get(team)");
+                    Log.e("xxx", " error with teamIDs.get(team)");
                 }
             }
             int playerId = mCursor.getInt(idIndex);
@@ -422,4 +426,21 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         updateStatsRV();
     }
 
+    public void updateTeams(String team, int id) {
+        if (teamIDs == null) {
+            teamIDs = new HashMap<>();
+        }
+        teamIDs.put(team, id);
+
+        if(mSpinnerAdapter == null || teamsArray == null) {
+            return;
+        }
+        teamsArray.add(team);
+        Collections.sort(teamsArray, String.CASE_INSENSITIVE_ORDER);
+        teamsArray.remove(FREE_AGENT);
+        teamsArray.remove(ALL_TEAMS);
+        teamsArray.add(teamsArray.size(), FREE_AGENT);
+        teamsArray.add(0, ALL_TEAMS);
+        mSpinnerAdapter.notifyDataSetChanged();
+    }
 }

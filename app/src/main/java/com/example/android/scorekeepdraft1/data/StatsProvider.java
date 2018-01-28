@@ -545,7 +545,6 @@ public class StatsProvider extends ContentProvider {
         return rowsUpdated;
     }
 
-
     public boolean containsName(Uri uri, ContentValues values, boolean isTeam) {
         MyApp myApp = (MyApp) getContext().getApplicationContext();
         String leagueID = myApp.getCurrentSelection().getId();

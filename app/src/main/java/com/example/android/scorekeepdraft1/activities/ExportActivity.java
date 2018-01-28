@@ -96,7 +96,7 @@ public class ExportActivity extends AppCompatActivity {
 
             Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
                     null, null, null, null);
-            int idIndex = cursor.getColumnIndex(StatsEntry._ID);
+
             int nameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_NAME);
             int winIndex = cursor.getColumnIndex(StatsEntry.COLUMN_WINS);
             int lossIndex = cursor.getColumnIndex(StatsEntry.COLUMN_LOSSES);
@@ -105,24 +105,31 @@ public class ExportActivity extends AppCompatActivity {
             int runsAgainstIndex = cursor.getColumnIndex(StatsEntry.COLUMN_RUNSAGAINST);
 
             String[] titleArray = new String[] {
-                    "id", "Name",
+                    "Name", "Win %",
                     "Wins", "Losses", "Ties",
-                    "Runs Scored", "Runs Allowed"
+                    "Runs Scored", "Runs Allowed", "Run Differential"
             };
             data.add(titleArray);
 
             while (cursor.moveToNext()) {
 
-                String id = String.valueOf(cursor.getLong(idIndex));
                 String name = cursor.getString(nameIndex);
-                String wins = String.valueOf(cursor.getInt(winIndex));
-                String losses = String.valueOf(cursor.getInt(lossIndex));
                 String ties = String.valueOf(cursor.getInt(tieIndex));
-                String runsFor = String.valueOf(cursor.getInt(runsForIndex));
-                String runsAgainst = String.valueOf(cursor.getInt(runsAgainstIndex));
+
+                int wins = cursor.getInt(winIndex);
+                int losses = cursor.getInt(lossIndex);
+                String winpct = getWinPct(wins, losses);
+                String winString = String.valueOf(wins);
+                String lossString = String.valueOf(losses);
+                int runsFor = cursor.getInt(runsForIndex);
+                int runsAgainst = cursor.getInt(runsAgainstIndex);
+                String runDiff = String.valueOf(runsFor - runsAgainst);
+                String runsForString = String.valueOf(runsFor);
+                String runsAgainstString = String.valueOf(runsAgainst);
+
 
                 String[] stringArray = new String[] {
-                        id, name, wins, losses, ties, runsFor, runsAgainst
+                        name, winpct, winString, lossString, ties, runsForString, runsAgainstString, runDiff
                 };
                 data.add(stringArray);
             }
@@ -277,6 +284,12 @@ public class ExportActivity extends AppCompatActivity {
         startActivity(Intent.createChooser(emailIntent , "Send email..."));
     }
 
+    public String getWinPct(int wins, int losses) {
+        if (wins + losses == 0) {
+            return "";
+        }
+        return String.valueOf(formatter.format(((double) wins) / (wins + losses)));
+    }
 
     public String getAVG(int ab, int hit) {
         if (ab == 0) {

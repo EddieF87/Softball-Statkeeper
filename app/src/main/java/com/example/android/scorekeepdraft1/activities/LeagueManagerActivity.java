@@ -3,6 +3,7 @@ package com.example.android.scorekeepdraft1.activities;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -17,6 +18,7 @@ import android.view.inputmethod.InputMethodManager;
 
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
+import com.example.android.scorekeepdraft1.data.FirestoreHelper;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.dialogs.CreateTeamDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.GameSettingsDialogFragment;
@@ -141,17 +143,30 @@ public class LeagueManagerActivity extends AppCompatActivity
             values.put(StatsContract.StatsEntry.COLUMN_TEAM, team);
             getContentResolver().insert(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, values);
 
-            View view = getCurrentFocus();
-
-            if (view != null) {
-                Log.d("xxx", "view = " + view.toString());
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                if (imm != null) {
-                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                    Log.d("xxx", "lma hide keyboard!!");
-                }
+//            View view = getCurrentFocus();
+//
+//            if (view != null) {
+//                Log.d("xxx", "view = " + view.toString());
+//                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+//                if (imm != null) {
+//                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+//                    Log.d("xxx", "lma hide keyboard!!");
+//                }
+//            }
+        }
+        //todo change around when redoing team/player adder for when adding players to already-made team
+        if (statsFragment != null) {
+            String selection = StatsContract.StatsEntry.COLUMN_NAME + "=?";
+            String[] selectionArgs = new String[]{team};
+            Cursor cursor = getContentResolver().query(StatsContract.StatsEntry.CONTENT_URI_TEAMS,
+                    null, selection, selectionArgs, null);
+            if (cursor.moveToFirst()) {
+                int idIndex = cursor.getColumnIndex(StatsContract.StatsEntry._ID);
+                int id = cursor.getInt(idIndex);
+                statsFragment.updateTeams(team, id);
             }
         }
+        new FirestoreHelper(this, leagueID).updateTimeStamps();
     }
 
     @Override

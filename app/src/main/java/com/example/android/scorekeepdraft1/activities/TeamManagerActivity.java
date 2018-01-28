@@ -19,6 +19,7 @@ import android.widget.Toast;
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.PlayerStatsAdapter;
+import com.example.android.scorekeepdraft1.data.FirestoreHelper;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.dialogs.CreateTeamDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.GameSettingsDialogFragment;
@@ -101,6 +102,7 @@ public class TeamManagerActivity extends AppCompatActivity
                 teamFragment.addPlayers(players);
             }
         }
+        new FirestoreHelper(this, teamID).updateTimeStamps();
     }
 
     @Override

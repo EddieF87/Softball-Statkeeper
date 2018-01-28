@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
+import com.example.android.scorekeepdraft1.data.FirestoreHelper;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.dialogs.CreateTeamDialogFragment;
@@ -38,8 +39,8 @@ public class ObjectPagerActivity extends AppCompatActivity
     private ViewPager mViewPager;
     private int selectionType;
     private int level;
-    private String leagueID;
-    private String leagueName;
+    private String selectionID;
+    private String selectionName;
     private int mObjectType;
     private Uri mUri;
     private MyFragmentStatePagerAdapter mAdapter;
@@ -62,12 +63,12 @@ public class ObjectPagerActivity extends AppCompatActivity
             finish();
         }
         selectionType = mainPageSelection.getType();
-        leagueName = mainPageSelection.getName();
-        leagueID = mainPageSelection.getId();
+        selectionName = mainPageSelection.getName();
+        selectionID = mainPageSelection.getId();
         level = mainPageSelection.getLevel();
         mObjectType = objectType;
         mUri = uri;
-        setTitle(leagueName);
+        setTitle(selectionName);
 
         objectIDs = new ArrayList<>();
         String sortOrder;
@@ -173,6 +174,7 @@ public class ObjectPagerActivity extends AppCompatActivity
                 teamFragment.deleteTeam();
             }
         }
+        new FirestoreHelper(this, selectionID).updateTimeStamps();
     }
 
     public void teamChosen(String team) {
@@ -184,6 +186,7 @@ public class ObjectPagerActivity extends AppCompatActivity
                 playerFragment.updatePlayerTeam(team);
             }
         }
+        new FirestoreHelper(this, selectionID).updateTimeStamps();
     }
 
     private class MyFragmentStatePagerAdapter extends FragmentStatePagerAdapter{
@@ -206,7 +209,7 @@ public class ObjectPagerActivity extends AppCompatActivity
             }
             switch (mObjectType) {
                 case 0:
-                    return TeamFragment.newInstance(leagueID, selectionType, leagueName, level, currentObjectUri);
+                    return TeamFragment.newInstance(selectionID, selectionType, selectionName, level, currentObjectUri);
                 case 1:
                     return PlayerFragment.newInstance(selectionType, level, currentObjectUri);
                 default:

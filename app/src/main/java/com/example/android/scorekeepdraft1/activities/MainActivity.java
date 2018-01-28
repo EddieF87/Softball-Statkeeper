@@ -101,13 +101,12 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
         if (requestCode == RC_SIGN_IN) {
-            Log.d(AUTH, "REQUESTCODE = RCSIGN");
             if (resultCode == RESULT_OK) {
-                Log.d(AUTH, "RESULTCODE = RESULTOK");
+
                 FirebaseUser currentUser = mAuth.getCurrentUser();
                 if (currentUser != null) {
-                    Log.d(AUTH, "USER != NULL");
                     String email = currentUser.getEmail();
                     String id = currentUser.getUid();
 
@@ -117,11 +116,7 @@ public class MainActivity extends AppCompatActivity
                     FirebaseFirestore firestore = FirebaseFirestore.getInstance();
                     firestore.collection(USERS).document(id).set(userInfo);
                     loadLeaguesTeamsPlayers();
-                } else {
-                    Log.d(AUTH, "USER == NULL?!?!?");
                 }
-            } else {
-                Log.d(AUTH, "USER NOT AUTHENTICATED");
             }
         }
         invalidateOptionsMenu();

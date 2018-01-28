@@ -35,7 +35,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.R;
-import com.example.android.scorekeepdraft1.activities.GameActivity;
+import com.example.android.scorekeepdraft1.activities.LeagueGameActivity;
 import com.example.android.scorekeepdraft1.activities.SetLineupActivity;
 import com.example.android.scorekeepdraft1.activities.UserSettingsActivity;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.TeamListAdapter;
@@ -197,7 +197,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                 if (setLineupsToDB()) {
                     return;
                 }
-                Intent intent = new Intent(getActivity(), GameActivity.class);
+                Intent intent = new Intent(getActivity(), LeagueGameActivity.class);
 
                 int sortArgument;
                 if (sortAwayLineup && sortHomeLineup) {
@@ -243,7 +243,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         continueGameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), GameActivity.class);
+                Intent intent = new Intent(getActivity(), LeagueGameActivity.class);
                 startActivity(intent);
 
             }

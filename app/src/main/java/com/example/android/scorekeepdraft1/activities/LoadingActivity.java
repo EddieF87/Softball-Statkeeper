@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,6 +21,8 @@ public class LoadingActivity extends AppCompatActivity
     private int numberOfTeams;
     private int numberOfPlayers;
     private int mSelectionType;
+    private String mSelectionID;
+    private FirestoreHelper firestoreHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +37,7 @@ public class LoadingActivity extends AppCompatActivity
             finish();
         } else {
             mSelectionType = mainPageSelection.getType();
+            mSelectionID = mainPageSelection.getId();
         }
 
         ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -44,11 +48,20 @@ public class LoadingActivity extends AppCompatActivity
         } else {
             Log.d("xxx", "wifi fail");
         }
-        FirestoreHelper firestoreHelper = new FirestoreHelper(this);
-        firestoreHelper.syncStats();
+        firestoreHelper = new FirestoreHelper(this, mSelectionID);
+        firestoreHelper.checkForUpdate();
     }
 
-    private void onCountDownFinished() {
+    @Override
+    public void onUpdateCheck(boolean update) {
+        if (update) {
+            firestoreHelper.syncStats();
+        } else {
+            proceedToNext();
+        }
+    }
+
+    private void proceedToNext() {
         Intent intent;
         switch (mSelectionType) {
             case MainPageSelection.TYPE_LEAGUE:
@@ -64,11 +77,14 @@ public class LoadingActivity extends AppCompatActivity
         finish();
     }
 
+    private void onCountDownFinished() {
+        firestoreHelper.updateAfterSync();
+        proceedToNext();
+    }
+
     private void decreaseCountDown() {
         countdown--;
-        Log.d("xxx", "countdown --  " + countdown);
         if (countdown < 1) {
-            Log.d("xxx", "countdown == " + countdown);
             onCountDownFinished();
         }
     }
@@ -76,17 +92,14 @@ public class LoadingActivity extends AppCompatActivity
     @Override
     public void onFirestoreSync() {
         countdown = 2;
-        Log.d("xxx", "countdown =  " + countdown);
     }
 
     @Override
     public void onSyncStart(int numberOf, boolean teams) {
         if(teams) {
             numberOfTeams = numberOf;
-            Log.d("xxx", "numberOfTeams = " + numberOfTeams);
         } else {
             numberOfPlayers = numberOf;
-            Log.d("xxx", "numberOfPlayers = " + numberOfPlayers);
         }
         if(numberOf < 1) {
             decreaseCountDown();
@@ -97,15 +110,11 @@ public class LoadingActivity extends AppCompatActivity
     public void onSyncUpdate(boolean teams) {
         if(teams) {
             numberOfTeams--;
-            Log.d("xxx", "numberOfTeams -- " + numberOfTeams);
-
             if(numberOfTeams < 1) {
                 decreaseCountDown();
             }
         } else {
             numberOfPlayers--;
-            Log.d("xxx", "numberOfPlayers -- " + numberOfPlayers);
-
             if(numberOfPlayers < 1) {
                 decreaseCountDown();
             }

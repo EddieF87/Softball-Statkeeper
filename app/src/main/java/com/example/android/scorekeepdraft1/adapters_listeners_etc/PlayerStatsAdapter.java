@@ -12,6 +12,7 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -110,6 +111,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
                 public void onClick(View view) {
                     Intent intent = new Intent(mContext, TeamPagerActivity.class);
                     int teamId = (int) holder.teamView.getTag();
+                    Log.d("xxx", "teamclick " + teamId);
                     Uri currentTeamUri = null;
                     if (teamId != -1) {
                         currentTeamUri = ContentUris.withAppendedId(StatsContract.StatsEntry.CONTENT_URI_TEAMS, teamId);
