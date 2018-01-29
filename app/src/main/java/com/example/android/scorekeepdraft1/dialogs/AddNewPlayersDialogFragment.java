@@ -16,15 +16,15 @@ import android.view.inputmethod.InputMethodManager;
 
 
 import com.example.android.scorekeepdraft1.R;
-import com.example.android.scorekeepdraft1.adapters_listeners_etc.CreateTeamRecyclerViewAdapter;
+import com.example.android.scorekeepdraft1.adapters_listeners_etc.AddPlayersRecyclerViewAdapter;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-public class CreateTeamDialogFragment extends DialogFragment {
+public class AddNewPlayersDialogFragment extends DialogFragment {
 
-    private CreateTeamRecyclerViewAdapter mAdapter;
+    private AddPlayersRecyclerViewAdapter mAdapter;
     private OnListFragmentInteractionListener mListener;
     private static final String KEY_NAMES = "names";
     private static final String KEY_GENDERS = "genders";
@@ -32,11 +32,11 @@ public class CreateTeamDialogFragment extends DialogFragment {
     private static final String KEY_TEAM = "team";
     private String mTeam;
 
-    public CreateTeamDialogFragment() {
+    public AddNewPlayersDialogFragment() {
     }
 
-    public static CreateTeamDialogFragment newInstance(String team) {
-        CreateTeamDialogFragment fragment = new CreateTeamDialogFragment();
+    public static AddNewPlayersDialogFragment newInstance(String team) {
+        AddNewPlayersDialogFragment fragment = new AddNewPlayersDialogFragment();
         Bundle args = new Bundle();
         args.putString(KEY_TEAM, team);
         fragment.setArguments(args);
@@ -53,9 +53,9 @@ public class CreateTeamDialogFragment extends DialogFragment {
             List<Integer> edits = savedInstanceState.getIntegerArrayList(KEY_EDITS);
             List<Integer> genderEntries = savedInstanceState.getIntegerArrayList(KEY_GENDERS);
             List<String> nameEntries = savedInstanceState.getStringArrayList(KEY_NAMES);
-            mAdapter = new CreateTeamRecyclerViewAdapter(nameEntries, genderEntries, edits);
+            mAdapter = new AddPlayersRecyclerViewAdapter(nameEntries, genderEntries, edits);
         } else {
-            mAdapter = new CreateTeamRecyclerViewAdapter();
+            mAdapter = new AddPlayersRecyclerViewAdapter();
         }
     }
 

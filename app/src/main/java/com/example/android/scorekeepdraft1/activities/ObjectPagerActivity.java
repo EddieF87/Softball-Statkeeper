@@ -20,7 +20,7 @@ import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.data.FirestoreHelper;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
-import com.example.android.scorekeepdraft1.dialogs.CreateTeamDialogFragment;
+import com.example.android.scorekeepdraft1.dialogs.AddNewPlayersDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.DeleteConfirmationDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.DeleteVsWaiversDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.EditNameDialogFragment;
@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ObjectPagerActivity extends AppCompatActivity
-        implements CreateTeamDialogFragment.OnListFragmentInteractionListener,
+        implements AddNewPlayersDialogFragment.OnListFragmentInteractionListener,
         GameSettingsDialogFragment.OnFragmentInteractionListener,
         DeleteConfirmationDialogFragment.OnFragmentInteractionListener,
         DeleteVsWaiversDialogFragment.OnFragmentInteractionListener,

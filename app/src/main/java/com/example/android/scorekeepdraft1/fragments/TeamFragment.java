@@ -1,12 +1,9 @@
 package com.example.android.scorekeepdraft1.fragments;
 
 
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -30,7 +27,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,9 +35,8 @@ import com.example.android.scorekeepdraft1.activities.ExportActivity;
 import com.example.android.scorekeepdraft1.activities.SetLineupActivity;
 import com.example.android.scorekeepdraft1.activities.UserSettingsActivity;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.PlayerStatsAdapter;
-import com.example.android.scorekeepdraft1.data.FirestoreHelper;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
-import com.example.android.scorekeepdraft1.dialogs.CreateTeamDialogFragment;
+import com.example.android.scorekeepdraft1.dialogs.AddNewPlayersDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.DeleteConfirmationDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.DeleteVsWaiversDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.EditNameDialogFragment;
@@ -207,7 +202,7 @@ public class TeamFragment extends Fragment
     private void createTeamFragment(String team) {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = CreateTeamDialogFragment.newInstance(team);
+        DialogFragment newFragment = AddNewPlayersDialogFragment.newInstance(team);
         newFragment.show(fragmentTransaction, "");
     }
 

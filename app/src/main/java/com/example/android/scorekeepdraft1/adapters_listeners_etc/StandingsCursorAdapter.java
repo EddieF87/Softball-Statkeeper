@@ -24,6 +24,7 @@ public class StandingsCursorAdapter extends CursorAdapter {
 
     private final NumberFormat formatter = new DecimalFormat("#.000");
 
+
     public StandingsCursorAdapter(Context context, Cursor cursor) {
         super(context, cursor, 0 /* flags */);
     }

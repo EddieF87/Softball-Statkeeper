@@ -21,7 +21,7 @@ import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.PlayerStatsAdapter;
 import com.example.android.scorekeepdraft1.data.FirestoreHelper;
 import com.example.android.scorekeepdraft1.data.StatsContract;
-import com.example.android.scorekeepdraft1.dialogs.CreateTeamDialogFragment;
+import com.example.android.scorekeepdraft1.dialogs.AddNewPlayersDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.DeleteVsWaiversDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.EditNameDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.GameSettingsDialogFragment;
@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TeamManagerActivity extends AppCompatActivity
-        implements CreateTeamDialogFragment.OnListFragmentInteractionListener,
+        implements AddNewPlayersDialogFragment.OnListFragmentInteractionListener,
         GameSettingsDialogFragment.OnFragmentInteractionListener,
         RemoveAllPlayersDialogFragment.OnFragmentInteractionListener,
         EditNameDialogFragment.OnFragmentInteractionListener {

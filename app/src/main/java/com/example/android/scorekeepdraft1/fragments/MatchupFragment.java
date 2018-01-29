@@ -128,7 +128,6 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         return false;
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -463,6 +462,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
             awayLineup = new ArrayList<>();
         }
         awayLineup.addAll(lineup);
+        awayPlayersCount = awayLineup.size();
 
         if (initialization || awayLineupAdapter == null) {
             initAwayRV();
@@ -488,6 +488,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
             homeLineup = new ArrayList<>();
         }
         homeLineup.addAll(lineup);
+        homePlayersCount = homeLineup.size();
 
         if (initialization || homeLineupAdapter == null) {
             initHomeRV();
@@ -504,6 +505,11 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         homeLineupAdapter = new TeamListAdapter(homeLineup, getActivity(), genderSorter);
         rvHome.setAdapter(homeLineupAdapter);
         homePlayersCount = homeLineupAdapter.getItemCount();
+    }
+
+
+    private void checkPlayerCounts() {
+
     }
 
     public void changeColorsRV(boolean genderSettingsOn) {
@@ -629,7 +635,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
         String[] selectionArgs = new String[]{leagueID};
         return new CursorLoader(getActivity(), StatsContract.StatsEntry.CONTENT_URI_TEAMS, projection,
-                selection, selectionArgs, null);
+                selection, selectionArgs, StatsEntry.COLUMN_NAME + " COLLATE NOCASE");
     }
 
     @Override

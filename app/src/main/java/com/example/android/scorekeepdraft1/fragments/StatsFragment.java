@@ -4,6 +4,7 @@ package com.example.android.scorekeepdraft1.fragments;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -350,10 +351,10 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
 
     private void sortStats (int statSorter) {
         if (colorView != null) {
-            colorView.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.stat_title));
+            colorView.setTextColor(Color.WHITE);
         }
         colorView = getView().findViewById(statSorter);
-        colorView.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorPrimaryLight));
+        colorView.setTextColor(ContextCompat.getColor(getActivity(), R.color.colorAccent));
 
         switch (statSorter) {
             case R.id.name_title:

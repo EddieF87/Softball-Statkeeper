@@ -7,12 +7,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.net.Uri;
@@ -28,7 +31,6 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,13 +41,15 @@ import com.example.android.scorekeepdraft1.activities.TeamPagerActivity;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.StandingsCursorAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
-import com.example.android.scorekeepdraft1.dialogs.CreateTeamDialogFragment;
+import com.example.android.scorekeepdraft1.dialogs.AddNewPlayersDialogFragment;
+import com.example.android.scorekeepdraft1.dialogs.ChooseOrCreateTeamDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.GameSettingsDialogFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 
-/**
- * A simple {@link Fragment} subclass.
- */
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class StandingsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
         View.OnClickListener {
 
@@ -54,12 +58,13 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
             + StatsEntry.COLUMN_LOSSES + ")) AS winpct"};
     private String statToSortBy = "winpct";
     private static final int STANDINGS_LOADER = 3;
-    private EditText addEditText;
-    private Button addSubmitButton;
-    private Button waiversButton;
     private int level;
     private String leagueID;
     private StandingsCursorAdapter mAdapter;
+    private ArrayList<String> mTeams;
+    private TextView colorView;
+    private FloatingActionButton startAdderButton;
+
 
     public StandingsFragment() {
         // Required empty public constructor
@@ -84,8 +89,7 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_standings, container, false);
 
         ListView listView = rootView.findViewById(R.id.list);
@@ -101,10 +105,11 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
                 startActivity(intent);
             }
         });
+
         View emptyView = rootView.findViewById(R.id.empty_text);
         listView.setEmptyView(emptyView);
 
-        waiversButton = rootView.findViewById(R.id.btn_waivers);
+        Button waiversButton = rootView.findViewById(R.id.btn_waivers);
         waiversButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -112,10 +117,6 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
                 startActivity(intent);
             }
         });
-
-
-        TextView title = rootView.findViewById(R.id.standings_header);
-        title.setVisibility(View.GONE);
 
         rootView.findViewById(R.id.name_title).setOnClickListener(this);
         rootView.findViewById(R.id.win_title).setOnClickListener(this);
@@ -127,25 +128,13 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
         rootView.findViewById(R.id.rundiff_title).setOnClickListener(this);
 
 
-        View addPlayerView = rootView.findViewById(R.id.item_team_adder);
+        startAdderButton = rootView.findViewById(R.id.item_team_adder);
 
-        addEditText = addPlayerView.findViewById(R.id.add_player_text);
-        addEditText.setHint(R.string.add_team);
-        addSubmitButton = addPlayerView.findViewById(R.id.add_player_submit);
-        addSubmitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                addTeam();
-            }
-        });
-
-        final FloatingActionButton startAdderButton = addPlayerView.findViewById(R.id.btn_start_adder);
         startAdderButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startAdderButton.setVisibility(View.GONE);
-                addEditText.setVisibility(View.VISIBLE);
-                addSubmitButton.setVisibility(View.VISIBLE);
+                startAdderButton.setVisibility(View.INVISIBLE);
+                chooseOrCreateTeamDialog();
             }
         });
 
@@ -154,11 +143,25 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
         return rootView;
     }
 
+    private void chooseOrCreateTeamDialog() {
+        Collections.sort(mTeams, String.CASE_INSENSITIVE_ORDER);
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        DialogFragment newFragment = ChooseOrCreateTeamDialogFragment.newInstance(mTeams);
+        newFragment.show(fragmentTransaction, "");
+    }
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         if (level >= 3) {
             inflater.inflate(R.menu.menu_league, menu);
+        }
+    }
+
+    public void setAdderButtonVisible() {
+        if (startAdderButton != null) {
+            startAdderButton.setVisibility(View.VISIBLE);
         }
     }
 
@@ -183,31 +186,24 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
         return false;
     }
 
-    private void createTeamFragment(String team) {
+    public void addNewPlayersDialog(String team) {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = CreateTeamDialogFragment.newInstance(team);
+        DialogFragment newFragment = AddNewPlayersDialogFragment.newInstance(team);
         newFragment.show(fragmentTransaction, "");
     }
 
 
 
-    public void addTeam() {
-        String teamName = addEditText.getText().toString();
-
+    public void addTeam(String team) {
         ContentValues values = new ContentValues();
-        values.put(StatsEntry.COLUMN_NAME, teamName);
+        values.put(StatsEntry.COLUMN_NAME, team);
         Uri teamUri = getActivity().getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
-        addEditText.setText("");
-        if (teamUri == null) {
-            InputMethodManager inputManager = (InputMethodManager)
-                    getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
 
-            inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(),
-                    InputMethodManager.HIDE_NOT_ALWAYS);
+        if (teamUri == null) {
             return;
         }
-        createTeamFragment(teamName);
+        addNewPlayersDialog(team);
     }
 
     @Override
@@ -231,7 +227,20 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {mAdapter.swapCursor(data);}
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if(mTeams == null) {
+            mTeams = new ArrayList<>();
+        } else {
+            mTeams.clear();
+        }
+
+        int nameIndex = data.getColumnIndex(StatsEntry.COLUMN_NAME);
+        while (data.moveToNext()) {
+            String name = data.getString(nameIndex);
+            mTeams.add(name);
+        }
+        mAdapter.swapCursor(data);
+    }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
@@ -240,6 +249,12 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
 
     @Override
     public void onClick(View view) {
+        if (colorView != null) {
+            colorView.setTextColor(Color.WHITE);
+        }
+        colorView = getView().findViewById(view.getId());
+        colorView.setTextColor(ContextCompat.getColor(getActivity(), R.color.colorAccent));
+
         switch (view.getId()) {
             case R.id.name_title:
                 statToSortBy = StatsEntry.COLUMN_NAME;
@@ -279,5 +294,4 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
         }
         getLoaderManager().restartLoader(STANDINGS_LOADER, null, this);
     }
-
 }

@@ -21,6 +21,6 @@
         android:autoSizeMinTextSize="8sp"
         android:textSize="24sp"
         android:maxLines="1"
-        android:textColor="@color/colorPrimaryLight"/>
+        />
 
 </FrameLayout>

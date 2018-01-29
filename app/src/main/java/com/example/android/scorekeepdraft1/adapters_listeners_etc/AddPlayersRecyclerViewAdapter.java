@@ -17,14 +17,14 @@ import java.util.HashSet;
 import java.util.List;
 
 
-public class CreateTeamRecyclerViewAdapter extends RecyclerView.Adapter<CreateTeamRecyclerViewAdapter.EditViewHolder> {
+public class AddPlayersRecyclerViewAdapter extends RecyclerView.Adapter<AddPlayersRecyclerViewAdapter.EditViewHolder> {
 
     private static final String TAG = "CreateTeamRVA";
     private List<String> mNameEntries;
     private List<Integer> mGenderEntries;
     private HashSet<Integer> mEdits;
 
-    public CreateTeamRecyclerViewAdapter() {
+    public AddPlayersRecyclerViewAdapter() {
         this.setHasStableIds(true);
         mNameEntries = new ArrayList<>();
         mGenderEntries = new ArrayList<>();
@@ -33,7 +33,7 @@ public class CreateTeamRecyclerViewAdapter extends RecyclerView.Adapter<CreateTe
         mEdits = new HashSet<>();
     }
 
-    public CreateTeamRecyclerViewAdapter(List<String> nameEntries, List<Integer> genderEntries, List<Integer> edits) {
+    public AddPlayersRecyclerViewAdapter(List<String> nameEntries, List<Integer> genderEntries, List<Integer> edits) {
         this.setHasStableIds(true);
         mNameEntries = nameEntries;
         mGenderEntries = genderEntries;

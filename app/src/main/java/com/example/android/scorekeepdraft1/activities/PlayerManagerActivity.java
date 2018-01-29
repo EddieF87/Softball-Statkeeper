@@ -38,6 +38,7 @@ public class PlayerManagerActivity extends SingleFragmentActivity
 
         if (playerFragment != null) {
             playerFragment.updatePlayerName(enteredText);
+            //todo mainpage
         }
     }
 }

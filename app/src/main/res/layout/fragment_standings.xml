@@ -24,10 +24,10 @@
         layout="@layout/item_standings_titles"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/standings_header" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ListView
         android:id="@+id/list"
@@ -57,21 +57,23 @@
         android:id="@+id/bottom_line"
         android:layout_width="0dp"
         android:layout_height="6dp"
+        android:layout_marginBottom="24dp"
         android:background="@color/colorPrimary"
-        app:layout_constraintTop_toBottomOf="@+id/list"
+        app:layout_constraintBottom_toTopOf="@+id/item_team_adder"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"/>
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/list" />
 
-    <include
+    <android.support.design.widget.FloatingActionButton
         android:id="@+id/item_team_adder"
-        layout="@layout/item_adder"
-
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        style="@style/FloatingActionButtonStyle"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="24dp"
+        android:layout_marginEnd="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent" />
+        />
 
     <Button
         android:id="@+id/btn_waivers"
@@ -79,7 +81,8 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:text="@string/waivers"
-        app:layout_constraintBottom_toTopOf="@+id/item_team_adder"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintBottom_toBottomOf="@+id/item_team_adder"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/item_team_adder" />
 
 </android.support.constraint.ConstraintLayout>

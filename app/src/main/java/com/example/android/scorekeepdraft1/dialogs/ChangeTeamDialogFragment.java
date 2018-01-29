@@ -56,7 +56,6 @@ public class ChangeTeamDialogFragment extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        View v = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_edit_name, null);
 
         String titleString = getContext().getResources().getString(R.string.edit_player_team);
         String title = String.format(titleString, player);

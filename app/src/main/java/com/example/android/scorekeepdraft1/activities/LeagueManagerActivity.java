@@ -1,7 +1,6 @@
 package com.example.android.scorekeepdraft1.activities;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.support.design.widget.TabLayout;
@@ -17,7 +16,8 @@ import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.data.FirestoreHelper;
 import com.example.android.scorekeepdraft1.data.StatsContract;
-import com.example.android.scorekeepdraft1.dialogs.CreateTeamDialogFragment;
+import com.example.android.scorekeepdraft1.dialogs.AddNewPlayersDialogFragment;
+import com.example.android.scorekeepdraft1.dialogs.ChooseOrCreateTeamDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.GameSettingsDialogFragment;
 import com.example.android.scorekeepdraft1.fragments.MatchupFragment;
 import com.example.android.scorekeepdraft1.fragments.StandingsFragment;
@@ -27,8 +27,9 @@ import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import java.util.List;
 
 public class LeagueManagerActivity extends AppCompatActivity
-        implements CreateTeamDialogFragment.OnListFragmentInteractionListener,
-        GameSettingsDialogFragment.OnFragmentInteractionListener {
+        implements AddNewPlayersDialogFragment.OnListFragmentInteractionListener,
+        GameSettingsDialogFragment.OnFragmentInteractionListener,
+        ChooseOrCreateTeamDialogFragment.OnFragmentInteractionListener{
 
     private StandingsFragment standingsFragment;
     private StatsFragment statsFragment;
@@ -60,6 +61,22 @@ public class LeagueManagerActivity extends AppCompatActivity
 
         TabLayout tabLayout = findViewById(R.id.league_tab_layout);
         tabLayout.setupWithViewPager(viewPager);
+    }
+
+    @Override
+    public void onTeamSelected(String team) {
+        if(standingsFragment != null) {
+            standingsFragment.addNewPlayersDialog(team);
+            standingsFragment.setAdderButtonVisible();
+        }
+    }
+
+    @Override
+    public void onNewTeam(String team) {
+        if(standingsFragment != null) {
+            standingsFragment.addTeam(team);
+            standingsFragment.setAdderButtonVisible();
+        }
     }
 
     private class LeagueManagerPagerAdapter extends FragmentPagerAdapter {
