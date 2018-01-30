@@ -31,30 +31,35 @@
             android:layout_weight="2"
             android:layout_height="240dp"
             android:minHeight="160dp"
-            android:padding="16dp" />
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp"/>
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:layout_gravity="center">
+            android:layout_gravity="bottom">
 
             <TextView
                 android:id="@+id/team_chosen_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
-                android:textSize="24sp"
+                android:textSize="16sp"
                 android:maxLines="1"
                 android:autoSizeTextType="uniform"
                 android:autoSizeMinTextSize="12sp"
-                android:hint="@string/team"/>
+                android:hint="Select Team"/>
 
             <Button
                 android:id="@+id/btn_submit_team_chosen"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textSize="12sp"
                 android:text="Submit" />
 
         </LinearLayout>
@@ -76,7 +81,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/create_team_text"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp">
 
         <EditText
             android:id="@+id/edit_text_new_team"

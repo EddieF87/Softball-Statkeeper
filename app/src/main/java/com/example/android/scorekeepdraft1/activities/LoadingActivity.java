@@ -29,16 +29,17 @@ public class LoadingActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_loading);
 
-        MyApp myApp = (MyApp) getApplicationContext();
-        MainPageSelection mainPageSelection = myApp.getCurrentSelection();
-        if(mainPageSelection == null) {
+        try {
+            MyApp myApp = (MyApp) getApplicationContext();
+            MainPageSelection mainPageSelection = myApp.getCurrentSelection();
+            mSelectionType = mainPageSelection.getType();
+            mSelectionID = mainPageSelection.getId();
+        } catch (Exception e) {
             Intent intent = new Intent(LoadingActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
-        } else {
-            mSelectionType = mainPageSelection.getType();
-            mSelectionID = mainPageSelection.getId();
         }
+
 
         ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);

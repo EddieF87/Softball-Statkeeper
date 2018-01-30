@@ -53,17 +53,18 @@ public class SetLineupActivity extends SingleFragmentActivity
         } else {
             finish();
         }
-        MyApp myApp = (MyApp) getApplicationContext();
-        MainPageSelection mainPageSelection = myApp.getCurrentSelection();
-        if (mainPageSelection == null) {
+        try {
+            MyApp myApp = (MyApp) getApplicationContext();
+            MainPageSelection mainPageSelection = myApp.getCurrentSelection();
+            int type = mainPageSelection.getType();
+            String leagueId = mainPageSelection.getId();
+            lineupFragment = LineupFragment.newInstance(leagueId, type, team, inGame);
+        } catch (Exception e) {
             Intent intent = new Intent(SetLineupActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
         }
-        int type = mainPageSelection.getType();
-        String leagueId = mainPageSelection.getId();
 
-        lineupFragment = LineupFragment.newInstance(leagueId, type, team, inGame);
         return lineupFragment;
     }
 

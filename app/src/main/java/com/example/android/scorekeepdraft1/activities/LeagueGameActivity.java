@@ -183,14 +183,15 @@ public class LeagueGameActivity extends AppCompatActivity /*implements LoaderMan
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
-        MyApp myApp = (MyApp) getApplicationContext();
-        MainPageSelection mainPageSelection = myApp.getCurrentSelection();
-        if (mainPageSelection == null) {
+        try {
+            MyApp myApp = (MyApp) getApplicationContext();
+            MainPageSelection mainPageSelection = myApp.getCurrentSelection();
+            leagueID = mainPageSelection.getId();
+        } catch (Exception e) {
             Intent intent = new Intent(LeagueGameActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
         }
-        leagueID = mainPageSelection.getId();
 
         SharedPreferences gamePreferences = getSharedPreferences(leagueID + "game", MODE_PRIVATE);
         totalInnings = gamePreferences.getInt(KEY_TOTALINNINGS, 7);

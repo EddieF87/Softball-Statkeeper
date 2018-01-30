@@ -78,17 +78,15 @@ public class UserSettingsActivity extends AppCompatActivity
 
         Log.d(TAG, "hoppy start!");
 
-        MyApp myApp = (MyApp) getApplicationContext();
-
-        if (myApp.getCurrentSelection() == null) {
+        try {
+            MyApp myApp = (MyApp) getApplicationContext();
+            MainPageSelection mainPageSelection = myApp.getCurrentSelection();
+            leagueID = mainPageSelection.getId();
+        } catch (Exception e) {
             Intent intent = new Intent(UserSettingsActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
         }
-
-        MainPageSelection mainPageSelection = myApp.getCurrentSelection();
-        leagueID = mainPageSelection.getId();
-
 
         firestore = FirebaseFirestore.getInstance();
 

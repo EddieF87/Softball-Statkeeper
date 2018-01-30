@@ -85,126 +85,127 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
         if (position % 2 == 1) {
             holder.linearLayout.setBackgroundColor(Color.parseColor("#dfdfdf"));
         }
-        final Player player = players.get(position);
-        String team = player.getTeam();
-        String teamabv;
-        boolean FA = false;
-
-        if (team == null || team.equals("Free Agent")) {
-            teamabv = "FA";
-            FA = true;
-        } else if (team.length() > 2) {
-            teamabv = ("" + team.charAt(0) + team.charAt(1) + team.charAt(2)).toUpperCase();
-        } else {
-            teamabv = ("" + team.charAt(0)).toUpperCase();
-        }
-
-        long playerId = player.getPlayerId();
-        holder.nameView.setTag(playerId);
-
-        int teamId = player.getTeamId();
-        holder.teamView.setTag(teamId);
-
-        if (!isTeam) {
-            holder.teamView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent(mContext, TeamPagerActivity.class);
-                    int teamId = (int) holder.teamView.getTag();
-                    Log.d("xxx", "teamclick " + teamId);
-                    Uri currentTeamUri = null;
-                    if (teamId != -1) {
-                        currentTeamUri = ContentUris.withAppendedId(StatsContract.StatsEntry.CONTENT_URI_TEAMS, teamId);
-                    }
-                    intent.setData(currentTeamUri);
-                    startActivity(mContext, intent, null);
-                }
-            });
-        }
-        holder.nameView.setText(player.getName());
-        holder.teamView.setText(teamabv);
-        int ab = player.getABs();
-        int bb = player.getWalks();
-        int sf = player.getSacFlies();
-        holder.abView.setText(String.valueOf(ab));
-        holder.hitView.setText(String.valueOf(player.getHits()));
-        holder.hrView.setText(String.valueOf(player.getHrs()));
-        holder.rbiView.setText(String.valueOf(player.getRbis()));
-        holder.runView.setText(String.valueOf(player.getRuns()));
-        holder.sglView.setText(String.valueOf(player.getSingles()));
-        holder.dblView.setText(String.valueOf(player.getDoubles()));
-        holder.tplView.setText(String.valueOf(player.getTriples()));
-        holder.gameView.setText(String.valueOf(player.getGames()));
-        holder.bbView.setText(String.valueOf(bb));
-        if (ab == 0) {
-            holder.avgView.setText("- - -");
-            holder.slgView.setText("- - -");
-        } else {
-            holder.avgView.setText(String.valueOf(formatter.format(player.getAVG())));
-            holder.slgView.setText(String.valueOf(formatter.format(player.getSLG())));
-        }
-        if (ab == 0 && bb == 0 && sf == 0) {
-            holder.obpView.setText("- - -");
-            holder.opsView.setText("- - -");
-        } else {
-            holder.obpView.setText(String.valueOf(formatter.format(player.getOBP())));
-            holder.opsView.setText(String.valueOf(formatter.format(player.getOPS())));
-        }
-        holder.linearLayout.setTag(position);
-        holder.teamView.setVisibility(visibility);
-        if (FA && isTeam) {
-            holder.teamView.setVisibility(View.VISIBLE);
-            holder.teamView.setText("+");
-            int color = ContextCompat.getColor(mContext, R.color.colorPrimaryDark);
-            holder.teamView.setTextColor(color);
-            holder.teamView.setTypeface(Typeface.DEFAULT_BOLD);
-            holder.teamView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    changeTeamDialog(player);
-                }
-            });
-        }
-
-        if (isTeam && position == players.size() - 1 && player.getName().equals("Total")) {
-            holder.abView.setTypeface(Typeface.DEFAULT_BOLD);
-            holder.hitView.setTypeface(Typeface.DEFAULT_BOLD);
-            holder.hrView.setTypeface(Typeface.DEFAULT_BOLD);
-            holder.rbiView.setTypeface(Typeface.DEFAULT_BOLD);
-            holder.runView.setTypeface(Typeface.DEFAULT_BOLD);
-            holder.sglView.setTypeface(Typeface.DEFAULT_BOLD);
-            holder.dblView.setTypeface(Typeface.DEFAULT_BOLD);
-            holder.tplView.setTypeface(Typeface.DEFAULT_BOLD);
-            holder.gameView.setTypeface(Typeface.DEFAULT_BOLD);
-            holder.bbView.setTypeface(Typeface.DEFAULT_BOLD);
-            holder.avgView.setTypeface(Typeface.DEFAULT_BOLD);
-            holder.obpView.setTypeface(Typeface.DEFAULT_BOLD);
-            holder.slgView.setTypeface(Typeface.DEFAULT_BOLD);
-            holder.opsView.setTypeface(Typeface.DEFAULT_BOLD);
-        } else {
-            holder.nameView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent(mContext, PlayerPagerActivity.class);
-                    long playerId = (long) holder.nameView.getTag();
-                    Uri playerUri = ContentUris.withAppendedId(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, playerId);
-                    intent.setData(playerUri);
-                    if (mContext instanceof TeamPagerActivity) {
-                        ((TeamPagerActivity) mContext).startActivityForResult(intent, REQUEST_CODE);
-                    } else if (mContext instanceof TeamManagerActivity) {
-                        ((TeamManagerActivity) mContext).startActivityForResult(intent, REQUEST_CODE);
-                    } else {
-                        startActivity(mContext, intent, null);
-                    }
-                }
-            });
-            int gender = player.getGender();
-            if (gender == 0) {
-                holder.nameView.setTextColor(colorMale);
-            } else {
-                holder.nameView.setTextColor(colorFemale);
-            }
-        }
+        Player player = players.get(position);
+        holder.bindPlayer(player);
+//        String team = player.getTeam();
+//        String teamabv;
+//        boolean FA = false;
+//
+//        if (team == null || team.equals("Free Agent")) {
+//            teamabv = "FA";
+//            FA = true;
+//        } else if (team.length() > 2) {
+//            teamabv = ("" + team.charAt(0) + team.charAt(1) + team.charAt(2)).toUpperCase();
+//        } else {
+//            teamabv = ("" + team.charAt(0)).toUpperCase();
+//        }
+//
+//        long playerId = player.getPlayerId();
+//        holder.nameView.setTag(playerId);
+//
+//        int teamId = player.getTeamId();
+//        holder.teamView.setTag(teamId);
+//
+//        if (!isTeam) {
+//            holder.teamView.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View view) {
+//                    Intent intent = new Intent(mContext, TeamPagerActivity.class);
+//                    int teamId = (int) holder.teamView.getTag();
+//                    Log.d("xxx", "teamclick " + teamId);
+//                    Uri currentTeamUri = null;
+//                    if (teamId != -1) {
+//                        currentTeamUri = ContentUris.withAppendedId(StatsContract.StatsEntry.CONTENT_URI_TEAMS, teamId);
+//                    }
+//                    intent.setData(currentTeamUri);
+//                    startActivity(mContext, intent, null);
+//                }
+//            });
+//        }
+//        holder.nameView.setText(player.getName());
+//        holder.teamView.setText(teamabv);
+//        int ab = player.getABs();
+//        int bb = player.getWalks();
+//        int sf = player.getSacFlies();
+//        holder.abView.setText(String.valueOf(ab));
+//        holder.hitView.setText(String.valueOf(player.getHits()));
+//        holder.hrView.setText(String.valueOf(player.getHrs()));
+//        holder.rbiView.setText(String.valueOf(player.getRbis()));
+//        holder.runView.setText(String.valueOf(player.getRuns()));
+//        holder.sglView.setText(String.valueOf(player.getSingles()));
+//        holder.dblView.setText(String.valueOf(player.getDoubles()));
+//        holder.tplView.setText(String.valueOf(player.getTriples()));
+//        holder.gameView.setText(String.valueOf(player.getGames()));
+//        holder.bbView.setText(String.valueOf(bb));
+//        if (ab == 0) {
+//            holder.avgView.setText("- - -");
+//            holder.slgView.setText("- - -");
+//        } else {
+//            holder.avgView.setText(String.valueOf(formatter.format(player.getAVG())));
+//            holder.slgView.setText(String.valueOf(formatter.format(player.getSLG())));
+//        }
+//        if (ab == 0 && bb == 0 && sf == 0) {
+//            holder.obpView.setText("- - -");
+//            holder.opsView.setText("- - -");
+//        } else {
+//            holder.obpView.setText(String.valueOf(formatter.format(player.getOBP())));
+//            holder.opsView.setText(String.valueOf(formatter.format(player.getOPS())));
+//        }
+//        holder.linearLayout.setTag(position);
+//        holder.teamView.setVisibility(visibility);
+//        if (FA && isTeam) {
+//            holder.teamView.setVisibility(View.VISIBLE);
+//            holder.teamView.setText("+");
+//            int color = ContextCompat.getColor(mContext, R.color.colorPrimaryDark);
+//            holder.teamView.setTextColor(color);
+//            holder.teamView.setTypeface(Typeface.DEFAULT_BOLD);
+//            holder.teamView.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View view) {
+//                    changeTeamDialog(player);
+//                }
+//            });
+//        }
+//
+//        if (isTeam && position == players.size() - 1 && player.getName().equals("Total")) {
+//            holder.abView.setTypeface(Typeface.DEFAULT_BOLD);
+//            holder.hitView.setTypeface(Typeface.DEFAULT_BOLD);
+//            holder.hrView.setTypeface(Typeface.DEFAULT_BOLD);
+//            holder.rbiView.setTypeface(Typeface.DEFAULT_BOLD);
+//            holder.runView.setTypeface(Typeface.DEFAULT_BOLD);
+//            holder.sglView.setTypeface(Typeface.DEFAULT_BOLD);
+//            holder.dblView.setTypeface(Typeface.DEFAULT_BOLD);
+//            holder.tplView.setTypeface(Typeface.DEFAULT_BOLD);
+//            holder.gameView.setTypeface(Typeface.DEFAULT_BOLD);
+//            holder.bbView.setTypeface(Typeface.DEFAULT_BOLD);
+//            holder.avgView.setTypeface(Typeface.DEFAULT_BOLD);
+//            holder.obpView.setTypeface(Typeface.DEFAULT_BOLD);
+//            holder.slgView.setTypeface(Typeface.DEFAULT_BOLD);
+//            holder.opsView.setTypeface(Typeface.DEFAULT_BOLD);
+//        } else {
+//            holder.nameView.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View view) {
+//                    Intent intent = new Intent(mContext, PlayerPagerActivity.class);
+//                    long playerId = (long) holder.nameView.getTag();
+//                    Uri playerUri = ContentUris.withAppendedId(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, playerId);
+//                    intent.setData(playerUri);
+//                    if (mContext instanceof TeamPagerActivity) {
+//                        ((TeamPagerActivity) mContext).startActivityForResult(intent, REQUEST_CODE);
+//                    } else if (mContext instanceof TeamManagerActivity) {
+//                        ((TeamManagerActivity) mContext).startActivityForResult(intent, REQUEST_CODE);
+//                    } else {
+//                        startActivity(mContext, intent, null);
+//                    }
+//                }
+//            });
+//            int gender = player.getGender();
+//            if (gender == 0) {
+//                holder.nameView.setTextColor(colorMale);
+//            } else {
+//                holder.nameView.setTextColor(colorFemale);
+//            }
+//        }
 
     }
 
@@ -280,24 +281,25 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
         return players.size();
     }
 
-    static class PlayerStatsListViewHolder extends RecyclerView.ViewHolder {
-        LinearLayout linearLayout;
-        TextView abView;
-        TextView hitView;
-        TextView hrView;
-        TextView rbiView;
-        TextView runView;
-        TextView avgView;
-        TextView obpView;
-        TextView slgView;
-        TextView opsView;
-        TextView sglView;
-        TextView dblView;
-        TextView tplView;
-        TextView bbView;
-        TextView gameView;
-        TextView nameView;
-        TextView teamView;
+    class PlayerStatsListViewHolder extends RecyclerView.ViewHolder {
+        private LinearLayout linearLayout;
+        private TextView abView;
+        private TextView hitView;
+        private TextView hrView;
+        private TextView rbiView;
+        private TextView runView;
+        private TextView avgView;
+        private TextView obpView;
+        private TextView slgView;
+        private TextView opsView;
+        private TextView sglView;
+        private TextView dblView;
+        private TextView tplView;
+        private TextView bbView;
+        private TextView gameView;
+        private TextView nameView;
+        private TextView teamView;
+        private Player mPlayer;
 
         PlayerStatsListViewHolder(View itemView) {
             super(itemView);
@@ -318,6 +320,128 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             tplView = linearLayout.findViewById(R.id.tpl);
             bbView = linearLayout.findViewById(R.id.bb);
             gameView = linearLayout.findViewById(R.id.game);
+        }
+
+        private void bindPlayer(Player player) {
+            this.mPlayer = player;
+            String team = player.getTeam();
+            String teamabv;
+            boolean FA = false;
+
+            if (team == null || team.equals("Free Agent")) {
+                teamabv = "FA";
+                FA = true;
+            } else if (team.length() > 2) {
+                teamabv = ("" + team.charAt(0) + team.charAt(1) + team.charAt(2)).toUpperCase();
+            } else {
+                teamabv = ("" + team.charAt(0)).toUpperCase();
+            }
+
+            long playerId = player.getPlayerId();
+            nameView.setTag(playerId);
+
+            int teamId = player.getTeamId();
+            teamView.setTag(teamId);
+
+            if (!isTeam) {
+                teamView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(mContext, TeamPagerActivity.class);
+                        int teamId = (int) teamView.getTag();
+                        Log.d("xxx", "teamclick " + teamId);
+                        Uri currentTeamUri = null;
+                        if (teamId != -1) {
+                            currentTeamUri = ContentUris.withAppendedId(StatsContract.StatsEntry.CONTENT_URI_TEAMS, teamId);
+                        }
+                        intent.setData(currentTeamUri);
+                        startActivity(mContext, intent, null);
+                    }
+                });
+            }
+            nameView.setText(player.getName());
+            teamView.setText(teamabv);
+            int ab = player.getABs();
+            int bb = player.getWalks();
+            int sf = player.getSacFlies();
+            abView.setText(String.valueOf(ab));
+            hitView.setText(String.valueOf(player.getHits()));
+            hrView.setText(String.valueOf(player.getHrs()));
+            rbiView.setText(String.valueOf(player.getRbis()));
+            runView.setText(String.valueOf(player.getRuns()));
+            sglView.setText(String.valueOf(player.getSingles()));
+            dblView.setText(String.valueOf(player.getDoubles()));
+            tplView.setText(String.valueOf(player.getTriples()));
+            gameView.setText(String.valueOf(player.getGames()));
+            bbView.setText(String.valueOf(bb));
+            if (ab == 0) {
+                avgView.setText("- - -");
+                slgView.setText("- - -");
+            } else {
+                avgView.setText(String.valueOf(formatter.format(player.getAVG())));
+                slgView.setText(String.valueOf(formatter.format(player.getSLG())));
+            }
+            if (ab == 0 && bb == 0 && sf == 0) {
+                obpView.setText("- - -");
+                opsView.setText("- - -");
+            } else {
+                obpView.setText(String.valueOf(formatter.format(player.getOBP())));
+                opsView.setText(String.valueOf(formatter.format(player.getOPS())));
+            }
+            teamView.setVisibility(visibility);
+            if (FA && isTeam) {
+                teamView.setVisibility(View.VISIBLE);
+                teamView.setText("+");
+                int color = ContextCompat.getColor(mContext, R.color.colorPrimaryDark);
+                teamView.setTextColor(color);
+                teamView.setTypeface(Typeface.DEFAULT_BOLD);
+                teamView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        changeTeamDialog(mPlayer);
+                    }
+                });
+            }
+
+            if (isTeam && player.getName().equals("Total")) {
+                abView.setTypeface(Typeface.DEFAULT_BOLD);
+                hitView.setTypeface(Typeface.DEFAULT_BOLD);
+                hrView.setTypeface(Typeface.DEFAULT_BOLD);
+                rbiView.setTypeface(Typeface.DEFAULT_BOLD);
+                runView.setTypeface(Typeface.DEFAULT_BOLD);
+                sglView.setTypeface(Typeface.DEFAULT_BOLD);
+                dblView.setTypeface(Typeface.DEFAULT_BOLD);
+                tplView.setTypeface(Typeface.DEFAULT_BOLD);
+                gameView.setTypeface(Typeface.DEFAULT_BOLD);
+                bbView.setTypeface(Typeface.DEFAULT_BOLD);
+                avgView.setTypeface(Typeface.DEFAULT_BOLD);
+                obpView.setTypeface(Typeface.DEFAULT_BOLD);
+                slgView.setTypeface(Typeface.DEFAULT_BOLD);
+                opsView.setTypeface(Typeface.DEFAULT_BOLD);
+            } else {
+                nameView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(mContext, PlayerPagerActivity.class);
+                        long playerId = (long) nameView.getTag();
+                        Uri playerUri = ContentUris.withAppendedId(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, playerId);
+                        intent.setData(playerUri);
+                        if (mContext instanceof TeamPagerActivity) {
+                            ((TeamPagerActivity) mContext).startActivityForResult(intent, REQUEST_CODE);
+                        } else if (mContext instanceof TeamManagerActivity) {
+                            ((TeamManagerActivity) mContext).startActivityForResult(intent, REQUEST_CODE);
+                        } else {
+                            startActivity(mContext, intent, null);
+                        }
+                    }
+                });
+                int gender = player.getGender();
+                if (gender == 0) {
+                    nameView.setTextColor(colorMale);
+                } else {
+                    nameView.setTextColor(colorFemale);
+                }
+            }
         }
     }
 }

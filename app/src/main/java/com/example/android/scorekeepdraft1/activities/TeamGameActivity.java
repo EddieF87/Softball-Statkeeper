@@ -187,16 +187,16 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameDia
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_team_game);
 
-        MyApp myApp = (MyApp) getApplicationContext();
-
-        if (myApp.getCurrentSelection() == null) {
+        try {
+            MyApp myApp = (MyApp) getApplicationContext();
+            MainPageSelection mainPageSelection = myApp.getCurrentSelection();
+            teamID = mainPageSelection.getId();
+            myTeamName = mainPageSelection.getName();
+        } catch (Exception e) {
             Intent intent = new Intent(TeamGameActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
         }
-        MainPageSelection mainPageSelection = myApp.getCurrentSelection();
-        teamID = mainPageSelection.getId();
-        myTeamName = mainPageSelection.getName();
 
         SharedPreferences settingsPreferences =
                 getSharedPreferences(teamID + "settings", MODE_PRIVATE);

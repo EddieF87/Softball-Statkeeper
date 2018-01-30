@@ -10,6 +10,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.ViewGroup;
 
 import com.example.android.scorekeepdraft1.MyApp;
@@ -26,7 +27,7 @@ import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 
 import java.util.List;
 
-public class LeagueManagerActivity extends AppCompatActivity
+public class LeagueManagerActivity extends ExportActivity
         implements AddNewPlayersDialogFragment.OnListFragmentInteractionListener,
         GameSettingsDialogFragment.OnFragmentInteractionListener,
         ChooseOrCreateTeamDialogFragment.OnFragmentInteractionListener{
@@ -37,23 +38,24 @@ public class LeagueManagerActivity extends AppCompatActivity
 
     private String leagueID;
     private int level;
+    private String leagueName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manager_pager);
 
-        MyApp myApp = (MyApp) getApplicationContext();
-        MainPageSelection mainPageSelection = myApp.getCurrentSelection();
-        if (mainPageSelection == null) {
+        try {
+            MyApp myApp = (MyApp) getApplicationContext();
+            MainPageSelection mainPageSelection = myApp.getCurrentSelection();leagueName = mainPageSelection.getName();
+            leagueID = mainPageSelection.getId();
+            level = mainPageSelection.getLevel();
+            setTitle(leagueName);
+        } catch (Exception e) {
             Intent intent = new Intent(LeagueManagerActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
         }
-        String leagueName = mainPageSelection.getName();
-        leagueID = mainPageSelection.getId();
-        level = mainPageSelection.getLevel();
-        setTitle(leagueName);
 
         ViewPager viewPager = findViewById(R.id.league_view_pager);
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -79,6 +81,13 @@ public class LeagueManagerActivity extends AppCompatActivity
         }
     }
 
+    @Override
+    public void onCancel() {
+        if(standingsFragment != null) {
+            standingsFragment.setAdderButtonVisible();
+        }
+    }
+
     private class LeagueManagerPagerAdapter extends FragmentPagerAdapter {
 
         LeagueManagerPagerAdapter(FragmentManager fm) {
@@ -89,14 +98,14 @@ public class LeagueManagerActivity extends AppCompatActivity
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return StandingsFragment.newInstance(leagueID, level);
+                    return StandingsFragment.newInstance(leagueID, level, leagueName);
                 case 1:
-                    return StatsFragment.newInstance(leagueID, level);
+                    return StatsFragment.newInstance(leagueID, level, leagueName);
                 case 2:
                     if (level < 3) {
                         return null;
                     }
-                    return MatchupFragment.newInstance(leagueID);
+                    return MatchupFragment.newInstance(leagueID, leagueName);
                 default:
                     return null;
             }

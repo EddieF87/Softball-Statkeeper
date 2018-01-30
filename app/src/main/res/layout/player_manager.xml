@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="12dp">
+
+
+    <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/group1"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/group2"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <RadioButton
+            android:id="@+id/single"
+            style="@style/SmallRadioButtonStyle"
+            android:text="@string/_1b" />
+
+        <RadioButton
+            android:id="@+id/dbl"
+            style="@style/SmallRadioButtonStyle"
+            android:text="@string/_2b" />
+
+        <RadioButton
+            android:id="@+id/triple"
+            style="@style/SmallRadioButtonStyle"
+            android:text="@string/_3b" />
+
+        <RadioButton
+            android:id="@+id/hr"
+            style="@style/SmallRadioButtonStyle"
+            android:text="@string/hr" />
+    </RadioGroup>
+
+    <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/group2"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/submit"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/group1">
+
+
+        <RadioButton
+            android:id="@+id/out"
+            style="@style/SmallRadioButtonStyle"
+            android:text="@string/out" />
+
+        <RadioButton
+            android:id="@+id/sf"
+            style="@style/SmallRadioButtonStyle"
+            android:text="@string/sf" />
+
+        <RadioButton
+            android:id="@+id/bb"
+            style="@style/SmallRadioButtonStyle"
+            android:text="@string/bb" />
+
+        <RadioButton
+            android:id="@+id/run"
+            style="@style/SmallRadioButtonStyle"
+            android:text="@string/r" />
+
+        <RadioButton
+            android:id="@+id/rbi"
+            style="@style/SmallRadioButtonStyle"
+            android:text="@string/rbi" />
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/submit"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="32dp"
+        android:stateListAnimator="@null"
+        android:text="Submit"
+        android:textSize="12sp"
+        android:autoSizeTextType="uniform"
+        android:autoSizeMinTextSize="8sp"
+        android:autoSizeMaxTextSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btn_add_result"
+        app:layout_constraintTop_toBottomOf="@+id/group2" />
+
+    <TextView
+        android:id="@+id/textview_result_chosen"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toStartOf="@id/btn_add_result"
+        app:layout_constraintStart_toEndOf="@id/btn_subtract_result"
+        app:layout_constraintTop_toBottomOf="@+id/group2"
+        app:layout_constraintBottom_toTopOf="@id/textview_result_count"
+        tools:text="XXX" />
+
+    <TextView
+        android:id="@+id/textview_result_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btn_add_result"
+        app:layout_constraintStart_toEndOf="@+id/btn_subtract_result"
+        app:layout_constraintTop_toBottomOf="@+id/textview_result_chosen" />
+
+    <ImageButton
+        android:id="@+id/btn_subtract_result"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        app:layout_constraintBottom_toTopOf="@+id/textview_result_count"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/textview_result_count"
+        app:srcCompat="@android:drawable/arrow_down_float" />
+
+    <ImageButton
+        android:id="@+id/btn_add_result"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="48dp"
+        app:layout_constraintStart_toEndOf="@+id/btn_subtract_result"
+        app:layout_constraintTop_toTopOf="@+id/btn_subtract_result"
+        app:srcCompat="@android:drawable/arrow_up_float" />
+
+</android.support.constraint.ConstraintLayout>

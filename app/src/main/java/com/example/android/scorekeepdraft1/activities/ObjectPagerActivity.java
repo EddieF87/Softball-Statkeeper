@@ -62,17 +62,21 @@ public class ObjectPagerActivity extends AppCompatActivity
 
     protected void startPager(int objectType,  Uri uri) {
 
-        MyApp myApp = (MyApp) getApplicationContext();
-        MainPageSelection mainPageSelection = myApp.getCurrentSelection();
-        if (mainPageSelection == null) {
-            Intent nullIntent = new Intent(this, MainActivity.class);
-            startActivity(nullIntent);
+
+        try {
+            MyApp myApp = (MyApp) getApplicationContext();
+            MainPageSelection mainPageSelection = myApp.getCurrentSelection();
+            selectionType = mainPageSelection.getType();
+            selectionName = mainPageSelection.getName();
+            selectionID = mainPageSelection.getId();
+            level = mainPageSelection.getLevel();
+        } catch (Exception e) {
+            Intent intent = new Intent(ObjectPagerActivity.this, MainActivity.class);
+            startActivity(intent);
             finish();
         }
-        selectionType = mainPageSelection.getType();
-        selectionName = mainPageSelection.getName();
-        selectionID = mainPageSelection.getId();
-        level = mainPageSelection.getLevel();
+
+
         mObjectType = objectType;
         mUri = uri;
         setTitle(selectionName);

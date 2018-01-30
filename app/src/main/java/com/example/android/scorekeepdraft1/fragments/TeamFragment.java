@@ -5,6 +5,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
@@ -195,8 +196,14 @@ public class TeamFragment extends Fragment
         return rootView;
     }
 
-    public void restartLoader() {
-        getLoaderManager().restartLoader(EXISTING_TEAM_LOADER, null, this);
+    public void removePlayerByName(String playerName){
+        for (int i = 0; i < mPlayers.size(); i++) {
+            Player player = mPlayers.get(i);
+            if (player.getName().equals(playerName)) {
+                mPlayers.remove(player);
+                return;
+            }
+        }
     }
 
     private void createTeamFragment(String team) {
@@ -209,17 +216,21 @@ public class TeamFragment extends Fragment
 
     public void updateTeamRV() {
         if (mAdapter == null) {
-            SharedPreferences settingsPreferences = getActivity()
-                    .getSharedPreferences(mSelectionID + "settings", Context.MODE_PRIVATE);
-            int genderSorter = settingsPreferences.getInt("genderSort", 0);
-
-            rv.setLayoutManager(new LinearLayoutManager(
-                    getActivity(), LinearLayoutManager.VERTICAL, false));
-            mAdapter = new PlayerStatsAdapter(mPlayers, getActivity(), genderSorter);
-            rv.setAdapter(mAdapter);
+            setNewAdapter();
         } else {
             mAdapter.notifyDataSetChanged();
         }
+    }
+
+    public void setNewAdapter() {
+        SharedPreferences settingsPreferences = getActivity()
+                .getSharedPreferences(mSelectionID + "settings", Context.MODE_PRIVATE);
+        int genderSorter = settingsPreferences.getInt("genderSort", 0);
+
+        rv.setLayoutManager(new LinearLayoutManager(
+                getActivity(), LinearLayoutManager.VERTICAL, false));
+        mAdapter = new PlayerStatsAdapter(mPlayers, getActivity(), genderSorter);
+        rv.setAdapter(mAdapter);
     }
 
     public void changeColorsRV(boolean genderSettingsOn) {
@@ -598,10 +609,10 @@ public class TeamFragment extends Fragment
 
     private void sortStats(int statSorter) {
         if (colorView != null) {
-            colorView.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.stat_title));
+            colorView.setTextColor(Color.WHITE);
         }
         colorView = getView().findViewById(statSorter);
-        colorView.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.colorPrimaryLight));
+        colorView.setTextColor(ContextCompat.getColor(getActivity(), R.color.colorAccent));
 
         Player total = mPlayers.get(mPlayers.size() - 1);
         mPlayers.remove(total);

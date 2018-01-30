@@ -1,6 +1,7 @@
 package com.example.android.scorekeepdraft1.fragments;
 
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -32,6 +33,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.R;
+import com.example.android.scorekeepdraft1.activities.LeagueManagerActivity;
+import com.example.android.scorekeepdraft1.activities.TeamManagerActivity;
 import com.example.android.scorekeepdraft1.activities.UserSettingsActivity;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.PlayerStatsAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract;
@@ -60,12 +63,13 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
     private TextView colorView;
     private Cursor mCursor;
     private List<Player> mPlayers;
-    private String leagueID;
+    private String selectionID;
     private int level;
+    private String selectionName;
+    private List<String> teamsArray;
     private static final int STATS_LOADER = 4;
     private static final String KEY_STAT_SORT = "keyStatSort";
     private static final String KEY_TEAM_FILTER = "keyTeamFilter";
-    private List<String> teamsArray;
     private static final String ALL_TEAMS = "All Teams";
     private static final String FREE_AGENT = "Free Agent";
 
@@ -75,10 +79,11 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         // Required empty public constructor
     }
 
-    public static StatsFragment newInstance(String leagueID, int level) {
+    public static StatsFragment newInstance(String leagueID, int level, String name) {
         Bundle args = new Bundle();
         args.putInt(MainPageSelection.KEY_SELECTION_LEVEL, level);
         args.putString(MainPageSelection.KEY_SELECTION_ID, leagueID);
+        args.putString(MainPageSelection.KEY_SELECTION_NAME, name);
         StatsFragment fragment = new StatsFragment();
         fragment.setArguments(args);
         return fragment;
@@ -90,7 +95,8 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         setHasOptionsMenu(true);
         Bundle args = getArguments();
         level = args.getInt(MainPageSelection.KEY_SELECTION_LEVEL);
-        leagueID = args.getString(MainPageSelection.KEY_SELECTION_ID);
+        selectionID = args.getString(MainPageSelection.KEY_SELECTION_ID);
+        selectionName = args.getString(MainPageSelection.KEY_SELECTION_NAME);
     }
 
     @Override
@@ -171,14 +177,26 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
                 return true;
             case R.id.change_game_settings:
                 SharedPreferences settingsPreferences = getActivity()
-                        .getSharedPreferences(leagueID + "settings", Context.MODE_PRIVATE);
+                        .getSharedPreferences(selectionID + "settings", Context.MODE_PRIVATE);
                 int innings = settingsPreferences.getInt("innings", 7);
                 int genderSorter = settingsPreferences.getInt("genderSort", 0);
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                DialogFragment newFragment = GameSettingsDialogFragment.newInstance(innings, genderSorter, leagueID);
+                DialogFragment newFragment = GameSettingsDialogFragment.newInstance(innings, genderSorter, selectionID);
                 newFragment.show(fragmentTransaction, "");
                 return true;
+            case R.id.action_export_stats:
+                Activity activity = getActivity();
+                if (activity instanceof LeagueManagerActivity) {
+                    LeagueManagerActivity leagueManagerActivity = (LeagueManagerActivity) activity;
+                    leagueManagerActivity.startExport(selectionName);
+                    return true;
+                } else if (activity instanceof TeamManagerActivity) {
+                    TeamManagerActivity teamManagerActivity = (TeamManagerActivity) activity;
+                    teamManagerActivity.startExport(selectionName);
+                    return true;
+                }
+                return false;
         }
         return false;
     }
@@ -186,7 +204,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
     private void updateStatsRV() {
         if (mAdapter == null) {
             SharedPreferences settingsPreferences = getActivity()
-                    .getSharedPreferences(leagueID + "settings", Context.MODE_PRIVATE);
+                    .getSharedPreferences(selectionID + "settings", Context.MODE_PRIVATE);
             int genderSorter = settingsPreferences.getInt("genderSort", 0);
 
             rv.setLayoutManager(new LinearLayoutManager(
@@ -336,7 +354,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         }
 
         SharedPreferences settingsPreferences = getActivity()
-                .getSharedPreferences(leagueID + "settings", Context.MODE_PRIVATE);
+                .getSharedPreferences(selectionID + "settings", Context.MODE_PRIVATE);
         int genderSorter = settingsPreferences.getInt("genderSort", 0);
         boolean genderSettingsOn = genderSorter != 0;
         mAdapter.changeColors(genderSettingsOn);

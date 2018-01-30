@@ -1,6 +1,7 @@
 package com.example.android.scorekeepdraft1.fragments;
 
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.support.annotation.Nullable;
@@ -36,6 +37,7 @@ import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.activities.LeagueGameActivity;
+import com.example.android.scorekeepdraft1.activities.LeagueManagerActivity;
 import com.example.android.scorekeepdraft1.activities.SetLineupActivity;
 import com.example.android.scorekeepdraft1.activities.UserSettingsActivity;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.TeamListAdapter;
@@ -80,14 +82,16 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     private static final int MATCHUP_LOADER = 5;
 
     private String leagueID;
+    private String leagueName;
 
     public MatchupFragment() {
         // Required empty public constructor
     }
 
-    public static MatchupFragment newInstance(String leagueID) {
+    public static MatchupFragment newInstance(String leagueID, String name) {
         Bundle args = new Bundle();
         args.putString(MainPageSelection.KEY_SELECTION_ID, leagueID);
+        args.putString(MainPageSelection.KEY_SELECTION_NAME, name);
         MatchupFragment fragment = new MatchupFragment();
         fragment.setArguments(args);
         return fragment;
@@ -99,6 +103,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         setHasOptionsMenu(true);
         Bundle args = getArguments();
         leagueID = args.getString(MainPageSelection.KEY_SELECTION_ID);
+        leagueName = args.getString(MainPageSelection.KEY_SELECTION_NAME);
     }
 
     @Override
@@ -124,6 +129,14 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                 DialogFragment newFragment = GameSettingsDialogFragment.newInstance(innings, genderSorter, leagueID);
                 newFragment.show(fragmentTransaction, "");
                 return true;
+            case R.id.action_export_stats:
+                Activity activity = getActivity();
+                if (activity instanceof LeagueManagerActivity) {
+                    LeagueManagerActivity leagueManagerActivity = (LeagueManagerActivity) activity;
+                    leagueManagerActivity.startExport(leagueName);
+                    return true;
+                }
+                return false;
         }
         return false;
     }
@@ -505,11 +518,6 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         homeLineupAdapter = new TeamListAdapter(homeLineup, getActivity(), genderSorter);
         rvHome.setAdapter(homeLineupAdapter);
         homePlayersCount = homeLineupAdapter.getItemCount();
-    }
-
-
-    private void checkPlayerCounts() {
-
     }
 
     public void changeColorsRV(boolean genderSettingsOn) {

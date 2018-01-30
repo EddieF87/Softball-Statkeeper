@@ -36,7 +36,7 @@ public class BoxScoreActivity extends AppCompatActivity implements LoaderManager
     private BoxScorePlayerCursorAdapter homeAdapter;
     private String awayTeam;
     private String homeTeam;
-    private String teamName;
+    private String selectionName;
     private int awayTeamRuns;
     private int homeTeamRuns;
     private int totalInnings;
@@ -47,14 +47,16 @@ public class BoxScoreActivity extends AppCompatActivity implements LoaderManager
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_box_score);
 
-        MyApp myApp = (MyApp) getApplicationContext();
-        if (myApp.getCurrentSelection() == null) {
+        try {
+            MyApp myApp = (MyApp) getApplicationContext();
+            MainPageSelection mainPageSelection = myApp.getCurrentSelection();
+            selectionType = mainPageSelection.getType();
+            selectionName = mainPageSelection.getName();
+        } catch (Exception e) {
             Intent intent = new Intent(BoxScoreActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
         }
-        MainPageSelection mainPageSelection = myApp.getCurrentSelection();
-        selectionType = mainPageSelection.getType();
 
         Bundle b = getIntent().getExtras();
         if (savedInstanceState != null) {
@@ -85,8 +87,7 @@ public class BoxScoreActivity extends AppCompatActivity implements LoaderManager
             boxscoreHeader.setText(headerString);
             View boxscore = findViewById(R.id.relativelayout_boxscore);
             boxscore.setVisibility(View.GONE);
-            teamName = mainPageSelection.getName();
-            awayNameView.setText(teamName);
+            awayNameView.setText(selectionName);
             homeNameView.setVisibility(View.GONE);
             homeListView.setVisibility(View.GONE);
             homeTitle.setVisibility(View.GONE);
@@ -120,7 +121,7 @@ public class BoxScoreActivity extends AppCompatActivity implements LoaderManager
                 uri = StatsEntry.CONTENT_URI_TEMP;
                 selection = StatsEntry.COLUMN_TEAM + "=?";
                 if(selectionType == MainPageSelection.TYPE_TEAM){
-                    selectionArgs = new String[]{teamName};
+                    selectionArgs = new String[]{selectionName};
                 } else {
                     selectionArgs = new String[]{awayTeam};
                 }

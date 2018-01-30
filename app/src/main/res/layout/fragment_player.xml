@@ -10,9 +10,10 @@
         android:id="@+id/player_hr_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="8dp"
         android:text="@string/hr"
         android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="@+id/player_avg_title"
         app:layout_constraintLeft_toLeftOf="@+id/player_avg_title"
         app:layout_constraintTop_toBottomOf="@+id/player_avg" />
 
@@ -20,29 +21,30 @@
         android:id="@+id/player_runs_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="23dp"
         android:text="@string/r"
         android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="@+id/player_slg_title"
         app:layout_constraintLeft_toLeftOf="@+id/player_slg_title"
-        app:layout_constraintTop_toBottomOf="@+id/player_slg" />
+        app:layout_constraintTop_toTopOf="@+id/player_hr_title" />
 
     <TextView
         android:id="@+id/player_rbi_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="23dp"
         android:text="@string/rbi"
         android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="@+id/player_ops_title"
         app:layout_constraintLeft_toLeftOf="@+id/player_ops_title"
-        app:layout_constraintTop_toBottomOf="@+id/player_ops" />
+        app:layout_constraintTop_toTopOf="@+id/player_runs_title" />
 
     <TextView
         android:id="@+id/player_rbi"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="0"
-        android:textSize="30sp"
+        android:textSize="24sp"
         android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/player_rbi_title"
         app:layout_constraintLeft_toLeftOf="@+id/player_rbi_title"
         app:layout_constraintTop_toBottomOf="@+id/player_rbi_title" />
 
@@ -51,8 +53,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="0"
-        android:textSize="30sp"
+        android:textSize="24sp"
         android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/player_runs_title"
         app:layout_constraintLeft_toLeftOf="@+id/player_runs_title"
         app:layout_constraintTop_toBottomOf="@+id/player_runs_title" />
 
@@ -71,7 +74,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/empty_avg"
-        android:textSize="30sp"
+        android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/player_ops_title"
         app:layout_constraintLeft_toLeftOf="@+id/player_ops_title"
@@ -82,8 +85,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="0"
-        android:textSize="30sp"
+        android:textSize="24sp"
         android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/player_hr_title"
         app:layout_constraintLeft_toLeftOf="@+id/player_hr_title"
         app:layout_constraintTop_toBottomOf="@+id/player_hr_title" />
 
@@ -102,7 +106,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/empty_avg"
-        android:textSize="30sp"
+        android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/player_slg_title"
         app:layout_constraintLeft_toLeftOf="@+id/player_slg_title"
@@ -113,8 +117,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:autoSizeMinTextSize="12sp"
         android:autoSizeTextType="uniform"
         android:gravity="center"
@@ -122,9 +125,9 @@
         android:textSize="40sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/player_image"
+        app:layout_constraintStart_toStartOf="@+id/guideline_titles"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="Player  NamePlayer  Name" />
+        tools:text="Player  Name" />
 
     <TextView
         android:id="@+id/player_team"
@@ -132,35 +135,34 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
         android:autoSizeMinTextSize="12sp"
         android:autoSizeTextType="uniform"
         android:gravity="center"
         android:maxLines="1"
-        android:textSize="24sp"
+        android:textSize="18sp"
         android:textStyle="italic"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/player_name"
         app:layout_constraintTop_toBottomOf="@+id/player_name"
-        tools:text="PlayertopesPlayertopes" />
+        tools:text="Playertope" />
 
     <TextView
         android:id="@+id/player_avg_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:text="@string/avg"
         android:textSize="18sp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@+id/player_slg_title"
-        app:layout_constraintTop_toBottomOf="@+id/player_image" />
+        app:layout_constraintTop_toBottomOf="@+id/border1" />
 
     <TextView
         android:id="@+id/player_avg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/empty_avg"
-        android:textSize="30sp"
+        android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="@+id/player_avg_title"
         app:layout_constraintLeft_toLeftOf="@+id/player_avg_title"
@@ -168,12 +170,15 @@
 
     <ImageView
         android:id="@+id/player_image"
-        android:layout_width="92dp"
-        android:layout_height="113dp"
-        android:layout_marginLeft="24dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="24dp"
-        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintBottom_toBottomOf="@+id/border1"
+        app:layout_constraintEnd_toStartOf="@+id/guideline_titles"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@mipmap/ic_launcher_round" />
 
@@ -195,9 +200,9 @@
         android:layout_weight="3"
         android:gravity="center"
         android:text="@string/h"
-        app:layout_constraintTop_toTopOf="@+id/playerboard_ab_title"
         app:layout_constraintLeft_toRightOf="@+id/playerboard_ab_title"
-        app:layout_constraintRight_toLeftOf="@+id/playerboard_1b_title" />
+        app:layout_constraintRight_toLeftOf="@+id/playerboard_1b_title"
+        app:layout_constraintTop_toTopOf="@+id/playerboard_ab_title" />
 
 
     <TextView
@@ -208,8 +213,8 @@
         android:gravity="center"
         android:text="@string/_1b"
         app:layout_constraintLeft_toRightOf="@+id/playerboard_hit_title"
-        app:layout_constraintTop_toTopOf="@+id/playerboard_hit_title"
-        app:layout_constraintRight_toLeftOf="@+id/playerboard_2b_title" />
+        app:layout_constraintRight_toLeftOf="@+id/playerboard_2b_title"
+        app:layout_constraintTop_toTopOf="@+id/playerboard_hit_title" />
 
     <TextView
         android:id="@+id/playerboard_2b_title"
@@ -219,8 +224,8 @@
         android:gravity="center"
         android:text="@string/_2b"
         app:layout_constraintLeft_toRightOf="@+id/playerboard_1b_title"
-        app:layout_constraintTop_toTopOf="@+id/playerboard_1b_title"
-        app:layout_constraintRight_toLeftOf="@+id/playerboard_3b_title" />
+        app:layout_constraintRight_toLeftOf="@+id/playerboard_3b_title"
+        app:layout_constraintTop_toTopOf="@+id/playerboard_1b_title" />
 
     <TextView
         android:id="@+id/playerboard_3b_title"
@@ -229,9 +234,9 @@
         android:layout_weight="3"
         android:gravity="center"
         android:text="@string/_3b"
-        app:layout_constraintTop_toTopOf="@+id/playerboard_2b_title"
         app:layout_constraintLeft_toRightOf="@+id/playerboard_2b_title"
-        app:layout_constraintRight_toLeftOf="@+id/playerboard_bb_title" />
+        app:layout_constraintRight_toLeftOf="@+id/playerboard_bb_title"
+        app:layout_constraintTop_toTopOf="@+id/playerboard_2b_title" />
 
 
     <TextView
@@ -241,9 +246,9 @@
         android:layout_weight="3"
         android:gravity="center"
         android:text="@string/bb"
-        app:layout_constraintTop_toTopOf="@+id/playerboard_3b_title"
         app:layout_constraintLeft_toRightOf="@+id/playerboard_3b_title"
-        app:layout_constraintRight_toLeftOf="@+id/playerboard_obp_title" />
+        app:layout_constraintRight_toLeftOf="@+id/playerboard_obp_title"
+        app:layout_constraintTop_toTopOf="@+id/playerboard_3b_title" />
 
     <TextView
         android:id="@+id/playerboard_obp_title"
@@ -253,8 +258,8 @@
         android:gravity="center"
         android:text="@string/obp"
         app:layout_constraintLeft_toRightOf="@+id/playerboard_bb_title"
-        app:layout_constraintTop_toTopOf="@+id/playerboard_bb_title"
-        app:layout_constraintRight_toRightOf="parent" />
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/playerboard_bb_title" />
 
     <TextView
         android:id="@+id/playerboard_ab"
@@ -324,51 +329,44 @@
         android:id="@+id/border1"
         android:layout_width="0dp"
         android:layout_height="1dp"
-        android:layout_marginBottom="8dp"
-        android:background="@android:color/darker_gray"
-        app:layout_constraintBottom_toTopOf="@+id/player_slg_title"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
-
-    <FrameLayout
-        android:id="@+id/border3"
-        android:layout_width="0dp"
-        android:layout_height="1dp"
-        android:background="@android:color/darker_gray"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginTop="0dp"
-        app:layout_constraintTop_toBottomOf="@+id/player_runs"
-        android:layout_marginBottom="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/playerboard_2b_title" />
-
-    <FrameLayout
-        android:id="@+id/border2"
-        android:layout_width="0dp"
-        android:layout_height="1dp"
-        android:layout_marginBottom="8dp"
         android:layout_marginTop="8dp"
         android:background="@android:color/darker_gray"
-        app:layout_constraintBottom_toTopOf="@+id/player_runs_title"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/player_slg" />
+        app:layout_constraintTop_toBottomOf="@+id/player_team" />
+
+    <!--<FrameLayout-->
+    <!--android:id="@+id/border3"-->
+    <!--android:layout_width="0dp"-->
+    <!--android:layout_height="1dp"-->
+    <!--android:layout_marginBottom="0dp"-->
+    <!--android:layout_marginTop="0dp"-->
+    <!--android:background="@android:color/darker_gray"-->
+    <!--app:layout_constraintBottom_toTopOf="@+id/playerboard_2b_title"-->
+    <!--app:layout_constraintHorizontal_bias="0.0"-->
+    <!--app:layout_constraintLeft_toLeftOf="parent"-->
+    <!--app:layout_constraintRight_toRightOf="parent"-->
+    <!--app:layout_constraintTop_toBottomOf="@+id/player_runs" />-->
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline_titles"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".33" />
 
     <include
         android:id="@+id/player_mgr"
-        layout="@layout/item_player_manager"
+        layout="@layout/player_manager"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/border4"
-        android:visibility="gone"
-        />
-
+        app:layout_constraintVertical_bias="0.0" />
 
 
 </android.support.constraint.ConstraintLayout>

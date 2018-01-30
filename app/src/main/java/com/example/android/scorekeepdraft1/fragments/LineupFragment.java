@@ -1,6 +1,7 @@
 package com.example.android.scorekeepdraft1.fragments;
 
 
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -30,7 +31,9 @@ import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.activities.LeagueGameActivity;
+import com.example.android.scorekeepdraft1.activities.LeagueManagerActivity;
 import com.example.android.scorekeepdraft1.activities.TeamGameActivity;
+import com.example.android.scorekeepdraft1.activities.TeamManagerActivity;
 import com.example.android.scorekeepdraft1.activities.UserSettingsActivity;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.LineupListAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract;
@@ -648,6 +651,15 @@ public class LineupFragment extends Fragment {
     }
 
     @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        Activity activity = getActivity();
+        if (!(activity instanceof TeamManagerActivity)) {
+            menu.findItem(R.id.action_export_stats).setVisible(false);
+        }
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.change_user_settings:
@@ -664,6 +676,14 @@ public class LineupFragment extends Fragment {
                 DialogFragment newFragment = GameSettingsDialogFragment.newInstance(innings, genderSorter, mSelectionID);
                 newFragment.show(fragmentTransaction, "");
                 return true;
+            case R.id.action_export_stats:
+                Activity activity = getActivity();
+                if (activity instanceof TeamManagerActivity) {
+                    TeamManagerActivity teamManagerActivity = (TeamManagerActivity) activity;
+                    teamManagerActivity.startExport(mTeam);
+                    return true;
+                }
+                return false;
         }
         return false;
     }

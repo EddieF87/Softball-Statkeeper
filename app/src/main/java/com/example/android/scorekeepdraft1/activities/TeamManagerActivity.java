@@ -32,9 +32,10 @@ import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.example.android.scorekeepdraft1.objects.Player;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public class TeamManagerActivity extends AppCompatActivity
+public class TeamManagerActivity extends ExportActivity
         implements AddNewPlayersDialogFragment.OnListFragmentInteractionListener,
         GameSettingsDialogFragment.OnFragmentInteractionListener,
         RemoveAllPlayersDialogFragment.OnFragmentInteractionListener,
@@ -52,18 +53,18 @@ public class TeamManagerActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manager_pager);
 
-        MyApp myApp = (MyApp) getApplicationContext();
-        MainPageSelection mainPageSelection = myApp.getCurrentSelection();
-        if (mainPageSelection == null) {
-            Intent intent = new Intent(TeamManagerActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
-        } else {
+        try {
+            MyApp myApp = (MyApp) getApplicationContext();
+            MainPageSelection mainPageSelection = myApp.getCurrentSelection();
             leagueName = mainPageSelection.getName();
             teamID = mainPageSelection.getId();
             leagueType = mainPageSelection.getType();
             level = mainPageSelection.getLevel();
             setTitle(leagueName);
+        } catch (Exception e) {
+            Intent intent = new Intent(TeamManagerActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
         }
 
         ViewPager viewPager = findViewById(R.id.league_view_pager);
@@ -99,6 +100,7 @@ public class TeamManagerActivity extends AppCompatActivity
                 }
             }
         }
+
         if (!players.isEmpty()) {
             if (lineupFragment != null) {
                 lineupFragment.updateBench(players);
@@ -213,7 +215,9 @@ public class TeamManagerActivity extends AppCompatActivity
 
             if (requestCode == PlayerStatsAdapter.REQUEST_CODE && resultCode == RESULT_OK) {
                 if (teamFragment != null) {
-                    teamFragment.restartLoader();
+                    String deletedPlayer = data.getStringExtra("delete");
+                    teamFragment.removePlayerByName(deletedPlayer);
+                    teamFragment.setNewAdapter();
                 }
             }
         } catch (Exception ex) {

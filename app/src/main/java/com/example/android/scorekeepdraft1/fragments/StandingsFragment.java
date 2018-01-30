@@ -1,6 +1,7 @@
 package com.example.android.scorekeepdraft1.fragments;
 
 
+import android.app.Activity;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -28,7 +29,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
@@ -36,6 +36,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.R;
+import com.example.android.scorekeepdraft1.activities.LeagueManagerActivity;
 import com.example.android.scorekeepdraft1.activities.UserSettingsActivity;
 import com.example.android.scorekeepdraft1.activities.TeamPagerActivity;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.StandingsCursorAdapter;
@@ -48,7 +49,6 @@ import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 public class StandingsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
         View.OnClickListener {
@@ -60,6 +60,7 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
     private static final int STANDINGS_LOADER = 3;
     private int level;
     private String leagueID;
+    private String leagueName;
     private StandingsCursorAdapter mAdapter;
     private ArrayList<String> mTeams;
     private TextView colorView;
@@ -70,11 +71,12 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
         // Required empty public constructor
     }
 
-    public static StandingsFragment newInstance(String leagueID, int level) {
+    public static StandingsFragment newInstance(String leagueID, int level, String name) {
         Bundle args = new Bundle();
         StandingsFragment fragment = new StandingsFragment();
         args.putInt(MainPageSelection.KEY_SELECTION_LEVEL, level);
         args.putString(MainPageSelection.KEY_SELECTION_ID, leagueID);
+        args.putString(MainPageSelection.KEY_SELECTION_NAME, name);
         fragment.setArguments(args);
         return fragment;
     }
@@ -86,6 +88,7 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
         Bundle args = getArguments();
         level = args.getInt(MainPageSelection.KEY_SELECTION_LEVEL);
         leagueID = args.getString(MainPageSelection.KEY_SELECTION_ID);
+        leagueName = args.getString(MainPageSelection.KEY_SELECTION_NAME);
     }
 
     @Override
@@ -182,6 +185,14 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
                 DialogFragment newFragment = GameSettingsDialogFragment.newInstance(innings, genderSorter, leagueID);
                 newFragment.show(fragmentTransaction, "");
                 return true;
+            case R.id.action_export_stats:
+                Activity activity = getActivity();
+                if (activity instanceof LeagueManagerActivity) {
+                    LeagueManagerActivity leagueManagerActivity = (LeagueManagerActivity) activity;
+                    leagueManagerActivity.startExport(leagueName);
+                    return true;
+                }
+                return false;
         }
         return false;
     }

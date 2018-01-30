@@ -2,10 +2,10 @@ package com.example.android.scorekeepdraft1.fragments;
 
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.pm.PackageManager;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
@@ -13,7 +13,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -27,18 +26,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.Spinner;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.activities.LeagueManagerActivity;
+import com.example.android.scorekeepdraft1.activities.PlayerManagerActivity;
 import com.example.android.scorekeepdraft1.activities.PlayerPagerActivity;
 import com.example.android.scorekeepdraft1.activities.TeamPagerActivity;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
+import com.example.android.scorekeepdraft1.data.StatsExporter;
 import com.example.android.scorekeepdraft1.dialogs.ChangeTeamDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.DeleteConfirmationDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.EditNameDialogFragment;
@@ -52,7 +53,7 @@ import java.util.ArrayList;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class PlayerFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
+public class PlayerFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private NumberFormat formatter = new DecimalFormat("#.000");
     private static final int EXISTING_PLAYER_LOADER = 0;
@@ -63,20 +64,19 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     private String firestoreID;
     private static final String KEY_PLAYER_URI = "playerURI";
     private int selectionType;
-    private TextView runsText;
-    private TextView rbiText;
-    private TextView resultText;
-    private int runs;
-    private int rbi;
+    private TextView resultCountText;
     private int resultCount;
-
+    private String result;
+    private TextView resultText;
+    private RadioGroup group1;
+    private RadioGroup group2;
 
     public PlayerFragment() {
         // Required empty public constructor
     }
 
 
-    public static PlayerFragment newInstance(int leagueType, int level , Uri uri) {
+    public static PlayerFragment newInstance(int leagueType, int level, Uri uri) {
         Bundle args = new Bundle();
         args.putInt(MainPageSelection.KEY_SELECTION_TYPE, leagueType);
         args.putInt(MainPageSelection.KEY_SELECTION_LEVEL, level);
@@ -190,7 +190,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             TextView bbView = rootView.findViewById(R.id.playerboard_bb);
             TextView teamView = rootView.findViewById(R.id.player_team);
 
-            if(selectionType == MainPageSelection.TYPE_LEAGUE) {
+            if (selectionType == MainPageSelection.TYPE_LEAGUE) {
                 teamView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -256,70 +256,39 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     private void setPlayerManager() {
         View playerManager = getView().findViewById(R.id.player_mgr);
         playerManager.setVisibility(View.VISIBLE);
+        setRadioButtons(playerManager);
 
-        runs = 0;
-        rbi = 0;
         resultCount = 0;
-        rbiText = playerManager.findViewById(R.id.textview_rbi);
-        runsText = playerManager.findViewById(R.id.textview_runs);
-        resultText = playerManager.findViewById(R.id.textview_results);
-        final Spinner resultSpinner = playerManager.findViewById(R.id.spinner_result);
-        ImageButton addRuns = playerManager.findViewById(R.id.btn_add_run);
-        ImageButton addRBI = playerManager.findViewById(R.id.btn_add_rbi);
-        ImageButton addResult = playerManager.findViewById(R.id.btn_add_result);
-        ImageButton subtractRuns = playerManager.findViewById(R.id.btn_subtract_run);
-        ImageButton subtractRBI = playerManager.findViewById(R.id.btn_subtract_rbi);
-        ImageButton subtractResult = playerManager.findViewById(R.id.btn_subtract_result);
-        Button submitButton = playerManager.findViewById(R.id.submit);
+        resultCountText = playerManager.findViewById(R.id.textview_result_count);
+        resultText = playerManager.findViewById(R.id.textview_result_chosen);
+        Button submitBtn = playerManager.findViewById(R.id.submit);
+        ImageButton addBtn = playerManager.findViewById(R.id.btn_add_result);
+        ImageButton subtractBtn = playerManager.findViewById(R.id.btn_subtract_result);
 
-        addRuns.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                runs++;
-                runsText.setText(String.valueOf(runs));
-            }
-        });
-        addRBI.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                rbi++;
-                rbiText.setText(String.valueOf(rbi));
-            }
-        });
-        addResult.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                resultCount++;
-                resultText.setText(String.valueOf(resultCount));
-            }
-        });
-        subtractRuns.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                runs--;
-                runsText.setText(String.valueOf(runs));
-            }
-        });
-        subtractRBI.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                rbi--;
-                rbiText.setText(String.valueOf(rbi));
-            }
-        });
-        subtractResult.setOnClickListener(new View.OnClickListener() {
+        subtractBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 resultCount--;
-                resultText.setText(String.valueOf(resultCount));
+                resultCountText.setText(String.valueOf(resultCount));
             }
         });
-        submitButton.setOnClickListener(new View.OnClickListener() {
+        addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String result = resultSpinner.getSelectedItem().toString();
-                String statEntry;
+                resultCount++;
+                resultCountText.setText(String.valueOf(resultCount));
+            }
+        });
 
+        submitBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (result == null) {
+                    Toast.makeText(getActivity(), "Please select a result first.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                String statEntry;
                 Cursor cursor = getActivity().getContentResolver().query(mCurrentPlayerUri,
                         null, null, null, null);
                 if (cursor.moveToFirst()) {
@@ -345,30 +314,143 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                         case "SF":
                             statEntry = StatsEntry.COLUMN_SF;
                             break;
+                        case "Run":
+                            statEntry = StatsEntry.COLUMN_RUN;
+                            break;
+                        case "RBI":
+                            statEntry = StatsEntry.COLUMN_RBI;
+                            break;
                         default:
                             return;
                     }
                     int currentResultCount = cursor.getInt(cursor.getColumnIndex(statEntry));
                     resultCount += currentResultCount;
-                    int currentRuns = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_RUN));
-                    runs += currentRuns;
-                    int currentRBI = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_RBI));
-                    rbi += currentRBI;
                     ContentValues values = new ContentValues();
                     values.put(statEntry, resultCount);
-                    values.put(StatsEntry.COLUMN_RUN, runs);
-                    values.put(StatsEntry.COLUMN_RBI, rbi);
                     getActivity().getContentResolver().update(mCurrentPlayerUri,
                             values, null, null);
                 }
                 cursor.close();
 
-                runs = 0;
-                rbi = 0;
                 resultCount = 0;
-                runsText.setText(String.valueOf(0));
-                rbiText.setText(String.valueOf(0));
-                resultText.setText(String.valueOf(0));
+                resultCountText.setText(String.valueOf(0));
+                resultText.setText("");
+                result = null;
+                group1.clearCheck();
+                group2.clearCheck();
+            }
+        });
+    }
+
+    public void setRadioButtons(View view) {
+        group1 = view.findViewById(R.id.group1);
+        group2 = view.findViewById(R.id.group2);
+        RadioButton single = view.findViewById(R.id.single);
+        RadioButton dbl = view.findViewById(R.id.dbl);
+        RadioButton triple = view.findViewById(R.id.triple);
+        RadioButton hr = view.findViewById(R.id.hr);
+        RadioButton bb = view.findViewById(R.id.bb);
+        RadioButton out = view.findViewById(R.id.out);
+        RadioButton sf = view.findViewById(R.id.sf);
+        RadioButton run = view.findViewById(R.id.run);
+        RadioButton rbi = view.findViewById(R.id.rbi);
+        single.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean checked = ((RadioButton) view).isChecked();
+                if (checked) {
+                    group2.clearCheck();
+                    result = "1B";
+                    resultText.setText(result);
+                }
+            }
+        });
+        dbl.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean checked = ((RadioButton) view).isChecked();
+                if (checked) {
+                    group2.clearCheck();
+                    result = "2B";
+                    resultText.setText(result);
+                }
+            }
+        });
+        triple.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean checked = ((RadioButton) view).isChecked();
+                if (checked) {
+                    group2.clearCheck();
+                    result = "3B";
+                    resultText.setText(result);
+                }
+            }
+        });
+        hr.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean checked = ((RadioButton) view).isChecked();
+                if (checked) {
+                    group2.clearCheck();
+                    result = "HR";
+                    resultText.setText(result);
+                }
+            }
+        });
+        bb.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean checked = ((RadioButton) view).isChecked();
+                if (checked) {
+                    group1.clearCheck();
+                    result = "BB";
+                    resultText.setText(result);
+                }
+            }
+        });
+        out.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean checked = ((RadioButton) view).isChecked();
+                if (checked) {
+                    group1.clearCheck();
+                    result = "Out";
+                    resultText.setText(result);
+                }
+            }
+        });
+        sf.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean checked = ((RadioButton) view).isChecked();
+                if (checked) {
+                    group1.clearCheck();
+                    result = "SF";
+                    resultText.setText(result);
+                }
+            }
+        });
+        run.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean checked = ((RadioButton) view).isChecked();
+                if (checked) {
+                    group1.clearCheck();
+                    result = "Run";
+                    resultText.setText(result);
+                }
+            }
+        });
+        rbi.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean checked = ((RadioButton) view).isChecked();
+                if (checked) {
+                    group1.clearCheck();
+                    result = "RBI";
+                    resultText.setText(result);
+                }
             }
         });
     }
@@ -399,6 +481,14 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             case R.id.action_delete_player:
                 showDeleteConfirmationDialog();
                 return true;
+            case R.id.action_export_stats:
+                Activity activity = getActivity();
+                if (activity instanceof PlayerManagerActivity) {
+                    PlayerManagerActivity playerManagerActivity = (PlayerManagerActivity) activity;
+                    playerManagerActivity.startExport(playerName);
+                    return true;
+                }
+                return false;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -412,7 +502,6 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         if (selectionType == MainPageSelection.TYPE_LEAGUE) {
             menu.findItem(R.id.action_change_team).setVisible(true);
         }
-
     }
 
     private void showDeleteConfirmationDialog() {
@@ -461,8 +550,9 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             }
         }
         if (getActivity() instanceof PlayerPagerActivity) {
-            ((PlayerPagerActivity) getActivity()).returnDeleteResult(Activity.RESULT_OK);
-        };
+            ((PlayerPagerActivity) getActivity()).returnDeleteResult(Activity.RESULT_OK, playerName);
+        }
+        ;
     }
 
     public boolean updatePlayerName(String player) {

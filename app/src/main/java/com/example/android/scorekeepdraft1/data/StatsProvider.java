@@ -551,7 +551,7 @@ public class StatsProvider extends ContentProvider {
         String selection = StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
 
         if (values.containsKey(StatsEntry.COLUMN_NAME)) {
-            String name = values.getAsString(StatsEntry.COLUMN_NAME);
+            String name = values.getAsString(StatsEntry.COLUMN_NAME).toLowerCase();
             if (name == null || name.trim().isEmpty()) {
                 Toast.makeText(getContext(), "Please enter a name first!", Toast.LENGTH_SHORT).show();
                 return true;
@@ -560,7 +560,7 @@ public class StatsProvider extends ContentProvider {
             Cursor cursor = query(uri, projection, selection, null, null);
             while (cursor.moveToNext()) {
                 int nameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_NAME);
-                String teamName = cursor.getString(nameIndex);
+                String teamName = cursor.getString(nameIndex).toLowerCase();
                 if (teamName.equals(name)) {
                     if (isTeam) {
                         Toast.makeText(getContext(), "This team already exists!", Toast.LENGTH_SHORT).show();

@@ -81,17 +81,7 @@ public class FirestoreHelper {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if (task.isSuccessful()) {
-                            DocumentSnapshot documentSnapshot = task.getResult();
-                            Map<String, Object> data = documentSnapshot.getData();
-
-                            long cloudTimeStamp;
-                            Object object = data.get(LAST_UPDATE);
-                            if (object == null) {
-                                cloudTimeStamp = localTimeStamp;
-                                updateCloudTimeStamp(cloudTimeStamp);
-                            } else {
-                                cloudTimeStamp = (long) object;
-                            }
+                            long cloudTimeStamp = getCloudTimeStamp(task.getResult());
 
                             if (cloudTimeStamp > localTimeStamp) {
                                 Log.d("xxx", "onUpdateCheck(true)");
@@ -127,14 +117,24 @@ public class FirestoreHelper {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if (task.isSuccessful()) {
-                            DocumentSnapshot documentSnapshot = task.getResult();
-                            Map<String, Object> data = documentSnapshot.getData();
-                            long cloudTimeStamp = (long) data.get(LAST_UPDATE);
-
+                            long cloudTimeStamp = getCloudTimeStamp(task.getResult());
                             updateLocalTimeStamp(cloudTimeStamp);
                         }
                     }
                 });
+    }
+
+    public long getCloudTimeStamp(DocumentSnapshot documentSnapshot) {
+        Map<String, Object> data = documentSnapshot.getData();
+        long cloudTimeStamp;
+        Object object = data.get(LAST_UPDATE);
+        if (object == null) {
+            cloudTimeStamp = 0;
+            updateCloudTimeStamp(cloudTimeStamp);
+        } else {
+            cloudTimeStamp = (long) object;
+        }
+        return cloudTimeStamp;
     }
 
     public void updateTimeStamps() {
@@ -150,9 +150,7 @@ public class FirestoreHelper {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if (task.isSuccessful()) {
-                            DocumentSnapshot documentSnapshot = task.getResult();
-                            Map<String, Object> data = documentSnapshot.getData();
-                            long cloudTimeStamp = (long) data.get(LAST_UPDATE);
+                            long cloudTimeStamp = getCloudTimeStamp(task.getResult());
 
                             if (localTimeStamp >= cloudTimeStamp) {
                                 updateLocalTimeStamp(newTimeStamp);

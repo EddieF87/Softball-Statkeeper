@@ -4,6 +4,7 @@ package com.example.android.scorekeepdraft1.dialogs;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -78,34 +79,6 @@ implements SelectTeamRecyclerViewAdapter.OnAdapterInteractionListener{
         final AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
                 .setView(view)
                 .setTitle("Choose or Create a Team")
-////                .setItems(teams_array, new DialogInterface.OnClickListener() {
-////                    public void onClick(DialogInterface dialog, int item) {
-////                        String team = teams_array[item].toString();
-////                        if (team.equals(getString(R.string.waivers))) {
-////                            team = "Free Agent";
-////                        }
-////                        onButtonPressed(team);
-////                    }
-////                })
-//                .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
-//                    public void onClick(DialogInterface dialog, int id) {
-//                        View view = getActivity().getCurrentFocus();
-//                        if (view != null) {
-//                            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-//                            if (imm != null) {
-//                                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-//                            }
-//                        }
-////                        onButtonPressed();
-//                    }
-//                })
-//                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-//                    public void onClick(DialogInterface dialog, int id) {
-//                        if (dialog != null) {
-//                            dialog.dismiss();
-//                        }
-//                    }
-//                })
                 .create();
 //        alertDialog.setCancelable(false);
 //        alertDialog.setCanceledOnTouchOutside(false);
@@ -136,6 +109,12 @@ implements SelectTeamRecyclerViewAdapter.OnAdapterInteractionListener{
         });
 
         return alertDialog;
+    }
+
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        super.onCancel(dialog);
+        mListener.onCancel();
     }
 
     public void onButtonPressed(String team) {
@@ -169,5 +148,6 @@ implements SelectTeamRecyclerViewAdapter.OnAdapterInteractionListener{
     public interface OnFragmentInteractionListener {
         void onTeamSelected(String team);
         void onNewTeam(String team);
+        void onCancel();
     }
 }

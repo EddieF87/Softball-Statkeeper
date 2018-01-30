@@ -46,35 +46,17 @@ public class ExportActivity extends AppCompatActivity {
     private static final int KEY_PLAYERS = 1;
     private final NumberFormat formatter = new DecimalFormat("#.000");
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_export);
-
-        MyApp myApp = (MyApp) getApplicationContext();
-        MainPageSelection mainPageSelection = myApp.getCurrentSelection();
-        if (mainPageSelection == null) {
-            Intent nullIntent = new Intent(this, MainActivity.class);
-            startActivity(nullIntent);
-            finish();
-        }
-        leagueName = mainPageSelection.getName();
-
-        Button exportBtn = findViewById(R.id.btn_export);
-        exportBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (!checkPermission()) {
-                    tryExport();
-                } else {
-                    if (checkPermission()) {
-                        requestPermissionAndContinue();
-                    } else {
-                        tryExport();
-                    }
-                }
+    public void startExport(String name) {
+        leagueName = name;
+        if (!checkPermission()) {
+            tryExport();
+        } else {
+            if (checkPermission()) {
+                requestPermissionAndContinue();
+            } else {
+                tryExport();
             }
-        });
+        }
     }
 
     private void tryExport() {
@@ -245,6 +227,7 @@ public class ExportActivity extends AppCompatActivity {
 
         List<String[]> teamData = gatherData(KEY_TEAMS);
 
+
         File teamFile = new File(exportDir, "teams.csv");
         teamFile.createNewFile();
 
@@ -278,6 +261,9 @@ public class ExportActivity extends AppCompatActivity {
 // the attachment
         emailIntent .putExtra(Intent.EXTRA_STREAM, uris);
 // the mail subject
+        if(leagueName == null) {
+            return;
+        }
         emailIntent .putExtra(Intent.EXTRA_SUBJECT, leagueName + " Stats");
         emailIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
