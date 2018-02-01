@@ -40,6 +40,7 @@ import com.example.android.scorekeepdraft1.activities.LeagueManagerActivity;
 import com.example.android.scorekeepdraft1.activities.UserSettingsActivity;
 import com.example.android.scorekeepdraft1.activities.TeamPagerActivity;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.StandingsCursorAdapter;
+import com.example.android.scorekeepdraft1.data.FirestoreHelper;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.dialogs.AddNewPlayersDialogFragment;
@@ -209,7 +210,9 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
     public void addTeam(String team) {
         ContentValues values = new ContentValues();
         values.put(StatsEntry.COLUMN_NAME, team);
+        values.put("add", true);
         Uri teamUri = getActivity().getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
+        new FirestoreHelper(getActivity(), leagueID).updateTimeStamps();
 
         if (teamUri == null) {
             return;

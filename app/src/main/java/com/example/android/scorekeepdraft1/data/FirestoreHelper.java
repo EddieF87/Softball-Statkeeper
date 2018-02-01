@@ -1,10 +1,8 @@
 package com.example.android.scorekeepdraft1.data;
 
-import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
@@ -13,9 +11,6 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.example.android.scorekeepdraft1.MyApp;
-import com.example.android.scorekeepdraft1.activities.LoadingActivity;
-import com.example.android.scorekeepdraft1.activities.MainActivity;
-import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.example.android.scorekeepdraft1.objects.Player;
 import com.example.android.scorekeepdraft1.objects.Team;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
@@ -23,6 +18,7 @@ import com.example.android.scorekeepdraft1.gamelog.PlayerLog;
 import com.example.android.scorekeepdraft1.gamelog.TeamLog;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -32,6 +28,7 @@ import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -43,6 +40,7 @@ public class FirestoreHelper {
     public static final String LEAGUE_COLLECTION = "leagues";
     public static final String PLAYERS_COLLECTION = "players";
     public static final String TEAMS_COLLECTION = "teams";
+    public static final String DELETION_COLLECTION = "deletion";
     public static final String PLAYER_LOGS = "playerlogs";
     public static final String TEAM_LOGS = "teamlogs";
     public static final String LAST_UPDATE = "last_update";
@@ -63,18 +61,12 @@ public class FirestoreHelper {
         if (context instanceof onFirestoreSyncListener) {
             mListener = (onFirestoreSyncListener) context;
         }
-
-//        else {
-//            throw new RuntimeException(context.toString()
-//                    + " must implement OnFragmentInteractionListener");
-//        }
     }
 
     public void checkForUpdate() {
         Log.d("xxx", "checkForUpdate");
 
-        SharedPreferences updatePreferences = mContext.getSharedPreferences(leagueID + UPDATE_SETTINGS, Context.MODE_PRIVATE);
-        final long localTimeStamp = updatePreferences.getLong(LAST_UPDATE, 0);
+        final long localTimeStamp = getLocalTimeStamp();
 
         mFirestore.collection(LEAGUE_COLLECTION).document(leagueID).get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -82,6 +74,7 @@ public class FirestoreHelper {
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if (task.isSuccessful()) {
                             long cloudTimeStamp = getCloudTimeStamp(task.getResult());
+                            Log.d("xxx", "cloudTimeStamp = " + cloudTimeStamp);
 
                             if (cloudTimeStamp > localTimeStamp) {
                                 Log.d("xxx", "onUpdateCheck(true)");
@@ -124,6 +117,11 @@ public class FirestoreHelper {
                 });
     }
 
+    public long getLocalTimeStamp() {
+        SharedPreferences updatePreferences = mContext.getSharedPreferences(leagueID + UPDATE_SETTINGS, Context.MODE_PRIVATE);
+        return updatePreferences.getLong(LAST_UPDATE, 0);
+    }
+
     public long getCloudTimeStamp(DocumentSnapshot documentSnapshot) {
         Map<String, Object> data = documentSnapshot.getData();
         long cloudTimeStamp;
@@ -138,12 +136,9 @@ public class FirestoreHelper {
     }
 
     public void updateTimeStamps() {
-        Log.d("xxx", "updateTimeStamps");
 
         final long newTimeStamp = getNewTimeStamp();
-
-        SharedPreferences updatePreferences = mContext.getSharedPreferences(leagueID + UPDATE_SETTINGS, Context.MODE_PRIVATE);
-        final long localTimeStamp = updatePreferences.getLong(LAST_UPDATE, 0);
+        final long localTimeStamp = getLocalTimeStamp();
 
         mFirestore.collection(LEAGUE_COLLECTION).document(leagueID).get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -174,14 +169,68 @@ public class FirestoreHelper {
         leagueDoc.update(LAST_UPDATE, timestamp);
     }
 
+    public void deletionCheck(long localTimeStamp) {
+        Log.d("xxx", "FIRESTORE DELETION CHECK");
+
+        Log.d("xxx", "localTimeStamp = " + localTimeStamp);
+
+        mFirestore.collection(LEAGUE_COLLECTION).document(leagueID).collection(DELETION_COLLECTION)
+                .whereGreaterThanOrEqualTo("time", localTimeStamp).get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        Log.d("xxx", "filtered_deletionQuery");
+                        if (task.isSuccessful()) {
+                            QuerySnapshot querySnapshot = task.getResult();
+                            for (DocumentSnapshot documentSnapshot : querySnapshot) {
+                                Map<String, Object> data = documentSnapshot.getData();
+                                long time = (long) data.get("time");
+                                long type = (long) data.get("type");
+                                String firestoreID = documentSnapshot.getId();
+                                Log.d("xxx", "filtered_deletionQuery  =  time: " + time + "   id: " + firestoreID);
+                                Uri uri;
+                                if (type == 0) {
+                                    uri = StatsEntry.CONTENT_URI_TEAMS;
+                                } else {
+                                    uri = StatsEntry.CONTENT_URI_PLAYERS;
+                                }
+                                String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
+                                String[] selectionArgs = new String[]{firestoreID};
+                                mContext.getContentResolver().delete(uri, selection, selectionArgs);
+                            }
+                        } else {
+                            Log.d("xxx", "filtered_deletionQueryError");
+                        }
+                    }
+                });
+    }
+
     public void syncStats() {
         Log.d("xxx", "syncStats");
+        long localTimeStamp = getLocalTimeStamp();
 
-        MyApp myApp = (MyApp) mContext.getApplicationContext();
-        final String leagueID = myApp.getCurrentSelection().getId();
+        if (leagueID == null) {
+            try {
+                MyApp myApp = (MyApp) mContext.getApplicationContext();
+                leagueID = myApp.getCurrentSelection().getId();
+            } catch (Exception e) {
+                return;
+            }
+        }
+
+        deletionCheck(localTimeStamp);
+
         mListener.onFirestoreSync();
 
+        updatePlayers(localTimeStamp);
+
+        //Get the collection of all teams in a league
+        updateTeams(localTimeStamp);
+    }
+
+    private void updatePlayers(long localTimeStamp) {
         mFirestore.collection(LEAGUE_COLLECTION).document(leagueID).collection(PLAYERS_COLLECTION)
+//                .whereGreaterThanOrEqualTo("update", localTimeStamp)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -316,8 +365,11 @@ public class FirestoreHelper {
                     }
                 });
 
-        //Get the collection of all teams in a league
+    }
+
+    private void updateTeams(long localTimeStamp) {
         mFirestore.collection(LEAGUE_COLLECTION).document(leagueID).collection(TEAMS_COLLECTION)
+                //                .whereGreaterThanOrEqualTo("update", localTimeStamp)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -421,6 +473,64 @@ public class FirestoreHelper {
                 });
     }
 
+    public void setUpdate(String firestoreID, int type) {
+        if (mFirestore == null) {
+            mFirestore = FirebaseFirestore.getInstance();
+        }
+
+        long timeStamp = System.currentTimeMillis();
+        String collection;
+
+        if(type == 0) {
+            collection = FirestoreHelper.TEAMS_COLLECTION;
+        } else if (type == 1) {
+            collection = FirestoreHelper.PLAYERS_COLLECTION;
+        } else {
+            return;
+        }
+
+        DocumentReference documentReference = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION).document(leagueID)
+                .collection(collection).document(firestoreID);
+        documentReference.update("update", timeStamp);
+    }
+
+    public void addDeletion(final String firestoreID, final int type) {
+        if (mFirestore == null) {
+            mFirestore = FirebaseFirestore.getInstance();
+        }
+        mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION).document(leagueID)
+                .collection(FirestoreHelper.PLAYERS_COLLECTION).document(firestoreID)
+                .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                setDeletionDoc(leagueID, firestoreID, type);
+                Log.d("xxx", "DocumentSnapshot successfully deleted!");
+            }
+        })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error deleting document", e);
+                    }
+                });
+    }
+
+    private void setDeletionDoc(String leagueID, String firestoreID, int type) {
+        if (mFirestore == null) {
+            mFirestore = FirebaseFirestore.getInstance();
+        }
+
+        DocumentReference deletionDoc = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION).document(leagueID)
+                .collection(FirestoreHelper.DELETION_COLLECTION).document(firestoreID);
+
+        Map<String, Object> deletion = new HashMap<>();
+        long time = System.currentTimeMillis();
+        deletion.put("time", time);
+        deletion.put("type", type);
+
+        deletionDoc.set(deletion);
+        updateTimeStamps();
+    }
 
     public void retryGameLogLoad() {
         MyApp myApp = (MyApp) mContext.getApplicationContext();

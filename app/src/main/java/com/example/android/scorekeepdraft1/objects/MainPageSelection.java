@@ -3,6 +3,8 @@ package com.example.android.scorekeepdraft1.objects;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Comparator;
+
 /**
  * Created by Eddie on 11/9/2017.
  */
@@ -97,4 +99,31 @@ public class MainPageSelection implements Parcelable {
             return new MainPageSelection[size];
         }
     };
+
+    public static Comparator<MainPageSelection> nameComparator () {
+        return new Comparator<MainPageSelection>() {
+            @Override
+            public int compare(MainPageSelection mainPageSelection1, MainPageSelection mainPageSelection2) {
+                return mainPageSelection1.getName().compareToIgnoreCase(mainPageSelection2.getName());
+            }
+        };
+    }
+
+    public static Comparator<MainPageSelection> typeComparator () {
+        return new Comparator<MainPageSelection>() {
+            @Override
+            public int compare(MainPageSelection mainPageSelection1, MainPageSelection mainPageSelection2) {
+                return mainPageSelection2.getType() - mainPageSelection1.getType();
+            }
+        };
+    }
+
+    public static Comparator<MainPageSelection> levelComparator () {
+        return new Comparator<MainPageSelection>() {
+            @Override
+            public int compare(MainPageSelection mainPageSelection1, MainPageSelection mainPageSelection2) {
+                return mainPageSelection2.getLevel() - mainPageSelection1.getLevel();
+            }
+        };
+    }
 }

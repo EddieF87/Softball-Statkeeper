@@ -6,118 +6,13 @@
     android:layout_height="match_parent"
     tools:context="com.example.android.scorekeepdraft1.activities.PlayerManagerActivity">
 
-    <TextView
-        android:id="@+id/player_hr_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/hr"
-        android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="@+id/player_avg_title"
-        app:layout_constraintLeft_toLeftOf="@+id/player_avg_title"
-        app:layout_constraintTop_toBottomOf="@+id/player_avg" />
-
-    <TextView
-        android:id="@+id/player_runs_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/r"
-        android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="@+id/player_slg_title"
-        app:layout_constraintLeft_toLeftOf="@+id/player_slg_title"
-        app:layout_constraintTop_toTopOf="@+id/player_hr_title" />
-
-    <TextView
-        android:id="@+id/player_rbi_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/rbi"
-        android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="@+id/player_ops_title"
-        app:layout_constraintLeft_toLeftOf="@+id/player_ops_title"
-        app:layout_constraintTop_toTopOf="@+id/player_runs_title" />
-
-    <TextView
-        android:id="@+id/player_rbi"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="0"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="@+id/player_rbi_title"
-        app:layout_constraintLeft_toLeftOf="@+id/player_rbi_title"
-        app:layout_constraintTop_toBottomOf="@+id/player_rbi_title" />
-
-    <TextView
-        android:id="@+id/player_runs"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="0"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="@+id/player_runs_title"
-        app:layout_constraintLeft_toLeftOf="@+id/player_runs_title"
-        app:layout_constraintTop_toBottomOf="@+id/player_runs_title" />
-
-    <TextView
-        android:id="@+id/player_ops_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/ops"
-        android:textSize="18sp"
-        app:layout_constraintLeft_toRightOf="@+id/player_slg_title"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/player_slg_title" />
-
-    <TextView
-        android:id="@+id/player_ops"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/empty_avg"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="@+id/player_ops_title"
-        app:layout_constraintLeft_toLeftOf="@+id/player_ops_title"
-        app:layout_constraintTop_toBottomOf="@+id/player_ops_title" />
-
-    <TextView
-        android:id="@+id/player_hr"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="0"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="@+id/player_hr_title"
-        app:layout_constraintLeft_toLeftOf="@+id/player_hr_title"
-        app:layout_constraintTop_toBottomOf="@+id/player_hr_title" />
-
-    <TextView
-        android:id="@+id/player_slg_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/slg"
-        android:textSize="18sp"
-        app:layout_constraintLeft_toRightOf="@+id/player_avg_title"
-        app:layout_constraintRight_toLeftOf="@+id/player_ops_title"
-        app:layout_constraintTop_toTopOf="@+id/player_avg_title" />
-
-    <TextView
-        android:id="@+id/player_slg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/empty_avg"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="@+id/player_slg_title"
-        app:layout_constraintLeft_toLeftOf="@+id/player_slg_title"
-        app:layout_constraintTop_toBottomOf="@+id/player_slg_title" />
 
     <TextView
         android:id="@+id/player_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="32dp"
         android:autoSizeMinTextSize="12sp"
         android:autoSizeTextType="uniform"
         android:gravity="center"
@@ -146,36 +41,15 @@
         app:layout_constraintTop_toBottomOf="@+id/player_name"
         tools:text="Playertope" />
 
-    <TextView
-        android:id="@+id/player_avg_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/avg"
-        android:textSize="18sp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@+id/player_slg_title"
-        app:layout_constraintTop_toBottomOf="@+id/border1" />
-
-    <TextView
-        android:id="@+id/player_avg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/empty_avg"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="@+id/player_avg_title"
-        app:layout_constraintLeft_toLeftOf="@+id/player_avg_title"
-        app:layout_constraintTop_toBottomOf="@+id/player_avg_title" />
 
     <ImageView
         android:id="@+id/player_image"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="16dp"
-        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="@+id/border1"
         app:layout_constraintEnd_toStartOf="@+id/guideline_titles"
         app:layout_constraintStart_toStartOf="parent"
@@ -183,153 +57,22 @@
         app:srcCompat="@mipmap/ic_launcher_round" />
 
 
-    <TextView
-        android:id="@+id/playerboard_ab_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="14dp"
-        android:text="@string/ab"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@+id/playerboard_hit_title"
-        app:layout_constraintTop_toBottomOf="@+id/player_hr" />
-
-    <TextView
-        android:id="@+id/playerboard_hit_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="3"
-        android:gravity="center"
-        android:text="@string/h"
-        app:layout_constraintLeft_toRightOf="@+id/playerboard_ab_title"
-        app:layout_constraintRight_toLeftOf="@+id/playerboard_1b_title"
-        app:layout_constraintTop_toTopOf="@+id/playerboard_ab_title" />
-
-
-    <TextView
-        android:id="@+id/playerboard_1b_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="3"
-        android:gravity="center"
-        android:text="@string/_1b"
-        app:layout_constraintLeft_toRightOf="@+id/playerboard_hit_title"
-        app:layout_constraintRight_toLeftOf="@+id/playerboard_2b_title"
-        app:layout_constraintTop_toTopOf="@+id/playerboard_hit_title" />
-
-    <TextView
-        android:id="@+id/playerboard_2b_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="3"
-        android:gravity="center"
-        android:text="@string/_2b"
-        app:layout_constraintLeft_toRightOf="@+id/playerboard_1b_title"
-        app:layout_constraintRight_toLeftOf="@+id/playerboard_3b_title"
-        app:layout_constraintTop_toTopOf="@+id/playerboard_1b_title" />
-
-    <TextView
-        android:id="@+id/playerboard_3b_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="3"
-        android:gravity="center"
-        android:text="@string/_3b"
-        app:layout_constraintLeft_toRightOf="@+id/playerboard_2b_title"
-        app:layout_constraintRight_toLeftOf="@+id/playerboard_bb_title"
-        app:layout_constraintTop_toTopOf="@+id/playerboard_2b_title" />
-
-
-    <TextView
-        android:id="@+id/playerboard_bb_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="3"
-        android:gravity="center"
-        android:text="@string/bb"
-        app:layout_constraintLeft_toRightOf="@+id/playerboard_3b_title"
-        app:layout_constraintRight_toLeftOf="@+id/playerboard_obp_title"
-        app:layout_constraintTop_toTopOf="@+id/playerboard_3b_title" />
-
-    <TextView
-        android:id="@+id/playerboard_obp_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="4"
-        android:gravity="center"
-        android:text="@string/obp"
-        app:layout_constraintLeft_toRightOf="@+id/playerboard_bb_title"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/playerboard_bb_title" />
-
-    <TextView
-        android:id="@+id/playerboard_ab"
-        style="@style/PlayerBoardStyle"
-        app:layout_constraintEnd_toEndOf="@+id/playerboard_ab_title"
-        app:layout_constraintStart_toStartOf="@+id/playerboard_ab_title"
-        app:layout_constraintTop_toBottomOf="@+id/playerboard_ab_title" />
-
-    <TextView
-        android:id="@+id/playerboard_hit"
-        style="@style/PlayerBoardStyle"
-        app:layout_constraintEnd_toEndOf="@+id/playerboard_hit_title"
-        app:layout_constraintLeft_toLeftOf="@+id/playerboard_hit_title"
-        app:layout_constraintTop_toBottomOf="@+id/playerboard_hit_title" />
-
-    <TextView
-        android:id="@+id/playerboard_1b"
-        style="@style/PlayerBoardStyle"
-        app:layout_constraintEnd_toEndOf="@+id/playerboard_1b_title"
-        app:layout_constraintLeft_toLeftOf="@+id/playerboard_1b_title"
-        app:layout_constraintTop_toBottomOf="@+id/playerboard_1b_title" />
-
-    <TextView
-        android:id="@+id/playerboard_2b"
-        style="@style/PlayerBoardStyle"
-        app:layout_constraintEnd_toEndOf="@+id/playerboard_2b_title"
-        app:layout_constraintLeft_toLeftOf="@+id/playerboard_2b_title"
-        app:layout_constraintTop_toBottomOf="@+id/playerboard_2b_title"
-        tools:text="999" />
-
-    <TextView
-        android:id="@+id/playerboard_3b"
-        style="@style/PlayerBoardStyle"
-        app:layout_constraintEnd_toEndOf="@+id/playerboard_3b_title"
-        app:layout_constraintLeft_toLeftOf="@+id/playerboard_3b_title"
-        app:layout_constraintTop_toBottomOf="@+id/playerboard_3b_title"
-        tools:text="999" />
-
-    <TextView
-        android:id="@+id/playerboard_bb"
-        style="@style/PlayerBoardStyle"
-        app:layout_constraintEnd_toEndOf="@+id/playerboard_bb_title"
-        app:layout_constraintLeft_toLeftOf="@+id/playerboard_bb_title"
-        app:layout_constraintTop_toBottomOf="@+id/playerboard_bb_title"
-        tools:text="999" />
-
-    <TextView
-        android:id="@+id/playerboard_obp"
-        style="@style/PlayerBoardStyle"
-        android:text="@string/empty_avg"
-        app:layout_constraintEnd_toEndOf="@+id/playerboard_obp_title"
-        app:layout_constraintLeft_toLeftOf="@+id/playerboard_obp_title"
-        app:layout_constraintTop_toBottomOf="@+id/playerboard_obp_title" />
 
     <FrameLayout
         android:id="@+id/border4"
         android:layout_width="0dp"
         android:layout_height="1dp"
-        android:layout_marginTop="8dp"
         android:background="@android:color/darker_gray"
+        app:layout_constraintBottom_toTopOf="@+id/player_mgr"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/playerboard_3b" />
+        app:layout_constraintRight_toRightOf="parent" />
 
     <FrameLayout
         android:id="@+id/border1"
         android:layout_width="0dp"
-        android:layout_height="1dp"
-        android:layout_marginTop="8dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
         android:background="@android:color/darker_gray"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -360,13 +103,22 @@
         android:id="@+id/player_mgr"
         layout="@layout/player_manager"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:visibility="visible"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        tools:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/border4"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintStart_toStartOf="parent" />
 
+    <include
+        android:id="@+id/stats"
+        layout="@layout/player_stats"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="visible"
+        app:layout_constraintTop_toBottomOf="@id/border1"
+        app:layout_constraintBottom_toTopOf="@id/border4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

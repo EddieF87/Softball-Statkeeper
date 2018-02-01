@@ -18,11 +18,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.activities.PlayerPagerActivity;
 import com.example.android.scorekeepdraft1.activities.TeamManagerActivity;
 import com.example.android.scorekeepdraft1.activities.TeamPagerActivity;
+import com.example.android.scorekeepdraft1.data.FirestoreHelper;
 import com.example.android.scorekeepdraft1.data.StatsContract;
+import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.example.android.scorekeepdraft1.objects.Player;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
@@ -87,126 +91,6 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
         }
         Player player = players.get(position);
         holder.bindPlayer(player);
-//        String team = player.getTeam();
-//        String teamabv;
-//        boolean FA = false;
-//
-//        if (team == null || team.equals("Free Agent")) {
-//            teamabv = "FA";
-//            FA = true;
-//        } else if (team.length() > 2) {
-//            teamabv = ("" + team.charAt(0) + team.charAt(1) + team.charAt(2)).toUpperCase();
-//        } else {
-//            teamabv = ("" + team.charAt(0)).toUpperCase();
-//        }
-//
-//        long playerId = player.getPlayerId();
-//        holder.nameView.setTag(playerId);
-//
-//        int teamId = player.getTeamId();
-//        holder.teamView.setTag(teamId);
-//
-//        if (!isTeam) {
-//            holder.teamView.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View view) {
-//                    Intent intent = new Intent(mContext, TeamPagerActivity.class);
-//                    int teamId = (int) holder.teamView.getTag();
-//                    Log.d("xxx", "teamclick " + teamId);
-//                    Uri currentTeamUri = null;
-//                    if (teamId != -1) {
-//                        currentTeamUri = ContentUris.withAppendedId(StatsContract.StatsEntry.CONTENT_URI_TEAMS, teamId);
-//                    }
-//                    intent.setData(currentTeamUri);
-//                    startActivity(mContext, intent, null);
-//                }
-//            });
-//        }
-//        holder.nameView.setText(player.getName());
-//        holder.teamView.setText(teamabv);
-//        int ab = player.getABs();
-//        int bb = player.getWalks();
-//        int sf = player.getSacFlies();
-//        holder.abView.setText(String.valueOf(ab));
-//        holder.hitView.setText(String.valueOf(player.getHits()));
-//        holder.hrView.setText(String.valueOf(player.getHrs()));
-//        holder.rbiView.setText(String.valueOf(player.getRbis()));
-//        holder.runView.setText(String.valueOf(player.getRuns()));
-//        holder.sglView.setText(String.valueOf(player.getSingles()));
-//        holder.dblView.setText(String.valueOf(player.getDoubles()));
-//        holder.tplView.setText(String.valueOf(player.getTriples()));
-//        holder.gameView.setText(String.valueOf(player.getGames()));
-//        holder.bbView.setText(String.valueOf(bb));
-//        if (ab == 0) {
-//            holder.avgView.setText("- - -");
-//            holder.slgView.setText("- - -");
-//        } else {
-//            holder.avgView.setText(String.valueOf(formatter.format(player.getAVG())));
-//            holder.slgView.setText(String.valueOf(formatter.format(player.getSLG())));
-//        }
-//        if (ab == 0 && bb == 0 && sf == 0) {
-//            holder.obpView.setText("- - -");
-//            holder.opsView.setText("- - -");
-//        } else {
-//            holder.obpView.setText(String.valueOf(formatter.format(player.getOBP())));
-//            holder.opsView.setText(String.valueOf(formatter.format(player.getOPS())));
-//        }
-//        holder.linearLayout.setTag(position);
-//        holder.teamView.setVisibility(visibility);
-//        if (FA && isTeam) {
-//            holder.teamView.setVisibility(View.VISIBLE);
-//            holder.teamView.setText("+");
-//            int color = ContextCompat.getColor(mContext, R.color.colorPrimaryDark);
-//            holder.teamView.setTextColor(color);
-//            holder.teamView.setTypeface(Typeface.DEFAULT_BOLD);
-//            holder.teamView.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View view) {
-//                    changeTeamDialog(player);
-//                }
-//            });
-//        }
-//
-//        if (isTeam && position == players.size() - 1 && player.getName().equals("Total")) {
-//            holder.abView.setTypeface(Typeface.DEFAULT_BOLD);
-//            holder.hitView.setTypeface(Typeface.DEFAULT_BOLD);
-//            holder.hrView.setTypeface(Typeface.DEFAULT_BOLD);
-//            holder.rbiView.setTypeface(Typeface.DEFAULT_BOLD);
-//            holder.runView.setTypeface(Typeface.DEFAULT_BOLD);
-//            holder.sglView.setTypeface(Typeface.DEFAULT_BOLD);
-//            holder.dblView.setTypeface(Typeface.DEFAULT_BOLD);
-//            holder.tplView.setTypeface(Typeface.DEFAULT_BOLD);
-//            holder.gameView.setTypeface(Typeface.DEFAULT_BOLD);
-//            holder.bbView.setTypeface(Typeface.DEFAULT_BOLD);
-//            holder.avgView.setTypeface(Typeface.DEFAULT_BOLD);
-//            holder.obpView.setTypeface(Typeface.DEFAULT_BOLD);
-//            holder.slgView.setTypeface(Typeface.DEFAULT_BOLD);
-//            holder.opsView.setTypeface(Typeface.DEFAULT_BOLD);
-//        } else {
-//            holder.nameView.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View view) {
-//                    Intent intent = new Intent(mContext, PlayerPagerActivity.class);
-//                    long playerId = (long) holder.nameView.getTag();
-//                    Uri playerUri = ContentUris.withAppendedId(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, playerId);
-//                    intent.setData(playerUri);
-//                    if (mContext instanceof TeamPagerActivity) {
-//                        ((TeamPagerActivity) mContext).startActivityForResult(intent, REQUEST_CODE);
-//                    } else if (mContext instanceof TeamManagerActivity) {
-//                        ((TeamManagerActivity) mContext).startActivityForResult(intent, REQUEST_CODE);
-//                    } else {
-//                        startActivity(mContext, intent, null);
-//                    }
-//                }
-//            });
-//            int gender = player.getGender();
-//            if (gender == 0) {
-//                holder.nameView.setTextColor(colorMale);
-//            } else {
-//                holder.nameView.setTextColor(colorFemale);
-//            }
-//        }
-
     }
 
     private void changeTeamDialog(final Player player) {
@@ -235,6 +119,15 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
     }
 
     private void updatePlayerTeam(Player player, String team) {
+        String selectionID;
+        try {
+            MyApp myApp = (MyApp) mContext.getApplicationContext();
+            MainPageSelection mainPageSelection = myApp.getCurrentSelection();
+            selectionID = mainPageSelection.getId();
+        } catch (Exception e){
+            Toast.makeText(mContext, "Error with updating " + player + "'s team", Toast.LENGTH_SHORT).show();
+            return;
+        }
         long playerId = player.getPlayerId();
         Uri playerUri = ContentUris.withAppendedId(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, playerId);
         String firestoreID = player.getFirestoreID();
@@ -245,6 +138,10 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
         mContext.getContentResolver().update(playerUri, contentValues, null, null);
         players.remove(player);
         notifyDataSetChanged();
+
+        FirestoreHelper firestoreHelper = new FirestoreHelper(mContext, selectionID);
+        firestoreHelper.setUpdate(firestoreID, 1);
+        firestoreHelper.updateTimeStamps();
     }
 
     public boolean changeColors(boolean genderSettingsOn) {

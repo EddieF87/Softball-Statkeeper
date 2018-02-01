@@ -58,17 +58,17 @@ public class MainPageAdapter extends RecyclerView.Adapter<MainPageAdapter.MainPa
             case MainPageSelection.TYPE_LEAGUE:
                 intent = new Intent(mContext, LoadingActivity.class);
                 name = mainPageSelection.getName() + "  (League)";
-                nameView.setTextColor(Color.MAGENTA);
+                nameView.setTextColor(Color.argb(255,100,0,255));
                 break;
             case MainPageSelection.TYPE_TEAM:
                 intent = new Intent(mContext, LoadingActivity.class);
                 name = mainPageSelection.getName() + "  (Team)";
-                nameView.setTextColor(Color.BLUE);
+                nameView.setTextColor(Color.argb(255,0,100,255));
                 break;
             case MainPageSelection.TYPE_PLAYER:
                 intent = new Intent(mContext, PlayerManagerActivity.class);
                 name = mainPageSelection.getName() + "  (Player)";
-                nameView.setTextColor(Color.RED);
+                nameView.setTextColor(Color.argb(255,0,0,255));
                 break;
             default:
                 return;

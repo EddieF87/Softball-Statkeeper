@@ -21,7 +21,10 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -206,10 +209,15 @@ public class StatsProvider extends ContentProvider {
                 player.put("name", playerName);
                 player.put("team", playerTeam);
                 player.put("gender", playerGender);
+                if (values.containsKey("add")) {
+                    values.remove("add");
+                    player.put("update", System.currentTimeMillis());
+                }
                 playerDoc.set(player, SetOptions.merge());
 
                 values.put(StatsEntry.COLUMN_FIRESTORE_ID, playerDoc.getId());
                 break;
+
             case TEAMS:
                 String leagueName = myApp.getCurrentSelection().getName();
                 values.put(StatsEntry.COLUMN_LEAGUE, leagueName);
@@ -228,10 +236,16 @@ public class StatsProvider extends ContentProvider {
                 Map<String, Object> team = new HashMap<>();
                 String teamName = values.getAsString(StatsEntry.COLUMN_NAME);
                 team.put("name", teamName);
+                if (values.containsKey("add")) {
+                    values.remove("add");
+                    team.put("update", System.currentTimeMillis());
+                }
                 teamDoc.set(team, SetOptions.merge());
 
                 values.put(StatsEntry.COLUMN_FIRESTORE_ID, teamDoc.getId());
+                Log.d("xxx", "teamDoc.getId() = " + teamDoc.getId());
                 break;
+
             case TEMP:
                 table = StatsEntry.TEMPPLAYERS_TABLE_NAME;
                 break;
@@ -266,7 +280,7 @@ public class StatsProvider extends ContentProvider {
             Log.d(TAG, "ERROR WITH DELETE!!!");
             return -1;
         }
-        String leagueID = myApp.getCurrentSelection().getId();
+        final String leagueID = myApp.getCurrentSelection().getId();
         int selectionType = myApp.getCurrentSelection().getType();
         if (selection == null || selection.isEmpty()) {
             selection = StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
@@ -279,88 +293,36 @@ public class StatsProvider extends ContentProvider {
         final int match = sUriMatcher.match(uri);
 
         int rowsDeleted;
-        String firestoreID;
         String table;
 
         switch (match) {
             case PLAYERS:
-                if (selectionArgs != null) {
-                    firestoreID = selectionArgs[0].toString();
-                } else {
+                if (selectionArgs == null) {
                     return -1;
                 }
-                mFirestore = FirebaseFirestore.getInstance();
-
-                mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION).document(leagueID)
-                        .collection(FirestoreHelper.PLAYERS_COLLECTION).document(firestoreID)
-                        .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "DocumentSnapshot successfully deleted!");
-                    }
-                })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.w(TAG, "Error deleting document", e);
-                            }
-                        });
-
                 table = StatsEntry.PLAYERS_TABLE_NAME;
-                rowsDeleted = database.delete(StatsEntry.PLAYERS_TABLE_NAME, selection, selectionArgs);
                 break;
 
             case PLAYERS_ID:
-                if (selectionArgs != null) {
-                    firestoreID = selectionArgs[0];
-                } else {
+                if (selectionArgs == null) {
                     return -1;
                 }
-                mFirestore = FirebaseFirestore.getInstance();
-
-                mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION).document(leagueID)
-                        .collection(FirestoreHelper.PLAYERS_COLLECTION).document(firestoreID)
-                        .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "DocumentSnapshot successfully deleted!");
-                    }
-                })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.w(TAG, "Error deleting document", e);
-                            }
-                        });
-
                 selection = StatsEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 table = StatsEntry.PLAYERS_TABLE_NAME;
                 break;
 
-            case TEAMS_ID:
-                if (selectionArgs != null) {
-                    firestoreID = selectionArgs[0];
-                } else {
+            case TEAMS:
+                if (selectionArgs == null) {
                     return -1;
                 }
-                mFirestore = FirebaseFirestore.getInstance();
+                table = StatsEntry.TEAMS_TABLE_NAME;
+                break;
 
-                mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION).document(leagueID)
-                        .collection(FirestoreHelper.TEAMS_COLLECTION).document(firestoreID)
-                        .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "DocumentSnapshot successfully deleted!");
-                    }
-                })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.w(TAG, "Error deleting document", e);
-                            }
-                        });
-
+            case TEAMS_ID:
+                if (selectionArgs == null) {
+                    return -1;
+                }
                 selection = StatsEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 table = StatsEntry.TEAMS_TABLE_NAME;
@@ -474,7 +436,7 @@ public class StatsProvider extends ContentProvider {
                 if (values.containsKey(StatsEntry.COLUMN_NAME)) {
                     firestoreID = values.getAsString(StatsEntry.COLUMN_FIRESTORE_ID);
 
-                    if(firestoreID == null) {
+                    if (firestoreID == null) {
                         break;
                     }
 
@@ -482,7 +444,7 @@ public class StatsProvider extends ContentProvider {
 
                     String teamName = values.getAsString(StatsEntry.COLUMN_NAME);
 
-                    if(teamName == null) {
+                    if (teamName == null) {
                         break;
                     }
 
@@ -583,11 +545,9 @@ public class StatsProvider extends ContentProvider {
         if (!values.containsKey(StatsEntry.COLUMN_NAME)) {
             return false;
         }
-        String name = values.getAsString(StatsEntry.COLUMN_NAME);
-        if (name.matches("^['\\s\\)\\(a-zA-Z0-9_-]+$")) {
-            return false;
-        } else {
-            return true;
-        }
+        String name = values.getAsString(StatsEntry.COLUMN_NAME).toLowerCase();
+        List<String> forbiddenNames = new ArrayList<>(Arrays.asList("delete", "total",
+                "free agent", "waivers", "all teams"));
+        return forbiddenNames.contains(name) || !name.matches("^['\\s\\)\\(a-zA-Z0-9_-]+$");
     }
 }

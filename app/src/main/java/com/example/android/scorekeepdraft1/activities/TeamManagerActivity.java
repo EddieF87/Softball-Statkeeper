@@ -78,6 +78,7 @@ public class TeamManagerActivity extends ExportActivity
     @Override
     public void onSubmitPlayersListener(List<String> names, List<Integer> genders, String team) {
         List<Player> players = new ArrayList<>();
+        FirestoreHelper firestoreHelper = new FirestoreHelper(this, teamID);
         for (int i = 0; i < names.size() - 1; i++) {
             ContentValues values = new ContentValues();
             String playerName = names.get(i);
@@ -97,9 +98,11 @@ public class TeamManagerActivity extends ExportActivity
                             .getColumnIndex(StatsContract.StatsEntry.COLUMN_FIRESTORE_ID));
                     long id = ContentUris.parseId(uri);
                     players.add(new Player(playerName, team, gender, id, firestoreID));
+                    firestoreHelper.setUpdate(firestoreID, 1);
                 }
             }
         }
+        firestoreHelper.updateTimeStamps();
 
         if (!players.isEmpty()) {
             if (lineupFragment != null) {
@@ -109,7 +112,6 @@ public class TeamManagerActivity extends ExportActivity
                 teamFragment.addPlayers(players);
             }
         }
-        new FirestoreHelper(this, teamID).updateTimeStamps();
     }
 
     @Override

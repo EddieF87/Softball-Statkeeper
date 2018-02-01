@@ -942,15 +942,18 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameDia
     }
 
     private void endGame() {
-        mFirestore = FirebaseFirestore.getInstance();
+        FirestoreHelper firestoreHelper = new FirestoreHelper(this, teamID);
         if (isHome) {
-            addTeamStatsToDB(homeTeamName, homeTeamRuns, awayTeamRuns);
+            firestoreHelper.addTeamStatsToDB(homeTeamName, homeTeamRuns, awayTeamRuns);
         } else {
-            addTeamStatsToDB(awayTeamName, awayTeamRuns, homeTeamRuns);
+            firestoreHelper.addTeamStatsToDB(awayTeamName, awayTeamRuns, homeTeamRuns);
         }
-        addPlayerStatsToDB();
+        firestoreHelper.addPlayerStatsToDB();
+        firestoreHelper.updateTimeStamps();
+
         getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, null, null);
         getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, null, null);
+
         Intent finishGame = new Intent(TeamGameActivity.this, TeamManagerActivity.class);
         startActivity(finishGame);
         finish();
@@ -967,212 +970,6 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameDia
 
         DialogFragment newFragment = FinishGameDialogFragment.newInstance();
         newFragment.show(fragmentTransaction, DIALOG_FINISH);
-    }
-
-    private void addTeamStatsToDB(String teamName, int teamRuns, int otherTeamRuns) {
-        WriteBatch teamBatch = mFirestore.batch();
-
-        String selection = StatsEntry.COLUMN_NAME + "=?";
-        String[] selectionArgs = {teamName};
-        playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS, null,
-                null, null, null
-        );
-        if (!playerCursor.moveToFirst()) {
-            return;
-        }
-        ContentValues values = new ContentValues();
-        final ContentValues backupValues = new ContentValues();
-
-        long logId;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            logId = new Date().getTime();
-        } else {
-            logId = System.currentTimeMillis();
-        }
-
-        long teamId = playerCursor.getLong(playerCursor.getColumnIndex(StatsEntry._ID));
-        TeamLog teamLog = new TeamLog(teamId, teamRuns, otherTeamRuns);
-        backupValues.put(StatsEntry.COLUMN_TEAM_ID, teamId);
-
-        int firestoreIDIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
-        String firestoreID = playerCursor.getString(firestoreIDIndex);
-
-        final DocumentReference docRef = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION)
-                .document(teamID).collection(FirestoreHelper.TEAMS_COLLECTION).document(firestoreID)
-                .collection(FirestoreHelper.TEAM_LOGS).document(String.valueOf(logId));
-
-        if (teamRuns > otherTeamRuns) {
-            int valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_WINS);
-            int newValue = playerCursor.getInt(valueIndex) + 1;
-            values.put(StatsEntry.COLUMN_WINS, newValue);
-            backupValues.put(StatsEntry.COLUMN_WINS, 1);
-            teamLog.setWins(1);
-        } else if (otherTeamRuns > teamRuns) {
-            int valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_LOSSES);
-            int newValue = playerCursor.getInt(valueIndex) + 1;
-            values.put(StatsEntry.COLUMN_LOSSES, newValue);
-            backupValues.put(StatsEntry.COLUMN_LOSSES, 1);
-            teamLog.setLosses(1);
-        } else {
-            int valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_TIES);
-            int newValue = playerCursor.getInt(valueIndex) + 1;
-            values.put(StatsEntry.COLUMN_TIES, newValue);
-            backupValues.put(StatsEntry.COLUMN_TIES, 1);
-            teamLog.setTies(1);
-        }
-
-        int valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_RUNSFOR);
-        int newValue = playerCursor.getInt(valueIndex) + teamRuns;
-        values.put(StatsEntry.COLUMN_RUNSFOR, newValue);
-        backupValues.put(StatsEntry.COLUMN_RUNSFOR, teamRuns);
-
-        valueIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_RUNSAGAINST);
-        newValue = playerCursor.getInt(valueIndex) + otherTeamRuns;
-        values.put(StatsEntry.COLUMN_RUNSAGAINST, newValue);
-        backupValues.put(StatsEntry.COLUMN_RUNSAGAINST, otherTeamRuns);
-
-        values.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
-
-        getContentResolver().update(StatsEntry.CONTENT_URI_TEAMS, values, selection, selectionArgs);
-
-        teamBatch.set(docRef, teamLog);
-        teamBatch.commit().addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.w("teamBatch failure", e);
-                getContentResolver().insert(StatsEntry.CONTENT_URI_BACKUP_TEAMS, backupValues);
-            }
-        });
-    }
-
-    private void addPlayerStatsToDB() {
-        ArrayList<Long> playerList = new ArrayList<>();
-        String selection = StatsEntry.COLUMN_PLAYERID + "=?";
-
-        playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEMP, null,
-                null, null, null);
-        while (playerCursor.moveToNext()) {
-            long playerId = playerCursor.getLong(playerIdIndex);
-            playerList.add(playerId);
-        }
-
-        WriteBatch playerBatch = mFirestore.batch();
-
-        for (long playerId : playerList) {
-            String[] selectionArgs = new String[]{String.valueOf(playerId)};
-
-            playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEMP, null,
-                    selection, selectionArgs, null);
-            playerCursor.moveToFirst();
-            int gameRBI = playerCursor.getInt(rbiIndex);
-            int gameRun = playerCursor.getInt(playerRunIndex);
-            int game1b = playerCursor.getInt(singleIndex);
-            int game2b = playerCursor.getInt(doubleIndex);
-            int game3b = playerCursor.getInt(tripleIndex);
-            int gameHR = playerCursor.getInt(hrIndex);
-            int gameOuts = playerCursor.getInt(playerOutIndex);
-            int gameBB = playerCursor.getInt(bbIndex);
-            int gameSF = playerCursor.getInt(sfIndex);
-
-            int firestoreIDIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
-            String firestoreID = playerCursor.getString(firestoreIDIndex);
-
-            long logId;
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                logId = new Date().getTime();
-            } else {
-                logId = System.currentTimeMillis();
-            }
-            final DocumentReference docRef = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION)
-                    .document(teamID).collection(FirestoreHelper.PLAYERS_COLLECTION).document(firestoreID)
-                    .collection(FirestoreHelper.PLAYER_LOGS).document(String.valueOf(logId));
-
-            PlayerLog playerLog = new PlayerLog(playerId, gameRBI, gameRun, game1b, game2b, game3b,
-                    gameHR, gameOuts, gameBB, gameSF);
-            playerBatch.set(docRef, playerLog);
-
-            Uri playerUri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_PLAYERS, playerId);
-            playerCursor = getContentResolver().query(playerUri, null, null, null, null);
-            playerCursor.moveToFirst();
-
-            int pRBIIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_RBI);
-            int pRBI = playerCursor.getInt(pRBIIndex);
-            int pRunIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_RUN);
-            int pRun = playerCursor.getInt(pRunIndex);
-            int p1bIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_1B);
-            int p1b = playerCursor.getInt(p1bIndex);
-            int p2bIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_2B);
-            int p2b = playerCursor.getInt(p2bIndex);
-            int p3bIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_3B);
-            int p3b = playerCursor.getInt(p3bIndex);
-            int pHRIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_HR);
-            int pHR = playerCursor.getInt(pHRIndex);
-            int pOutsIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_OUT);
-            int pOuts = playerCursor.getInt(pOutsIndex);
-            int pBBIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_BB);
-            int pBB = playerCursor.getInt(pBBIndex);
-            int pSFIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_SF);
-            int pSF = playerCursor.getInt(pSFIndex);
-            int gamesPlayedIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_G);
-            int games = playerCursor.getInt(gamesPlayedIndex);
-            firestoreIDIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
-            firestoreID = playerCursor.getString(firestoreIDIndex);
-
-            ContentValues values = new ContentValues();
-            values.put(StatsEntry.COLUMN_1B, p1b + game1b);
-            values.put(StatsEntry.COLUMN_2B, p2b + game2b);
-            values.put(StatsEntry.COLUMN_3B, p3b + game3b);
-            values.put(StatsEntry.COLUMN_HR, pHR + gameHR);
-            values.put(StatsEntry.COLUMN_RUN, pRun + gameRun);
-            values.put(StatsEntry.COLUMN_RBI, pRBI + gameRBI);
-            values.put(StatsEntry.COLUMN_BB, pBB + gameBB);
-            values.put(StatsEntry.COLUMN_OUT, pOuts + gameOuts);
-            values.put(StatsEntry.COLUMN_SF, pSF + gameSF);
-            values.put(StatsEntry.COLUMN_G, games + 1);
-            values.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
-            getContentResolver().update(playerUri, values, null, null);
-        }
-        playerBatch.commit().addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.w("playerBatch failure", e);
-                playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEMP, null,
-                        null, null, null);
-                while (playerCursor.moveToNext()) {
-                    long logId;
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                        logId = new Date().getTime();
-                    } else {
-                        logId = System.currentTimeMillis();
-                    }
-                    int playerId = playerCursor.getInt(playerCursor.getColumnIndex(StatsEntry.COLUMN_PLAYERID));
-                    int gameRBI = playerCursor.getInt(rbiIndex);
-                    int gameRun = playerCursor.getInt(playerRunIndex);
-                    int game1b = playerCursor.getInt(singleIndex);
-                    int game2b = playerCursor.getInt(doubleIndex);
-                    int game3b = playerCursor.getInt(tripleIndex);
-                    int gameHR = playerCursor.getInt(hrIndex);
-                    int gameOuts = playerCursor.getInt(playerOutIndex);
-                    int gameBB = playerCursor.getInt(bbIndex);
-                    int gameSF = playerCursor.getInt(sfIndex);
-
-                    ContentValues backupValues = new ContentValues();
-                    backupValues.put(StatsEntry.COLUMN_PLAYERID, playerId);
-                    backupValues.put(StatsEntry.COLUMN_LOG_ID, logId);
-                    backupValues.put(StatsEntry.COLUMN_1B, game1b);
-                    backupValues.put(StatsEntry.COLUMN_2B, game2b);
-                    backupValues.put(StatsEntry.COLUMN_3B, game3b);
-                    backupValues.put(StatsEntry.COLUMN_HR, gameHR);
-                    backupValues.put(StatsEntry.COLUMN_RUN, gameRun);
-                    backupValues.put(StatsEntry.COLUMN_RBI, gameRBI);
-                    backupValues.put(StatsEntry.COLUMN_BB, gameBB);
-                    backupValues.put(StatsEntry.COLUMN_OUT, gameOuts);
-                    backupValues.put(StatsEntry.COLUMN_SF, gameSF);
-
-                    getContentResolver().insert(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, backupValues);
-                }
-            }
-        });
     }
 
     private void setScoreDisplay() {

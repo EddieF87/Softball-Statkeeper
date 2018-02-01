@@ -12,6 +12,11 @@ import com.example.android.scorekeepdraft1.data.FirestoreHelper;
 import com.example.android.scorekeepdraft1.dialogs.EditNameDialogFragment;
 import com.example.android.scorekeepdraft1.fragments.PlayerFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class PlayerManagerActivity extends ExportActivity
         implements EditNameDialogFragment.OnFragmentInteractionListener {
@@ -55,8 +60,22 @@ public class PlayerManagerActivity extends ExportActivity
         }
 
         if (playerFragment != null) {
-            playerFragment.updatePlayerName(enteredText);
-            //todo mainpage
+            boolean updated = playerFragment.updatePlayerName(enteredText);
+            if (!updated) {
+                return;
+            }
+
+            try {
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                MyApp myApp = (MyApp) getApplicationContext();
+                MainPageSelection mainPageSelection = myApp.getCurrentSelection();
+                String playerID = mainPageSelection.getId();
+                db.collection(FirestoreHelper.LEAGUE_COLLECTION).document(playerID).update("name", enteredText);
+            } catch (Exception e) {
+                Intent intent = new Intent(PlayerManagerActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
         }
     }
 }

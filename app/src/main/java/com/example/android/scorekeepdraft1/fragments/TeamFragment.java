@@ -36,6 +36,7 @@ import com.example.android.scorekeepdraft1.activities.ExportActivity;
 import com.example.android.scorekeepdraft1.activities.SetLineupActivity;
 import com.example.android.scorekeepdraft1.activities.UserSettingsActivity;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.PlayerStatsAdapter;
+import com.example.android.scorekeepdraft1.data.FirestoreHelper;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.dialogs.AddNewPlayersDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.DeleteConfirmationDialogFragment;
@@ -529,9 +530,10 @@ public class TeamFragment extends Fragment
             String[] selectionArgs = new String[]{firestoreID};
             int rowsDeleted = getActivity().getContentResolver().delete(mCurrentTeamUri, selection, selectionArgs);
 
-            if (rowsDeleted == 1) {
+            if (rowsDeleted > 0) {
                 Toast.makeText(getActivity(), teamSelected + " " + getString(R.string.editor_delete_player_successful),
                         Toast.LENGTH_SHORT).show();
+                new FirestoreHelper(getActivity(), mSelectionID).addDeletion(firestoreID, 0);
             } else {
                 Toast.makeText(getActivity(), getString(R.string.editor_delete_team_failed),
                         Toast.LENGTH_SHORT).show();
@@ -546,12 +548,15 @@ public class TeamFragment extends Fragment
         if (waivers) {
             total--;
         }
-
+        FirestoreHelper firestoreHelper = new FirestoreHelper(getActivity(), mSelectionID);
         for (int i = 0; i < mPlayers.size() - total; i++) {
             Player player = mPlayers.get(i);
             String firestoreID = player.getFirestoreID();
             String[] selectionArgs = new String[]{firestoreID};
-            getActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_PLAYERS, selection, selectionArgs);
+            int deleted = getActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_PLAYERS, selection, selectionArgs);
+            if(deleted > 0) {
+                firestoreHelper.addDeletion(firestoreID, 1);
+            }
         }
         clearPlayers();
     }
@@ -580,6 +585,9 @@ public class TeamFragment extends Fragment
         if (rowsUpdated > 0) {
             updatePlayersTeam(team);
             teamSelected = team;
+            FirestoreHelper firestoreHelper = new FirestoreHelper(getActivity(), mSelectionID);
+            firestoreHelper.setUpdate(firestoreID, 0);
+            firestoreHelper.updateTimeStamps();
             return true;
         }
         return false;

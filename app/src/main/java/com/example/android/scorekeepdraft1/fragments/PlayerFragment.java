@@ -4,8 +4,6 @@ package com.example.android.scorekeepdraft1.fragments;
 import android.app.Activity;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.pm.PackageManager;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
@@ -37,9 +35,9 @@ import com.example.android.scorekeepdraft1.activities.LeagueManagerActivity;
 import com.example.android.scorekeepdraft1.activities.PlayerManagerActivity;
 import com.example.android.scorekeepdraft1.activities.PlayerPagerActivity;
 import com.example.android.scorekeepdraft1.activities.TeamPagerActivity;
+import com.example.android.scorekeepdraft1.data.FirestoreHelper;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
-import com.example.android.scorekeepdraft1.data.StatsExporter;
 import com.example.android.scorekeepdraft1.dialogs.ChangeTeamDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.DeleteConfirmationDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.EditNameDialogFragment;
@@ -59,6 +57,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     private static final int EXISTING_PLAYER_LOADER = 0;
     private Uri mCurrentPlayerUri;
     private int mLevel;
+    private String mSelectionID;
     private String teamString;
     private String playerName;
     private String firestoreID;
@@ -76,10 +75,11 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     }
 
 
-    public static PlayerFragment newInstance(int leagueType, int level, Uri uri) {
+    public static PlayerFragment newInstance(String leagueID, int leagueType, int level, Uri uri) {
         Bundle args = new Bundle();
         args.putInt(MainPageSelection.KEY_SELECTION_TYPE, leagueType);
         args.putInt(MainPageSelection.KEY_SELECTION_LEVEL, level);
+        args.putString(MainPageSelection.KEY_SELECTION_ID, leagueID);
         args.putString(KEY_PLAYER_URI, uri.toString());
         PlayerFragment fragment = new PlayerFragment();
         fragment.setArguments(args);
@@ -109,6 +109,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         } else {
             String uriString = args.getString(KEY_PLAYER_URI);
             mCurrentPlayerUri = Uri.parse(uriString);
+            mSelectionID = args.getString(MainPageSelection.KEY_SELECTION_ID);
         }
     }
 
@@ -334,10 +335,6 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
 
                 resultCount = 0;
                 resultCountText.setText(String.valueOf(0));
-                resultText.setText("");
-                result = null;
-                group1.clearCheck();
-                group2.clearCheck();
             }
         });
     }
@@ -539,11 +536,13 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     }
 
     public void deletePlayer() {
+        FirestoreHelper firestoreHelper = new FirestoreHelper(getActivity(), mSelectionID);
         if (mCurrentPlayerUri != null) {
             String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
             String[] selectionArgs = new String[]{firestoreID};
             int rowsDeleted = getActivity().getContentResolver().delete(mCurrentPlayerUri, selection, selectionArgs);
-            if (rowsDeleted == 1) {
+            if (rowsDeleted > 0) {
+                firestoreHelper.addDeletion(firestoreID, 1);
                 Toast.makeText(getActivity(), playerName + " " + getString(R.string.editor_delete_player_successful), Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(getActivity(), getString(R.string.editor_delete_player_failed), Toast.LENGTH_SHORT).show();
@@ -572,18 +571,12 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         contentValues.put(StatsEntry.COLUMN_ORDER, 99);
         contentValues.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
         getActivity().getContentResolver().update(mCurrentPlayerUri, contentValues, null, null);
-    }
 
-    private boolean nameAlreadyInDB(String playerName) {
-        String selection = StatsEntry.COLUMN_NAME + " = '" + playerName + "' COLLATE NOCASE";
-
-        Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS, null, selection, null, null);
-        if (cursor.getCount() <= 0) {
-            cursor.close();
-            return false;
+        if(selectionType != MainPageSelection.TYPE_PLAYER) {
+            FirestoreHelper firestoreHelper = new FirestoreHelper(getActivity(), mSelectionID);
+            firestoreHelper.setUpdate(firestoreID, 1);
+            firestoreHelper.updateTimeStamps();
         }
-        cursor.close();
-        return true;
     }
 
     private boolean levelAuthorized(int level) {

@@ -124,6 +124,7 @@ public class ObjectPagerActivity extends AppCompatActivity
     @Override
     public void onSubmitPlayersListener(List<String> names, List<Integer> genders, String team) {
         List<Player> players = new ArrayList<>();
+        FirestoreHelper firestoreHelper = new FirestoreHelper(this, selectionID);
         for (int i = 0; i < names.size() - 1; i++) {
             ContentValues values = new ContentValues();
             String playerName = names.get(i);
@@ -143,11 +144,14 @@ public class ObjectPagerActivity extends AppCompatActivity
                             .getColumnIndex(StatsContract.StatsEntry.COLUMN_FIRESTORE_ID));
                     long id = ContentUris.parseId(uri);
                     players.add(new Player(playerName, team, gender, id, firestoreID));
+                    firestoreHelper.setUpdate(firestoreID, 1);
                 }
             }
         }
 
+
         if (!players.isEmpty()) {
+            firestoreHelper.updateTimeStamps();
             int pos = mViewPager.getCurrentItem();
             TeamFragment teamFragment = (TeamFragment) mAdapter.getRegisteredFragment(pos);
             if (teamFragment != null) {
@@ -282,7 +286,7 @@ public class ObjectPagerActivity extends AppCompatActivity
                 case 0:
                     return TeamFragment.newInstance(selectionID, selectionType, selectionName, level, currentObjectUri);
                 case 1:
-                    return PlayerFragment.newInstance(selectionType, level, currentObjectUri);
+                    return PlayerFragment.newInstance(selectionID, selectionType, level, currentObjectUri);
                 default:
                     return null;
             }

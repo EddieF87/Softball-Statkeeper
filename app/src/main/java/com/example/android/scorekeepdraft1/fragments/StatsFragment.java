@@ -320,7 +320,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
                     teamId = teamIDs.get(team);
                 } catch (Exception e) {
                     teamId = -1;
-                    Log.e("xxx", " error with teamIDs.get(team)");
+                    Log.e("xxx", " error with teamIDs.get(team): " + teamId + "  " + team);
                 }
             }
             int playerId = mCursor.getInt(idIndex);

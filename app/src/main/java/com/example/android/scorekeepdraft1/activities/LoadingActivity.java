@@ -50,6 +50,7 @@ public class LoadingActivity extends AppCompatActivity
             Log.d("xxx", "wifi fail");
         }
         firestoreHelper = new FirestoreHelper(this, mSelectionID);
+        firestoreHelper.deletionCheck(0);
         firestoreHelper.checkForUpdate();
     }
 

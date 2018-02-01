@@ -21,6 +21,7 @@ public class Team {
     private int ties;
     private int totalRunsScored;
     private int totalRunsAllowed;
+    private String firestoreID;
 
     public Team() {
     }
@@ -44,6 +45,7 @@ public class Team {
     public int getLosses() {return losses;}
     public int getTies() {return ties;}
     public long getTeamId() {return teamId;}
+    public String getFirestoreID() {return firestoreID;}
 
     public void setName(String name) {this.name = name;}
     public void setTeamId(long teamId) {this.teamId = teamId;}
@@ -52,5 +54,16 @@ public class Team {
     public void setTotalRunsAllowed(int totalRunsAllowed) {this.totalRunsAllowed = totalRunsAllowed;}
     public void setTotalRunsScored(int totalRunsScored) {this.totalRunsScored = totalRunsScored;}
     public void setWins(int wins) {this.wins = wins;}
+    public void setFirestoreID(String firestoreID) {this.firestoreID = firestoreID;}
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        Team comparedTeam = (Team) obj;
+        return this.firestoreID.equals(comparedTeam.getFirestoreID());
+    }
 }
 

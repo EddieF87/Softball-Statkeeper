@@ -43,6 +43,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -146,6 +147,7 @@ public class MainActivity extends AppCompatActivity
                                 String selectionID = documentSnapshot.getId();
                                 String name = documentSnapshot.getString("name");
                                 int type = documentSnapshot.getLong("type").intValue();
+                                Log.d("xxx", "selectionID: " + selectionID + "   name: " + name);
                                 MainPageSelection mainPageSelection = new MainPageSelection(
                                         selectionID, name, type, level);
                                 if (level < -1) {
@@ -161,6 +163,8 @@ public class MainActivity extends AppCompatActivity
                                 progressBar.setVisibility(View.GONE);
                                 rvErrorView.setVisibility(View.VISIBLE);
                             } else {
+                                Collections.sort(selections, MainPageSelection.nameComparator());
+                                Collections.sort(selections, MainPageSelection.typeComparator());
                                 MainPageAdapter mainPageAdapter = new MainPageAdapter(selections, MainActivity.this);
                                 RecyclerView recyclerView = findViewById(R.id.rv_main);
                                 recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this, LinearLayoutManager.VERTICAL, false));

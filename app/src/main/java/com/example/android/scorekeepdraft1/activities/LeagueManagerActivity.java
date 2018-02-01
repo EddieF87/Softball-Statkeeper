@@ -164,20 +164,10 @@ public class LeagueManagerActivity extends ExportActivity
             values.put(StatsContract.StatsEntry.COLUMN_NAME, player);
             values.put(StatsContract.StatsEntry.COLUMN_GENDER, gender);
             values.put(StatsContract.StatsEntry.COLUMN_TEAM, team);
+            values.put("add", true);
             getContentResolver().insert(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, values);
-
-//            View view = getCurrentFocus();
-//
-//            if (view != null) {
-//                Log.d("xxx", "view = " + view.toString());
-//                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-//                if (imm != null) {
-//                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-//                    Log.d("xxx", "lma hide keyboard!!");
-//                }
-//            }
         }
-        //todo change around when redoing team/player adder for when adding players to already-made team
+
         if (statsFragment != null) {
             String selection = StatsContract.StatsEntry.COLUMN_NAME + "=?";
             String[] selectionArgs = new String[]{team};
