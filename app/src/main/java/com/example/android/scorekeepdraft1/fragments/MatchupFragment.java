@@ -231,8 +231,8 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                 SharedPreferences gamePreferences =
                         getActivity().getSharedPreferences(leagueID + "game", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = gamePreferences.edit();
-                String awayTeam = awayTeamSelection;
-                String homeTeam = homeTeamSelection;
+                String awayTeam = getFirestoreIDFromTeamName(awayTeamSelection);
+                String homeTeam = getFirestoreIDFromTeamName(homeTeamSelection);
                 editor.putString("keyAwayTeam", awayTeam);
                 editor.putString("keyHomeTeam", homeTeam);
                 editor.putInt("keyTotalInnings", innings);
@@ -673,5 +673,20 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
+    }
+
+    //todo temporary method until replacing working with names with firestoreIDs
+    private String getFirestoreIDFromTeamName(String teamName) {
+        String selection = StatsEntry.COLUMN_NAME + "=?";
+        String[] selectionArgs = new String[] {teamName};
+        Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
+                null, selection, selectionArgs, null);
+        String firestoreID = null;
+        if(cursor.moveToFirst()) {
+            int nameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
+            firestoreID = cursor.getString(nameIndex);
+        }
+        cursor.close();
+        return firestoreID;
     }
 }

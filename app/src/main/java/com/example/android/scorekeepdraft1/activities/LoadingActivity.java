@@ -4,23 +4,32 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.support.v4.content.FileProvider;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.data.FirestoreHelper;
+import com.example.android.scorekeepdraft1.dialogs.DeletionCheckDialogFragment;
+import com.example.android.scorekeepdraft1.objects.ItemMarkedForDeletion;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class LoadingActivity extends AppCompatActivity
-        implements FirestoreHelper.onFirestoreSyncListener {
+        implements FirestoreHelper.onFirestoreSyncListener, DeletionCheckDialogFragment.OnListFragmentInteractionListener {
 
     private int countdown;
     private int numberOfTeams;
     private int numberOfPlayers;
     private int mSelectionType;
+    private int mLevel;
     private String mSelectionID;
     private FirestoreHelper firestoreHelper;
 
@@ -34,6 +43,7 @@ public class LoadingActivity extends AppCompatActivity
             MainPageSelection mainPageSelection = myApp.getCurrentSelection();
             mSelectionType = mainPageSelection.getType();
             mSelectionID = mainPageSelection.getId();
+            mLevel = mainPageSelection.getLevel();
         } catch (Exception e) {
             Intent intent = new Intent(LoadingActivity.this, MainActivity.class);
             startActivity(intent);
@@ -50,7 +60,6 @@ public class LoadingActivity extends AppCompatActivity
             Log.d("xxx", "wifi fail");
         }
         firestoreHelper = new FirestoreHelper(this, mSelectionID);
-        firestoreHelper.deletionCheck(0);
         firestoreHelper.checkForUpdate();
     }
 
@@ -63,7 +72,8 @@ public class LoadingActivity extends AppCompatActivity
         }
     }
 
-    private void proceedToNext() {
+    @Override
+    public void proceedToNext() {
         Intent intent;
         switch (mSelectionType) {
             case MainPageSelection.TYPE_LEAGUE:
@@ -80,8 +90,7 @@ public class LoadingActivity extends AppCompatActivity
     }
 
     private void onCountDownFinished() {
-        firestoreHelper.updateAfterSync();
-        proceedToNext();
+        firestoreHelper.deletionCheck(mLevel);
     }
 
     private void decreaseCountDown() {
@@ -92,7 +101,7 @@ public class LoadingActivity extends AppCompatActivity
     }
 
     @Override
-    public void onFirestoreSync() {
+    public void onFirestoreUpdateSync() {
         countdown = 2;
     }
 
@@ -124,7 +133,37 @@ public class LoadingActivity extends AppCompatActivity
     }
 
     @Override
-    public void onSyncError() {
-        countdown = 99;
+    public void onSyncError(String error) {
+        if(error.equals("updating players") || error.equals("updating teams")) {
+            countdown = 99;
+        }
+        Toast.makeText(this, "Error with " + error, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void openDeletionCheckDialog(ArrayList<ItemMarkedForDeletion> itemMarkedForDeletionList) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        DialogFragment newFragment = DeletionCheckDialogFragment.newInstance(itemMarkedForDeletionList);
+        newFragment.show(fragmentTransaction, "");
+    }
+
+    @Override
+    public void onDeletePlayersListener(List<ItemMarkedForDeletion> deleteList, List<ItemMarkedForDeletion> saveList) {
+        for (ItemMarkedForDeletion itemMarkedForDeletion : deleteList) {
+            Log.d("xxx", "deleteditem = " + itemMarkedForDeletion.getName());
+        }
+        for (ItemMarkedForDeletion itemMarkedForDeletion : saveList) {
+            Log.d("xxx", "saveditem = " + itemMarkedForDeletion.getName());
+        }
+        firestoreHelper.deleteItems(deleteList);
+        firestoreHelper.saveItems(saveList);
+        firestoreHelper.updateAfterSync();
+        proceedToNext();
+    }
+
+    @Override
+    public void onCancel() {
+        proceedToNext();
     }
 }

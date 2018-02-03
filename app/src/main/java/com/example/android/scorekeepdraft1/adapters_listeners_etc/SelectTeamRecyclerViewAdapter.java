@@ -20,12 +20,10 @@ import java.util.List;
 public class SelectTeamRecyclerViewAdapter extends RecyclerView.Adapter<SelectTeamRecyclerViewAdapter.TeamViewHolder> {
 
     private List<String> mTeams;
-    private ChooseOrCreateTeamDialogFragment mFragment;
     private SelectTeamRecyclerViewAdapter.OnAdapterInteractionListener mListener;
 
     public SelectTeamRecyclerViewAdapter(List<String> teams, ChooseOrCreateTeamDialogFragment fragment) {
         mTeams = teams;
-        mFragment = fragment;
         mListener = (SelectTeamRecyclerViewAdapter.OnAdapterInteractionListener) fragment;
     }
 

@@ -533,7 +533,7 @@ public class TeamFragment extends Fragment
             if (rowsDeleted > 0) {
                 Toast.makeText(getActivity(), teamSelected + " " + getString(R.string.editor_delete_player_successful),
                         Toast.LENGTH_SHORT).show();
-                new FirestoreHelper(getActivity(), mSelectionID).addDeletion(firestoreID, 0);
+                new FirestoreHelper(getActivity(), mSelectionID).addDeletion(firestoreID, 0, teamSelected, -1, teamSelected);
             } else {
                 Toast.makeText(getActivity(), getString(R.string.editor_delete_team_failed),
                         Toast.LENGTH_SHORT).show();
@@ -552,10 +552,12 @@ public class TeamFragment extends Fragment
         for (int i = 0; i < mPlayers.size() - total; i++) {
             Player player = mPlayers.get(i);
             String firestoreID = player.getFirestoreID();
+            String name = player.getName();
+            int gender = player.getGender();
             String[] selectionArgs = new String[]{firestoreID};
             int deleted = getActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_PLAYERS, selection, selectionArgs);
             if(deleted > 0) {
-                firestoreHelper.addDeletion(firestoreID, 1);
+                firestoreHelper.addDeletion(firestoreID, 1, name, gender, teamSelected);
             }
         }
         clearPlayers();
@@ -605,6 +607,8 @@ public class TeamFragment extends Fragment
 
             Uri playerURI = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_PLAYERS, playerID);
             getActivity().getContentResolver().update(playerURI, contentValues, null, null);
+            FirestoreHelper firestoreHelper = new FirestoreHelper(getActivity(), mSelectionID);
+            firestoreHelper.setUpdate(firestoreID, 1);
         }
         updateTeamRV();
     }

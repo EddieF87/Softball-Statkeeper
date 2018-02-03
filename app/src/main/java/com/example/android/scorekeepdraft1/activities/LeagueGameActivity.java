@@ -195,8 +195,10 @@ public class LeagueGameActivity extends AppCompatActivity /*implements LoaderMan
 
         SharedPreferences gamePreferences = getSharedPreferences(leagueID + "game", MODE_PRIVATE);
         totalInnings = gamePreferences.getInt(KEY_TOTALINNINGS, 7);
-        awayTeamName = gamePreferences.getString(KEY_AWAYTEAM, "x");
-        homeTeamName = gamePreferences.getString(KEY_HOMETEAM, "y");
+        String awayTeamID = gamePreferences.getString(KEY_AWAYTEAM, "x");
+        awayTeamName = getTeamNameFromFirestoreID(awayTeamID);
+        String homeTeamID = gamePreferences.getString(KEY_HOMETEAM, "y");
+        homeTeamName = getTeamNameFromFirestoreID(homeTeamID);
         int genderSorter = gamePreferences.getInt(KEY_FEMALEORDER, 0);
         int sortArgument = gamePreferences.getInt(KEY_GENDERSORT, 0);
 
@@ -1628,5 +1630,19 @@ public class LeagueGameActivity extends AppCompatActivity /*implements LoaderMan
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
 
+    }
+
+    private String getTeamNameFromFirestoreID(String firestoreID) {
+        String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
+        String[] selectionArgs = new String[] {firestoreID};
+        Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
+                null, selection, selectionArgs, null);
+        String name = null;
+        if(cursor.moveToFirst()) {
+            int nameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_NAME);
+            name = cursor.getString(nameIndex);
+        }
+        cursor.close();
+        return name;
     }
 }

@@ -61,6 +61,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     private String teamString;
     private String playerName;
     private String firestoreID;
+    private int gender;
     private static final String KEY_PLAYER_URI = "playerURI";
     private int selectionType;
     private TextView resultCountText;
@@ -160,7 +161,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
 
             playerName = cursor.getString(nameIndex);
             teamString = cursor.getString(teamIndex);
-            int gender = cursor.getInt(genderIndex);
+            gender = cursor.getInt(genderIndex);
             int hr = cursor.getInt(hrIndex);
             int tpl = cursor.getInt(tripleIndex);
             int dbl = cursor.getInt(doubleIndex);
@@ -542,7 +543,13 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             String[] selectionArgs = new String[]{firestoreID};
             int rowsDeleted = getActivity().getContentResolver().delete(mCurrentPlayerUri, selection, selectionArgs);
             if (rowsDeleted > 0) {
-                firestoreHelper.addDeletion(firestoreID, 1);
+                String team;
+                if(teamString == null) {
+                    team = "Free Agent";
+                } else {
+                    team = teamString;
+                }
+                firestoreHelper.addDeletion(firestoreID, 1, playerName, gender, team);
                 Toast.makeText(getActivity(), playerName + " " + getString(R.string.editor_delete_player_successful), Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(getActivity(), getString(R.string.editor_delete_player_failed), Toast.LENGTH_SHORT).show();

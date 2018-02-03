@@ -313,7 +313,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
             int sf = mCursor.getInt(sfIndex);
             int g = mCursor.getInt(gameIndex);
             int teamId;
-            if (team.equals(FREE_AGENT) || team.equals("")) {
+            if (team == null || team.equals(FREE_AGENT) || team.equals("")) {
                 teamId = -1;
             } else {
                 try {
