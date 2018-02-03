@@ -1,87 +1,128 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+    android:layout_width="185dp"
+    android:layout_height="185dp"
+    >
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guide_v1"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".33" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guide_v2"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent=".67" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guide_h1"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".33" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guide_h2"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".67" />
 
     <ImageView
         android:id="@+id/infield"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
-        android:layout_marginEnd="4dp"
-        app:layout_constraintRight_toRightOf="parent"
-        app:srcCompat="@drawable/sand"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="0dp"
-        android:scaleType="fitCenter"
-        />
-
-    <TextView
-        android:id="@+id/home_display"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_above="@id/infield"
-
-        android:autoSizeMinTextSize="10sp"
-        android:autoSizeTextType="uniform"
-        android:background="@drawable/homeplate"
-        app:layout_constraintBottom_toBottomOf="@+id/infield"
-        app:layout_constraintLeft_toLeftOf="@+id/infield"
-        app:layout_constraintRight_toRightOf="@+id/infield"
-        android:scaleType="centerInside"
-        />
-
-    <TextView
-        android:id="@+id/first_display"
-        style="@style/BaseStyle"
-        app:layout_constraintRight_toRightOf="@+id/infield"
-        app:layout_constraintTop_toTopOf="@+id/second_display"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginBottom="0dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        app:srcCompat="@drawable/img_infield2" />
 
     <TextView
         android:id="@+id/second_display"
-        style="@style/BaseStyle"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintLeft_toLeftOf="@+id/infield"
-        app:layout_constraintRight_toRightOf="@+id/first_display"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/img_base"
+        android:gravity="center"
+        android:text="TextView"
+        app:layout_constraintBottom_toTopOf="@+id/guide_h1"
+        app:layout_constraintEnd_toStartOf="@+id/guide_v2"
+        app:layout_constraintStart_toStartOf="@+id/guide_v1"
         app:layout_constraintTop_toTopOf="@+id/infield" />
 
     <TextView
         android:id="@+id/third_display"
-        style="@style/BaseStyle"
-        app:layout_constraintLeft_toLeftOf="@+id/infield"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        />
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/img_base"
+        android:gravity="center"
+        android:text="TextView"
+        app:layout_constraintBottom_toTopOf="@+id/guide_h2"
+        app:layout_constraintEnd_toStartOf="@+id/guide_v1"
+        app:layout_constraintStart_toStartOf="@+id/infield"
+        app:layout_constraintTop_toTopOf="@+id/guide_h1" />
+
+    <TextView
+        android:id="@+id/first_display"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/img_base"
+        android:gravity="center"
+        android:text="TextView"
+        app:layout_constraintBottom_toTopOf="@+id/guide_h2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/guide_v2"
+        app:layout_constraintTop_toTopOf="@+id/guide_h1" />
+
+    <Button
+        android:id="@+id/home_display"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_above="@id/infield"
+
+        android:autoSizeMinTextSize="10sp"
+        android:autoSizeTextType="uniform"
+        android:background="@drawable/img_home"
+        android:scaleType="centerInside"
+        app:layout_constraintBottom_toBottomOf="@id/infield"
+        app:layout_constraintLeft_toRightOf="@id/guide_v1"
+        app:layout_constraintRight_toLeftOf="@id/guide_v2"
+        app:layout_constraintTop_toBottomOf="@id/guide_h2"
+        app:layout_goneMarginLeft="4dp"
+        app:layout_goneMarginRight="4dp"
+        app:layout_goneMarginTop="8dp" />
 
     <ImageView
         android:id="@+id/batter"
-        android:layout_width="57dp"
-        android:layout_height="50dp"
-
-        app:layout_constraintBottom_toTopOf="@+id/home_display"
-        app:layout_constraintLeft_toLeftOf="@+id/infield"
-        app:layout_constraintRight_toRightOf="@+id/infield"
-        app:layout_constraintTop_toBottomOf="@+id/second_display"
-        app:layout_constraintVertical_bias="0.50"
-        app:srcCompat="@drawable/batter"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:padding="8dp"
         android:scaleType="centerInside"
-        />
+        app:layout_constraintBottom_toTopOf="@+id/guide_h2"
+        app:layout_constraintLeft_toLeftOf="@+id/guide_v1"
+        app:layout_constraintRight_toRightOf="@+id/guide_v2"
+        app:layout_constraintTop_toBottomOf="@+id/guide_h1"
+        app:srcCompat="@drawable/img_batter" />
 
     <ImageView
         android:id="@+id/trash"
-        android:layout_width="55dp"
-        android:layout_height="55dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/home_display"
-        app:layout_constraintTop_toBottomOf="@+id/first_display"
-        app:srcCompat="@drawable/trash" />
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="8dp"
+        app:layout_constraintBottom_toBottomOf="@id/infield"
+        app:layout_constraintEnd_toEndOf="@id/infield"
+        app:layout_constraintStart_toEndOf="@+id/guide_v2"
+        app:layout_constraintTop_toBottomOf="@+id/guide_h2"
+        app:srcCompat="@drawable/trash"
+        tools:visibility="invisible" />
 
     <TextView
         android:id="@+id/outText"

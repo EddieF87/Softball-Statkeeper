@@ -17,7 +17,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -41,19 +40,12 @@ import com.example.android.scorekeepdraft1.adapters_listeners_etc.TeamListAdapte
 import com.example.android.scorekeepdraft1.gamelog.BaseLog;
 
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
-import com.example.android.scorekeepdraft1.gamelog.PlayerLog;
-import com.example.android.scorekeepdraft1.gamelog.TeamLog;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.example.android.scorekeepdraft1.objects.Player;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.WriteBatch;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -1260,11 +1252,12 @@ public class LeagueGameActivity extends AppCompatActivity /*implements LoaderMan
                 case DragEvent.ACTION_DRAG_STARTED:
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         if (v.getId() == R.id.home_display) {
-                            v.setBackground(getDrawable(R.drawable.homeplate2));
+                            v.setBackground(getDrawable(R.drawable.img_home));
                         } else if (v.getId() == R.id.trash) {
-                            v.setBackground(getDrawable(R.drawable.base2));
+                            //todo
+                            v.setBackground(getDrawable(R.drawable.img_base));
                         } else {
-                            v.setBackground(getDrawable(R.drawable.base2));
+                            v.setBackground(getDrawable(R.drawable.img_base));
                         }
                     }
                     break;
@@ -1279,11 +1272,11 @@ public class LeagueGameActivity extends AppCompatActivity /*implements LoaderMan
                     String movedPlayer = "";
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         if (v.getId() == R.id.home_display) {
-                            v.setBackground(getDrawable(R.drawable.homeplate));
+                            v.setBackground(getDrawable(R.drawable.img_home));
                         } else if (v.getId() == R.id.trash) {
                             v.setBackgroundResource(0);
                         } else {
-                            v.setBackground(getDrawable(R.drawable.base));
+                            v.setBackground(getDrawable(R.drawable.img_base));
                         }
                     }
                     if (v.getId() == R.id.trash) {
@@ -1352,11 +1345,11 @@ public class LeagueGameActivity extends AppCompatActivity /*implements LoaderMan
                 case DragEvent.ACTION_DRAG_ENDED:
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         if (v.getId() == R.id.home_display) {
-                            v.setBackground(getDrawable(R.drawable.homeplate));
+                            v.setBackground(getDrawable(R.drawable.img_home));
                         } else if (v.getId() == R.id.trash) {
                             v.setBackgroundResource(0);
                         } else {
-                            v.setBackground(getDrawable(R.drawable.base));
+                            v.setBackground(getDrawable(R.drawable.img_base));
                         }
                     }
                     break;

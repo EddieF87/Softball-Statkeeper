@@ -136,4 +136,6 @@
     <string name="export_stats">Export Stats</string>
     <string name="skip">Skip</string>
     <string name="submit">Submit</string>
+    <string name="submit_play">Submit Play</string>
+    <string name="reset_bases">Reset Bases?</string>
 </resources>

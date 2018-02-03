@@ -1391,9 +1391,10 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameDia
                         if (v.getId() == R.id.home_display) {
                             v.setBackground(getDrawable(R.drawable.homeplate2));
                         } else if (v.getId() == R.id.trash) {
-                            v.setBackground(getDrawable(R.drawable.base2));
+                            //todo
+                            v.setBackground(getDrawable(R.drawable.base));
                         } else {
-                            v.setBackground(getDrawable(R.drawable.base2));
+                            v.setBackground(getDrawable(R.drawable.base));
                         }
                     }
                     break;
