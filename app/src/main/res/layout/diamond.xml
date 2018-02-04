@@ -52,11 +52,11 @@
         android:layout_height="0dp"
         android:background="@drawable/img_base"
         android:gravity="center"
-        android:text="TextView"
         app:layout_constraintBottom_toTopOf="@+id/guide_h1"
         app:layout_constraintEnd_toStartOf="@+id/guide_v2"
         app:layout_constraintStart_toStartOf="@+id/guide_v1"
-        app:layout_constraintTop_toTopOf="@+id/infield" />
+        app:layout_constraintTop_toTopOf="@+id/infield"
+        tools:text="2b" />
 
     <TextView
         android:id="@+id/third_display"
@@ -64,11 +64,11 @@
         android:layout_height="0dp"
         android:background="@drawable/img_base"
         android:gravity="center"
-        android:text="TextView"
         app:layout_constraintBottom_toTopOf="@+id/guide_h2"
         app:layout_constraintEnd_toStartOf="@+id/guide_v1"
         app:layout_constraintStart_toStartOf="@+id/infield"
-        app:layout_constraintTop_toTopOf="@+id/guide_h1" />
+        app:layout_constraintTop_toTopOf="@+id/guide_h1"
+        tools:text="3b" />
 
     <TextView
         android:id="@+id/first_display"
@@ -76,11 +76,11 @@
         android:layout_height="0dp"
         android:background="@drawable/img_base"
         android:gravity="center"
-        android:text="TextView"
         app:layout_constraintBottom_toTopOf="@+id/guide_h2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guide_v2"
-        app:layout_constraintTop_toTopOf="@+id/guide_h1" />
+        app:layout_constraintTop_toTopOf="@+id/guide_h1"
+        tools:text="1b" />
 
     <Button
         android:id="@+id/home_display"

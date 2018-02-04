@@ -1255,9 +1255,9 @@ public class LeagueGameActivity extends AppCompatActivity /*implements LoaderMan
                             v.setBackground(getDrawable(R.drawable.img_home));
                         } else if (v.getId() == R.id.trash) {
                             //todo
-                            v.setBackground(getDrawable(R.drawable.img_base));
+                            v.setBackground(getDrawable(R.drawable.img_base2));
                         } else {
-                            v.setBackground(getDrawable(R.drawable.img_base));
+                            v.setBackground(getDrawable(R.drawable.img_base2));
                         }
                     }
                     break;

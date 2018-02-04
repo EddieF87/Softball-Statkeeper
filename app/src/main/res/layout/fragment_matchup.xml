@@ -193,7 +193,7 @@
     <LinearLayout
         android:id="@+id/layout_benches"
         android:layout_width="0dp"
-        android:layout_height="100dp"
+        android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:orientation="horizontal"
         app:layout_constraintBottom_toTopOf="@+id/linearlayout4_team"
@@ -203,7 +203,7 @@
         <com.example.android.scorekeepdraft1.adapters_listeners_etc.VerticalTextView
             android:id="@+id/bench_title_away"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="5"
             android:gravity="center"
             android:maxLines="1"
@@ -216,13 +216,13 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="25"
-            android:gravity="center"
-            tools:text="bgsdgsddddddddddddddddbgsdgsddddddddddddddddbgsdgsddddddddddddddddbgsdgsddddddddddddddddbgsdgsdddddddddddddddd"
-            android:paddingTop="16dp"
-            android:paddingBottom="16dp"
+            android:paddingBottom="12dp"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
-            />
+            android:paddingTop="4dp"
+            android:textSize="12sp"
+            android:autoSizeTextType="uniform"
+            android:autoSizeMinTextSize="10sp"/>
 
         <View
             android:layout_width="0dp"
@@ -235,12 +235,13 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="25"
-            android:gravity="center"
-            android:paddingTop="16dp"
-            android:paddingBottom="16dp"
+            android:paddingBottom="12dp"
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
-            />
+            android:paddingTop="4dp"
+            android:textSize="12sp"
+            android:autoSizeTextType="uniform"
+            android:autoSizeMinTextSize="10sp" />
 
         <Space
             android:layout_width="0dp"
