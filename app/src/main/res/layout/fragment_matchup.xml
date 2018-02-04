@@ -19,7 +19,9 @@
     android:id="@+id/main_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/colorPrimaryLight"
+    >
 
     <LinearLayout
         android:id="@+id/layout_spinners"
@@ -34,19 +36,17 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="2" />
+        app:layout_constraintTop_toTopOf="parent"
+        >
 
         <Spinner
             android:id="@+id/awayteam_spinner"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="10"
-            android:gravity="bottom"
+            android:textColor="#FFFFFF"
+            android:background="@color/colorPrimary"
+            android:gravity="center"
             android:textAlignment="center"
             android:textSize="20sp"
             android:textStyle="bold" />
@@ -58,24 +58,23 @@
             android:layout_weight="2"
             android:gravity="center"
             android:text="\@"
+            android:textColor="#FFFFFF"
+            android:background="@color/colorPrimary"
             android:textAlignment="center"
             android:textSize="30sp"
             android:textStyle="bold" />
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="2" />
 
         <Spinner
             android:id="@+id/hometeam_spinner"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="10"
-            android:gravity="bottom"
+            android:gravity="right"
             android:textAlignment="center"
             android:textSize="20sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:background="@color/colorPrimary"/>
 
     </LinearLayout>
 
@@ -117,7 +116,6 @@
         android:id="@+id/layout_recyclerviews"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="8dp"
         android:orientation="horizontal"
         app:layout_constraintBottom_toTopOf="@+id/layout_benches"
         app:layout_constraintHorizontal_bias="0.0"
@@ -153,7 +151,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@color/colorPrimaryLight" />
+            android:background="@color/colorPrimary" />
 
 
         <android.support.v7.widget.RecyclerView
@@ -187,7 +185,7 @@
         android:layout_width="0dp"
         android:layout_height="4dp"
         android:layout_marginBottom="8dp"
-        android:background="@color/colorPrimaryLight"
+        android:background="@color/colorPrimary"
         app:layout_constraintBottom_toBottomOf="@+id/layout_recyclerviews" />
 
     <LinearLayout
@@ -228,7 +226,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="@color/colorPrimaryLight" />
+            android:background="@color/colorPrimary" />
 
         <TextView
             android:id="@+id/bench_home"

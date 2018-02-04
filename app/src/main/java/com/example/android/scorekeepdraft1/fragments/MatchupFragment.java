@@ -648,10 +648,10 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        SimpleCursorAdapter adapter = new SimpleCursorAdapter(getActivity(), R.layout.spinner_layout, cursor,
+        SimpleCursorAdapter adapter = new SimpleCursorAdapter(getActivity(), R.layout.spinner_matchup, cursor,
                 new String[]{StatsContract.StatsEntry.COLUMN_NAME},
                 new int[]{R.id.spinnerTarget}, 0);
-        adapter.setDropDownViewResource(R.layout.spinner_layout);
+        adapter.setDropDownViewResource(R.layout.spinner_matchup);
         int numberOfTeams = cursor.getCount();
         SharedPreferences spinnerStates = getActivity()
                 .getSharedPreferences(SPINNER_STATE, Context.MODE_PRIVATE);

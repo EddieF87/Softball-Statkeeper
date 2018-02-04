@@ -289,7 +289,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             if (FA && isTeam) {
                 teamView.setVisibility(View.VISIBLE);
                 teamView.setText("+");
-                int color = ContextCompat.getColor(mContext, R.color.colorPrimaryDark);
+                int color = ContextCompat.getColor(mContext, R.color.colorPrimary);
                 teamView.setTextColor(color);
                 teamView.setTypeface(Typeface.DEFAULT_BOLD);
                 teamView.setOnClickListener(new View.OnClickListener() {

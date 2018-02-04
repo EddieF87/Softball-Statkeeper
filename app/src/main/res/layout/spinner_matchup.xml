@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/spinnerTarget"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:textColor="#FFFFFF"
+    android:textSize="24sp"
+    android:autoSizeTextType="uniform"
+    android:autoSizeMinTextSize="12sp"
+    android:maxLines="1"
+    android:gravity="center"
+    android:background="@color/colorPrimary"
+    />

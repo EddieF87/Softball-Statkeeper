@@ -1252,7 +1252,7 @@ public class LeagueGameActivity extends AppCompatActivity /*implements LoaderMan
                 case DragEvent.ACTION_DRAG_STARTED:
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         if (v.getId() == R.id.home_display) {
-                            v.setBackground(getDrawable(R.drawable.img_home));
+                            v.setBackground(getDrawable(R.drawable.img_home2));
                         } else if (v.getId() == R.id.trash) {
                             //todo
                             v.setBackground(getDrawable(R.drawable.img_base2));
