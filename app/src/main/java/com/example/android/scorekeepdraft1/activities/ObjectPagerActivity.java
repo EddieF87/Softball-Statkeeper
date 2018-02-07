@@ -122,7 +122,7 @@ public class ObjectPagerActivity extends AppCompatActivity
     }
 
     @Override
-    public void onSubmitPlayersListener(List<String> names, List<Integer> genders, String team) {
+    public void onSubmitPlayersListener(List<String> names, List<Integer> genders, String teamName, String teamID) {
         List<Player> players = new ArrayList<>();
         FirestoreHelper firestoreHelper = new FirestoreHelper(this, selectionID);
         for (int i = 0; i < names.size() - 1; i++) {
@@ -132,18 +132,20 @@ public class ObjectPagerActivity extends AppCompatActivity
                 continue;
             }
             int gender = genders.get(i);
-            values.put(StatsContract.StatsEntry.COLUMN_NAME, playerName);
-            values.put(StatsContract.StatsEntry.COLUMN_GENDER, gender);
-            values.put(StatsContract.StatsEntry.COLUMN_TEAM, team);
-            Uri uri = getContentResolver().insert(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, values);
+            values.put(StatsEntry.COLUMN_NAME, playerName);
+            values.put(StatsEntry.COLUMN_GENDER, gender);
+            values.put(StatsEntry.COLUMN_ORDER, 99);
+            values.put(StatsEntry.COLUMN_TEAM, teamName);
+            values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, teamID);
+            Uri uri = getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
             if (uri != null) {
                 Cursor cursor = getContentResolver().query(uri, null, null,
                         null, null);
                 if (cursor.moveToFirst()) {
                     String firestoreID = cursor.getString(cursor
-                            .getColumnIndex(StatsContract.StatsEntry.COLUMN_FIRESTORE_ID));
+                            .getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID));
                     long id = ContentUris.parseId(uri);
-                    players.add(new Player(playerName, team, gender, id, firestoreID));
+                    players.add(new Player(playerName, teamName, gender, id, firestoreID, teamID));
                     firestoreHelper.setUpdate(firestoreID, 1);
                 }
             }
@@ -209,13 +211,13 @@ public class ObjectPagerActivity extends AppCompatActivity
         }
     }
 
-    public void teamChosen(String team) {
+    public void teamChosen(String teamName, String teamID) {
         int pos = mViewPager.getCurrentItem();
 
         if (mObjectType == KEY_PLAYER_PAGER) {
             PlayerFragment playerFragment = (PlayerFragment) mAdapter.getRegisteredFragment(pos);
             if (playerFragment != null) {
-                playerFragment.updatePlayerTeam(team);
+                playerFragment.updatePlayerTeam(teamName, teamID);
             }
         }
         new FirestoreHelper(this, selectionID).updateTimeStamps();

@@ -89,6 +89,9 @@ public class LeagueGameActivity extends AppCompatActivity /*implements LoaderMan
     private List<Player> homeTeam;
     private String awayTeamName;
     private String homeTeamName;
+    private String awayTeamID;
+    private String homeTeamID;
+
     private int awayTeamRuns;
     private int homeTeamRuns;
     private int awayTeamIndex;
@@ -187,9 +190,9 @@ public class LeagueGameActivity extends AppCompatActivity /*implements LoaderMan
 
         SharedPreferences gamePreferences = getSharedPreferences(leagueID + "game", MODE_PRIVATE);
         totalInnings = gamePreferences.getInt(KEY_TOTALINNINGS, 7);
-        String awayTeamID = gamePreferences.getString(KEY_AWAYTEAM, "x");
+        awayTeamID = gamePreferences.getString(KEY_AWAYTEAM, "x");
         awayTeamName = getTeamNameFromFirestoreID(awayTeamID);
-        String homeTeamID = gamePreferences.getString(KEY_HOMETEAM, "y");
+        homeTeamID = gamePreferences.getString(KEY_HOMETEAM, "y");
         homeTeamName = getTeamNameFromFirestoreID(homeTeamID);
         int genderSorter = gamePreferences.getInt(KEY_FEMALEORDER, 0);
         int sortArgument = gamePreferences.getInt(KEY_GENDERSORT, 0);
@@ -201,8 +204,10 @@ public class LeagueGameActivity extends AppCompatActivity /*implements LoaderMan
         playerCursor.close();
 
         setTitle(awayTeamName + " @ " + homeTeamName);
-        awayTeam = setTeam(awayTeamName);
-        homeTeam = setTeam(homeTeamName);
+//        awayTeam = setTeam(awayTeamName);
+//        homeTeam = setTeam(homeTeamName);
+        awayTeam = setTeam(awayTeamID);
+        homeTeam = setTeam(homeTeamID);
 
         if (sortArgument != 0) {
             setGendersort(sortArgument, genderSorter + 1);
@@ -273,13 +278,13 @@ public class LeagueGameActivity extends AppCompatActivity /*implements LoaderMan
         awayText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                gotoLineupEditor(awayTeamName);
+                gotoLineupEditor(awayTeamName, awayTeamID);
             }
         });
         homeText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                gotoLineupEditor(homeTeamName);
+                gotoLineupEditor(homeTeamName, homeTeamID);
             }
         });
 
@@ -332,10 +337,40 @@ public class LeagueGameActivity extends AppCompatActivity /*implements LoaderMan
         }
     }
 
-    private ArrayList<Player> setTeam(String teamName) {
+//    private ArrayList<Player> setTeam(String teamName) {
+//
+//        String selection = StatsEntry.COLUMN_TEAM + "=?";
+//        String[] selectionArgs = new String[]{teamName};
+//        String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
+//        playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEMP, null,
+//                selection, selectionArgs, sortOrder);
+//
+//        int nameIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
+//        int idIndex = playerCursor.getColumnIndex(StatsEntry._ID);
+//        int orderIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_ORDER);
+//        int genderIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_GENDER);
+//        int firestoreIDIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
+//
+//        ArrayList<Player> team = new ArrayList<>();
+//        while (playerCursor.moveToNext()) {
+//            int order = playerCursor.getInt(orderIndex);
+//            if (order > 100) {
+//                continue;
+//            }
+//
+//            int playerId = playerCursor.getInt(idIndex);
+//            int gender = playerCursor.getInt(genderIndex);
+//            String playerName = playerCursor.getString(nameIndex);
+//            String firestoreID = playerCursor.getString(firestoreIDIndex);
+//            team.add(new Player(playerName, teamName, gender, playerId, firestoreID));
+//        }
+//        return team;
+//    }
 
-        String selection = StatsEntry.COLUMN_TEAM + "=?";
-        String[] selectionArgs = new String[]{teamName};
+    private ArrayList<Player> setTeam(String teamID) {
+
+        String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=?";
+        String[] selectionArgs = new String[]{teamID};
         String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
         playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEMP, null,
                 selection, selectionArgs, sortOrder);
@@ -345,6 +380,7 @@ public class LeagueGameActivity extends AppCompatActivity /*implements LoaderMan
         int orderIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_ORDER);
         int genderIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_GENDER);
         int firestoreIDIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
+        int teamIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_TEAM);
 
         ArrayList<Player> team = new ArrayList<>();
         while (playerCursor.moveToNext()) {
@@ -356,12 +392,12 @@ public class LeagueGameActivity extends AppCompatActivity /*implements LoaderMan
             int playerId = playerCursor.getInt(idIndex);
             int gender = playerCursor.getInt(genderIndex);
             String playerName = playerCursor.getString(nameIndex);
+            String teamName = playerCursor.getString(teamIndex);
             String firestoreID = playerCursor.getString(firestoreIDIndex);
-            team.add(new Player(playerName, teamName, gender, playerId, firestoreID));
+            team.add(new Player(playerName, teamName, gender, playerId, firestoreID, teamID));
         }
         return team;
     }
-
 
     private List<Player> genderSort(List<Player> team, int femaleRequired) {
         if (femaleRequired < 1) {
@@ -1198,12 +1234,14 @@ public class LeagueGameActivity extends AppCompatActivity /*implements LoaderMan
     }
 
     private Player findBatterByName(String batterName, List<Player> teamLineup) {
+        Log.e(TAG, "findBatterByNameStart " + batterName);
         for (Player player : teamLineup) {
             if (player.getName().equals(batterName)) {
+                Log.d("xxx", "findBatterByName " + player.getName());
                 return player;
             }
         }
-        Log.e(TAG, "findBatterByName", new Throwable("Error with finding batter!"));
+        Log.e(TAG, "findBatterByName ", new Throwable("Error with finding batter!"));
         return null;
     }
 
@@ -1501,10 +1539,11 @@ public class LeagueGameActivity extends AppCompatActivity /*implements LoaderMan
         return true;
     }
 
-    public void gotoLineupEditor(String teamName) {
+    public void gotoLineupEditor(String teamName, String teamID) {
         Intent editorIntent = new Intent(LeagueGameActivity.this, SetLineupActivity.class);
-        editorIntent.putExtra("team", teamName);
         editorIntent.putExtra("ingame", true);
+        editorIntent.putExtra("team_name", teamName);
+        editorIntent.putExtra("team_id", teamID);
         startActivity(editorIntent);
         finish();
     }
@@ -1524,6 +1563,7 @@ public class LeagueGameActivity extends AppCompatActivity /*implements LoaderMan
             case R.id.action_goto_stats:
                 Intent statsIntent = new Intent(LeagueGameActivity.this, BoxScoreActivity.class);
                 Bundle b = new Bundle();
+                //todo convert to teamid
                 b.putString("awayTeam", awayTeamName);
                 b.putString("homeTeam", homeTeamName);
                 b.putInt("totalInnings", totalInnings);
@@ -1600,7 +1640,7 @@ public class LeagueGameActivity extends AppCompatActivity /*implements LoaderMan
                 if (dialog != null) {
                     dialog.dismiss();
                 }
-                gotoLineupEditor(awayTeamName);
+                gotoLineupEditor(awayTeamName, awayTeamID);
             }
         });
         builder.setPositiveButton(homeTeamName, new DialogInterface.OnClickListener() {
@@ -1609,7 +1649,7 @@ public class LeagueGameActivity extends AppCompatActivity /*implements LoaderMan
                 if (dialog != null) {
                     dialog.dismiss();
                 }
-                gotoLineupEditor(homeTeamName);
+                gotoLineupEditor(homeTeamName, homeTeamID);
             }
         });
         builder.setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {

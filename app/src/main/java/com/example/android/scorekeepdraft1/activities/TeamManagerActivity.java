@@ -10,7 +10,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ViewGroup;
@@ -32,7 +31,6 @@ import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.example.android.scorekeepdraft1.objects.Player;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class TeamManagerActivity extends ExportActivity
@@ -43,7 +41,7 @@ public class TeamManagerActivity extends ExportActivity
 
     private LineupFragment lineupFragment;
     private TeamFragment teamFragment;
-    private String teamID;
+    private String mTeamID;
     private int level;
     private int leagueType;
     private String leagueName;
@@ -57,7 +55,7 @@ public class TeamManagerActivity extends ExportActivity
             MyApp myApp = (MyApp) getApplicationContext();
             MainPageSelection mainPageSelection = myApp.getCurrentSelection();
             leagueName = mainPageSelection.getName();
-            teamID = mainPageSelection.getId();
+            mTeamID = mainPageSelection.getId();
             leagueType = mainPageSelection.getType();
             level = mainPageSelection.getLevel();
             setTitle(leagueName);
@@ -76,9 +74,9 @@ public class TeamManagerActivity extends ExportActivity
     }
 
     @Override
-    public void onSubmitPlayersListener(List<String> names, List<Integer> genders, String team) {
+    public void onSubmitPlayersListener(List<String> names, List<Integer> genders, String teamName, String teamID) {
         List<Player> players = new ArrayList<>();
-        FirestoreHelper firestoreHelper = new FirestoreHelper(this, teamID);
+        FirestoreHelper firestoreHelper = new FirestoreHelper(this, mTeamID);
         for (int i = 0; i < names.size() - 1; i++) {
             ContentValues values = new ContentValues();
             String playerName = names.get(i);
@@ -88,7 +86,8 @@ public class TeamManagerActivity extends ExportActivity
             int gender = genders.get(i);
             values.put(StatsContract.StatsEntry.COLUMN_NAME, playerName);
             values.put(StatsContract.StatsEntry.COLUMN_GENDER, gender);
-            values.put(StatsContract.StatsEntry.COLUMN_TEAM, team);
+            values.put(StatsContract.StatsEntry.COLUMN_TEAM, teamName);
+            values.put(StatsContract.StatsEntry.COLUMN_TEAM_FIRESTORE_ID, teamID);
             Uri uri = getContentResolver().insert(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, values);
             if (uri != null) {
                 Cursor cursor = getContentResolver().query(uri, null, null,
@@ -97,7 +96,7 @@ public class TeamManagerActivity extends ExportActivity
                     String firestoreID = cursor.getString(cursor
                             .getColumnIndex(StatsContract.StatsEntry.COLUMN_FIRESTORE_ID));
                     long id = ContentUris.parseId(uri);
-                    players.add(new Player(playerName, team, gender, id, firestoreID));
+                    players.add(new Player(playerName, teamName, gender, id, firestoreID, mTeamID));
                     firestoreHelper.setUpdate(firestoreID, 1);
                 }
             }
@@ -148,7 +147,7 @@ public class TeamManagerActivity extends ExportActivity
         }
 
         if (update) {
-            new FirestoreHelper(this, teamID).updateTimeStamps();
+            new FirestoreHelper(this, mTeamID).updateTimeStamps();
         }
     }
 
@@ -162,13 +161,13 @@ public class TeamManagerActivity extends ExportActivity
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return TeamFragment.newInstance(teamID, leagueType, leagueName, level);
+                    return TeamFragment.newInstance(mTeamID, leagueType, leagueName, level);
                 case 1:
                     if (level < 3) {
                         Log.d("xxx", "level < 3");
                         return null;
                     }
-                    return LineupFragment.newInstance(teamID, leagueType, leagueName, false);
+                    return LineupFragment.newInstance(mTeamID, leagueType, leagueName, mTeamID, false);
                 default:
                     return null;
             }

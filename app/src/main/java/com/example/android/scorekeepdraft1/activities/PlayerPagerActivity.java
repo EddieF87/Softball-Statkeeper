@@ -41,8 +41,8 @@ public class PlayerPagerActivity extends ObjectPagerActivity
 
 
     @Override
-    public void onTeamChosen(String team) {
-        teamChosen(team);
+    public void onTeamChosen(String teamName, String teamID) {
+        teamChosen(teamName, teamID);
         Intent intent = getIntent();
         setResult(RESULT_OK, intent);
     }

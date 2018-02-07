@@ -8,15 +8,14 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.ViewGroup;
 
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.data.FirestoreHelper;
 import com.example.android.scorekeepdraft1.data.StatsContract;
+import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.dialogs.AddNewPlayersDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.ChooseOrCreateTeamDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.GameSettingsDialogFragment;
@@ -66,17 +65,17 @@ public class LeagueManagerActivity extends ExportActivity
     }
 
     @Override
-    public void onTeamSelected(String team) {
+    public void onTeamSelected(String teamName, String teamID) {
         if(standingsFragment != null) {
-            standingsFragment.addNewPlayersDialog(team);
+            standingsFragment.addNewPlayersDialog(teamName, teamID);
             standingsFragment.setAdderButtonVisible();
         }
     }
 
     @Override
-    public void onNewTeam(String team) {
+    public void onNewTeam(String teamName) {
         if(standingsFragment != null) {
-            standingsFragment.addTeam(team);
+            standingsFragment.addTeam(teamName);
             standingsFragment.setAdderButtonVisible();
         }
     }
@@ -152,7 +151,7 @@ public class LeagueManagerActivity extends ExportActivity
     }
 
     @Override
-    public void onSubmitPlayersListener(List<String> names, List<Integer> genders, String team) {
+    public void onSubmitPlayersListener(List<String> names, List<Integer> genders, String team, String teamID) {
 
         for (int i = 0; i < names.size() - 1; i++) {
             ContentValues values = new ContentValues();
@@ -161,15 +160,17 @@ public class LeagueManagerActivity extends ExportActivity
                 continue;
             }
             int gender = genders.get(i);
-            values.put(StatsContract.StatsEntry.COLUMN_NAME, player);
-            values.put(StatsContract.StatsEntry.COLUMN_GENDER, gender);
-            values.put(StatsContract.StatsEntry.COLUMN_TEAM, team);
+            values.put(StatsEntry.COLUMN_NAME, player);
+            values.put(StatsEntry.COLUMN_GENDER, gender);
+            values.put(StatsEntry.COLUMN_ORDER, i + 1);
+            values.put(StatsEntry.COLUMN_TEAM, team);
+            values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, teamID);
             values.put("add", true);
             getContentResolver().insert(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, values);
         }
 
         if (statsFragment != null) {
-            String selection = StatsContract.StatsEntry.COLUMN_NAME + "=?";
+            String selection = StatsEntry.COLUMN_NAME + "=?";
             String[] selectionArgs = new String[]{team};
             Cursor cursor = getContentResolver().query(StatsContract.StatsEntry.CONTENT_URI_TEAMS,
                     null, selection, selectionArgs, null);

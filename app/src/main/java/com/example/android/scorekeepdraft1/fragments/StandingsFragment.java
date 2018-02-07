@@ -47,6 +47,7 @@ import com.example.android.scorekeepdraft1.dialogs.AddNewPlayersDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.ChooseOrCreateTeamDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.GameSettingsDialogFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
+import com.example.android.scorekeepdraft1.objects.Team;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -63,7 +64,7 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
     private String leagueID;
     private String leagueName;
     private StandingsCursorAdapter mAdapter;
-    private ArrayList<String> mTeams;
+    private ArrayList<Team> mTeams;
     private TextView colorView;
     private FloatingActionButton startAdderButton;
 
@@ -148,7 +149,7 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
     }
 
     private void chooseOrCreateTeamDialog() {
-        Collections.sort(mTeams, String.CASE_INSENSITIVE_ORDER);
+        Collections.sort(mTeams, Team.nameComparator());
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         DialogFragment newFragment = ChooseOrCreateTeamDialogFragment.newInstance(mTeams);
@@ -198,10 +199,10 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
         return false;
     }
 
-    public void addNewPlayersDialog(String team) {
+    public void addNewPlayersDialog(String teamName, String teamID) {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = AddNewPlayersDialogFragment.newInstance(team);
+        DialogFragment newFragment = AddNewPlayersDialogFragment.newInstance(teamName, teamID);
         newFragment.show(fragmentTransaction, "");
     }
 
@@ -217,7 +218,12 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
         if (teamUri == null) {
             return;
         }
-        addNewPlayersDialog(team);
+        Cursor cursor = getActivity().getContentResolver().query(teamUri, new String[]{StatsEntry.COLUMN_FIRESTORE_ID}, null, null, null);
+        if (cursor.moveToFirst()) {
+            int teamIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
+            String teamID = cursor.getString(teamIDIndex);
+            addNewPlayersDialog(team, teamID);
+        }
     }
 
     @Override
@@ -249,9 +255,11 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
         }
 
         int nameIndex = data.getColumnIndex(StatsEntry.COLUMN_NAME);
+        int firestoreIDIndex = data.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
         while (data.moveToNext()) {
             String name = data.getString(nameIndex);
-            mTeams.add(name);
+            String firestoreID = data.getString(firestoreIDIndex);
+            mTeams.add(new Team(name, firestoreID));
         }
         mAdapter.swapCursor(data);
     }

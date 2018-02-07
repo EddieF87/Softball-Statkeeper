@@ -121,8 +121,6 @@ public class StatsProvider extends ContentProvider {
                 table = StatsEntry.TEMPPLAYERS_TABLE_NAME;
                 break;
             case GAME:
-                selection = selection;
-                selectionArgs = selectionArgs;
                 sortOrder = StatsEntry._ID + " ASC";
                 table = StatsEntry.GAME_TABLE_NAME;
                 break;
@@ -165,6 +163,7 @@ public class StatsProvider extends ContentProvider {
         //Get current leagueID
         MyApp myApp = (MyApp) getContext().getApplicationContext();
         String leagueID = myApp.getCurrentSelection().getId();
+        int selectionType = myApp.getCurrentSelection().getType();
         values.put(StatsEntry.COLUMN_LEAGUE_ID, leagueID);
 
         if (sqlSafeguard(values)) {
@@ -192,11 +191,11 @@ public class StatsProvider extends ContentProvider {
 
                 String playerName = values.getAsString(StatsEntry.COLUMN_NAME);
 
-                String playerTeam;
-                if (values.containsKey(StatsEntry.COLUMN_TEAM)) {
-                    playerTeam = values.getAsString(StatsEntry.COLUMN_TEAM);
+                String playerTeamID;
+                if (values.containsKey(StatsEntry.COLUMN_TEAM_FIRESTORE_ID)) {
+                    playerTeamID = values.getAsString(StatsEntry.COLUMN_TEAM_FIRESTORE_ID);
                 } else {
-                    playerTeam = "Free Agent";
+                    playerTeamID = "FA";
                 }
 
                 int playerGender;
@@ -207,7 +206,7 @@ public class StatsProvider extends ContentProvider {
                 }
 
                 player.put("name", playerName);
-                player.put("team", playerTeam);
+                player.put("team", playerTeamID);
                 player.put("gender", playerGender);
                 if (values.containsKey("add")) {
                     values.remove("add");
@@ -230,8 +229,14 @@ public class StatsProvider extends ContentProvider {
                     break;
                 }
                 mFirestore = FirebaseFirestore.getInstance();
-                DocumentReference teamDoc = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION)
-                        .document(leagueID).collection(FirestoreHelper.TEAMS_COLLECTION).document();
+                DocumentReference teamDoc;
+                if (selectionType == MainPageSelection.TYPE_TEAM) {
+                    teamDoc = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION)
+                            .document(leagueID).collection(FirestoreHelper.TEAMS_COLLECTION).document(leagueID);
+                } else {
+                    teamDoc = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION)
+                            .document(leagueID).collection(FirestoreHelper.TEAMS_COLLECTION).document();
+                }
 
                 Map<String, Object> team = new HashMap<>();
                 String teamName = values.getAsString(StatsEntry.COLUMN_NAME);

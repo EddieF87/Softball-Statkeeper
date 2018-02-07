@@ -21,28 +21,18 @@
         <include
             android:id="@+id/diamond"
             layout="@layout/diamond"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginBottom="8dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="16dp"
+            style="@style/Diamond"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintBottom_toTopOf="@+id/radio_group_results"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@id/sb_table"
              />
 
         <include
             android:id="@+id/radio_group_results"
             layout="@layout/item_radio_group_results"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
+            style="@style/RadioGroupResults"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -72,7 +62,11 @@
                 android:paddingTop="8dp"
                 android:layout_marginTop="8dp"
                 android:background="@color/colorAccent"
-                android:textColor="#FFFFFF"/>
+                android:textColor="#FFFFFF"
+                android:drawableRight="@drawable/ic_reorder_white_500_24dp"
+                android:paddingRight="4dp"
+                android:drawableEnd="@drawable/ic_reorder_white_500_24dp"
+                android:paddingEnd="4dp" />
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/away_lineup"
@@ -91,7 +85,11 @@
                 android:paddingBottom="8dp"
                 android:paddingTop="8dp"
                 android:background="@color/colorAccent"
-                android:textColor="#FFFFFF"/>
+                android:textColor="#FFFFFF"
+                android:drawableRight="@drawable/ic_reorder_white_500_24dp"
+                android:paddingRight="4dp"
+                android:drawableEnd="@drawable/ic_reorder_white_500_24dp"
+                android:paddingEnd="4dp" />
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/home_lineup"

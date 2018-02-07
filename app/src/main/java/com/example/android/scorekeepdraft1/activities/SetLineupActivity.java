@@ -44,11 +44,13 @@ public class SetLineupActivity extends SingleFragmentActivity
     @Override
     protected Fragment createFragment() {
         Bundle args = getIntent().getExtras();
-        String team = null;
+        String teamName = null;
+        String teamID = null;
         boolean inGame = false;
 
         if (args != null) {
-            team = args.getString("team");
+            teamName = args.getString("team_name");
+            teamID = args.getString("team_id");
             inGame = args.getBoolean("ingame");
         } else {
             finish();
@@ -58,7 +60,7 @@ public class SetLineupActivity extends SingleFragmentActivity
             MainPageSelection mainPageSelection = myApp.getCurrentSelection();
             int type = mainPageSelection.getType();
             String leagueId = mainPageSelection.getId();
-            lineupFragment = LineupFragment.newInstance(leagueId, type, team, inGame);
+            lineupFragment = LineupFragment.newInstance(leagueId, type, teamName, teamID, inGame);
         } catch (Exception e) {
             Intent intent = new Intent(SetLineupActivity.this, MainActivity.class);
             startActivity(intent);
@@ -69,7 +71,7 @@ public class SetLineupActivity extends SingleFragmentActivity
     }
 
     @Override
-    public void onSubmitPlayersListener(List<String> names, List<Integer> genders, String team) {
+    public void onSubmitPlayersListener(List<String> names, List<Integer> genders, String team, String teamID) {
         List<Player> players = new ArrayList<>();
         for (int i = 0; i < names.size() - 1; i++) {
             ContentValues values = new ContentValues();
@@ -81,9 +83,10 @@ public class SetLineupActivity extends SingleFragmentActivity
             values.put(StatsEntry.COLUMN_NAME, name);
             values.put(StatsEntry.COLUMN_GENDER, gender);
             values.put(StatsEntry.COLUMN_TEAM, team);
+            values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, teamID);
             values.put(StatsEntry.COLUMN_ORDER, 99);
             Uri uri = getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
-            Player player = new Player(name, team, gender);
+            Player player = new Player(name, team, gender, teamID);
             if (uri != null) {
                 players.add(player);
             }

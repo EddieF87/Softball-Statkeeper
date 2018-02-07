@@ -29,16 +29,19 @@ public class AddNewPlayersDialogFragment extends DialogFragment {
     private static final String KEY_NAMES = "names";
     private static final String KEY_GENDERS = "genders";
     private static final String KEY_EDITS = "edits";
-    private static final String KEY_TEAM = "team";
-    private String mTeam;
+    private static final String KEY_TEAM_NAME = "team_name";
+    private static final String KEY_TEAM_ID = "team_id";
+    private String mTeamName;
+    private String mTeamID;
 
     public AddNewPlayersDialogFragment() {
     }
 
-    public static AddNewPlayersDialogFragment newInstance(String team) {
+    public static AddNewPlayersDialogFragment newInstance(String teamName, String teamID) {
         AddNewPlayersDialogFragment fragment = new AddNewPlayersDialogFragment();
         Bundle args = new Bundle();
-        args.putString(KEY_TEAM, team);
+        args.putString(KEY_TEAM_NAME, teamName);
+        args.putString(KEY_TEAM_ID, teamID);
         fragment.setArguments(args);
         return fragment;
     }
@@ -47,7 +50,8 @@ public class AddNewPlayersDialogFragment extends DialogFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mTeam = getArguments().getString(KEY_TEAM);
+        mTeamName = getArguments().getString(KEY_TEAM_NAME);
+        mTeamID = getArguments().getString(KEY_TEAM_ID);
 
         if (savedInstanceState != null) {
             List<Integer> edits = savedInstanceState.getIntegerArrayList(KEY_EDITS);
@@ -77,7 +81,7 @@ public class AddNewPlayersDialogFragment extends DialogFragment {
 
         AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
                 .setView(recyclerView)
-                .setTitle("Add new players to " + mTeam)
+                .setTitle("Add new players to " + mTeamName)
                 .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         View view = getActivity().getCurrentFocus();
@@ -110,7 +114,7 @@ public class AddNewPlayersDialogFragment extends DialogFragment {
         if (mListener != null) {
             ArrayList<String> names = new ArrayList<>(mAdapter.getmNameEntries());
             ArrayList<Integer> genders = new ArrayList<>(mAdapter.getmGenderEntries());
-            mListener.onSubmitPlayersListener(names, genders, mTeam);
+            mListener.onSubmitPlayersListener(names, genders, mTeamName, mTeamID);
         }
     }
 
@@ -148,6 +152,6 @@ public class AddNewPlayersDialogFragment extends DialogFragment {
     }
 
     public interface OnListFragmentInteractionListener {
-        void onSubmitPlayersListener(List<String> names, List<Integer> genders, String team);
+        void onSubmitPlayersListener(List<String> names, List<Integer> genders, String team, String teamID);
     }
 }

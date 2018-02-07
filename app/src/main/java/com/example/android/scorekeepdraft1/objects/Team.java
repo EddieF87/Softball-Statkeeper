@@ -5,14 +5,18 @@
  */
 package com.example.android.scorekeepdraft1.objects;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
  *
  * @author Eddie
  */
-public class Team {
+public class Team implements Parcelable {
 
     private long teamId;
     private String name;
@@ -29,6 +33,17 @@ public class Team {
     public Team(String name, long teamId) {
         this.name = name;
         this.teamId = teamId;
+        this.totalRunsScored = 0;
+        this.totalRunsAllowed = 0;
+        this.wins = 0;
+        this.losses = 0;
+        this.ties = 0;
+    }
+
+    public Team(String name, String teamFirestoreID) {
+        this.name = name;
+        this.firestoreID = teamFirestoreID;
+        this.teamId = 0;
         this.totalRunsScored = 0;
         this.totalRunsAllowed = 0;
         this.wins = 0;
@@ -65,5 +80,54 @@ public class Team {
         Team comparedTeam = (Team) obj;
         return this.firestoreID.equals(comparedTeam.getFirestoreID());
     }
-}
 
+    public static Comparator<Team> nameComparator () {
+        return new Comparator<Team>() {
+            @Override
+            public int compare(Team team1, Team team2) {
+                return team1.getName().compareToIgnoreCase(team2.getName());
+            }
+        };
+    }
+
+    protected Team(Parcel in) {
+        teamId = in.readLong();
+        name = in.readString();
+        wins = in.readInt();
+        losses = in.readInt();
+        ties = in.readInt();
+        totalRunsScored = in.readInt();
+        totalRunsAllowed = in.readInt();
+        firestoreID = in.readString();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(teamId);
+        dest.writeString(name);
+        dest.writeInt(wins);
+        dest.writeInt(losses);
+        dest.writeInt(ties);
+        dest.writeInt(totalRunsScored);
+        dest.writeInt(totalRunsAllowed);
+        dest.writeString(firestoreID);
+    }
+
+    @SuppressWarnings("unused")
+    public static final Parcelable.Creator<Team> CREATOR = new Parcelable.Creator<Team>() {
+        @Override
+        public Team createFromParcel(Parcel in) {
+            return new Team(in);
+        }
+
+        @Override
+        public Team[] newArray(int size) {
+            return new Team[size];
+        }
+    };
+}

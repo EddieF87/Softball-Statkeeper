@@ -210,7 +210,11 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameDia
         boolean sortArgument = false;
 
         if (args != null) {
-            isHome = args.getBoolean("isHome");
+            if(args.containsKey(KEY_ISHOME)) {
+                isHome = args.getBoolean(KEY_ISHOME);
+            } else {
+                isHome = gamePreferences.getBoolean(KEY_ISHOME, false);
+            }
             SharedPreferences.Editor editor = gamePreferences.edit();
 
             sortArgument = args.getBoolean("sortArgument");
@@ -306,6 +310,12 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameDia
 
         TextView teamText = findViewById(R.id.team_text);
         teamText.setText(myTeamName);
+        teamText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                gotoLineupEditor();
+            }
+        });
 
         Button teamEdit = findViewById(R.id.team_edit);
         teamEdit.setOnClickListener(new View.OnClickListener() {
@@ -351,7 +361,8 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameDia
 
     public void gotoLineupEditor() {
         Intent editorIntent = new Intent(TeamGameActivity.this, SetLineupActivity.class);
-        editorIntent.putExtra("team", myTeamName);
+        editorIntent.putExtra("team_name", myTeamName);
+        editorIntent.putExtra("team_id", teamID);
         editorIntent.putExtra("ingame", true);
         startActivity(editorIntent);
         finish();
@@ -420,6 +431,7 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameDia
         int idIndex = playerCursor.getColumnIndex(StatsEntry._ID);
         int orderIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_ORDER);
         int firestoreIDIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
+        int teamfirestoreIDIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_TEAM_FIRESTORE_ID);
         int genderIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_GENDER);
 
         ArrayList<Player> team = new ArrayList<>();
@@ -434,8 +446,9 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameDia
             int playerId = playerCursor.getInt(idIndex);
             String playerName = playerCursor.getString(nameIndex);
             String firestoreID = playerCursor.getString(firestoreIDIndex);
+            String teamFirestoreID = playerCursor.getString(teamfirestoreIDIndex);
             int gender = playerCursor.getInt(genderIndex);
-            team.add(new Player(playerName, teamName, gender, playerId, firestoreID));
+            team.add(new Player(playerName, teamName, gender, playerId, firestoreID, teamFirestoreID));
         }
         return team;
     }
@@ -1389,12 +1402,12 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameDia
                 case DragEvent.ACTION_DRAG_STARTED:
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         if (v.getId() == R.id.home_display) {
-                            v.setBackground(getDrawable(R.drawable.homeplate2));
+                            v.setBackground(getDrawable(R.drawable.img_home2));
                         } else if (v.getId() == R.id.trash) {
                             //todo
-                            v.setBackground(getDrawable(R.drawable.base));
+                            v.setBackground(getDrawable(R.drawable.img_base2));
                         } else {
-                            v.setBackground(getDrawable(R.drawable.base));
+                            v.setBackground(getDrawable(R.drawable.img_base2));
                         }
                     }
                     break;
@@ -1409,11 +1422,11 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameDia
                     String movedPlayer = "";
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         if (v.getId() == R.id.home_display) {
-                            v.setBackground(getDrawable(R.drawable.homeplate));
+                            v.setBackground(getDrawable(R.drawable.img_home));
                         } else if (v.getId() == R.id.trash) {
                             v.setBackgroundResource(0);
                         } else {
-                            v.setBackground(getDrawable(R.drawable.base));
+                            v.setBackground(getDrawable(R.drawable.img_base));
                         }
                     }
                     if (v.getId() == R.id.trash) {
@@ -1482,11 +1495,11 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameDia
                 case DragEvent.ACTION_DRAG_ENDED:
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         if (v.getId() == R.id.home_display) {
-                            v.setBackground(getDrawable(R.drawable.homeplate));
+                            v.setBackground(getDrawable(R.drawable.img_home));
                         } else if (v.getId() == R.id.trash) {
                             v.setBackgroundResource(0);
                         } else {
-                            v.setBackground(getDrawable(R.drawable.base));
+                            v.setBackground(getDrawable(R.drawable.img_base));
                         }
                     }
                     break;

@@ -4,27 +4,23 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.R;
+import com.example.android.scorekeepdraft1.objects.Team;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class ChangeTeamDialogFragment extends DialogFragment {
 
-    private List<String> teams;
+    private List<Team> mTeams;
     private String player;
     private static final String KEY_TEAMS = "teams";
     private static final String KEY_PLAYER = "player";
@@ -34,10 +30,10 @@ public class ChangeTeamDialogFragment extends DialogFragment {
         // Required empty public constructor
     }
 
-    public static ChangeTeamDialogFragment newInstance(ArrayList<String> teams, String player) {
+    public static ChangeTeamDialogFragment newInstance(ArrayList<Team> teams, String player) {
 
         Bundle args = new Bundle();
-        args.putStringArrayList(KEY_TEAMS, teams);
+        args.putParcelableArrayList(KEY_TEAMS, teams);
         args.putString(KEY_PLAYER, player);
 
         ChangeTeamDialogFragment fragment = new ChangeTeamDialogFragment();
@@ -49,7 +45,7 @@ public class ChangeTeamDialogFragment extends DialogFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
-        teams = args.getStringArrayList(KEY_TEAMS);
+        mTeams = args.getParcelableArrayList(KEY_TEAMS);
         player = args.getString(KEY_PLAYER);
     }
 
@@ -59,17 +55,26 @@ public class ChangeTeamDialogFragment extends DialogFragment {
 
         String titleString = getContext().getResources().getString(R.string.edit_player_team);
         String title = String.format(titleString, player);
-        final CharSequence[] teams_array = teams.toArray(new CharSequence[teams.size()]);
+
+        final Map<String, String> teamMap = new HashMap<>();
+        final List<String> teamNames = new ArrayList<>();
+        for (Team team : mTeams) {
+            teamNames.add(team.getName());
+            teamMap.put(team.getName(), team.getFirestoreID());
+        }
+
+        final CharSequence[] teams_array = teamNames.toArray(new CharSequence[mTeams.size()]);
 
         AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
                 .setTitle(title)
                 .setItems(teams_array, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int item) {
-                        String team = teams_array[item].toString();
-                        if (team.equals(getString(R.string.waivers))) {
-                            team = "Free Agent";
+                        String teamName = teams_array[item].toString();
+                        String teamID = teamMap.get(teamName);
+                        if (teamName.equals(getString(R.string.waivers))) {
+                            teamName = "Free Agent";
                         }
-                        onButtonPressed(team);
+                        onButtonPressed(teamName, teamID);
                     }
                 })
                 .create();
@@ -78,9 +83,9 @@ public class ChangeTeamDialogFragment extends DialogFragment {
         return alertDialog;
     }
 
-    public void onButtonPressed(String team) {
+    public void onButtonPressed(String teamName, String teamID) {
         if (mListener != null) {
-            mListener.onTeamChosen(team);
+            mListener.onTeamChosen(teamName, teamID);
         }
     }
 
@@ -102,6 +107,6 @@ public class ChangeTeamDialogFragment extends DialogFragment {
     }
 
     public interface OnFragmentInteractionListener {
-        void onTeamChosen(String team);
+        void onTeamChosen(String teamName, String teamID);
     }
 }

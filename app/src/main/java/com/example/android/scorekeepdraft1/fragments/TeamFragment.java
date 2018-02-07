@@ -64,9 +64,9 @@ public class TeamFragment extends Fragment
     private PlayerStatsAdapter mAdapter;
 
     private List<Player> mPlayers;
-    private String teamSelected;
+    private String teamName;
+    private String teamID;
     private boolean waivers;
-    private String firestoreID;
 
     private int statSort;
     private TextView colorView;
@@ -147,7 +147,7 @@ public class TeamFragment extends Fragment
 
 
         if (mSelectionType == MainPageSelection.TYPE_TEAM) {
-            teamSelected = mSelectionName;
+            teamName = mSelectionName;
         } else {
             if (mCurrentTeamUri.equals(StatsEntry.CONTENT_URI_TEAMS)) {
                 waivers = true;
@@ -155,7 +155,7 @@ public class TeamFragment extends Fragment
                 View teamAbvView = titleLayout.findViewById(R.id.team_abv_title);
                 teamAbvView.setVisibility(View.VISIBLE);
             }
-            teamSelected = "Free Agent";
+            teamName = "Free Agent";
         }
 
 
@@ -186,7 +186,7 @@ public class TeamFragment extends Fragment
             startAdderBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    createTeamFragment(teamSelected);
+                    addPlayersDialog(teamName, teamID);
                 }
             });
         } else {
@@ -207,10 +207,10 @@ public class TeamFragment extends Fragment
         }
     }
 
-    private void createTeamFragment(String team) {
+    private void addPlayersDialog(String teamName, String teamID) {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = AddNewPlayersDialogFragment.newInstance(team);
+        DialogFragment newFragment = AddNewPlayersDialogFragment.newInstance(teamName, teamID);
         newFragment.show(fragmentTransaction, "");
     }
 
@@ -278,8 +278,8 @@ public class TeamFragment extends Fragment
             int lossIndex = cursor.getColumnIndex(StatsEntry.COLUMN_LOSSES);
             int tieIndex = cursor.getColumnIndex(StatsEntry.COLUMN_TIES);
 
-            firestoreID = cursor.getString(firestoreIDIndex);
-            teamSelected = cursor.getString(nameIndex);
+            teamID = cursor.getString(firestoreIDIndex);
+            teamName = cursor.getString(nameIndex);
             wins = cursor.getInt(winIndex);
             losses = cursor.getInt(lossIndex);
             ties = cursor.getInt(tieIndex);
@@ -293,14 +293,14 @@ public class TeamFragment extends Fragment
         int sumG = wins + losses + ties;
 
         if (waivers) {
-            teamSelected = "Free Agent";
+            teamName = "Free Agent";
             teamNameView.setText(R.string.waivers);
         } else {
-            teamNameView.setText(teamSelected);
+            teamNameView.setText(teamName);
         }
 
         String selection = StatsEntry.COLUMN_TEAM + "=?";
-        String[] selectionArgs = new String[]{teamSelected};
+        String[] selectionArgs = new String[]{teamName};
         String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
 
         cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS,
@@ -326,6 +326,7 @@ public class TeamFragment extends Fragment
         int idIndex = cursor.getColumnIndex(StatsEntry._ID);
         int genderIndex = cursor.getColumnIndex(StatsEntry.COLUMN_GENDER);
         int firestoreIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
+        int teamfirestoreIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_TEAM_FIRESTORE_ID);
 
         int sumHr = 0;
         int sumTpl = 0;
@@ -341,6 +342,7 @@ public class TeamFragment extends Fragment
         while (cursor.moveToNext()) {
 
             String firestoreID = cursor.getString(firestoreIDIndex);
+            String teamfirestoreID = cursor.getString(teamfirestoreIDIndex);
             String player = cursor.getString(nameIndex);
             int gender = cursor.getInt(genderIndex);
             int hr = cursor.getInt(hrIndex);
@@ -364,12 +366,12 @@ public class TeamFragment extends Fragment
             int g = cursor.getInt(gameIndex);
 
             int playerId = cursor.getInt(idIndex);
-            mPlayers.add(new Player(player, teamSelected, gender, sgl, dbl, tpl, hr, bb,
-                    run, rbi, out, sf, g, playerId, firestoreID));
+            mPlayers.add(new Player(player, teamName, gender, sgl, dbl, tpl, hr, bb,
+                    run, rbi, out, sf, g, playerId, firestoreID, teamfirestoreID));
         }
         if (mPlayers.size() > 0 && !waivers) {
-            mPlayers.add(new Player("Total", teamSelected, 2, sumSgl, sumDbl, sumTpl, sumHr, sumBb,
-                    sumRun, sumRbi, sumOut, sumSf, sumG, -1, ""));
+            mPlayers.add(new Player("Total", teamName, 2, sumSgl, sumDbl, sumTpl, sumHr, sumBb,
+                    sumRun, sumRbi, sumOut, sumSf, sumG, -1, "", ""));
             setRecyclerViewVisible();
         } else if (!waivers) {
             setEmptyViewVisible();
@@ -398,7 +400,7 @@ public class TeamFragment extends Fragment
 
     public void addPlayers(List<Player> newPlayers) {
         if (mPlayers.isEmpty()) {
-            mPlayers.add(new Player("Total", teamSelected, 2));
+            mPlayers.add(new Player("Total", teamName, 2, -1, "", ""));
             setRecyclerViewVisible();
         }
         int position = mPlayers.size() - 1;
@@ -451,7 +453,8 @@ public class TeamFragment extends Fragment
             case R.id.action_edit_lineup:
                 Intent setLineupIntent = new Intent(getActivity(), SetLineupActivity.class);
                 Bundle b = new Bundle();
-                b.putString("team", teamSelected);
+                b.putString("team_name", teamName);
+                b.putString("team_id", teamID);
                 b.putBoolean("ingame", false);
                 setLineupIntent.putExtras(b);
                 startActivity(setLineupIntent);
@@ -459,7 +462,7 @@ public class TeamFragment extends Fragment
 
             case R.id.action_remove_players:
                 if (mPlayers.isEmpty()) {
-                    Toast.makeText(getActivity(), teamSelected + " has no players."
+                    Toast.makeText(getActivity(), teamName + " has no players."
                             , Toast.LENGTH_LONG).show();
                 } else {
                     showRemoveAllPlayersDialog();
@@ -492,7 +495,7 @@ public class TeamFragment extends Fragment
     private void showDeleteConfirmationDialog() {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = DeleteConfirmationDialogFragment.newInstance(teamSelected);
+        DialogFragment newFragment = DeleteConfirmationDialogFragment.newInstance(teamName);
         newFragment.show(fragmentTransaction, "");
     }
 
@@ -502,7 +505,7 @@ public class TeamFragment extends Fragment
         } else {
             FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            DialogFragment newFragment = DeleteVsWaiversDialogFragment.newInstance(teamSelected);
+            DialogFragment newFragment = DeleteVsWaiversDialogFragment.newInstance(teamName);
             newFragment.show(fragmentTransaction, "");
         }
     }
@@ -513,27 +516,27 @@ public class TeamFragment extends Fragment
 
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = RemoveAllPlayersDialogFragment.newInstance(teamSelected, isLeague, waivers);
+        DialogFragment newFragment = RemoveAllPlayersDialogFragment.newInstance(teamName, isLeague, waivers);
         newFragment.show(fragmentTransaction, "");
     }
 
     private void editNameDialog() {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = EditNameDialogFragment.newInstance(teamSelected);
+        DialogFragment newFragment = EditNameDialogFragment.newInstance(teamName);
         newFragment.show(fragmentTransaction, "");
     }
 
     public void deleteTeam() {
         if (mCurrentTeamUri != null) {
             String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
-            String[] selectionArgs = new String[]{firestoreID};
+            String[] selectionArgs = new String[]{teamID};
             int rowsDeleted = getActivity().getContentResolver().delete(mCurrentTeamUri, selection, selectionArgs);
 
             if (rowsDeleted > 0) {
-                Toast.makeText(getActivity(), teamSelected + " " + getString(R.string.editor_delete_player_successful),
+                Toast.makeText(getActivity(), teamName + " " + getString(R.string.editor_delete_player_successful),
                         Toast.LENGTH_SHORT).show();
-                new FirestoreHelper(getActivity(), mSelectionID).addDeletion(firestoreID, 0, teamSelected, -1, teamSelected);
+                new FirestoreHelper(getActivity(), mSelectionID).addDeletion(teamID, 0, teamName, -1, teamName);
             } else {
                 Toast.makeText(getActivity(), getString(R.string.editor_delete_team_failed),
                         Toast.LENGTH_SHORT).show();
@@ -557,7 +560,7 @@ public class TeamFragment extends Fragment
             String[] selectionArgs = new String[]{firestoreID};
             int deleted = getActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_PLAYERS, selection, selectionArgs);
             if(deleted > 0) {
-                firestoreHelper.addDeletion(firestoreID, 1, name, gender, teamSelected);
+                firestoreHelper.addDeletion(firestoreID, 1, name, gender, teamName);
             }
         }
         clearPlayers();
@@ -586,7 +589,7 @@ public class TeamFragment extends Fragment
                 contentValues, null, null);
         if (rowsUpdated > 0) {
             updatePlayersTeam(team);
-            teamSelected = team;
+            teamName = team;
             FirestoreHelper firestoreHelper = new FirestoreHelper(getActivity(), mSelectionID);
             firestoreHelper.setUpdate(firestoreID, 0);
             firestoreHelper.updateTimeStamps();

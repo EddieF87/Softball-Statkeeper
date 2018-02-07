@@ -298,6 +298,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
             int idIndex = mCursor.getColumnIndex(StatsEntry._ID);
             int genderIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_GENDER);
             int firestoreIDIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
+            int teamfirestoreIDIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_TEAM_FIRESTORE_ID);
 
             String player = mCursor.getString(nameIndex);
             String team = mCursor.getString(teamIndex);
@@ -312,6 +313,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
             int run = mCursor.getInt(runIndex);
             int sf = mCursor.getInt(sfIndex);
             int g = mCursor.getInt(gameIndex);
+            String teamFirestoreID = mCursor.getString(teamfirestoreIDIndex);
             int teamId;
             if (team == null || team.equals(FREE_AGENT) || team.equals("")) {
                 teamId = -1;
@@ -326,7 +328,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
             int playerId = mCursor.getInt(idIndex);
             String firestoreID = mCursor.getString(firestoreIDIndex);
 
-            mPlayers.add(new Player(player, team, gender, sgl, dbl, tpl, hr, bb, run, rbi, out, sf, g, teamId, playerId, firestoreID));
+            mPlayers.add(new Player(player, team, gender, sgl, dbl, tpl, hr, bb, run, rbi, out, sf, g, teamId, playerId, firestoreID, teamFirestoreID));
         }
         if (mPlayers.isEmpty()) {
             rv.setVisibility(View.GONE);

@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.dialogs.ChooseOrCreateTeamDialogFragment;
+import com.example.android.scorekeepdraft1.objects.Team;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,10 +20,10 @@ import java.util.List;
 
 public class SelectTeamRecyclerViewAdapter extends RecyclerView.Adapter<SelectTeamRecyclerViewAdapter.TeamViewHolder> {
 
-    private List<String> mTeams;
+    private List<Team> mTeams;
     private SelectTeamRecyclerViewAdapter.OnAdapterInteractionListener mListener;
 
-    public SelectTeamRecyclerViewAdapter(List<String> teams, ChooseOrCreateTeamDialogFragment fragment) {
+    public SelectTeamRecyclerViewAdapter(List<Team> teams, ChooseOrCreateTeamDialogFragment fragment) {
         mTeams = teams;
         mListener = (SelectTeamRecyclerViewAdapter.OnAdapterInteractionListener) fragment;
     }
@@ -36,7 +37,7 @@ public class SelectTeamRecyclerViewAdapter extends RecyclerView.Adapter<SelectTe
 
     @Override
     public void onBindViewHolder(TeamViewHolder holder, int position) {
-        String team = mTeams.get(position);
+        Team team = mTeams.get(position);
         holder.bindTeam(team);
     }
 
@@ -57,7 +58,7 @@ public class SelectTeamRecyclerViewAdapter extends RecyclerView.Adapter<SelectTe
 
     class TeamViewHolder extends RecyclerView.ViewHolder {
         private TextView mTeamText;
-        private String mTeam;
+        private Team mTeam;
 
         TeamViewHolder(View view) {
             super(view);
@@ -65,9 +66,9 @@ public class SelectTeamRecyclerViewAdapter extends RecyclerView.Adapter<SelectTe
 
         }
 
-        private void bindTeam(String team) {
+        private void bindTeam(Team team) {
             mTeam = team;
-            mTeamText.setText(mTeam);
+            mTeamText.setText(mTeam.getName());
             mTeamText.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -78,6 +79,6 @@ public class SelectTeamRecyclerViewAdapter extends RecyclerView.Adapter<SelectTe
     }
 
     public interface OnAdapterInteractionListener {
-        void onTeamClicked(String team);
+        void onTeamClicked(Team team);
     }
 }

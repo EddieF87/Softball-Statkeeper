@@ -30,6 +30,7 @@ public class StatsDbHelper extends SQLiteOpenHelper {
 
                         StatsEntry.COLUMN_NAME + " TEXT NOT NULL, " +
                         StatsEntry.COLUMN_TEAM + " TEXT DEFAULT 'Free Agent', " +
+                        StatsEntry.COLUMN_TEAM_FIRESTORE_ID + " TEXT DEFAULT '', " +
                         StatsEntry.COLUMN_ORDER + " INTEGER, " +
                         StatsEntry.COLUMN_GENDER + " INTEGER DEFAULT 0, " +
 
@@ -56,6 +57,7 @@ public class StatsDbHelper extends SQLiteOpenHelper {
                         StatsEntry.COLUMN_PLAYERID + " INTEGER NOT NULL, " +
                         StatsEntry.COLUMN_NAME + " TEXT NOT NULL, " +
                         StatsEntry.COLUMN_TEAM + " TEXT DEFAULT 'Free Agent', " +
+                        StatsEntry.COLUMN_TEAM_FIRESTORE_ID + " TEXT DEFAULT '', " +
                         StatsEntry.COLUMN_ORDER + " INTEGER, " +
                         StatsEntry.COLUMN_GENDER + " INTEGER, " +
 

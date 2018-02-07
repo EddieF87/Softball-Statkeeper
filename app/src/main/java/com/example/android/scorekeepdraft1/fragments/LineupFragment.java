@@ -31,7 +31,6 @@ import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.activities.LeagueGameActivity;
-import com.example.android.scorekeepdraft1.activities.LeagueManagerActivity;
 import com.example.android.scorekeepdraft1.activities.TeamGameActivity;
 import com.example.android.scorekeepdraft1.activities.TeamManagerActivity;
 import com.example.android.scorekeepdraft1.activities.UserSettingsActivity;
@@ -44,6 +43,8 @@ import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.example.android.scorekeepdraft1.objects.Player;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import static android.app.Activity.RESULT_OK;
@@ -59,12 +60,14 @@ public class LineupFragment extends Fragment {
 
     private List<Player> mLineup;
     private List<Player> mBench;
-    private String mTeam;
+    private String mTeamName;
+    private String mTeamID;
     private int mType;
     private String mSelectionID;
     private boolean inGame;
 
-    private static final String KEY_TEAM = "team";
+    private static final String KEY_TEAM_NAME = "team_name";
+    private static final String KEY_TEAM_ID = "team_id";
     private static final String KEY_INGAME = "ingame";
 
     public LineupFragment() {
@@ -72,18 +75,18 @@ public class LineupFragment extends Fragment {
     }
 
     public static LineupFragment newInstance(String selectionID, int selectionType,
-                                             String team, boolean isInGame) {
+                                             String teamName, String teamID, boolean isInGame) {
         Bundle args = new Bundle();
         args.putString(MainPageSelection.KEY_SELECTION_ID, selectionID);
         args.putInt(MainPageSelection.KEY_SELECTION_TYPE, selectionType);
-        args.putString(KEY_TEAM, team);
+        args.putString(KEY_TEAM_NAME, teamName);
+        args.putString(KEY_TEAM_ID, teamID);
         args.putBoolean(KEY_INGAME, isInGame);
         LineupFragment fragment = new LineupFragment();
         fragment.setArguments(args);
         return fragment;
     }
 
-    //TODO add player from free agency/other teams
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,7 +95,8 @@ public class LineupFragment extends Fragment {
         if (args != null) {
             mSelectionID = args.getString(MainPageSelection.KEY_SELECTION_ID);
             mType = args.getInt(MainPageSelection.KEY_SELECTION_TYPE);
-            mTeam = args.getString(KEY_TEAM);
+            mTeamName = args.getString(KEY_TEAM_NAME);
+            mTeamID = args.getString(KEY_TEAM_ID);
             inGame = args.getBoolean(KEY_INGAME);
         } else {
             getActivity().finish();
@@ -124,14 +128,14 @@ public class LineupFragment extends Fragment {
         }
 
         final TextView teamNameTextView = rootView.findViewById(R.id.team_name_display);
-        teamNameTextView.setText(mTeam);
+        teamNameTextView.setText(mTeamName);
 
         View addPlayerView = rootView.findViewById(R.id.item_player_adder);
         final FloatingActionButton addPlayersButton = addPlayerView.findViewById(R.id.btn_start_adder);
         addPlayersButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                createTeamFragment(mTeam);
+                createTeamFragment(mTeamName, mTeamID);
             }
         });
 
@@ -140,7 +144,7 @@ public class LineupFragment extends Fragment {
 
     public void onSubmitEdit() {
         if (isLineupOK()) {
-            setNewLineupToTempDB(getPreviousLineup(mTeam));
+            setNewLineupToTempDB(getPreviousLineup(mTeamID));
             Intent intent;
             SharedPreferences gamePreferences = getActivity().getSharedPreferences(mSelectionID + "game", Context.MODE_PRIVATE);
 
@@ -152,21 +156,21 @@ public class LineupFragment extends Fragment {
 
                 switch (sortArgument) {
                     case 3:
-                        if (mTeam.equals(awayTeam)) {
+                        if (mTeamID.equals(awayTeam)) {
                             sortArgument = 2;
-                        } else if (mTeam.equals(homeTeam)) {
+                        } else if (mTeamID.equals(homeTeam)) {
                             sortArgument = 1;
                         }
                         break;
 
                     case 2:
-                        if (mTeam.equals(homeTeam)) {
+                        if (mTeamID.equals(homeTeam)) {
                             sortArgument = 0;
                         }
                         break;
 
                     case 1:
-                        if (mTeam.equals(awayTeam)) {
+                        if (mTeamID.equals(awayTeam)) {
                             sortArgument = 0;
                         }
                         break;
@@ -214,8 +218,8 @@ public class LineupFragment extends Fragment {
 
         String[] projection = new String[]{StatsEntry._ID, StatsEntry.COLUMN_NAME,
                 StatsEntry.COLUMN_ORDER, StatsEntry.COLUMN_GENDER};
-        String selection = StatsEntry.COLUMN_TEAM + "=?";
-        String[] selectionArgs = new String[]{mTeam};
+        String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=?";
+        String[] selectionArgs = new String[]{mTeamID};
         String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
 
         Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS, projection,
@@ -271,10 +275,10 @@ public class LineupFragment extends Fragment {
         updateBenchRV();
     }
 
-    private void createTeamFragment(String team) {
+    private void createTeamFragment(String teamName, String teamID) {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = AddNewPlayersDialogFragment.newInstance(team);
+        DialogFragment newFragment = AddNewPlayersDialogFragment.newInstance(teamName, teamID);
         newFragment.show(fragmentTransaction, "");
     }
 
@@ -320,9 +324,9 @@ public class LineupFragment extends Fragment {
         editor.commit();
     }
 
-    private List<Player> getPreviousLineup(String team) {
-        String selection = StatsEntry.COLUMN_TEAM + "=?";
-        String[] selectionArgs = new String[]{team};
+    private List<Player> getPreviousLineup(String teamID) {
+        String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=?";
+        String[] selectionArgs = new String[]{teamID};
         Cursor playerCursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEMP,
                 null, selection, selectionArgs, null);
 
@@ -339,6 +343,7 @@ public class LineupFragment extends Fragment {
         int playerOutIndex;
         int playerRunIndex;
         int rbiIndex;
+        int teamIndex;
 
         if (playerCursor.moveToFirst()) {
             playerIdIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_PLAYERID);
@@ -354,6 +359,7 @@ public class LineupFragment extends Fragment {
             playerOutIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_OUT);
             playerRunIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_RUN);
             rbiIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_RBI);
+            teamIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_TEAM);
             playerCursor.moveToPrevious();
         } else {
             return null;
@@ -364,6 +370,7 @@ public class LineupFragment extends Fragment {
         while (playerCursor.moveToNext()) {
             Long id = playerCursor.getLong(playerIdIndex);
             String name = playerCursor.getString(playerNameIndex);
+            String teamName = playerCursor.getString(teamIndex);
             int gameRBI = playerCursor.getInt(rbiIndex);
             int gameRun = playerCursor.getInt(playerRunIndex);
             int game1b = playerCursor.getInt(singleIndex);
@@ -376,9 +383,9 @@ public class LineupFragment extends Fragment {
             int gender = playerCursor.getInt(genderIndex);
             String firestoreID = playerCursor.getString(firestoreIdIndex);
 
-            previousLineup.add(new Player(name, team, gender,
+            previousLineup.add(new Player(name, teamName, gender,
                     game1b, game2b, game3b, gameHR,
-                    gameBB, gameRun, gameRBI, gameOuts, gameSF, 0, id, firestoreID));
+                    gameBB, gameRun, gameRBI, gameOuts, gameSF, 0, id, firestoreID, teamID));
             Log.d("xxx", "prev: " + name);
         }
         return previousLineup;
@@ -388,8 +395,8 @@ public class LineupFragment extends Fragment {
 
         List<Player> lineup = getLineup();
 
-        String selection = StatsEntry.COLUMN_TEAM + "=?";
-        String[] selectionArgs = new String[]{mTeam};
+        String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=?";
+        String[] selectionArgs = new String[]{mTeamID};
 
         ContentResolver contentResolver = getActivity().getContentResolver();
         contentResolver.delete(StatsEntry.CONTENT_URI_TEMP, selection, selectionArgs);
@@ -406,7 +413,8 @@ public class LineupFragment extends Fragment {
             values.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
             values.put(StatsEntry.COLUMN_PLAYERID, playerId);
             values.put(StatsEntry.COLUMN_NAME, playerName);
-            values.put(StatsEntry.COLUMN_TEAM, mTeam);
+            values.put(StatsEntry.COLUMN_TEAM, mTeamName);
+            values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, mTeamID);
             values.put(StatsEntry.COLUMN_ORDER, i + 1);
             values.put(StatsEntry.COLUMN_GENDER, gender);
 
@@ -436,7 +444,8 @@ public class LineupFragment extends Fragment {
                 values.put(StatsEntry.COLUMN_FIRESTORE_ID, existingPlayer.getFirestoreID());
                 values.put(StatsEntry.COLUMN_PLAYERID, existingPlayer.getPlayerId());
                 values.put(StatsEntry.COLUMN_NAME, existingPlayer.getName());
-                values.put(StatsEntry.COLUMN_TEAM, mTeam);
+                values.put(StatsEntry.COLUMN_TEAM, mTeamName);
+                values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, existingPlayer.getTeamFirestoreID());
                 values.put(StatsEntry.COLUMN_ORDER, 999);
                 values.put(StatsEntry.COLUMN_GENDER, existingPlayer.getGender());
                 values.put(StatsEntry.COLUMN_HR, existingPlayer.getHrs());
@@ -489,7 +498,8 @@ public class LineupFragment extends Fragment {
             values.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
             values.put(StatsEntry.COLUMN_PLAYERID, playerId);
             values.put(StatsEntry.COLUMN_NAME, playerName);
-            values.put(StatsEntry.COLUMN_TEAM, mTeam);
+            values.put(StatsEntry.COLUMN_TEAM, mTeamName);
+            values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, mTeamID);
             values.put(StatsEntry.COLUMN_ORDER, i + 1);
             values.put(StatsEntry.COLUMN_GENDER, gender);
             contentResolver.insert(StatsEntry.CONTENT_URI_TEMP, values);
@@ -521,7 +531,7 @@ public class LineupFragment extends Fragment {
         if (notProperOrder) {
             if (females * requiredFemale >= males) {
                 Toast.makeText(getActivity(),
-                        "Please set " + mTeam + "'s lineup properly or change gender rules",
+                        "Please set " + mTeamName + "'s lineup properly or change gender rules",
                         Toast.LENGTH_LONG).show();
                 return false;
             }
@@ -535,8 +545,8 @@ public class LineupFragment extends Fragment {
         try {
             String[] projection = new String[]{StatsContract.StatsEntry._ID, StatsContract.StatsEntry.COLUMN_ORDER,
                     StatsEntry.COLUMN_GENDER, StatsEntry.COLUMN_NAME, StatsEntry.COLUMN_FIRESTORE_ID};
-            String selection = StatsContract.StatsEntry.COLUMN_TEAM + "=?";
-            String[] selectionArgs = new String[]{mTeam};
+            String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=?";
+            String[] selectionArgs = new String[]{mTeamID};
             String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
 
             Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS, projection,
@@ -555,7 +565,7 @@ public class LineupFragment extends Fragment {
 
                 int order = cursor.getInt(orderIndex);
                 if (order < 50) {
-                    lineup.add(new Player(playerName, mTeam, gender, id, firestoreID));
+                    lineup.add(new Player(playerName, mTeamName, gender, id, firestoreID, mTeamID));
                 }
             }
             cursor.close();
@@ -680,7 +690,7 @@ public class LineupFragment extends Fragment {
                 Activity activity = getActivity();
                 if (activity instanceof TeamManagerActivity) {
                     TeamManagerActivity teamManagerActivity = (TeamManagerActivity) activity;
-                    teamManagerActivity.startExport(mTeam);
+                    teamManagerActivity.startExport(mTeamName);
                     return true;
                 }
                 return false;

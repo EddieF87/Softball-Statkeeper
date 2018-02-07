@@ -81,15 +81,17 @@ public class LineupEditor {
         int idIndex = cursor.getColumnIndex(StatsEntry._ID);
         int genderIndex = cursor.getColumnIndex(StatsEntry.COLUMN_GENDER);
         int firestoreIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
+        int teamFirestoreIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_TEAM_FIRESTORE_ID);
 
         ArrayList<Player> team = new ArrayList<>();
         while (cursor.moveToNext()) {
             int playerId = cursor.getInt(idIndex);
             String playerName = cursor.getString(nameIndex);
             String firestoreID = cursor.getString(firestoreIDIndex);
+            String teamFirestoreID = cursor.getString(teamFirestoreIDIndex);
             int gender = cursor.getInt(genderIndex);
 
-            team.add(new Player(playerName, teamName, gender, playerId, firestoreID));
+            team.add(new Player(playerName, teamName, gender, playerId, firestoreID, teamFirestoreID));
         }
         return team;
     }

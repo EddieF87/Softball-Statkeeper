@@ -43,6 +43,7 @@ import com.example.android.scorekeepdraft1.dialogs.DeleteConfirmationDialogFragm
 import com.example.android.scorekeepdraft1.dialogs.EditNameDialogFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.example.android.scorekeepdraft1.objects.Player;
+import com.example.android.scorekeepdraft1.objects.Team;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -61,6 +62,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     private String teamString;
     private String playerName;
     private String firestoreID;
+    private String teamFirestoreID;
     private int gender;
     private static final String KEY_PLAYER_URI = "playerURI";
     private int selectionType;
@@ -158,6 +160,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             int sfIndex = cursor.getColumnIndex(StatsEntry.COLUMN_SF);
             int gameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_G);
             int firestoreIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
+            int teamFirestoreIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_TEAM_FIRESTORE_ID);
 
             playerName = cursor.getString(nameIndex);
             teamString = cursor.getString(teamIndex);
@@ -173,9 +176,10 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             int sf = cursor.getInt(sfIndex);
             int g = cursor.getInt(gameIndex);
             firestoreID = cursor.getString(firestoreIDIndex);
+            teamFirestoreID = cursor.getString(teamFirestoreIDIndex);
 
             Player player = new Player(playerName, teamString, gender, sgl, dbl, tpl, hr, bb,
-                    run, rbi, out, sf, g, 0, firestoreID);
+                    run, rbi, out, sf, g, 0, firestoreID, teamFirestoreID);
 
             TextView abView = rootView.findViewById(R.id.playerboard_ab);
             TextView hitView = rootView.findViewById(R.id.playerboard_hit);
@@ -196,15 +200,15 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 teamView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if (teamString != null) {
+                        if (teamFirestoreID != null) {
                             Intent intent;
-                            String selection = StatsEntry.COLUMN_NAME + "=?";
-                            String[] selectionArgs = new String[]{teamString};
+                            String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
+                            String[] selectionArgs = new String[]{teamFirestoreID};
                             Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
                                     null, selection, selectionArgs, null);
                             if (cursor.moveToFirst()) {
-                                int playerId = cursor.getInt(cursor.getColumnIndex(StatsEntry._ID));
-                                Uri teamUri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_TEAMS, playerId);
+                                int teamId = cursor.getInt(cursor.getColumnIndex(StatsEntry._ID));
+                                Uri teamUri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_TEAMS, teamId);
                                 intent = new Intent(getActivity(), TeamPagerActivity.class);
                                 intent.setData(teamUri);
                             } else {
@@ -517,18 +521,21 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     }
 
     private void changeTeamDialog() {
-        ArrayList<String> teams = new ArrayList<>();
+        ArrayList<Team> teams = new ArrayList<>();
 
         String sortOrder = StatsEntry.COLUMN_NAME + " COLLATE NOCASE ASC";
         Cursor mCursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
-                new String[]{StatsEntry.COLUMN_NAME}, null, null, sortOrder);
+                new String[]{StatsEntry.COLUMN_NAME, StatsEntry.COLUMN_FIRESTORE_ID},
+                null, null, sortOrder);
 
         while (mCursor.moveToNext()) {
             int teamNameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
             String teamName = mCursor.getString(teamNameIndex);
-            teams.add(teamName);
+            int teamIDIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
+            String firestoreID = mCursor.getString(teamIDIndex);
+            teams.add(new Team(teamName, firestoreID));
         }
-        teams.add(getString(R.string.waivers));
+        teams.add(new Team(getString(R.string.waivers), ""));
 
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -572,9 +579,10 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         return rowsUpdated > 0;
     }
 
-    public void updatePlayerTeam(String team) {
+    public void updatePlayerTeam(String newTeamName, String newTeamFirestoreID) {
         ContentValues contentValues = new ContentValues();
-        contentValues.put(StatsEntry.COLUMN_TEAM, team);
+        contentValues.put(StatsEntry.COLUMN_TEAM, newTeamName);
+        contentValues.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, newTeamFirestoreID);
         contentValues.put(StatsEntry.COLUMN_ORDER, 99);
         contentValues.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
         getActivity().getContentResolver().update(mCurrentPlayerUri, contentValues, null, null);

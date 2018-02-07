@@ -237,7 +237,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             long playerId = player.getPlayerId();
             nameView.setTag(playerId);
 
-            int teamId = player.getTeamId();
+            int teamId = player.getTeamSQLID();
             teamView.setTag(teamId);
 
             if (!isTeam) {
