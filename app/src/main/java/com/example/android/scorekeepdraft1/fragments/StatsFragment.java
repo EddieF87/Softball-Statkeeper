@@ -133,18 +133,21 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         rootView.findViewById(R.id.game_title).setOnClickListener(this);
 
         mCursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
-                new String[]{StatsEntry._ID, StatsEntry.COLUMN_NAME},
+                new String[]{StatsEntry._ID, StatsEntry.COLUMN_NAME, StatsEntry.COLUMN_FIRESTORE_ID},
                 null, null, StatsEntry.COLUMN_NAME + " COLLATE NOCASE");
 
         teamsArray = new ArrayList<>();
         teamsArray.add(ALL_TEAMS);
         teamIDs = new HashMap<>();
+        teamIDs.put("FA", -1);
         while (mCursor.moveToNext()) {
             int teamNameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
             String teamName = mCursor.getString(teamNameIndex);
+            int firestoreIDIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
+            String firestoreID = mCursor.getString(firestoreIDIndex);
             int idIndex = mCursor.getColumnIndex(StatsEntry._ID);
             int id = mCursor.getInt(idIndex);
-            teamIDs.put(teamName, id);
+            teamIDs.put(firestoreID, id);
             teamsArray.add(teamName);
         }
         teamsArray.add(FREE_AGENT);
@@ -319,7 +322,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
                 teamId = -1;
             } else {
                 try {
-                    teamId = teamIDs.get(team);
+                    teamId = teamIDs.get(teamFirestoreID);
                 } catch (Exception e) {
                     teamId = -1;
                     Log.e("xxx", " error with teamIDs.get(team): " + teamId + "  " + team);
@@ -447,11 +450,12 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         updateStatsRV();
     }
 
-    public void updateTeams(String team, int id) {
+    public void updateTeams(String team, int id, String firestoreID) {
         if (teamIDs == null) {
             teamIDs = new HashMap<>();
+            teamIDs.put("FA", -1);
         }
-        teamIDs.put(team, id);
+        teamIDs.put(firestoreID, id);
 
         if(mSpinnerAdapter == null || teamsArray == null) {
             return;

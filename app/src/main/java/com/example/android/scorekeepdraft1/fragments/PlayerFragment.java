@@ -204,17 +204,21 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                             Intent intent;
                             String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
                             String[] selectionArgs = new String[]{teamFirestoreID};
-                            Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
-                                    null, selection, selectionArgs, null);
-                            if (cursor.moveToFirst()) {
-                                int teamId = cursor.getInt(cursor.getColumnIndex(StatsEntry._ID));
-                                Uri teamUri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_TEAMS, teamId);
+                            if(teamFirestoreID.equals("FA")) {
                                 intent = new Intent(getActivity(), TeamPagerActivity.class);
-                                intent.setData(teamUri);
                             } else {
-                                intent = new Intent(getActivity(), LeagueManagerActivity.class);
+                                Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
+                                        null, selection, selectionArgs, null);
+                                if (cursor.moveToFirst()) {
+                                    int teamId = cursor.getInt(cursor.getColumnIndex(StatsEntry._ID));
+                                    Uri teamUri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_TEAMS, teamId);
+                                    intent = new Intent(getActivity(), TeamPagerActivity.class);
+                                    intent.setData(teamUri);
+                                } else {
+                                    intent = new Intent(getActivity(), LeagueManagerActivity.class);
+                                }
+                                cursor.close();
                             }
-                            cursor.close();
                             startActivity(intent);
                         } else {
                             Log.d("PlayerActivity", "Error going to team page");
@@ -535,11 +539,11 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             String firestoreID = mCursor.getString(teamIDIndex);
             teams.add(new Team(teamName, firestoreID));
         }
-        teams.add(new Team(getString(R.string.waivers), ""));
+        teams.add(new Team(getString(R.string.waivers), "FA"));
 
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = ChangeTeamDialogFragment.newInstance(teams, playerName);
+        DialogFragment newFragment = ChangeTeamDialogFragment.newInstance(teams, playerName, firestoreID);
         newFragment.show(fragmentTransaction, "");
     }
 
@@ -550,20 +554,14 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             String[] selectionArgs = new String[]{firestoreID};
             int rowsDeleted = getActivity().getContentResolver().delete(mCurrentPlayerUri, selection, selectionArgs);
             if (rowsDeleted > 0) {
-                String team;
-                if(teamString == null) {
-                    team = "Free Agent";
-                } else {
-                    team = teamString;
-                }
-                firestoreHelper.addDeletion(firestoreID, 1, playerName, gender, team);
+                firestoreHelper.addDeletion(firestoreID, 1, playerName, gender, teamFirestoreID);
                 Toast.makeText(getActivity(), playerName + " " + getString(R.string.editor_delete_player_successful), Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(getActivity(), getString(R.string.editor_delete_player_failed), Toast.LENGTH_SHORT).show();
             }
         }
         if (getActivity() instanceof PlayerPagerActivity) {
-            ((PlayerPagerActivity) getActivity()).returnDeleteResult(Activity.RESULT_OK, playerName);
+            ((PlayerPagerActivity) getActivity()).returnDeleteResult(Activity.RESULT_OK, firestoreID);
         }
         ;
     }
@@ -577,21 +575,6 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         int rowsUpdated = getActivity().getContentResolver().update(mCurrentPlayerUri, contentValues, null, null);
         getLoaderManager().restartLoader(EXISTING_PLAYER_LOADER, null, this);
         return rowsUpdated > 0;
-    }
-
-    public void updatePlayerTeam(String newTeamName, String newTeamFirestoreID) {
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(StatsEntry.COLUMN_TEAM, newTeamName);
-        contentValues.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, newTeamFirestoreID);
-        contentValues.put(StatsEntry.COLUMN_ORDER, 99);
-        contentValues.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
-        getActivity().getContentResolver().update(mCurrentPlayerUri, contentValues, null, null);
-
-        if(selectionType != MainPageSelection.TYPE_PLAYER) {
-            FirestoreHelper firestoreHelper = new FirestoreHelper(getActivity(), mSelectionID);
-            firestoreHelper.setUpdate(firestoreID, 1);
-            firestoreHelper.updateTimeStamps();
-        }
     }
 
     private boolean levelAuthorized(int level) {

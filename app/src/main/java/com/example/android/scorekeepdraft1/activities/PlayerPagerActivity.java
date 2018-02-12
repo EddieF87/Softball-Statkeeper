@@ -23,8 +23,7 @@ import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlayerPagerActivity extends ObjectPagerActivity
-        implements ChangeTeamDialogFragment.OnFragmentInteractionListener{
+public class PlayerPagerActivity extends ObjectPagerActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -41,8 +40,8 @@ public class PlayerPagerActivity extends ObjectPagerActivity
 
 
     @Override
-    public void onTeamChosen(String teamName, String teamID) {
-        teamChosen(teamName, teamID);
+    public void onTeamChosen(String playerID, String teamName, String teamID) {
+        super.onTeamChosen(playerID, teamName, teamID);
         Intent intent = getIntent();
         setResult(RESULT_OK, intent);
     }

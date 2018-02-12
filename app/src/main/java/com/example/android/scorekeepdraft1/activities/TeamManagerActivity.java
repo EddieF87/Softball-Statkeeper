@@ -88,6 +88,7 @@ public class TeamManagerActivity extends ExportActivity
             values.put(StatsContract.StatsEntry.COLUMN_GENDER, gender);
             values.put(StatsContract.StatsEntry.COLUMN_TEAM, teamName);
             values.put(StatsContract.StatsEntry.COLUMN_TEAM_FIRESTORE_ID, teamID);
+            values.put("add", true);
             Uri uri = getContentResolver().insert(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, values);
             if (uri != null) {
                 Cursor cursor = getContentResolver().query(uri, null, null,
@@ -215,10 +216,12 @@ public class TeamManagerActivity extends ExportActivity
             super.onActivityResult(requestCode, resultCode, data);
 
             if (requestCode == PlayerStatsAdapter.REQUEST_CODE && resultCode == RESULT_OK) {
+                String deletedPlayer = data.getStringExtra("delete");
                 if (teamFragment != null) {
-                    String deletedPlayer = data.getStringExtra("delete");
-                    teamFragment.removePlayerByName(deletedPlayer);
-                    teamFragment.setNewAdapter();
+                    teamFragment.removePlayerFromTeam(deletedPlayer);
+                }
+                if (lineupFragment != null) {
+                    lineupFragment.removePlayerFromTeam(deletedPlayer);
                 }
             }
         } catch (Exception ex) {

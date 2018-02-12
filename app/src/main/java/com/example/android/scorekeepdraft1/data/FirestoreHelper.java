@@ -297,6 +297,7 @@ public class FirestoreHelper {
                                                     ContentValues values = new ContentValues();
                                                     values.put(StatsEntry.COLUMN_NAME, player.getName());
                                                     values.put(StatsEntry.COLUMN_TEAM, player.getTeam());
+                                                    values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, player.getTeamFirestoreID());
                                                     values.put(StatsEntry.COLUMN_1B, player.getSingles());
                                                     values.put(StatsEntry.COLUMN_2B, player.getDoubles());
                                                     values.put(StatsEntry.COLUMN_3B, player.getTriples());
@@ -316,6 +317,7 @@ public class FirestoreHelper {
                                                         values.put("sync", 0);
                                                         values.put(StatsEntry.COLUMN_NAME, player.getName());
                                                         values.put(StatsEntry.COLUMN_TEAM, player.getTeam());
+                                                        values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, player.getTeamFirestoreID());
                                                         values.put(StatsEntry.COLUMN_GENDER, player.getGender());
                                                         values.put(StatsEntry.COLUMN_FIRESTORE_ID, playerIdString);
                                                         mContext.getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
@@ -780,6 +782,7 @@ public class FirestoreHelper {
         });
     }
 
+    //todo switch teamname with teamfirestoreid
     public void addTeamStatsToDB(String teamName, int teamRuns, int otherTeamRuns) {
         WriteBatch teamBatch = mFirestore.batch();
 

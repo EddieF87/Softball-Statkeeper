@@ -65,7 +65,7 @@ public class TeamFragment extends Fragment
 
     private List<Player> mPlayers;
     private String teamName;
-    private String teamID;
+    private String teamFirestoreID;
     private boolean waivers;
 
     private int statSort;
@@ -186,7 +186,7 @@ public class TeamFragment extends Fragment
             startAdderBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    addPlayersDialog(teamName, teamID);
+                    addPlayersDialog(teamName, teamFirestoreID);
                 }
             });
         } else {
@@ -278,7 +278,7 @@ public class TeamFragment extends Fragment
             int lossIndex = cursor.getColumnIndex(StatsEntry.COLUMN_LOSSES);
             int tieIndex = cursor.getColumnIndex(StatsEntry.COLUMN_TIES);
 
-            teamID = cursor.getString(firestoreIDIndex);
+            teamFirestoreID = cursor.getString(firestoreIDIndex);
             teamName = cursor.getString(nameIndex);
             wins = cursor.getInt(winIndex);
             losses = cursor.getInt(lossIndex);
@@ -294,13 +294,15 @@ public class TeamFragment extends Fragment
 
         if (waivers) {
             teamName = "Free Agent";
+            teamFirestoreID = "FA";
             teamNameView.setText(R.string.waivers);
         } else {
             teamNameView.setText(teamName);
         }
 
-        String selection = StatsEntry.COLUMN_TEAM + "=?";
-        String[] selectionArgs = new String[]{teamName};
+//        String selection = StatsEntry.COLUMN_TEAM + "=?";
+        String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=?";
+        String[] selectionArgs = new String[]{teamFirestoreID};
         String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
 
         cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS,
@@ -454,7 +456,7 @@ public class TeamFragment extends Fragment
                 Intent setLineupIntent = new Intent(getActivity(), SetLineupActivity.class);
                 Bundle b = new Bundle();
                 b.putString("team_name", teamName);
-                b.putString("team_id", teamID);
+                b.putString("team_id", teamFirestoreID);
                 b.putBoolean("ingame", false);
                 setLineupIntent.putExtras(b);
                 startActivity(setLineupIntent);
@@ -530,13 +532,13 @@ public class TeamFragment extends Fragment
     public void deleteTeam() {
         if (mCurrentTeamUri != null) {
             String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
-            String[] selectionArgs = new String[]{teamID};
+            String[] selectionArgs = new String[]{teamFirestoreID};
             int rowsDeleted = getActivity().getContentResolver().delete(mCurrentTeamUri, selection, selectionArgs);
 
             if (rowsDeleted > 0) {
                 Toast.makeText(getActivity(), teamName + " " + getString(R.string.editor_delete_player_successful),
                         Toast.LENGTH_SHORT).show();
-                new FirestoreHelper(getActivity(), mSelectionID).addDeletion(teamID, 0, teamName, -1, teamName);
+                new FirestoreHelper(getActivity(), mSelectionID).addDeletion(teamFirestoreID, 0, teamName, -1, teamName);
             } else {
                 Toast.makeText(getActivity(), getString(R.string.editor_delete_team_failed),
                         Toast.LENGTH_SHORT).show();
@@ -560,7 +562,7 @@ public class TeamFragment extends Fragment
             String[] selectionArgs = new String[]{firestoreID};
             int deleted = getActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_PLAYERS, selection, selectionArgs);
             if(deleted > 0) {
-                firestoreHelper.addDeletion(firestoreID, 1, name, gender, teamName);
+                firestoreHelper.addDeletion(firestoreID, 1, name, gender, teamFirestoreID);
             }
         }
         clearPlayers();
@@ -588,7 +590,6 @@ public class TeamFragment extends Fragment
         int rowsUpdated = getActivity().getContentResolver().update(mCurrentTeamUri,
                 contentValues, null, null);
         if (rowsUpdated > 0) {
-            updatePlayersTeam(team);
             teamName = team;
             FirestoreHelper firestoreHelper = new FirestoreHelper(getActivity(), mSelectionID);
             firestoreHelper.setUpdate(firestoreID, 0);
@@ -600,19 +601,29 @@ public class TeamFragment extends Fragment
 
     public void updatePlayersTeam(String team) {
         ContentValues contentValues = new ContentValues();
-        contentValues.put(StatsEntry.COLUMN_TEAM, team);
         for (int i = 0; i < mPlayers.size() - 1; i++) {
             Player player = mPlayers.get(i);
             long playerID = player.getPlayerId();
             String firestoreID = player.getFirestoreID();
 
             contentValues.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
+            contentValues.put(StatsEntry.COLUMN_TEAM, team);
+
+            if(team.equals("Free Agent")) {
+                contentValues.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, "FA");
+                FirestoreHelper firestoreHelper = new FirestoreHelper(getActivity(), mSelectionID);
+                firestoreHelper.setUpdate(firestoreID, 1);
+            }
 
             Uri playerURI = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_PLAYERS, playerID);
             getActivity().getContentResolver().update(playerURI, contentValues, null, null);
-            FirestoreHelper firestoreHelper = new FirestoreHelper(getActivity(), mSelectionID);
-            firestoreHelper.setUpdate(firestoreID, 1);
+
         }
+        updateTeamRV();
+    }
+
+    public void removePlayerFromTeam(String playerFirestoreID) {
+        mPlayers.remove(new Player(null, -1, playerFirestoreID));
         updateTeamRV();
     }
 

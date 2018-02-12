@@ -108,6 +108,8 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        Log.d("qqq", "onCreate MatchupFragment");
+
         Bundle args = getArguments();
         leagueID = args.getString(MainPageSelection.KEY_SELECTION_ID);
         leagueName = args.getString(MainPageSelection.KEY_SELECTION_NAME);
@@ -253,6 +255,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
             }
         });
         getLoaderManager().restartLoader(MATCHUP_LOADER, null, this);
+        Log.d("qqq", "getLoaderManager restartLoader");
 
         return rootView;
     }
@@ -391,9 +394,12 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        Log.d("qqq", "onItemSelected");
         String teamName;
         String teamID;
         if (view == null) {
+            Log.d("qqq", "view == null");
+
             if (parent.getId() == R.id.awayteam_spinner) {
                 if (awayTeamName != null) {
                     List<Player> playerList = getLineup(awayTeamName, awayTeamID);
@@ -419,9 +425,11 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         if (parent.getId() == R.id.awayteam_spinner) {
             awayTeamName = teamName;
             awayTeamID = teamID;
+            Log.d("qqq", "parent.getId() == R.id.awayteam_spinner" + awayTeamName + awayTeamID);
         } else if (parent.getId() == R.id.hometeam_spinner) {
             homeTeamName = teamName;
             homeTeamID = teamID;
+            Log.d("qqq", "parent.getId() == R.id.hometeam_spinner" + homeTeamName + homeTeamID);
         } else {
             Toast.makeText(getActivity(), "onItemSelected error ", Toast.LENGTH_SHORT).show();
         }
@@ -434,9 +442,11 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         if (parent.getId() == R.id.awayteam_spinner) {
             updateRVs(rvAway, playerList);
             key = KEY_AWAY_STATE;
+            Log.d("qqq", "update Away RV");
         } else {
             updateRVs(rvHome, playerList);
             key = KEY_HOME_STATE;
+            Log.d("qqq", "update Home RV");
         }
         editor = spinnerStates.edit();
         editor.putInt(key, position);
@@ -448,6 +458,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == LINEUP_REQUEST && resultCode == getActivity().RESULT_OK) {
             getLoaderManager().restartLoader(MATCHUP_LOADER, null, this);
+            Log.d("qqq", "getLoaderManager restartLoader");
         }
 
     }
@@ -678,7 +689,10 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                 .getSharedPreferences(SPINNER_STATE, Context.MODE_PRIVATE);
         awayTeamSpinner.setAdapter(getSpinnerAdapter(R.layout.spinner_matchup_left, cursor));
         homeTeamSpinner.setAdapter(getSpinnerAdapter(R.layout.spinner_matchup, cursor));
+        Log.d("qqq", "homeTeamSpinner.setOnItemSelectedListener(this);");
         awayTeamSpinner.setOnItemSelectedListener(this);
+        Log.d("qqq", "awayTeamSpinner.setOnItemSelectedListener(this);");
+
         homeTeamSpinner.setOnItemSelectedListener(this);
         int awayIndex = spinnerStates.getInt(KEY_AWAY_STATE, 0);
         int homeIndex = spinnerStates.getInt(KEY_HOME_STATE, 1);

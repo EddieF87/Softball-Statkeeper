@@ -213,11 +213,20 @@ public class LineupFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        mLineup = new ArrayList<>();
-        mBench = new ArrayList<>();
+        if (mLineup == null) {
+            mLineup = new ArrayList<>();
+        } else {
+            mLineup.clear();
+        }
+
+        if(mBench == null) {
+            mBench = new ArrayList<>();
+        } else {
+            mBench.clear();
+        }
 
         String[] projection = new String[]{StatsEntry._ID, StatsEntry.COLUMN_NAME,
-                StatsEntry.COLUMN_ORDER, StatsEntry.COLUMN_GENDER};
+                StatsEntry.COLUMN_ORDER, StatsEntry.COLUMN_GENDER, StatsEntry.COLUMN_FIRESTORE_ID};
         String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=?";
         String[] selectionArgs = new String[]{mTeamID};
         String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
@@ -227,11 +236,13 @@ public class LineupFragment extends Fragment {
 
         while (cursor.moveToNext()) {
             int nameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_NAME);
+            int firestoreIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
             int orderIndex = cursor.getColumnIndex(StatsEntry.COLUMN_ORDER);
             int genderIndex = cursor.getColumnIndex(StatsEntry.COLUMN_GENDER);
             String playerName = cursor.getString(nameIndex);
+            String firestoreID = cursor.getString(firestoreIDIndex);
             int gender = cursor.getInt(genderIndex);
-            Player player = new Player(playerName, gender);
+            Player player = new Player(playerName, gender, firestoreID);
             int playerOrder = cursor.getInt(orderIndex);
             if (playerOrder > 50) {
                 mBench.add(player);
@@ -696,5 +707,23 @@ public class LineupFragment extends Fragment {
                 return false;
         }
         return false;
+    }
+
+    public void removePlayerFromTeam(String playerFirestoreID){
+
+        Player player = new Player(null, -1, playerFirestoreID);
+
+        if(mLineup.contains(player)) {
+            mLineup.remove(player);
+            updateLineupRV();
+
+        } else if(mBench.contains(player)) {
+            mBench.remove(player);
+            updateBenchRV();
+
+        } else {
+            Log.d("xxx", "error with lineupFragment removePlayerFromTeam");
+        }
+
     }
 }

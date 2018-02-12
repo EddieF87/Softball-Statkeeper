@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.ViewGroup;
 
 import com.example.android.scorekeepdraft1.MyApp;
@@ -44,6 +45,7 @@ public class LeagueManagerActivity extends ExportActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manager_pager);
 
+        Log.d("qqq", "onCreate LeagueManager");
         try {
             MyApp myApp = (MyApp) getApplicationContext();
             MainPageSelection mainPageSelection = myApp.getCurrentSelection();leagueName = mainPageSelection.getName();
@@ -175,9 +177,11 @@ public class LeagueManagerActivity extends ExportActivity
             Cursor cursor = getContentResolver().query(StatsContract.StatsEntry.CONTENT_URI_TEAMS,
                     null, selection, selectionArgs, null);
             if (cursor.moveToFirst()) {
-                int idIndex = cursor.getColumnIndex(StatsContract.StatsEntry._ID);
+                int idIndex = cursor.getColumnIndex(StatsEntry._ID);
+                int firestoreIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
                 int id = cursor.getInt(idIndex);
-                statsFragment.updateTeams(team, id);
+                String firestoreID = cursor.getString(firestoreIDIndex);
+                statsFragment.updateTeams(team, id, firestoreID);
             }
         }
         new FirestoreHelper(this, leagueID).updateTimeStamps();

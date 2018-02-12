@@ -411,6 +411,17 @@ public class StatsProvider extends ContentProvider {
         switch (match) {
             case PLAYERS:
                 table = StatsEntry.PLAYERS_TABLE_NAME;
+                if(!values.containsKey(StatsEntry.COLUMN_FIRESTORE_ID)) {
+                    break;
+                }
+                firestoreID = values.getAsString(StatsEntry.COLUMN_FIRESTORE_ID);
+                mFirestore = FirebaseFirestore.getInstance();
+                documentReference = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION).document(leagueID)
+                        .collection(FirestoreHelper.PLAYERS_COLLECTION).document(firestoreID);
+                if (values.containsKey(StatsEntry.COLUMN_TEAM_FIRESTORE_ID)) {
+                    String teamFirestoreID = values.getAsString(StatsEntry.COLUMN_TEAM_FIRESTORE_ID);
+                    documentReference.update("team", teamFirestoreID);
+                }
                 break;
             case PLAYERS_ID:
                 selection = StatsEntry._ID + "=?";
@@ -431,9 +442,9 @@ public class StatsProvider extends ContentProvider {
                 if (values.containsKey(StatsEntry.COLUMN_NAME)) {
                     String playerName = values.getAsString(StatsEntry.COLUMN_NAME);
                     documentReference.update("name", playerName);
-                } else if (values.containsKey(StatsEntry.COLUMN_TEAM)) {
-                    String teamName = values.getAsString(StatsEntry.COLUMN_TEAM);
-                    documentReference.update("team", teamName);
+                } else if (values.containsKey(StatsEntry.COLUMN_TEAM_FIRESTORE_ID)) {
+                    String teamFirestoreID = values.getAsString(StatsEntry.COLUMN_TEAM_FIRESTORE_ID);
+                    documentReference.update("team", teamFirestoreID);
                 }
                 break;
             case TEAMS:

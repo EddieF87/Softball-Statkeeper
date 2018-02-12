@@ -18,9 +18,9 @@ import android.view.ViewGroup;
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.data.FirestoreHelper;
-import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.dialogs.AddNewPlayersDialogFragment;
+import com.example.android.scorekeepdraft1.dialogs.ChangeTeamDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.DeleteConfirmationDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.DeleteVsWaiversDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.EditNameDialogFragment;
@@ -40,7 +40,8 @@ public class ObjectPagerActivity extends AppCompatActivity
         DeleteConfirmationDialogFragment.OnFragmentInteractionListener,
         DeleteVsWaiversDialogFragment.OnFragmentInteractionListener,
         RemoveAllPlayersDialogFragment.OnFragmentInteractionListener,
-        EditNameDialogFragment.OnFragmentInteractionListener {
+        EditNameDialogFragment.OnFragmentInteractionListener,
+        ChangeTeamDialogFragment.OnFragmentInteractionListener{
 
     private List<Integer> objectIDs;
     private ViewPager mViewPager;
@@ -62,20 +63,7 @@ public class ObjectPagerActivity extends AppCompatActivity
 
     protected void startPager(int objectType,  Uri uri) {
 
-
-        try {
-            MyApp myApp = (MyApp) getApplicationContext();
-            MainPageSelection mainPageSelection = myApp.getCurrentSelection();
-            selectionType = mainPageSelection.getType();
-            selectionName = mainPageSelection.getName();
-            selectionID = mainPageSelection.getId();
-            level = mainPageSelection.getLevel();
-        } catch (Exception e) {
-            Intent intent = new Intent(ObjectPagerActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
-        }
-
+        setLeagueInfo();
 
         mObjectType = objectType;
         mUri = uri;
@@ -121,6 +109,21 @@ public class ObjectPagerActivity extends AppCompatActivity
         }
     }
 
+    private void setLeagueInfo() {
+        try {
+            MyApp myApp = (MyApp) getApplicationContext();
+            MainPageSelection mainPageSelection = myApp.getCurrentSelection();
+            selectionType = mainPageSelection.getType();
+            selectionName = mainPageSelection.getName();
+            selectionID = mainPageSelection.getId();
+            level = mainPageSelection.getLevel();
+        } catch (Exception e) {
+            Intent intent = new Intent(ObjectPagerActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        }
+    }
+
     @Override
     public void onSubmitPlayersListener(List<String> names, List<Integer> genders, String teamName, String teamID) {
         List<Player> players = new ArrayList<>();
@@ -137,6 +140,7 @@ public class ObjectPagerActivity extends AppCompatActivity
             values.put(StatsEntry.COLUMN_ORDER, 99);
             values.put(StatsEntry.COLUMN_TEAM, teamName);
             values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, teamID);
+            values.put("add", true);
             Uri uri = getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
             if (uri != null) {
                 Cursor cursor = getContentResolver().query(uri, null, null,
@@ -211,18 +215,6 @@ public class ObjectPagerActivity extends AppCompatActivity
         }
     }
 
-    public void teamChosen(String teamName, String teamID) {
-        int pos = mViewPager.getCurrentItem();
-
-        if (mObjectType == KEY_PLAYER_PAGER) {
-            PlayerFragment playerFragment = (PlayerFragment) mAdapter.getRegisteredFragment(pos);
-            if (playerFragment != null) {
-                playerFragment.updatePlayerTeam(teamName, teamID);
-            }
-        }
-        new FirestoreHelper(this, selectionID).updateTimeStamps();
-    }
-
     @Override
     public void onRemoveChoice(int choice) {
         if (mObjectType != KEY_TEAM_PAGER){
@@ -262,6 +254,36 @@ public class ObjectPagerActivity extends AppCompatActivity
         }
 
         if(update) {
+            new FirestoreHelper(this, selectionID).updateTimeStamps();
+        }
+    }
+
+    @Override
+    public void onTeamChosen(String playerFirestoreID, String teamName, String teamFirestoreID) {
+        int pos = mViewPager.getCurrentItem();
+
+        String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
+        String[] selectionArgs = new String[]{playerFirestoreID};
+
+        ContentValues values = new ContentValues();
+        values.put(StatsEntry.COLUMN_TEAM, teamName);
+        values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, teamFirestoreID);
+        values.put(StatsEntry.COLUMN_ORDER, 99);
+        values.put(StatsEntry.COLUMN_FIRESTORE_ID, playerFirestoreID);
+        getContentResolver().update(StatsEntry.CONTENT_URI_PLAYERS, values, selection, selectionArgs);
+
+        if(selectionID == null) {
+            setLeagueInfo();
+        }
+        FirestoreHelper firestoreHelper = new FirestoreHelper(ObjectPagerActivity.this, selectionID);
+        firestoreHelper.setUpdate(playerFirestoreID, 1);
+        firestoreHelper.updateTimeStamps();
+
+        if (mObjectType == KEY_TEAM_PAGER) {
+            TeamFragment teamFragment = (TeamFragment) mAdapter.getRegisteredFragment(pos);
+            if (teamFragment != null) {
+                teamFragment.removePlayerFromTeam(playerFirestoreID);
+            }
             new FirestoreHelper(this, selectionID).updateTimeStamps();
         }
     }

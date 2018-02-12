@@ -21,20 +21,24 @@ import java.util.Map;
 public class ChangeTeamDialogFragment extends DialogFragment {
 
     private List<Team> mTeams;
-    private String player;
+    private String playerName;
+    private String playerFirestoreID;
     private static final String KEY_TEAMS = "teams";
-    private static final String KEY_PLAYER = "player";
+    private static final String KEY_PLAYER_NAME = "playername";
+    private static final String KEY_PLAYER_FS_ID = "player_id";
     private OnFragmentInteractionListener mListener;
 
     public ChangeTeamDialogFragment() {
         // Required empty public constructor
     }
 
-    public static ChangeTeamDialogFragment newInstance(ArrayList<Team> teams, String player) {
+    public static ChangeTeamDialogFragment newInstance(ArrayList<Team> teams,
+                                                       String name, String firestoreID) {
 
         Bundle args = new Bundle();
         args.putParcelableArrayList(KEY_TEAMS, teams);
-        args.putString(KEY_PLAYER, player);
+        args.putString(KEY_PLAYER_NAME, name);
+        args.putString(KEY_PLAYER_FS_ID, firestoreID);
 
         ChangeTeamDialogFragment fragment = new ChangeTeamDialogFragment();
         fragment.setArguments(args);
@@ -46,7 +50,8 @@ public class ChangeTeamDialogFragment extends DialogFragment {
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
         mTeams = args.getParcelableArrayList(KEY_TEAMS);
-        player = args.getString(KEY_PLAYER);
+        playerName = args.getString(KEY_PLAYER_NAME);
+        playerFirestoreID = args.getString(KEY_PLAYER_FS_ID);
     }
 
     @NonNull
@@ -54,7 +59,7 @@ public class ChangeTeamDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
         String titleString = getContext().getResources().getString(R.string.edit_player_team);
-        String title = String.format(titleString, player);
+        String title = String.format(titleString, playerName);
 
         final Map<String, String> teamMap = new HashMap<>();
         final List<String> teamNames = new ArrayList<>();
@@ -85,7 +90,7 @@ public class ChangeTeamDialogFragment extends DialogFragment {
 
     public void onButtonPressed(String teamName, String teamID) {
         if (mListener != null) {
-            mListener.onTeamChosen(teamName, teamID);
+            mListener.onTeamChosen(playerFirestoreID, teamName, teamID);
         }
     }
 
@@ -107,6 +112,6 @@ public class ChangeTeamDialogFragment extends DialogFragment {
     }
 
     public interface OnFragmentInteractionListener {
-        void onTeamChosen(String teamName, String teamID);
+        void onTeamChosen(String playerID, String teamName, String teamID);
     }
 }
