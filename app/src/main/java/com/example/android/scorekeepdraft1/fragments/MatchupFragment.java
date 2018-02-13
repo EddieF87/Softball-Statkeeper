@@ -257,6 +257,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         getLoaderManager().restartLoader(MATCHUP_LOADER, null, this);
         Log.d("qqq", "getLoaderManager restartLoader");
 
+        initialization = true;
         return rootView;
     }
 
@@ -280,8 +281,6 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
             continueGameButton.setVisibility(View.GONE);
         }
         cursor.close();
-
-        initialization = true;
     }
 
     private void clearGameDB() {
@@ -468,11 +467,14 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         super.onViewCreated(view, savedInstanceState);
 
         if (awayTeamSpinner.getSelectedItem() == null || homeTeamSpinner.getSelectedItem() == null) {
+            Log.d("qqq", "awayTeamSpinner.getSelectedItem() == null || homeTeamSpinner.getSelectedItem() == nul");
             return;
         }
 
         List<Player> awayList = getLineup(awayTeamName, awayTeamID);
+        Log.d("qqq", "List<Player> awayList = getLineup(" + awayTeamName + "  " + awayTeamID);
         List<Player> homeList = getLineup(homeTeamName, homeTeamID);
+        Log.d("qqq", "List<Player> homeList = getLineup(" + homeTeamName + "  " + homeTeamID);
 
         updateRVs(rvAway, awayList);
         updateRVs(rvHome, homeList);
@@ -481,19 +483,23 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
 
     private void updateRVs(RecyclerView rv, List<Player> playerList) {
         if (initialization) {
+            Log.d("qqq", "initialization");
             updateAwayRV(playerList);
             updateHomeRV(playerList);
             initialization = false;
             return;
         }
         if (rv == rvAway) {
+            Log.d("qqq", "rv == rvAway");
             updateAwayRV(playerList);
         } else if (rv == rvHome) {
+            Log.d("qqq", "rv == rvHome");
             updateHomeRV(playerList);
         }
     }
 
     public void updateAwayRV(List<Player> lineup) {
+        Log.d("qqq", "updateAwayRV");
         if (awayLineup != null) {
             awayLineup.clear();
         } else {
@@ -510,6 +516,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     }
 
     private void initAwayRV() {
+        Log.d("qqq", "initAwayRV");
         int genderSorter = getGenderSorter();
 
         rvAway.setLayoutManager(new LinearLayoutManager(
@@ -520,6 +527,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     }
 
     public void updateHomeRV(List<Player> lineup) {
+        Log.d("qqq", "updateHomeRV");
         if (homeLineup != null) {
             homeLineup.clear();
         } else {
@@ -536,6 +544,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     }
 
     private void initHomeRV() {
+        Log.d("qqq", "initHomeRV");
         int genderSorter = getGenderSorter();
 
         rvHome.setLayoutManager(new LinearLayoutManager(
