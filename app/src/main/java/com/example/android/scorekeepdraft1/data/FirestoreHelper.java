@@ -477,13 +477,13 @@ public class FirestoreHelper {
                                 long gender;
                                 String team;
                                 if (type == 1) {
-                                    gender = (long) data.get("gender");
-                                    team = (String) data.get("team");
+                                    gender = (long) data.get(StatsEntry.COLUMN_GENDER);
+                                    team = (String) data.get(StatsEntry.COLUMN_TEAM_FIRESTORE_ID);
                                 } else {
                                     gender = -1;
                                     team = null;
                                 }
-                                String name = (String) data.get("name");
+                                String name = (String) data.get(StatsEntry.COLUMN_NAME);
                                 String firestoreID = documentSnapshot.getId();
                                 itemMarkedForDeletionList.add(new ItemMarkedForDeletion(firestoreID, type, name, gender, team));
                             }
@@ -501,7 +501,7 @@ public class FirestoreHelper {
                             }
                         } else {
                             Log.d("xxx", "filtered_deletionQueryError");
-                            mListener.onSyncError("deletion");
+                            mListener.onSyncError(DELETION_COLLECTION);
                         }
                     }
                 });

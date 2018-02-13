@@ -96,9 +96,12 @@ public class StatsContract {
 
         public static final String UPDATE = "update";
         public static final String ADD = "add";
+        public static final String DELETE = "delete";
         public static final String SYNC = "sync";
         public static final String EMAIL = "email";
         public static final String LEVEL = "level";
+        public static final String FREE_AGENT = "Free Agent";
+
     }
 
 }

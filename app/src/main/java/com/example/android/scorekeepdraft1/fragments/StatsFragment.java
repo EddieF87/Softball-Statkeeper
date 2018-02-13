@@ -71,7 +71,6 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
     private static final String KEY_STAT_SORT = "keyStatSort";
     private static final String KEY_TEAM_FILTER = "keyTeamFilter";
     private static final String ALL_TEAMS = "All Teams";
-    private static final String FREE_AGENT = "Free Agent";
 
     private HashMap<String, Integer> teamIDs;
 
@@ -150,7 +149,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
             teamIDs.put(firestoreID, id);
             teamsArray.add(teamName);
         }
-        teamsArray.add(FREE_AGENT);
+        teamsArray.add(StatsEntry.FREE_AGENT);
 
         Spinner teamSpinner = rootView.findViewById(R.id.spinner_stats_teams);
         mSpinnerAdapter = new ArrayAdapter<>(getActivity(),
@@ -318,7 +317,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
             int g = mCursor.getInt(gameIndex);
             String teamFirestoreID = mCursor.getString(teamfirestoreIDIndex);
             int teamId;
-            if (team == null || team.equals(FREE_AGENT) || team.equals("")) {
+            if (team == null || team.equals(StatsEntry.FREE_AGENT) || team.equals("")) {
                 teamId = -1;
             } else {
                 try {
@@ -462,9 +461,9 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         }
         teamsArray.add(team);
         Collections.sort(teamsArray, String.CASE_INSENSITIVE_ORDER);
-        teamsArray.remove(FREE_AGENT);
+        teamsArray.remove(StatsEntry.FREE_AGENT);
         teamsArray.remove(ALL_TEAMS);
-        teamsArray.add(teamsArray.size(), FREE_AGENT);
+        teamsArray.add(teamsArray.size(), StatsEntry.FREE_AGENT);
         teamsArray.add(0, ALL_TEAMS);
         mSpinnerAdapter.notifyDataSetChanged();
     }

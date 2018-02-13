@@ -256,7 +256,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             String teamabv;
             boolean FA = false;
 
-            if (team == null || team.equals("Free Agent")) {
+            if (team == null || team.equals(StatsEntry.FREE_AGENT)) {
                 teamabv = "FA";
                 FA = true;
             } else if (team.length() > 2) {

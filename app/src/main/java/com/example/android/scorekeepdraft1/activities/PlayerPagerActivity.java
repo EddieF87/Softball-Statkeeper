@@ -33,7 +33,7 @@ public class PlayerPagerActivity extends ObjectPagerActivity {
 
     public void returnDeleteResult(int result, String deletedPlayer) {
         Intent intent = getIntent();
-        intent.putExtra("delete", deletedPlayer);
+        intent.putExtra(StatsContract.StatsEntry.DELETE, deletedPlayer);
         setResult(result, intent);
         finish();
     }

@@ -10,6 +10,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 
 import com.example.android.scorekeepdraft1.R;
+import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.objects.Team;
 
 import java.util.ArrayList;
@@ -77,7 +78,7 @@ public class ChangeTeamDialogFragment extends DialogFragment {
                         String teamName = teams_array[item].toString();
                         String teamID = teamMap.get(teamName);
                         if (teamName.equals(getString(R.string.waivers))) {
-                            teamName = "Free Agent";
+                            teamName = StatsContract.StatsEntry.FREE_AGENT;
                         }
                         onButtonPressed(teamName, teamID);
                     }

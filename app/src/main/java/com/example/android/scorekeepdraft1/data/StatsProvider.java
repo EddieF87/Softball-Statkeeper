@@ -568,7 +568,7 @@ public class StatsProvider extends ContentProvider {
             return false;
         }
         String name = values.getAsString(StatsEntry.COLUMN_NAME).toLowerCase();
-        List<String> forbiddenNames = new ArrayList<>(Arrays.asList("delete", "total",
+        List<String> forbiddenNames = new ArrayList<>(Arrays.asList(StatsEntry.DELETE, "total",
                 "free agent", "waivers", "all teams"));
         return forbiddenNames.contains(name) || !name.matches("^['\\s\\)\\(a-zA-Z0-9_-]+$");
     }

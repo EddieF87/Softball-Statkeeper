@@ -216,7 +216,7 @@ public class TeamManagerActivity extends ExportActivity
             super.onActivityResult(requestCode, resultCode, data);
 
             if (requestCode == PlayerStatsAdapter.REQUEST_CODE && resultCode == RESULT_OK) {
-                String deletedPlayer = data.getStringExtra("delete");
+                String deletedPlayer = data.getStringExtra(StatsContract.StatsEntry.DELETE);
                 if (teamFragment != null) {
                     teamFragment.removePlayerFromTeam(deletedPlayer);
                 }

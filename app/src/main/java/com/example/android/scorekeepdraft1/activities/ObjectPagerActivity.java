@@ -207,7 +207,7 @@ public class ObjectPagerActivity extends AppCompatActivity
         TeamFragment teamFragment = (TeamFragment) mAdapter.getRegisteredFragment(pos);
 
         if (choice == DeleteVsWaiversDialogFragment.CHOICE_WAIVERS) {
-            teamFragment.updatePlayersTeam("Free Agent");
+            teamFragment.updatePlayersTeam(StatsEntry.FREE_AGENT);
             teamFragment.deleteTeam();
         } else if (choice == DeleteVsWaiversDialogFragment.CHOICE_DELETE) {
             teamFragment.deletePlayers();
@@ -224,7 +224,7 @@ public class ObjectPagerActivity extends AppCompatActivity
         TeamFragment teamFragment = (TeamFragment) mAdapter.getRegisteredFragment(pos);
 
         if (choice == DeleteVsWaiversDialogFragment.CHOICE_WAIVERS) {
-            teamFragment.updatePlayersTeam("Free Agent");
+            teamFragment.updatePlayersTeam(StatsEntry.FREE_AGENT);
             teamFragment.clearPlayers();
             teamFragment.setEmptyViewVisible();
 

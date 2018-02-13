@@ -156,7 +156,7 @@ public class TeamFragment extends Fragment
                 View teamAbvView = titleLayout.findViewById(R.id.team_abv_title);
                 teamAbvView.setVisibility(View.VISIBLE);
             }
-            teamName = "Free Agent";
+            teamName = StatsEntry.FREE_AGENT;
         }
 
 
@@ -301,7 +301,7 @@ public class TeamFragment extends Fragment
         int sumG = wins + losses + ties;
 
         if (waivers) {
-            teamName = "Free Agent";
+            teamName = StatsEntry.FREE_AGENT;
             teamFirestoreID = "FA";
             teamNameView.setText(R.string.waivers);
         } else {
@@ -617,7 +617,7 @@ public class TeamFragment extends Fragment
             contentValues.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
             contentValues.put(StatsEntry.COLUMN_TEAM, team);
 
-            if(team.equals("Free Agent")) {
+            if(team.equals(StatsEntry.FREE_AGENT)) {
                 contentValues.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, "FA");
                 FirestoreHelper firestoreHelper = new FirestoreHelper(getActivity(), mSelectionID);
                 firestoreHelper.setUpdate(firestoreID, 1);
