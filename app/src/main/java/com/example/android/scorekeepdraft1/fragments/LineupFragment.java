@@ -43,8 +43,6 @@ import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.example.android.scorekeepdraft1.objects.Player;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import static android.app.Activity.RESULT_OK;
@@ -456,7 +454,7 @@ public class LineupFragment extends Fragment {
                 values.put(StatsEntry.COLUMN_PLAYERID, existingPlayer.getPlayerId());
                 values.put(StatsEntry.COLUMN_NAME, existingPlayer.getName());
                 values.put(StatsEntry.COLUMN_TEAM, mTeamName);
-                values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, existingPlayer.getTeamFirestoreID());
+                values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, existingPlayer.getTeamfirestoreid());
                 values.put(StatsEntry.COLUMN_ORDER, 999);
                 values.put(StatsEntry.COLUMN_GENDER, existingPlayer.getGender());
                 values.put(StatsEntry.COLUMN_HR, existingPlayer.getHrs());

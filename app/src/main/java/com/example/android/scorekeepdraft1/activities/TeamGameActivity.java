@@ -62,7 +62,6 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameDia
 
     private Cursor playerCursor;
     private Cursor gameCursor;
-    private FirebaseFirestore mFirestore;
     private static final String DIALOG_FINISH = "DialogFinish";
     private static final int REQUEST_FINISH = 0;
 
@@ -957,9 +956,9 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameDia
     private void endGame() {
         FirestoreHelper firestoreHelper = new FirestoreHelper(this, teamID);
         if (isHome) {
-            firestoreHelper.addTeamStatsToDB(homeTeamName, homeTeamRuns, awayTeamRuns);
+            firestoreHelper.addTeamStatsToDB(teamID, homeTeamRuns, awayTeamRuns);
         } else {
-            firestoreHelper.addTeamStatsToDB(awayTeamName, awayTeamRuns, homeTeamRuns);
+            firestoreHelper.addTeamStatsToDB(teamID, awayTeamRuns, homeTeamRuns);
         }
         firestoreHelper.addPlayerStatsToDB();
         firestoreHelper.updateTimeStamps();

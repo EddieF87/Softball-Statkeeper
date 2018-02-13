@@ -26,6 +26,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
@@ -130,6 +131,13 @@ public class FirestoreHelper {
         return updatePreferences.getLong(LAST_UPDATE, 0);
     }
 
+    public void setLocalTimeStamp(long time) {
+        SharedPreferences updatePreferences = mContext.getSharedPreferences(leagueID + UPDATE_SETTINGS, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = updatePreferences.edit();
+        editor.putLong(LAST_UPDATE, time);
+        editor.apply();
+    }
+
     private long getCloudTimeStamp(DocumentSnapshot documentSnapshot) {
         Map<String, Object> data = documentSnapshot.getData();
         long cloudTimeStamp;
@@ -199,7 +207,7 @@ public class FirestoreHelper {
 
     private void updatePlayers(long localTimeStamp) {
         mFirestore.collection(LEAGUE_COLLECTION).document(leagueID).collection(PLAYERS_COLLECTION)
-                .whereGreaterThanOrEqualTo("update", localTimeStamp)
+                .whereGreaterThanOrEqualTo(StatsEntry.UPDATE, localTimeStamp)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -282,7 +290,7 @@ public class FirestoreHelper {
                                                     if (querySnapshot.size() > 0) {
                                                         Log.d("xxx", "writebatch");
                                                         WriteBatch batch = mFirestore.batch();
-                                                        batch.set(docRef, player);
+                                                        batch.set(docRef, player, SetOptions.merge());
 
                                                         for (DocumentSnapshot snapshot : querySnapshot) {
                                                             batch.delete(snapshot.getReference());
@@ -297,7 +305,7 @@ public class FirestoreHelper {
                                                     ContentValues values = new ContentValues();
                                                     values.put(StatsEntry.COLUMN_NAME, player.getName());
                                                     values.put(StatsEntry.COLUMN_TEAM, player.getTeam());
-                                                    values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, player.getTeamFirestoreID());
+                                                    values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, player.getTeamfirestoreid());
                                                     values.put(StatsEntry.COLUMN_1B, player.getSingles());
                                                     values.put(StatsEntry.COLUMN_2B, player.getDoubles());
                                                     values.put(StatsEntry.COLUMN_3B, player.getTriples());
@@ -314,10 +322,10 @@ public class FirestoreHelper {
                                                             values, selection, new String[]{playerIdString});
 
                                                     if (rowsUpdated < 1) {
-                                                        values.put("sync", 0);
+                                                        values.put(StatsEntry.SYNC, true);
                                                         values.put(StatsEntry.COLUMN_NAME, player.getName());
                                                         values.put(StatsEntry.COLUMN_TEAM, player.getTeam());
-                                                        values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, player.getTeamFirestoreID());
+                                                        values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, player.getTeamfirestoreid());
                                                         values.put(StatsEntry.COLUMN_GENDER, player.getGender());
                                                         values.put(StatsEntry.COLUMN_FIRESTORE_ID, playerIdString);
                                                         mContext.getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
@@ -335,12 +343,12 @@ public class FirestoreHelper {
                         }
                     }
                 });
-
     }
 
     private void updateTeams(long localTimeStamp) {
+        Log.d("xxx", "updateTeamsAttempt");
         mFirestore.collection(LEAGUE_COLLECTION).document(leagueID).collection(TEAMS_COLLECTION)
-                .whereGreaterThanOrEqualTo("update", localTimeStamp)
+                .whereGreaterThanOrEqualTo(StatsEntry.UPDATE, localTimeStamp)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -348,6 +356,7 @@ public class FirestoreHelper {
                         if (task.isSuccessful()) {
                             QuerySnapshot querySnapshot = task.getResult();
                             int numberOfTeams = querySnapshot.size();
+                            Log.d("xxx", "teamsUpdating = " + numberOfTeams);
                             mListener.onSyncStart(numberOfTeams, true);
 
                             //loop through teams
@@ -402,7 +411,7 @@ public class FirestoreHelper {
 
                                                     if (querySnapshot.size() > 0) {
                                                         WriteBatch batch = mFirestore.batch();
-                                                        batch.set(docRef, team);
+                                                        batch.set(docRef, team, SetOptions.merge());
 
                                                         for (DocumentSnapshot snapshot : querySnapshot) {
                                                             batch.delete(snapshot.getReference());
@@ -422,9 +431,12 @@ public class FirestoreHelper {
 
                                                     int rowsUpdated = mContext.getContentResolver().update(StatsEntry.CONTENT_URI_TEAMS,
                                                             values, selection, new String[]{teamIdString});
+                                                    Log.d("xxx", "rowsUpdated = " + rowsUpdated);
 
                                                     if (rowsUpdated < 1) {
-                                                        values.put("sync", 0);
+                                                        Log.d("xxx", "inserting");
+                                                        Log.d(TAG, "test:  " + "inserting");
+                                                        values.put(StatsEntry.SYNC, true);
                                                         values.put(StatsEntry.COLUMN_NAME, team.getName());
                                                         values.put(StatsEntry.COLUMN_FIRESTORE_ID, teamIdString);
                                                         mContext.getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
@@ -451,7 +463,7 @@ public class FirestoreHelper {
         Log.d("xxx", "FIRESTORE DELETION CHECK");
         Log.d("xxx", "localTimeStamp = " + localTimeStamp);
 
-        Task<QuerySnapshot> task = mFirestore.collection(LEAGUE_COLLECTION).document(leagueID).collection(DELETION_COLLECTION)
+        mFirestore.collection(LEAGUE_COLLECTION).document(leagueID).collection(DELETION_COLLECTION)
                 .whereGreaterThanOrEqualTo("time", localTimeStamp).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -536,11 +548,11 @@ public class FirestoreHelper {
             } else {
                 collection = PLAYERS_COLLECTION;
                 long gender = item.getGender();
-                data.put("gender", gender);
+                data.put(StatsEntry.COLUMN_GENDER, gender);
                 String team = item.getTeam();
-                data.put("team", team);
+                data.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, team);
             }
-            data.put("name", name);
+            data.put(StatsEntry.COLUMN_NAME, name);
             DocumentReference itemDoc = mFirestore.collection(LEAGUE_COLLECTION)
                     .document(leagueID).collection(collection).document(firestoreID);
             itemDoc.set(data).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -583,7 +595,7 @@ public class FirestoreHelper {
 
         DocumentReference documentReference = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION).document(leagueID)
                 .collection(collection).document(firestoreID);
-        documentReference.update("update", timeStamp).addOnFailureListener(new OnFailureListener() {
+        documentReference.update(StatsEntry.UPDATE, timeStamp).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Log.d("xxx", "updateFailure");
@@ -625,10 +637,10 @@ public class FirestoreHelper {
         long time = System.currentTimeMillis();
         deletion.put("time", time);
         deletion.put("type", type);
-        deletion.put("name", name);
+        deletion.put(StatsEntry.COLUMN_NAME, name);
         if(type == 1) {
-            deletion.put("gender", gender);
-            deletion.put("team", team);
+            deletion.put(StatsEntry.COLUMN_GENDER, gender);
+            deletion.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, team);
         }
 
         deletionDoc.set(deletion);
@@ -782,12 +794,11 @@ public class FirestoreHelper {
         });
     }
 
-    //todo switch teamname with teamfirestoreid
-    public void addTeamStatsToDB(String teamName, int teamRuns, int otherTeamRuns) {
+    public void addTeamStatsToDB(final String teamFirestoreID, int teamRuns, int otherTeamRuns) {
         WriteBatch teamBatch = mFirestore.batch();
 
-        String selection = StatsEntry.COLUMN_NAME + "=?";
-        String[] selectionArgs = {teamName};
+        String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
+        String[] selectionArgs = {teamFirestoreID};
         Cursor cursor = mContext.getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS, null,
                 selection, selectionArgs, null
         );
@@ -806,11 +817,8 @@ public class FirestoreHelper {
         TeamLog teamLog = new TeamLog(teamId, teamRuns, otherTeamRuns);
         backupValues.put(StatsEntry.COLUMN_TEAM_ID, teamId);
 
-        int firestoreIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
-        final String firestoreID = cursor.getString(firestoreIDIndex);
-
         final DocumentReference docRef = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION)
-                .document(leagueID).collection(FirestoreHelper.TEAMS_COLLECTION).document(firestoreID)
+                .document(leagueID).collection(FirestoreHelper.TEAMS_COLLECTION).document(teamFirestoreID)
                 .collection(FirestoreHelper.TEAM_LOGS).document(String.valueOf(logId));
 
         if (teamRuns > otherTeamRuns) {
@@ -844,7 +852,7 @@ public class FirestoreHelper {
         backupValues.put(StatsEntry.COLUMN_RUNSAGAINST, otherTeamRuns);
         cursor.close();
 
-        values.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
+        values.put(StatsEntry.COLUMN_FIRESTORE_ID, teamFirestoreID);
 
         mContext.getContentResolver().update(StatsEntry.CONTENT_URI_TEAMS, values, selection, selectionArgs);
 
@@ -852,7 +860,7 @@ public class FirestoreHelper {
         teamBatch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                setUpdate(firestoreID, 0);
+                setUpdate(teamFirestoreID, 0);
             }
         })
                 .addOnFailureListener(new OnFailureListener() {

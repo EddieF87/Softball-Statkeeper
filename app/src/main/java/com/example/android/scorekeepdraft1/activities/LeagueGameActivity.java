@@ -773,8 +773,8 @@ public class LeagueGameActivity extends AppCompatActivity /*implements LoaderMan
 
     private void endGame() {
         FirestoreHelper firestoreHelper = new FirestoreHelper(this, leagueID);
-        firestoreHelper.addTeamStatsToDB(homeTeamName, homeTeamRuns, awayTeamRuns);
-        firestoreHelper.addTeamStatsToDB(awayTeamName, awayTeamRuns, homeTeamRuns);
+        firestoreHelper.addTeamStatsToDB(homeTeamID, homeTeamRuns, awayTeamRuns);
+        firestoreHelper.addTeamStatsToDB(awayTeamID, awayTeamRuns, homeTeamRuns);
         firestoreHelper.addPlayerStatsToDB();
         firestoreHelper.updateTimeStamps();
 

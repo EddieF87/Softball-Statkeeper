@@ -88,7 +88,7 @@ public class TeamManagerActivity extends ExportActivity
             values.put(StatsContract.StatsEntry.COLUMN_GENDER, gender);
             values.put(StatsContract.StatsEntry.COLUMN_TEAM, teamName);
             values.put(StatsContract.StatsEntry.COLUMN_TEAM_FIRESTORE_ID, teamID);
-            values.put("add", true);
+            values.put(StatsContract.StatsEntry.ADD, true);
             Uri uri = getContentResolver().insert(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, values);
             if (uri != null) {
                 Cursor cursor = getContentResolver().query(uri, null, null,

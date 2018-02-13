@@ -140,7 +140,7 @@ public class ObjectPagerActivity extends AppCompatActivity
             values.put(StatsEntry.COLUMN_ORDER, 99);
             values.put(StatsEntry.COLUMN_TEAM, teamName);
             values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, teamID);
-            values.put("add", true);
+            values.put(StatsEntry.ADD, true);
             Uri uri = getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
             if (uri != null) {
                 Cursor cursor = getContentResolver().query(uri, null, null,

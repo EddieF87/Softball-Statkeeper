@@ -91,6 +91,7 @@ public class StatsProvider extends ContentProvider {
         } else {
             selection = selection + " AND " + StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
         }
+
         SQLiteDatabase database = mOpenHelper.getReadableDatabase();
         Cursor cursor;
         String table;
@@ -179,8 +180,8 @@ public class StatsProvider extends ContentProvider {
                     return null;
                 }
                 table = StatsEntry.PLAYERS_TABLE_NAME;
-                if (values.containsKey("sync")) {
-                    values.remove("sync");
+                if (values.containsKey(StatsEntry.SYNC)) {
+                    values.remove(StatsEntry.SYNC);
                     break;
                 }
                 mFirestore = FirebaseFirestore.getInstance();
@@ -205,12 +206,12 @@ public class StatsProvider extends ContentProvider {
                     playerGender = 0;
                 }
 
-                player.put("name", playerName);
-                player.put("team", playerTeamID);
-                player.put("gender", playerGender);
-                if (values.containsKey("add")) {
-                    values.remove("add");
-                    player.put("update", System.currentTimeMillis());
+                player.put(StatsEntry.COLUMN_NAME, playerName);
+                player.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, playerTeamID);
+                player.put(StatsEntry.COLUMN_GENDER, playerGender);
+                if (values.containsKey(StatsEntry.ADD)) {
+                    values.remove(StatsEntry.ADD);
+                    player.put(StatsEntry.UPDATE, System.currentTimeMillis());
                 }
                 playerDoc.set(player, SetOptions.merge());
 
@@ -224,8 +225,8 @@ public class StatsProvider extends ContentProvider {
                     return null;
                 }
                 table = StatsEntry.TEAMS_TABLE_NAME;
-                if (values.containsKey("sync")) {
-                    values.remove("sync");
+                if (values.containsKey(StatsEntry.SYNC)) {
+                    values.remove(StatsEntry.SYNC);
                     break;
                 }
                 mFirestore = FirebaseFirestore.getInstance();
@@ -240,10 +241,10 @@ public class StatsProvider extends ContentProvider {
 
                 Map<String, Object> team = new HashMap<>();
                 String teamName = values.getAsString(StatsEntry.COLUMN_NAME);
-                team.put("name", teamName);
-                if (values.containsKey("add")) {
-                    values.remove("add");
-                    team.put("update", System.currentTimeMillis());
+                team.put(StatsEntry.COLUMN_NAME, teamName);
+                if (values.containsKey(StatsEntry.ADD)) {
+                    values.remove(StatsEntry.ADD);
+                    team.put(StatsEntry.UPDATE, System.currentTimeMillis());
                 }
                 teamDoc.set(team, SetOptions.merge());
 
@@ -428,8 +429,8 @@ public class StatsProvider extends ContentProvider {
                 long id = ContentUris.parseId(uri);
                 selectionArgs = new String[]{String.valueOf(id)};
                 table = StatsEntry.PLAYERS_TABLE_NAME;
-                if (values.containsKey("sync")) {
-                    values.remove("sync");
+                if (values.containsKey(StatsEntry.SYNC)) {
+                    values.remove(StatsEntry.SYNC);
                 } else if (containsName(StatsEntry.CONTENT_URI_PLAYERS, values, false)) {
                     return -1;
                 }
@@ -459,7 +460,6 @@ public class StatsProvider extends ContentProvider {
                     mFirestore = FirebaseFirestore.getInstance();
 
                     String teamName = values.getAsString(StatsEntry.COLUMN_NAME);
-
                     if (teamName == null) {
                         break;
                     }
@@ -478,8 +478,8 @@ public class StatsProvider extends ContentProvider {
                 selection = StatsEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 table = StatsEntry.TEAMS_TABLE_NAME;
-                if (values.containsKey("sync")) {
-                    values.remove("sync");
+                if (values.containsKey(StatsEntry.SYNC)) {
+                    values.remove(StatsEntry.SYNC);
                 } else if (containsName(StatsEntry.CONTENT_URI_TEAMS, values, true)) {
                     return -1;
                 }
@@ -513,14 +513,20 @@ public class StatsProvider extends ContentProvider {
                 throw new IllegalArgumentException("Update is not supported for " + uri);
         }
         SQLiteDatabase database = mOpenHelper.getWritableDatabase();
-        int rowsUpdated = database.update(table, values, selection, selectionArgs);
-
-        if (rowsUpdated != 0) {
-            getContext().getContentResolver().notifyChange(uri, null);
-        } else {
-            Log.d(TAG, "NRFCUVHURCCUJUJC)");
+        try {
+            int rowsUpdated = database.update(table, values, selection, selectionArgs);
+            if (rowsUpdated != 0) {
+                getContext().getContentResolver().notifyChange(uri, null);
+            } else {
+                if (values.containsKey(StatsEntry.COLUMN_FIRESTORE_ID)) {
+                    Log.d(TAG, "Update error for: " + values.getAsString(StatsEntry.COLUMN_FIRESTORE_ID));
+                }
+                Log.d(TAG, "Update error for unknown firestoreID");
+            }
+            return rowsUpdated;
+        } catch (Exception e) {
+            return -1;
         }
-        return rowsUpdated;
     }
 
     public boolean containsName(Uri uri, ContentValues values, boolean isTeam) {

@@ -85,7 +85,7 @@ public class SetLineupActivity extends SingleFragmentActivity
             values.put(StatsEntry.COLUMN_TEAM, team);
             values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, teamID);
             values.put(StatsEntry.COLUMN_ORDER, 99);
-            values.put("add", 0);
+            values.put(StatsEntry.ADD, true);
             Uri uri = getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
             Player player = new Player(name, team, gender, teamID);
             if (uri != null) {

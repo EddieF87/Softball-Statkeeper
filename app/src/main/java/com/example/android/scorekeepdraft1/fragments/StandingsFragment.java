@@ -211,7 +211,7 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
     public void addTeam(String team) {
         ContentValues values = new ContentValues();
         values.put(StatsEntry.COLUMN_NAME, team);
-        values.put("add", true);
+        values.put(StatsEntry.ADD, true);
         Uri teamUri = getActivity().getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
         new FirestoreHelper(getActivity(), leagueID).updateTimeStamps();
 

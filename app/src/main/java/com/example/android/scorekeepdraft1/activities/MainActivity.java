@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity
                     String id = currentUser.getUid();
 
                     Map<String, Object> userInfo = new HashMap<>();
-                    userInfo.put("email", email);
+                    userInfo.put(StatsEntry.EMAIL, email);
 
                     FirebaseFirestore firestore = FirebaseFirestore.getInstance();
                     firestore.collection(USERS).document(id).set(userInfo);
@@ -147,7 +147,6 @@ public class MainActivity extends AppCompatActivity
                                 String selectionID = documentSnapshot.getId();
                                 String name = documentSnapshot.getString("name");
                                 int type = documentSnapshot.getLong("type").intValue();
-                                Log.d("xxx", "selectionID: " + selectionID + "   name: " + name);
                                 MainPageSelection mainPageSelection = new MainPageSelection(
                                         selectionID, name, type, level);
                                 if (level < -1) {
@@ -342,16 +341,16 @@ public class MainActivity extends AppCompatActivity
                         int level = 5;
 
                         Map<String, Object> firestoreLeagueMap = new HashMap<>();
-                        firestoreLeagueMap.put("name", name);
+                        firestoreLeagueMap.put(StatsEntry.COLUMN_NAME, name);
                         firestoreLeagueMap.put("type", type);
                         firestoreLeagueMap.put(userID, level);
                         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
                         DocumentReference documentReference = firestore.collection(LEAGUE_COLLECTION).document();
                         documentReference.set(firestoreLeagueMap);
                         Map<String, Object> firestoreUserMap = new HashMap<>();
-                        firestoreUserMap.put("level", level);
-                        firestoreUserMap.put("email", userEmail);
-                        firestoreUserMap.put("name", userDisplayName);
+                        firestoreUserMap.put(StatsEntry.LEVEL, level);
+                        firestoreUserMap.put(StatsEntry.EMAIL, userEmail);
+                        firestoreUserMap.put(StatsEntry.COLUMN_NAME, userDisplayName);
                         documentReference.collection(USERS).document(userID).set(firestoreUserMap);
 
                         MyApp myApp = (MyApp) getApplicationContext();
@@ -360,6 +359,7 @@ public class MainActivity extends AppCompatActivity
                         if (type == MainPageSelection.TYPE_TEAM) {
                             ContentValues values = new ContentValues();
                             values.put(StatsEntry.COLUMN_NAME, name);
+                            values.put(StatsEntry.ADD, true);
                             getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
                         } else if (type == MainPageSelection.TYPE_PLAYER) {
                             ContentValues values = new ContentValues();

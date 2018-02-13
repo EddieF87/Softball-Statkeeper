@@ -92,6 +92,13 @@ public class StatsContract {
         public static final String COLUMN_LEAGUE_ID = "leagueid";
         public static final String COLUMN_GENDER = "gender";
         public static final String COLUMN_TEAM_FIRESTORE_ID = "teamfirestoreid";
+
+
+        public static final String UPDATE = "update";
+        public static final String ADD = "add";
+        public static final String SYNC = "sync";
+        public static final String EMAIL = "email";
+        public static final String LEVEL = "level";
     }
 
 }

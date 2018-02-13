@@ -74,6 +74,8 @@ public class LoadingActivity extends AppCompatActivity
 
     @Override
     public void proceedToNext() {
+        Log.d("xxx", "proceedToNext =");
+
         Intent intent;
         switch (mSelectionType) {
             case MainPageSelection.TYPE_LEAGUE:

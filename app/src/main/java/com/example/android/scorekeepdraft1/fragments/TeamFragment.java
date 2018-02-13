@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -252,8 +253,8 @@ public class TeamFragment extends Fragment
         String[] selectionArgs = null;
 
         if (waivers) {
-            selection = StatsEntry.COLUMN_NAME + "=?";
-            selectionArgs = new String[]{"Free Agent"};
+            selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
+            selectionArgs = new String[]{"FA"};
         }
 
         return new CursorLoader(
@@ -268,10 +269,13 @@ public class TeamFragment extends Fragment
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        Log.d("xxx", "teamfrag onLoadFinished");
+
         int wins = 0;
         int losses = 0;
         int ties = 0;
         if (cursor.moveToFirst()) {
+            Log.d("xxx", "teamfrag cursor.moveToFirst");
             int firestoreIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
             int nameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_NAME);
             int winIndex = cursor.getColumnIndex(StatsEntry.COLUMN_WINS);
@@ -287,6 +291,10 @@ public class TeamFragment extends Fragment
             String recordText = wins + "-" + losses + "-" + ties;
             teamRecordView.setText(recordText);
         } else if (!waivers) {
+            Log.d("xxx", "teamfrag getActivity().finish();");
+            FirestoreHelper firestoreHelper = new FirestoreHelper(getActivity(), mSelectionID);
+            firestoreHelper.setLocalTimeStamp(-1);
+            getActivity().finish();
             return;
         }
 

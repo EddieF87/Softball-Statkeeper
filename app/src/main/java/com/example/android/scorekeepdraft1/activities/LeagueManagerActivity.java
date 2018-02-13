@@ -167,7 +167,7 @@ public class LeagueManagerActivity extends ExportActivity
             values.put(StatsEntry.COLUMN_ORDER, i + 1);
             values.put(StatsEntry.COLUMN_TEAM, team);
             values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, teamID);
-            values.put("add", true);
+            values.put(StatsEntry.ADD, true);
             getContentResolver().insert(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, values);
         }
 

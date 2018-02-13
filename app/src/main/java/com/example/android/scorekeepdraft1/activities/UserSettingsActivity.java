@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
+import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.dialogs.InviteUserDialogFragment;
 import com.example.android.scorekeepdraft1.fragments.UserFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
@@ -224,7 +225,7 @@ public class UserSettingsActivity extends AppCompatActivity
                 batch.delete(leagueUser);
             } else {
                 batch.update(league, id, level);
-                batch.update(leagueUser, "level", level);
+                batch.update(leagueUser, StatsContract.StatsEntry.LEVEL, level);
             }
         }
         batch.commit();
@@ -267,7 +268,7 @@ public class UserSettingsActivity extends AppCompatActivity
 
     @Override
     public void onInviteUser(final String email, final int level) {
-        firestore.collection(USERS).whereEqualTo("email", email)
+        firestore.collection(USERS).whereEqualTo(StatsContract.StatsEntry.EMAIL, email)
                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -278,9 +279,9 @@ public class UserSettingsActivity extends AppCompatActivity
                         String userID = documentSnapshot.getId();
 
                         Map<String, Object> data = new HashMap<>();
-                        data.put("email", email);
-                        data.put("name", null);
-                        data.put("level", level);
+                        data.put(StatsContract.StatsEntry.EMAIL, email);
+                        data.put(StatsContract.StatsEntry.COLUMN_NAME, null);
+                        data.put(StatsContract.StatsEntry.LEVEL, level);
                         firestore.collection(LEAGUE_COLLECTION).document(leagueID)
                                 .collection(USERS).document(userID).set(data, SetOptions.merge());
 
