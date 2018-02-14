@@ -1,21 +1,21 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-        android:width="24dp"
-        android:height="24dp"
-        android:viewportWidth="640.0"
-        android:viewportHeight="640.0">
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="640.0"
+    android:viewportHeight="640.0">
     <path
         android:pathData="M0,0L640,0L640,322.5L0,322.5L0,0Z"
         android:fillAlpha="1"
         android:fillColor="#f1f0eb"/>
     <group>
         <clip-path android:pathData="M0,0L640,0L640,322.5L0,322.5L0,0Z M 0,0" />
-    <path
-        android:fillColor="#FF000000"
-        android:pathData="M0,0L640,0L640,322.5L0,322.5L0,0Z"
-        android:strokeColor="#2cf2e2"
-        android:fillAlpha="0"
-        android:strokeWidth="64"
-        android:strokeAlpha="1"/>
+        <path
+            android:fillColor="#FF000000"
+            android:pathData="M0,0L640,0L640,322.5L0,322.5L0,0Z"
+            android:strokeColor="#2cf2e2"
+            android:fillAlpha="0"
+            android:strokeWidth="64"
+            android:strokeAlpha="1"/>
     </group>
     <path
         android:pathData="M160,481.3L0,322.5L320,322.5L640,322.5L480,481.3L320,640L160,481.3Z"
@@ -23,13 +23,13 @@
         android:fillColor="#ffffff"/>
     <group>
         <clip-path android:pathData="M160,481.3L0,322.5L320,322.5L640,322.5L480,481.3L320,640L160,481.3Z M 0,0" />
-    <path
-        android:fillColor="#FF000000"
-        android:pathData="M160,481.3L0,322.5L320,322.5L640,322.5L480,481.3L320,640L160,481.3Z"
-        android:strokeColor="#2cf2e2"
-        android:fillAlpha="0"
-        android:strokeWidth="64"
-        android:strokeAlpha="1"/>
+        <path
+            android:fillColor="#FF000000"
+            android:pathData="M160,481.3L0,322.5L320,322.5L640,322.5L480,481.3L320,640L160,481.3Z"
+            android:strokeColor="#2cf2e2"
+            android:fillAlpha="0"
+            android:strokeWidth="64"
+            android:strokeAlpha="1"/>
     </group>
     <path
         android:fillColor="#FF000000"
