@@ -283,6 +283,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
             mPlayers.clear();
         }
         mCursor = data;
+        mCursor.moveToPosition(-1);
         while (mCursor.moveToNext()) {
             mPlayers.add(new Player(mCursor, false));
         }

@@ -7,6 +7,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.util.Log;
@@ -89,7 +90,7 @@ public class LeagueManagerActivity extends ExportActivity
         }
     }
 
-    private class LeagueManagerPagerAdapter extends FragmentPagerAdapter {
+    private class LeagueManagerPagerAdapter extends FragmentStatePagerAdapter {
 
         LeagueManagerPagerAdapter(FragmentManager fm) {
             super(fm);

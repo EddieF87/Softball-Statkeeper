@@ -127,7 +127,6 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
         });
 
         getLoaderManager().initLoader(STANDINGS_LOADER, null, this);
-
         return rootView;
     }
 
@@ -222,10 +221,9 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-
         return new CursorLoader(
                 getActivity(),
-                StatsContract.StatsEntry.CONTENT_URI_TEAMS,
+                StatsEntry.CONTENT_URI_TEAMS,
                 null,
                 null,
                 null,
@@ -240,7 +238,7 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
         } else {
             mTeams.clear();
         }
-
+        data.moveToPosition(-1);
         while (data.moveToNext()) {
             mTeams.add(new Team(data));
         }

@@ -25,6 +25,8 @@ import com.example.android.scorekeepdraft1.data.MyFileProvider;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
+import com.example.android.scorekeepdraft1.objects.Player;
+import com.example.android.scorekeepdraft1.objects.Team;
 import com.opencsv.CSVWriter;
 
 import java.io.File;
@@ -69,246 +71,193 @@ public class ExportActivity extends AppCompatActivity {
         }
     }
 
-    private List<String[]> gatherData (int key) {
-
+    private List<String[]> gatherTeamData() {
 
         List<String[]> data = new ArrayList<>();
 
-        if (key == KEY_TEAMS) {
+        Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
+                null, null, null, null);
 
-            Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
-                    null, null, null, null);
+        String[] titleArray = new String[]{
+                "Name", "Win %",
+                "Wins", "Losses", "Ties",
+                "Runs Scored", "Runs Allowed", "Run Differential"
+        };
+        data.add(titleArray);
 
-            int nameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_NAME);
-            int winIndex = cursor.getColumnIndex(StatsEntry.COLUMN_WINS);
-            int lossIndex = cursor.getColumnIndex(StatsEntry.COLUMN_LOSSES);
-            int tieIndex = cursor.getColumnIndex(StatsEntry.COLUMN_TIES);
-            int runsForIndex = cursor.getColumnIndex(StatsEntry.COLUMN_RUNSFOR);
-            int runsAgainstIndex = cursor.getColumnIndex(StatsEntry.COLUMN_RUNSAGAINST);
+        while (cursor.moveToNext()) {
+            Team team = new Team(cursor);
 
-            String[] titleArray = new String[] {
-                    "Name", "Win %",
-                    "Wins", "Losses", "Ties",
-                    "Runs Scored", "Runs Allowed", "Run Differential"
-            };
-            data.add(titleArray);
+            String name = team.getName();
+            String ties = String.valueOf(team.getTies());
+            String runDiff = String.valueOf(team.getRunDifferential());
+            String runs = String.valueOf(team.getTotalRunsScored());
+            String runsAllowed = String.valueOf(team.getTotalRunsAllowed());
 
-            while (cursor.moveToNext()) {
+            int wins = team.getWins();
+            int losses = team.getLosses();
+            String winString = String.valueOf(wins);
+            String lossString = String.valueOf(losses);
 
-                String name = cursor.getString(nameIndex);
-                String ties = String.valueOf(cursor.getInt(tieIndex));
-
-                int wins = cursor.getInt(winIndex);
-                int losses = cursor.getInt(lossIndex);
-                String winpct = getWinPct(wins, losses);
-                String winString = String.valueOf(wins);
-                String lossString = String.valueOf(losses);
-                int runsFor = cursor.getInt(runsForIndex);
-                int runsAgainst = cursor.getInt(runsAgainstIndex);
-                String runDiff = String.valueOf(runsFor - runsAgainst);
-                String runsForString = String.valueOf(runsFor);
-                String runsAgainstString = String.valueOf(runsAgainst);
-
-
-                String[] stringArray = new String[] {
-                        name, winpct, winString, lossString, ties, runsForString, runsAgainstString, runDiff
-                };
-                data.add(stringArray);
+            double winPct = team.getWinPct();
+            String winPctString;
+            if (wins + losses <= 0) {
+                winPctString = "";
+            } else {
+                winPctString = formatter.format(String.valueOf(winPct));
             }
-            cursor.close();
 
-        } else if (key == KEY_PLAYERS) {
-
-            Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS,
-                    null, null, null, null);
-            int idIndex = cursor.getColumnIndex(StatsEntry._ID);
-            int nameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_NAME);
-            int teamIndex = cursor.getColumnIndex(StatsEntry.COLUMN_TEAM);
-            int hrIndex = cursor.getColumnIndex(StatsEntry.COLUMN_HR);
-            int tripleIndex = cursor.getColumnIndex(StatsEntry.COLUMN_3B);
-            int doubleIndex = cursor.getColumnIndex(StatsEntry.COLUMN_2B);
-            int singleIndex = cursor.getColumnIndex(StatsEntry.COLUMN_1B);
-            int bbIndex = cursor.getColumnIndex(StatsEntry.COLUMN_BB);
-            int outIndex = cursor.getColumnIndex(StatsEntry.COLUMN_OUT);
-            int rbiIndex = cursor.getColumnIndex(StatsEntry.COLUMN_RBI);
-            int runIndex = cursor.getColumnIndex(StatsEntry.COLUMN_RUN);
-            int sfIndex = cursor.getColumnIndex(StatsEntry.COLUMN_SF);
-            int gameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_G);
-            int genderIndex = cursor.getColumnIndex(StatsEntry.COLUMN_GENDER);
-
-            String[] titleArray = new String[] {
-                    "Name", "Team", "G", "AB",
-                    "H", "HR", "R", "RBI",
-                    "AVG", "OBP", "SLG", "OPS",
-                    "3B", "2B", "1B", "BB",
-                    "Out", "SF", "Gender"
+            String[] stringArray = new String[]{
+                    name, winPctString, winString, lossString, ties, runs, runsAllowed, runDiff
             };
-            data.add(titleArray);
-
-            while (cursor.moveToNext()) {
-
-                String name = cursor.getString(nameIndex);
-                String team = cursor.getString(teamIndex);
-                int gender = cursor.getInt(genderIndex);
-
-                int hr =   cursor.getInt(hrIndex);
-                int tpl =  cursor.getInt(tripleIndex);
-                int dbl =  cursor.getInt(doubleIndex);
-                int sgl =  cursor.getInt(singleIndex);
-                int bb =   cursor.getInt(bbIndex);
-                int out =  cursor.getInt(outIndex);
-                int rbi =  cursor.getInt(rbiIndex);
-                int run =  cursor.getInt(runIndex);
-                int sf =   cursor.getInt(sfIndex);
-                int g =    cursor.getInt(gameIndex);
-                int hit = sgl + dbl + tpl + hr;
-                int ab = hit + out;
-                String avg = getAVG(ab, hit);
-                double obp = getOBP(ab, hit, bb, sf);
-                double slg = getSLG(ab, sgl, dbl, tpl, hr);
-                String ops = getOPS(obp, slg);
-
-
-                String hitString = String.valueOf(hit);
-                String abString = String.valueOf(ab);
-                String hrString =   String.valueOf(hr);
-                String tplString =  String.valueOf(tpl);
-                String dblString =  String.valueOf(dbl);
-                String sglString =  String.valueOf(sgl);
-                String bbString =   String.valueOf(bb);
-                String outString =  String.valueOf(out);
-                String rbiString =  String.valueOf(rbi);
-                String runString =  String.valueOf(run);
-                String sfString =   String.valueOf(sf);
-                String gameString = String.valueOf(g);
-
-                String obpString;
-                String slgString;
-                if (slg == -1) {
-                    slgString = "";
-                    if (obp == -1) {
-                        obpString = "";
-                    } else {
-                        obpString = String.valueOf(formatter.format(obp));
-                    }
-                } else {
-                    slgString = String.valueOf(formatter.format(slg));
-                    obpString = String.valueOf(formatter.format(obp));
-                }
-
-                String genderString;
-                if (gender == 0) {
-                    genderString = "M";
-                } else {
-                    genderString = "F";
-                }
-
-                String[] stringArray = new String[] {
-                        name, team, gameString, abString,
-                        hitString, hrString, runString, rbiString,
-                        avg, obpString, slgString, ops,
-                        tplString, dblString, sglString, bbString,
-                        outString, sfString, genderString
-                };
-                data.add(stringArray);
-            }
-            cursor.close();
+            data.add(stringArray);
         }
-
+        cursor.close();
         return data;
     }
+
+
+    private List<String[]> gatherPlayerData() {
+
+        List<String[]> data = new ArrayList<>();
+
+        Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS,
+                null, null, null, null);
+
+        String[] titleArray = new String[]{
+                "Name", "Team", "G", "AB",
+                "H", "HR", "R", "RBI",
+                "AVG", "OBP", "SLG", "OPS",
+                "3B", "2B", "1B", "BB",
+                "Out", "SF", "Gender"
+        };
+        data.add(titleArray);
+
+        while (cursor.moveToNext()) {
+            Player player = new Player(cursor, false);
+
+            String nameString = player.getName();
+            String teamString = player.getTeam();
+            int gender = player.getGender();
+            int hr = player.getHrs();
+            int tpl = player.getTriples();
+            int dbl = player.getDoubles();
+            int sgl = player.getSingles();
+            int bb = player.getWalks();
+            int out = player.getOuts();
+            int rbi = player.getRbis();
+            int run = player.getRuns();
+            int sf = player.getSacFlies();
+            int g = player.getGames();
+            int hit = player.getHits();
+            int ab = player.getABs();
+            double avg = player.getAVG();
+            double obp = player.getOBP();
+            double slg = player.getSLG();
+            double ops = player.getOPS();
+
+            String hitString = String.valueOf(hit);
+            String abString = String.valueOf(ab);
+            String hrString = String.valueOf(hr);
+            String tplString = String.valueOf(tpl);
+            String dblString = String.valueOf(dbl);
+            String sglString = String.valueOf(sgl);
+            String bbString = String.valueOf(bb);
+            String outString = String.valueOf(out);
+            String rbiString = String.valueOf(rbi);
+            String runString = String.valueOf(run);
+            String sfString = String.valueOf(sf);
+            String gameString = String.valueOf(g);
+
+            String avgString;
+            String obpString;
+            String slgString;
+            String opsString;
+            if (ab <= 0) {
+                avgString = "";
+                slgString = "";
+                if (bb + sf <= 0) {
+                    obpString = "";
+                    opsString = "";
+                } else {
+                    obpString = String.valueOf(formatter.format(obp));
+                    opsString = String.valueOf(formatter.format(ops));
+                }
+            } else {
+                avgString = String.valueOf(formatter.format(avg));
+                obpString = String.valueOf(formatter.format(obp));
+                slgString = String.valueOf(formatter.format(slg));
+                opsString = String.valueOf(formatter.format(ops));
+            }
+
+            String genderString;
+            if (gender == 0) {
+                genderString = "M";
+            } else {
+                genderString = "F";
+            }
+
+            String[] stringArray = new String[]{
+                    nameString, teamString, gameString, abString,
+                    hitString, hrString, runString, rbiString,
+                    avgString, obpString, slgString, opsString,
+                    tplString, dblString, sglString, bbString,
+                    outString, sfString, genderString
+            };
+            data.add(stringArray);
+        }
+        cursor.close();
+        return data;
+    }
+
 
     private void export() throws IOException {
 
         File exportDir = new File(Environment.getExternalStorageDirectory(), "test");
-        if(!exportDir.exists()){
+        if (!exportDir.exists()) {
             exportDir.mkdir();
         }
-
-        List<String[]> teamData = gatherData(KEY_TEAMS);
-
-
-        File teamFile = new File(exportDir, "teams.csv");
-        teamFile.createNewFile();
-
-        CSVWriter teamWriter = new CSVWriter(new FileWriter(teamFile));
-        teamWriter.writeAll(teamData);
-        teamWriter.close();
-
-        Uri pathTeams = MyFileProvider.getUriForFile(this,
-                this.getApplicationContext().getPackageName() + ".data.fileprovider", teamFile);
-
-
-        List<String[]> playerData = gatherData(KEY_PLAYERS);
-
-        File playerFile = new File(exportDir, "players.csv");
-        playerFile.createNewFile();
-
-        CSVWriter playerWriter = new CSVWriter(new FileWriter(playerFile));
-        playerWriter.writeAll(playerData);
-        playerWriter.close();
-
-        Uri pathPlayers = MyFileProvider.getUriForFile(this,
-                this.getApplicationContext().getPackageName() + ".data.fileprovider", playerFile);
-
         ArrayList<Uri> uris = new ArrayList<>();
-        uris.add(pathTeams);
-        uris.add(pathPlayers);
+
+        writeData(exportDir, KEY_TEAMS, uris);
+        writeData(exportDir, KEY_PLAYERS, uris);
 
         Intent emailIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
 // set the type to 'email'
-        emailIntent .setType("vnd.android.cursor.dir/email");
+        emailIntent.setType("vnd.android.cursor.dir/email");
 // the attachment
-        emailIntent .putExtra(Intent.EXTRA_STREAM, uris);
+        emailIntent.putExtra(Intent.EXTRA_STREAM, uris);
 // the mail subject
-        if(leagueName == null) {
+        if (leagueName == null) {
             return;
         }
-        emailIntent .putExtra(Intent.EXTRA_SUBJECT, leagueName + " Stats");
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, leagueName + " Stats");
         emailIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
-        startActivity(Intent.createChooser(emailIntent , "Send email..."));
+        startActivity(Intent.createChooser(emailIntent, "Send email..."));
     }
 
-    public String getWinPct(int wins, int losses) {
-        if (wins + losses == 0) {
-            return "";
+    private void writeData(File exportDir, int key, ArrayList<Uri> uris) throws IOException {
+        File file;
+        List<String[]> data;
+        if (key == KEY_PLAYERS) {
+            file = new File(exportDir, "players.csv");
+            data = gatherPlayerData();
+        } else {
+            file = new File(exportDir, "teams.csv");
+            data = gatherTeamData();
         }
-        return String.valueOf(formatter.format(((double) wins) / (wins + losses)));
+        file.createNewFile();
+
+        CSVWriter csvWriter = new CSVWriter(new FileWriter(file));
+        csvWriter.writeAll(data);
+        csvWriter.close();
+
+        Uri path = MyFileProvider.getUriForFile(this,
+                this.getApplicationContext().getPackageName() + ".data.fileprovider", file);
+        uris.add(path);
     }
 
-    public String getAVG(int ab, int hit) {
-        if (ab == 0) {
-            return "";
-        }
-        return String.valueOf(formatter.format(((double) hit) / ab));
-    }
-
-    public double getOBP(int ab, int hit, int bb, int sf) {
-        if (ab + bb + sf == 0) {
-            return -1;
-        }
-        return ((double) (hit + bb)
-                / (ab + bb + sf));
-    }
-
-    public double getSLG(int ab, int sgl, int dbl, int tpl, int hr) {
-        if (ab == 0) {
-            return -1;
-        }
-        return (sgl + dbl * 2 + tpl * 3 + hr * 4)
-                / ((double) ab);
-    }
-
-    public String getOPS(double obp, double slg) {
-        if (obp == -1) {
-            return "";
-        }
-        if (slg == -1) {
-            slg = 0;
-        }
-        return String.valueOf(formatter.format(obp + slg));
-    }
 
     private boolean checkPermission() {
 

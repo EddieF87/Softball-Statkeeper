@@ -9,12 +9,8 @@ import android.database.Cursor;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.*;
-
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
 
 import static com.example.android.scorekeepdraft1.data.StatsContract.getColumnInt;
 import static com.example.android.scorekeepdraft1.data.StatsContract.getColumnString;
