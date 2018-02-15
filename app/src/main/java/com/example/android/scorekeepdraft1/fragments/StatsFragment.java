@@ -138,7 +138,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         teamsArray = new ArrayList<>();
         teamsArray.add(ALL_TEAMS);
         teamIDs = new HashMap<>();
-        teamIDs.put("FA", -1);
+        teamIDs.put(StatsEntry.FREE_AGENT, -1);
         while (mCursor.moveToNext()) {
             int teamNameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
             String teamName = mCursor.getString(teamNameIndex);
@@ -452,7 +452,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
     public void updateTeams(String team, int id, String firestoreID) {
         if (teamIDs == null) {
             teamIDs = new HashMap<>();
-            teamIDs.put("FA", -1);
+            teamIDs.put(StatsEntry.FREE_AGENT, -1);
         }
         teamIDs.put(firestoreID, id);
 

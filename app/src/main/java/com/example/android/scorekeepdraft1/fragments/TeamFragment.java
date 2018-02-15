@@ -254,7 +254,7 @@ public class TeamFragment extends Fragment
 
         if (waivers) {
             selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
-            selectionArgs = new String[]{"FA"};
+            selectionArgs = new String[]{StatsEntry.FREE_AGENT};
         }
 
         return new CursorLoader(
@@ -302,7 +302,7 @@ public class TeamFragment extends Fragment
 
         if (waivers) {
             teamName = StatsEntry.FREE_AGENT;
-            teamFirestoreID = "FA";
+            teamFirestoreID = StatsEntry.FREE_AGENT;
             teamNameView.setText(R.string.waivers);
         } else {
             teamNameView.setText(teamName);
@@ -351,33 +351,34 @@ public class TeamFragment extends Fragment
         cursor.moveToPosition(-1);
         while (cursor.moveToNext()) {
 
-            String firestoreID = cursor.getString(firestoreIDIndex);
-            String teamfirestoreID = cursor.getString(teamfirestoreIDIndex);
-            String player = cursor.getString(nameIndex);
-            int gender = cursor.getInt(genderIndex);
-            int hr = cursor.getInt(hrIndex);
-            sumHr += hr;
-            int tpl = cursor.getInt(tripleIndex);
-            sumTpl += tpl;
-            int dbl = cursor.getInt(doubleIndex);
-            sumDbl += dbl;
-            int sgl = cursor.getInt(singleIndex);
-            sumSgl += sgl;
-            int bb = cursor.getInt(bbIndex);
-            sumBb += bb;
-            int out = cursor.getInt(outIndex);
-            sumOut += out;
-            int rbi = cursor.getInt(rbiIndex);
-            sumRbi += rbi;
-            int run = cursor.getInt(runIndex);
-            sumRun += run;
-            int sf = cursor.getInt(sfIndex);
-            sumSf += sf;
-            int g = cursor.getInt(gameIndex);
+//            String firestoreID = cursor.getString(firestoreIDIndex);
+//            String teamfirestoreID = cursor.getString(teamfirestoreIDIndex);
+//            String player = cursor.getString(nameIndex);
+//            int gender = cursor.getInt(genderIndex);
+//            int hr = cursor.getInt(hrIndex);
+//            int tpl = cursor.getInt(tripleIndex);
+//            int dbl = cursor.getInt(doubleIndex);
+//            int sgl = cursor.getInt(singleIndex);
+//            int bb = cursor.getInt(bbIndex);
+//            int out = cursor.getInt(outIndex);
+//            int rbi = cursor.getInt(rbiIndex);
+//            int run = cursor.getInt(runIndex);
+//            int sf = cursor.getInt(sfIndex);
+//            int g = cursor.getInt(gameIndex);
+//            int playerId = cursor.getInt(idIndex);
 
-            int playerId = cursor.getInt(idIndex);
-            mPlayers.add(new Player(player, teamName, gender, sgl, dbl, tpl, hr, bb,
-                    run, rbi, out, sf, g, playerId, firestoreID, teamfirestoreID));
+            Player player = new Player(cursor);
+            sumHr += player.getHrs();
+            sumTpl += player.getHrs();
+            sumDbl += player.getHrs();
+            sumSgl += player.getHrs();
+            sumBb += player.getHrs();
+            sumOut += player.getHrs();
+            sumRbi += player.getHrs();
+            sumRun += player.getHrs();
+            sumSf += player.getHrs();
+
+            mPlayers.add(player);
         }
         if (mPlayers.size() > 0 && !waivers) {
             mPlayers.add(new Player("Total", teamName, 2, sumSgl, sumDbl, sumTpl, sumHr, sumBb,
@@ -618,7 +619,7 @@ public class TeamFragment extends Fragment
             contentValues.put(StatsEntry.COLUMN_TEAM, team);
 
             if(team.equals(StatsEntry.FREE_AGENT)) {
-                contentValues.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, "FA");
+                contentValues.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, StatsEntry.FREE_AGENT);
                 FirestoreHelper firestoreHelper = new FirestoreHelper(getActivity(), mSelectionID);
                 firestoreHelper.setUpdate(firestoreID, 1);
             }

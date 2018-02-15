@@ -140,7 +140,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             String firestoreID = mCursor.getString(teamIDIndex);
             teams.add(new Team(teamName, firestoreID));
         }
-        teams.add(new Team(mContext.getString(R.string.waivers), "FA"));
+        teams.add(new Team(mContext.getString(R.string.waivers), StatsEntry.FREE_AGENT));
 
         FragmentManager fragmentManager = ((ObjectPagerActivity)mContext).getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();

@@ -145,8 +145,8 @@ public class MainActivity extends AppCompatActivity
                             for (DocumentSnapshot documentSnapshot : task.getResult()) {
                                 int level = documentSnapshot.getLong(userID).intValue();
                                 String selectionID = documentSnapshot.getId();
-                                String name = documentSnapshot.getString("name");
-                                int type = documentSnapshot.getLong("type").intValue();
+                                String name = documentSnapshot.getString(StatsEntry.COLUMN_NAME);
+                                int type = documentSnapshot.getLong(StatsEntry.TYPE).intValue();
                                 MainPageSelection mainPageSelection = new MainPageSelection(
                                         selectionID, name, type, level);
                                 if (level < -1) {
@@ -342,7 +342,7 @@ public class MainActivity extends AppCompatActivity
 
                         Map<String, Object> firestoreLeagueMap = new HashMap<>();
                         firestoreLeagueMap.put(StatsEntry.COLUMN_NAME, name);
-                        firestoreLeagueMap.put("type", type);
+                        firestoreLeagueMap.put(StatsEntry.TYPE, type);
                         firestoreLeagueMap.put(userID, level);
                         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
                         DocumentReference documentReference = firestore.collection(LEAGUE_COLLECTION).document();

@@ -196,7 +196,7 @@ public class StatsProvider extends ContentProvider {
                 if (values.containsKey(StatsEntry.COLUMN_TEAM_FIRESTORE_ID)) {
                     playerTeamID = values.getAsString(StatsEntry.COLUMN_TEAM_FIRESTORE_ID);
                 } else {
-                    playerTeamID = "FA";
+                    playerTeamID = StatsEntry.FREE_AGENT;
                 }
 
                 int playerGender;
@@ -421,7 +421,7 @@ public class StatsProvider extends ContentProvider {
                         .collection(FirestoreHelper.PLAYERS_COLLECTION).document(firestoreID);
                 if (values.containsKey(StatsEntry.COLUMN_TEAM_FIRESTORE_ID)) {
                     String teamFirestoreID = values.getAsString(StatsEntry.COLUMN_TEAM_FIRESTORE_ID);
-                    documentReference.update("team", teamFirestoreID);
+                    documentReference.update(StatsEntry.COLUMN_TEAM, teamFirestoreID);
                 }
                 break;
             case PLAYERS_ID:
@@ -442,10 +442,10 @@ public class StatsProvider extends ContentProvider {
                 values.remove(StatsEntry.COLUMN_FIRESTORE_ID);
                 if (values.containsKey(StatsEntry.COLUMN_NAME)) {
                     String playerName = values.getAsString(StatsEntry.COLUMN_NAME);
-                    documentReference.update("name", playerName);
+                    documentReference.update(StatsEntry.COLUMN_NAME, playerName);
                 } else if (values.containsKey(StatsEntry.COLUMN_TEAM_FIRESTORE_ID)) {
                     String teamFirestoreID = values.getAsString(StatsEntry.COLUMN_TEAM_FIRESTORE_ID);
-                    documentReference.update("team", teamFirestoreID);
+                    documentReference.update(StatsEntry.COLUMN_TEAM, teamFirestoreID);
                 }
                 break;
             case TEAMS:
@@ -467,11 +467,11 @@ public class StatsProvider extends ContentProvider {
                     documentReference = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION).document(leagueID)
                             .collection(FirestoreHelper.TEAMS_COLLECTION).document(firestoreID);
                     values.remove(StatsEntry.COLUMN_FIRESTORE_ID);
-                    documentReference.update("name", teamName);
+                    documentReference.update(StatsEntry.COLUMN_NAME, teamName);
 
                     DocumentReference documentReference1 = mFirestore
                             .collection(FirestoreHelper.LEAGUE_COLLECTION).document(leagueID);
-                    documentReference1.update("name", teamName);
+                    documentReference1.update(StatsEntry.COLUMN_NAME, teamName);
                 }
                 break;
             case TEAMS_ID:
@@ -490,7 +490,7 @@ public class StatsProvider extends ContentProvider {
                             .collection(FirestoreHelper.TEAMS_COLLECTION).document(firestoreID);
                     values.remove(StatsEntry.COLUMN_FIRESTORE_ID);
                     String teamName = values.getAsString(StatsEntry.COLUMN_NAME);
-                    documentReference.update("name", teamName);
+                    documentReference.update(StatsEntry.COLUMN_NAME, teamName);
                 }
                 break;
             case TEMP:

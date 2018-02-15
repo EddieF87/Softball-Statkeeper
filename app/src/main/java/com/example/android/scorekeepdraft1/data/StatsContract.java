@@ -5,6 +5,7 @@ package com.example.android.scorekeepdraft1.data;
  */
 
 import android.content.ContentResolver;
+import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -18,6 +19,7 @@ public class StatsContract {
     public static final String PATH_GAME = "game";
     public static final String PATH_BACKUP_PLAYERS = "backupplayers";
     public static final String PATH_BACKUP_TEAMS = "backupteams";
+
     public StatsContract() {
     }
 
@@ -95,6 +97,8 @@ public class StatsContract {
 
 
         public static final String UPDATE = "update";
+        public static final String TYPE = "type";
+        public static final String TIME = "time";
         public static final String ADD = "add";
         public static final String DELETE = "delete";
         public static final String SYNC = "sync";
@@ -102,6 +106,19 @@ public class StatsContract {
         public static final String LEVEL = "level";
         public static final String FREE_AGENT = "Free Agent";
 
+    }
+
+    /* Helpers to retrieve column values */
+    public static String getColumnString(Cursor cursor, String columnName) {
+        return cursor.getString( cursor.getColumnIndex(columnName) );
+    }
+
+    public static int getColumnInt(Cursor cursor, String columnName) {
+        return cursor.getInt( cursor.getColumnIndex(columnName) );
+    }
+
+    public static long getColumnLong(Cursor cursor, String columnName) {
+        return cursor.getLong( cursor.getColumnIndex(columnName) );
     }
 
 }

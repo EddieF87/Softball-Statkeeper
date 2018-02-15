@@ -464,7 +464,7 @@ public class FirestoreHelper {
         Log.d("xxx", "localTimeStamp = " + localTimeStamp);
 
         mFirestore.collection(LEAGUE_COLLECTION).document(leagueID).collection(DELETION_COLLECTION)
-                .whereGreaterThanOrEqualTo("time", localTimeStamp).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                .whereGreaterThanOrEqualTo(StatsEntry.TIME, localTimeStamp).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
@@ -472,8 +472,8 @@ public class FirestoreHelper {
                             QuerySnapshot querySnapshot = task.getResult();
                             for (DocumentSnapshot documentSnapshot : querySnapshot) {
                                 Map<String, Object> data = documentSnapshot.getData();
-                                long time = (long) data.get("time");
-                                long type = (long) data.get("type");
+                                long time = (long) data.get(StatsEntry.TIME);
+                                long type = (long) data.get(StatsEntry.TYPE);
                                 long gender;
                                 String team;
                                 if (type == 1) {
@@ -635,8 +635,8 @@ public class FirestoreHelper {
 
         Map<String, Object> deletion = new HashMap<>();
         long time = System.currentTimeMillis();
-        deletion.put("time", time);
-        deletion.put("type", type);
+        deletion.put(StatsEntry.TIME, time);
+        deletion.put(StatsEntry.TYPE, type);
         deletion.put(StatsEntry.COLUMN_NAME, name);
         if(type == 1) {
             deletion.put(StatsEntry.COLUMN_GENDER, gender);

@@ -204,7 +204,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                             Intent intent;
                             String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
                             String[] selectionArgs = new String[]{teamFirestoreID};
-                            if(teamFirestoreID.equals("FA")) {
+                            if(teamFirestoreID.equals(StatsEntry.FREE_AGENT)) {
                                 intent = new Intent(getActivity(), TeamPagerActivity.class);
                             } else {
                                 Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
@@ -539,7 +539,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             String firestoreID = mCursor.getString(teamIDIndex);
             teams.add(new Team(teamName, firestoreID));
         }
-        teams.add(new Team(getString(R.string.waivers), "FA"));
+        teams.add(new Team(getString(R.string.waivers), StatsEntry.FREE_AGENT));
 
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
