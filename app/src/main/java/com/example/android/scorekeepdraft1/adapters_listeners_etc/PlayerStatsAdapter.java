@@ -100,45 +100,15 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
     }
 
     private void changeTeamDialog(final Player player) {
-//        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-//        String sortOrder = StatsEntry.COLUMN_NAME + " COLLATE NOCASE ASC";
-//        Cursor mCursor = mContext.getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
-//                new String[]{StatsEntry.COLUMN_NAME}, null, null, sortOrder);
-//        ArrayList<String> teams = new ArrayList<>();
-//        while (mCursor.moveToNext()) {
-//            int teamNameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
-//            String teamName = mCursor.getString(teamNameIndex);
-//            teams.add(teamName);
-//        }
-//        final CharSequence[] teams_array = teams.toArray(new CharSequence[teams.size()]);
-//        String titleString = mContext.getResources().getString(R.string.edit_player_team);
-//        String title = String.format(titleString, player.getName());
-//        builder.setTitle(title);
-//        builder.setItems(teams_array, new DialogInterface.OnClickListener() {
-//            public void onClick(DialogInterface dialog, int item) {
-//                String teamString = teams_array[item].toString();
-//                updatePlayerTeam(player, teamString);
-//            }
-//        });
-//        AlertDialog alertDialog = builder.create();
-//        alertDialog.show();
-
         if(!(mContext instanceof ObjectPagerActivity)) {
             return;
         }
         ArrayList<Team> teams = new ArrayList<>();
-
         String sortOrder = StatsEntry.COLUMN_NAME + " COLLATE NOCASE ASC";
-        Cursor mCursor = mContext.getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
-                new String[]{StatsEntry.COLUMN_NAME, StatsEntry.COLUMN_FIRESTORE_ID},
-                null, null, sortOrder);
-
-        while (mCursor.moveToNext()) {
-            int teamNameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
-            String teamName = mCursor.getString(teamNameIndex);
-            int teamIDIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
-            String firestoreID = mCursor.getString(teamIDIndex);
-            teams.add(new Team(teamName, firestoreID));
+        Cursor cursor = mContext.getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
+                null, null, null, sortOrder);
+        while (cursor.moveToNext()) {
+            teams.add(new Team(cursor));
         }
         teams.add(new Team(mContext.getString(R.string.waivers), StatsEntry.FREE_AGENT));
 
@@ -147,33 +117,6 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
         DialogFragment newFragment = ChangeTeamDialogFragment.newInstance(teams, player.getName(), player.getFirestoreID());
         newFragment.show(fragmentTransaction, "");
     }
-
-//    private void updatePlayerTeam(Player player, String team) {
-//        String selectionID;
-//        try {
-//            MyApp myApp = (MyApp) mContext.getApplicationContext();
-//            MainPageSelection mainPageSelection = myApp.getCurrentSelection();
-//            selectionID = mainPageSelection.getId();
-//        } catch (Exception e){
-//            Toast.makeText(mContext, "Error with updating " + player + "'s team", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-//        long playerId = player.getPlayerId();
-//        Uri playerUri = ContentUris.withAppendedId(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, playerId);
-//        String firestoreID = player.getFirestoreID();
-//        ContentValues contentValues = new ContentValues();
-//        contentValues.put(StatsEntry.COLUMN_TEAM, team);
-//        contentValues.put(StatsEntry.COLUMN_ORDER, 99);
-//        contentValues.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, teamFirestoreID);
-//        contentValues.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
-//        mContext.getContentResolver().update(playerUri, contentValues, null, null);
-//        players.remove(player);
-//        notifyDataSetChanged();
-//
-//        FirestoreHelper firestoreHelper = new FirestoreHelper(mContext, selectionID);
-//        firestoreHelper.setUpdate(firestoreID, 1);
-//        firestoreHelper.updateTimeStamps();
-//    }
 
     public boolean changeColors(boolean genderSettingsOn) {
         if (genderSettingsOn) {
@@ -268,19 +211,30 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             long playerId = player.getPlayerId();
             nameView.setTag(playerId);
 
-            int teamId = player.getTeamSQLID();
-            teamView.setTag(teamId);
+            String teamfirestoreid = player.getTeamfirestoreid();
+            teamView.setTag(teamfirestoreid);
 
             if (!isTeam) {
                 teamView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        String teamfirestoreid = (String) teamView.getTag();
+
                         Intent intent = new Intent(mContext, TeamPagerActivity.class);
-                        int teamId = (int) teamView.getTag();
-                        Log.d("xxx", "teamclick " + teamId);
+                        Log.d("xxx", "teamclick " + teamfirestoreid);
+
                         Uri currentTeamUri = null;
-                        if (teamId != -1) {
-                            currentTeamUri = ContentUris.withAppendedId(StatsContract.StatsEntry.CONTENT_URI_TEAMS, teamId);
+                        if (!teamfirestoreid.equals(StatsEntry.FREE_AGENT)) {
+                            String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
+                            String[] selectionArgs = new String[] {teamfirestoreid};
+                            String[] projection = new String[] {StatsEntry._ID};
+
+                            Cursor cursor = mContext.getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
+                                    projection, selection, selectionArgs, null);
+                            if(cursor.moveToFirst()) {
+                                int teamID = StatsContract.getColumnInt(cursor, StatsEntry._ID);
+                                currentTeamUri = ContentUris.withAppendedId(StatsContract.StatsEntry.CONTENT_URI_TEAMS, teamID);
+                            }
                         }
                         intent.setData(currentTeamUri);
                         startActivity(mContext, intent, null);
@@ -356,6 +310,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
                         intent.setData(playerUri);
                         if (mContext instanceof TeamPagerActivity) {
                             ((TeamPagerActivity) mContext).startActivityForResult(intent, REQUEST_CODE);
+                            ((TeamPagerActivity) mContext).finish();
                         } else if (mContext instanceof TeamManagerActivity) {
                             ((TeamManagerActivity) mContext).startActivityForResult(intent, REQUEST_CODE);
                         } else {

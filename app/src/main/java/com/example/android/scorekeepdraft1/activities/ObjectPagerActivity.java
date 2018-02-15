@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.data.FirestoreHelper;
+import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.dialogs.AddNewPlayersDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.ChangeTeamDialogFragment;
@@ -146,10 +147,8 @@ public class ObjectPagerActivity extends AppCompatActivity
                 Cursor cursor = getContentResolver().query(uri, null, null,
                         null, null);
                 if (cursor.moveToFirst()) {
-                    String firestoreID = cursor.getString(cursor
-                            .getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID));
-                    long id = ContentUris.parseId(uri);
-                    players.add(new Player(playerName, teamName, gender, id, firestoreID, teamID));
+                    String firestoreID = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_FIRESTORE_ID);
+                    players.add(new Player(cursor, false));
                     firestoreHelper.setUpdate(firestoreID, 1);
                 }
             }

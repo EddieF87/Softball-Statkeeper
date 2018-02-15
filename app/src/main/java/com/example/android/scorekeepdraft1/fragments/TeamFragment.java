@@ -38,6 +38,7 @@ import com.example.android.scorekeepdraft1.activities.SetLineupActivity;
 import com.example.android.scorekeepdraft1.activities.UserSettingsActivity;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.PlayerStatsAdapter;
 import com.example.android.scorekeepdraft1.data.FirestoreHelper;
+import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.dialogs.AddNewPlayersDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.DeleteConfirmationDialogFragment;
@@ -47,6 +48,7 @@ import com.example.android.scorekeepdraft1.dialogs.GameSettingsDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.RemoveAllPlayersDialogFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.example.android.scorekeepdraft1.objects.Player;
+import com.example.android.scorekeepdraft1.objects.Team;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -275,23 +277,17 @@ public class TeamFragment extends Fragment
         int losses = 0;
         int ties = 0;
         if (cursor.moveToFirst()) {
-            Log.d("xxx", "teamfrag cursor.moveToFirst");
-            int firestoreIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
-            int nameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_NAME);
-            int winIndex = cursor.getColumnIndex(StatsEntry.COLUMN_WINS);
-            int lossIndex = cursor.getColumnIndex(StatsEntry.COLUMN_LOSSES);
-            int tieIndex = cursor.getColumnIndex(StatsEntry.COLUMN_TIES);
+            Team team = new Team(cursor);
 
-            teamFirestoreID = cursor.getString(firestoreIDIndex);
-            teamName = cursor.getString(nameIndex);
-            wins = cursor.getInt(winIndex);
-            losses = cursor.getInt(lossIndex);
-            ties = cursor.getInt(tieIndex);
+            teamFirestoreID = team.getFirestoreID();
+            teamName = team.getName();
+            wins = team.getWins();
+            losses = team.getLosses();
+            ties = team.getTies();
 
             String recordText = wins + "-" + losses + "-" + ties;
             teamRecordView.setText(recordText);
         } else if (!waivers) {
-            Log.d("xxx", "teamfrag getActivity().finish();");
             FirestoreHelper firestoreHelper = new FirestoreHelper(getActivity(), mSelectionID);
             firestoreHelper.setLocalTimeStamp(-1);
             getActivity().finish();
@@ -308,7 +304,6 @@ public class TeamFragment extends Fragment
             teamNameView.setText(teamName);
         }
 
-//        String selection = StatsEntry.COLUMN_TEAM + "=?";
         String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=?";
         String[] selectionArgs = new String[]{teamFirestoreID};
         String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
@@ -322,22 +317,6 @@ public class TeamFragment extends Fragment
             mPlayers.clear();
         }
 
-        int nameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_NAME);
-        int hrIndex = cursor.getColumnIndex(StatsEntry.COLUMN_HR);
-        int tripleIndex = cursor.getColumnIndex(StatsEntry.COLUMN_3B);
-        int doubleIndex = cursor.getColumnIndex(StatsEntry.COLUMN_2B);
-        int singleIndex = cursor.getColumnIndex(StatsEntry.COLUMN_1B);
-        int bbIndex = cursor.getColumnIndex(StatsEntry.COLUMN_BB);
-        int outIndex = cursor.getColumnIndex(StatsEntry.COLUMN_OUT);
-        int rbiIndex = cursor.getColumnIndex(StatsEntry.COLUMN_RBI);
-        int runIndex = cursor.getColumnIndex(StatsEntry.COLUMN_RUN);
-        int sfIndex = cursor.getColumnIndex(StatsEntry.COLUMN_SF);
-        int gameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_G);
-        int idIndex = cursor.getColumnIndex(StatsEntry._ID);
-        int genderIndex = cursor.getColumnIndex(StatsEntry.COLUMN_GENDER);
-        int firestoreIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
-        int teamfirestoreIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_TEAM_FIRESTORE_ID);
-
         int sumHr = 0;
         int sumTpl = 0;
         int sumDbl = 0;
@@ -348,38 +327,22 @@ public class TeamFragment extends Fragment
         int sumRun = 0;
         int sumSf = 0;
 
-        cursor.moveToPosition(-1);
         while (cursor.moveToNext()) {
+            Player player = new Player(cursor, false);
 
-//            String firestoreID = cursor.getString(firestoreIDIndex);
-//            String teamfirestoreID = cursor.getString(teamfirestoreIDIndex);
-//            String player = cursor.getString(nameIndex);
-//            int gender = cursor.getInt(genderIndex);
-//            int hr = cursor.getInt(hrIndex);
-//            int tpl = cursor.getInt(tripleIndex);
-//            int dbl = cursor.getInt(doubleIndex);
-//            int sgl = cursor.getInt(singleIndex);
-//            int bb = cursor.getInt(bbIndex);
-//            int out = cursor.getInt(outIndex);
-//            int rbi = cursor.getInt(rbiIndex);
-//            int run = cursor.getInt(runIndex);
-//            int sf = cursor.getInt(sfIndex);
-//            int g = cursor.getInt(gameIndex);
-//            int playerId = cursor.getInt(idIndex);
-
-            Player player = new Player(cursor);
             sumHr += player.getHrs();
-            sumTpl += player.getHrs();
-            sumDbl += player.getHrs();
-            sumSgl += player.getHrs();
-            sumBb += player.getHrs();
-            sumOut += player.getHrs();
-            sumRbi += player.getHrs();
-            sumRun += player.getHrs();
-            sumSf += player.getHrs();
+            sumTpl += player.getTriples();
+            sumDbl += player.getDoubles();
+            sumSgl += player.getSingles();
+            sumBb += player.getWalks();
+            sumOut += player.getOuts();
+            sumRbi += player.getRbis();
+            sumRun += player.getRuns();
+            sumSf += player.getSacFlies();
 
             mPlayers.add(player);
         }
+        cursor.close();
         if (mPlayers.size() > 0 && !waivers) {
             mPlayers.add(new Player("Total", teamName, 2, sumSgl, sumDbl, sumTpl, sumHr, sumBb,
                     sumRun, sumRbi, sumOut, sumSf, sumG, -1, "", ""));
@@ -582,24 +545,23 @@ public class TeamFragment extends Fragment
         updateTeamRV();
     }
 
-    public boolean updateTeamName(String team) {
+    public boolean updateTeamName(String newName) {
 
         String[] projection = new String[]{StatsEntry.COLUMN_FIRESTORE_ID};
         Cursor cursor = getActivity().getContentResolver().query(mCurrentTeamUri,
                 projection, null, null, null);
         cursor.moveToFirst();
-        int firestoreIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
-        String firestoreID = cursor.getString(firestoreIndex);
+        String firestoreID = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_FIRESTORE_ID);
         cursor.close();
 
         ContentValues contentValues = new ContentValues();
-        contentValues.put(StatsEntry.COLUMN_NAME, team);
+        contentValues.put(StatsEntry.COLUMN_NAME, newName);
         contentValues.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
 
         int rowsUpdated = getActivity().getContentResolver().update(mCurrentTeamUri,
                 contentValues, null, null);
         if (rowsUpdated > 0) {
-            teamName = team;
+            teamName = newName;
             FirestoreHelper firestoreHelper = new FirestoreHelper(getActivity(), mSelectionID);
             firestoreHelper.setUpdate(firestoreID, 0);
             firestoreHelper.updateTimeStamps();

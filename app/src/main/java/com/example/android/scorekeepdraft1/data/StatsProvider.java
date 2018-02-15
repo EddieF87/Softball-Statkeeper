@@ -193,10 +193,13 @@ public class StatsProvider extends ContentProvider {
                 String playerName = values.getAsString(StatsEntry.COLUMN_NAME);
 
                 String playerTeamID;
-                if (values.containsKey(StatsEntry.COLUMN_TEAM_FIRESTORE_ID)) {
+                String playerTeam;
+                if (values.containsKey(StatsEntry.COLUMN_TEAM_FIRESTORE_ID) && values.containsKey(StatsEntry.COLUMN_TEAM)) {
                     playerTeamID = values.getAsString(StatsEntry.COLUMN_TEAM_FIRESTORE_ID);
+                    playerTeam = values.getAsString(StatsEntry.COLUMN_TEAM);
                 } else {
                     playerTeamID = StatsEntry.FREE_AGENT;
+                    playerTeam = StatsEntry.FREE_AGENT;
                 }
 
                 int playerGender;
@@ -207,6 +210,7 @@ public class StatsProvider extends ContentProvider {
                 }
 
                 player.put(StatsEntry.COLUMN_NAME, playerName);
+                player.put(StatsEntry.COLUMN_TEAM, playerTeam);
                 player.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, playerTeamID);
                 player.put(StatsEntry.COLUMN_GENDER, playerGender);
                 if (values.containsKey(StatsEntry.ADD)) {
@@ -412,7 +416,7 @@ public class StatsProvider extends ContentProvider {
         switch (match) {
             case PLAYERS:
                 table = StatsEntry.PLAYERS_TABLE_NAME;
-                if(!values.containsKey(StatsEntry.COLUMN_FIRESTORE_ID)) {
+                if (!values.containsKey(StatsEntry.COLUMN_FIRESTORE_ID)) {
                     break;
                 }
                 firestoreID = values.getAsString(StatsEntry.COLUMN_FIRESTORE_ID);

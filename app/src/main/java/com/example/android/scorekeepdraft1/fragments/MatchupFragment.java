@@ -568,40 +568,27 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     }
 
     private ArrayList<Player> getLineup(String teamName, String teamID) {
-        ArrayList<Player> lineup = new ArrayList<>();
+        ArrayList<Player> lineupList = new ArrayList<>();
         List<Player> benchList = new ArrayList<>();
         try {
-            String[] projection = new String[]{StatsEntry._ID, StatsEntry.COLUMN_ORDER,
-                    StatsEntry.COLUMN_NAME, StatsEntry.COLUMN_FIRESTORE_ID, StatsEntry.COLUMN_GENDER};
             String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=?";
             String[] selectionArgs = new String[]{teamID};
             String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
 
-            Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS, projection,
+            Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS, null,
                     selection, selectionArgs, sortOrder);
 
-            int nameIndex = cursor.getColumnIndex(StatsContract.StatsEntry.COLUMN_NAME);
-            int orderIndex = cursor.getColumnIndex(StatsEntry.COLUMN_ORDER);
-            int idIndex = cursor.getColumnIndex(StatsEntry._ID);
-            int firestoreIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
-            int genderIndex = cursor.getColumnIndex(StatsEntry.COLUMN_GENDER);
-
             while (cursor.moveToNext()) {
-                String playerName = cursor.getString(nameIndex);
-                int id = cursor.getInt(idIndex);
-                int gender = cursor.getInt(genderIndex);
-                String firestoreID = cursor.getString(firestoreIDIndex);
-
-                int order = cursor.getInt(orderIndex);
+                int order = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_ORDER);
                 if (order < 50) {
-                    lineup.add(new Player(playerName, teamName, gender, id, firestoreID, teamID));
+                    lineupList.add(new Player(cursor, false));
                 } else {
-                    benchList.add(new Player(playerName, teamName, gender, id, firestoreID, teamID));
+                    benchList.add(new Player(cursor, false));
                 }
             }
             cursor.close();
-            addToBench(benchList, teamName);
-            return lineup;
+            addToBench(benchList, teamID);
+            return lineupList;
         } catch (Exception e) {
             return null;
         }
@@ -612,7 +599,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         getLineup(homeTeamName, homeTeamID);
     }
 
-    private void addToBench(List<Player> benchList, String teamName) {
+    private void addToBench(List<Player> benchList, String teamID) {
         TextView benchView;
         boolean genderSortOn = getGenderSorter() != 0;
         int color;
@@ -622,7 +609,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
             color = Color.parseColor("#666666");
         }
 
-        if (teamName.equals(awayTeamName) || teamName.equals(homeTeamName)) {
+        if (teamID.equals(awayTeamID) || teamID.equals(homeTeamID)) {
             StringBuilder builder = new StringBuilder();
             for (Player player : benchList) {
                 String string = player.getName() + "  ";
@@ -635,12 +622,12 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                     builder.append(string);
                 }
             }
-            if (teamName.equals(awayTeamName)) {
+            if (teamID.equals(awayTeamID)) {
                 benchView = getView().findViewById(R.id.bench_away);
                 benchView.setTextColor(color);
                 benchView.setText(Html.fromHtml(builder.toString()));
             }
-            if (teamName.equals(homeTeamName)) {
+            if (teamID.equals(homeTeamID)) {
                 benchView = getView().findViewById(R.id.bench_home);
                 benchView.setTextColor(color);
                 benchView.setText(Html.fromHtml(builder.toString()));
@@ -674,16 +661,14 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         String[] projection = new String[]{StatsContract.StatsEntry._ID,
                 StatsEntry.COLUMN_NAME, StatsEntry.COLUMN_FIRESTORE_ID};
-        return new CursorLoader(getActivity(), StatsContract.StatsEntry.CONTENT_URI_TEAMS, projection,
-                null, null, StatsEntry.COLUMN_NAME + " COLLATE NOCASE");
+        String sortOrder = StatsEntry.COLUMN_NAME + " COLLATE NOCASE";
+
+        return new CursorLoader(getActivity(), StatsContract.StatsEntry.CONTENT_URI_TEAMS,
+                projection, null, null, sortOrder);
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-//        SimpleCursorAdapter adapter = new SimpleCursorAdapter(getActivity(), R.layout.spinner_matchup_left, cursor,
-//                new String[]{StatsContract.StatsEntry.COLUMN_NAME},
-//                new int[]{R.id.spinnerTarget}, 0);
-//        adapter.setDropDownViewResource(R.layout.spinner_matchup_dropdown);
         mTeamMap = new HashMap<>();
         int firestoreIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
         int nameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_NAME);
@@ -727,19 +712,4 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         adapter.setDropDownViewResource(R.layout.spinner_matchup_dropdown);
         return adapter;
     }
-//
-//    //todo temporary method until replacing working with names with firestoreIDs
-//    private String getFirestoreIDFromTeamName(String teamName) {
-//        String selection = StatsEntry.COLUMN_NAME + "=?";
-//        String[] selectionArgs = new String[] {teamName};
-//        Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
-//                null, selection, selectionArgs, null);
-//        String firestoreID = null;
-//        if(cursor.moveToFirst()) {
-//            int nameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
-//            firestoreID = cursor.getString(nameIndex);
-//        }
-//        cursor.close();
-//        return firestoreID;
-//    }
 }

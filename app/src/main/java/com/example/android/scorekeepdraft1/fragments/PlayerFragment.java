@@ -146,40 +146,14 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         TextView nameView = rootView.findViewById(R.id.player_name);
 
         if (cursor.moveToFirst()) {
-            int nameIndex = cursor.getColumnIndex(StatsContract.StatsEntry.COLUMN_NAME);
-            int teamIndex = cursor.getColumnIndex(StatsEntry.COLUMN_TEAM);
-            int genderIndex = cursor.getColumnIndex(StatsEntry.COLUMN_GENDER);
-            int hrIndex = cursor.getColumnIndex(StatsEntry.COLUMN_HR);
-            int tripleIndex = cursor.getColumnIndex(StatsEntry.COLUMN_3B);
-            int doubleIndex = cursor.getColumnIndex(StatsEntry.COLUMN_2B);
-            int singleIndex = cursor.getColumnIndex(StatsEntry.COLUMN_1B);
-            int bbIndex = cursor.getColumnIndex(StatsEntry.COLUMN_BB);
-            int outIndex = cursor.getColumnIndex(StatsEntry.COLUMN_OUT);
-            int rbiIndex = cursor.getColumnIndex(StatsEntry.COLUMN_RBI);
-            int runIndex = cursor.getColumnIndex(StatsEntry.COLUMN_RUN);
-            int sfIndex = cursor.getColumnIndex(StatsEntry.COLUMN_SF);
-            int gameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_G);
-            int firestoreIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
-            int teamFirestoreIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_TEAM_FIRESTORE_ID);
 
-            playerName = cursor.getString(nameIndex);
-            teamString = cursor.getString(teamIndex);
-            gender = cursor.getInt(genderIndex);
-            int hr = cursor.getInt(hrIndex);
-            int tpl = cursor.getInt(tripleIndex);
-            int dbl = cursor.getInt(doubleIndex);
-            int sgl = cursor.getInt(singleIndex);
-            int bb = cursor.getInt(bbIndex);
-            int out = cursor.getInt(outIndex);
-            int rbi = cursor.getInt(rbiIndex);
-            int run = cursor.getInt(runIndex);
-            int sf = cursor.getInt(sfIndex);
-            int g = cursor.getInt(gameIndex);
-            firestoreID = cursor.getString(firestoreIDIndex);
-            teamFirestoreID = cursor.getString(teamFirestoreIDIndex);
+            Player player = new Player(cursor, false);
 
-            Player player = new Player(playerName, teamString, gender, sgl, dbl, tpl, hr, bb,
-                    run, rbi, out, sf, g, 0, firestoreID, teamFirestoreID);
+            playerName = player.getName();
+            teamString = player.getTeam();
+            gender = player.getGender();
+            firestoreID = player.getFirestoreID();
+            teamFirestoreID = player.getTeamfirestoreid();
 
             TextView abView = rootView.findViewById(R.id.playerboard_ab);
             TextView hitView = rootView.findViewById(R.id.playerboard_hit);
@@ -220,13 +194,13 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                                 cursor.close();
                             }
                             startActivity(intent);
+                            getActivity().finish();
                         } else {
                             Log.d("PlayerActivity", "Error going to team page");
                         }
                     }
                 });
             }
-
 
             int color;
             if (gender == 0) {
@@ -240,13 +214,13 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             teamView.setText(teamString);
             abView.setText(String.valueOf(player.getABs()));
             hitView.setText(String.valueOf(player.getHits()));
-            hrView.setText(String.valueOf(hr));
-            rbiView.setText(String.valueOf(rbi));
-            runView.setText(String.valueOf(run));
-            sglView.setText(String.valueOf(sgl));
-            dblView.setText(String.valueOf(dbl));
-            tplView.setText(String.valueOf(tpl));
-            bbView.setText(String.valueOf(bb));
+            hrView.setText(String.valueOf(player.getHrs()));
+            rbiView.setText(String.valueOf(player.getRbis()));
+            runView.setText(String.valueOf(player.getRuns()));
+            sglView.setText(String.valueOf(player.getSingles()));
+            dblView.setText(String.valueOf(player.getDoubles()));
+            tplView.setText(String.valueOf(player.getTriples()));
+            bbView.setText(String.valueOf(player.getWalks()));
             avgView.setText(String.valueOf(formatter.format(player.getAVG())));
             obpView.setText(String.valueOf(formatter.format(player.getOBP())));
             slgView.setText(String.valueOf(formatter.format(player.getSLG())));
@@ -528,16 +502,11 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         ArrayList<Team> teams = new ArrayList<>();
 
         String sortOrder = StatsEntry.COLUMN_NAME + " COLLATE NOCASE ASC";
-        Cursor mCursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
-                new String[]{StatsEntry.COLUMN_NAME, StatsEntry.COLUMN_FIRESTORE_ID},
-                null, null, sortOrder);
+        Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
+                null, null, null, sortOrder);
 
-        while (mCursor.moveToNext()) {
-            int teamNameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
-            String teamName = mCursor.getString(teamNameIndex);
-            int teamIDIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
-            String firestoreID = mCursor.getString(teamIDIndex);
-            teams.add(new Team(teamName, firestoreID));
+        while (cursor.moveToNext()) {
+            teams.add(new Team(cursor));
         }
         teams.add(new Team(getString(R.string.waivers), StatsEntry.FREE_AGENT));
 

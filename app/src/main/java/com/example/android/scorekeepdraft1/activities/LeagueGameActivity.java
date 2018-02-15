@@ -37,6 +37,7 @@ import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.data.FirestoreHelper;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.TeamListAdapter;
+import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.gamelog.BaseLog;
 
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
@@ -204,8 +205,6 @@ public class LeagueGameActivity extends AppCompatActivity /*implements LoaderMan
         playerCursor.close();
 
         setTitle(awayTeamName + " @ " + homeTeamName);
-//        awayTeam = setTeam(awayTeamName);
-//        homeTeam = setTeam(homeTeamName);
         awayTeam = setTeam(awayTeamID);
         homeTeam = setTeam(homeTeamID);
 
@@ -337,36 +336,6 @@ public class LeagueGameActivity extends AppCompatActivity /*implements LoaderMan
         }
     }
 
-//    private ArrayList<Player> setTeam(String teamName) {
-//
-//        String selection = StatsEntry.COLUMN_TEAM + "=?";
-//        String[] selectionArgs = new String[]{teamName};
-//        String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
-//        playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEMP, null,
-//                selection, selectionArgs, sortOrder);
-//
-//        int nameIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
-//        int idIndex = playerCursor.getColumnIndex(StatsEntry._ID);
-//        int orderIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_ORDER);
-//        int genderIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_GENDER);
-//        int firestoreIDIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
-//
-//        ArrayList<Player> team = new ArrayList<>();
-//        while (playerCursor.moveToNext()) {
-//            int order = playerCursor.getInt(orderIndex);
-//            if (order > 100) {
-//                continue;
-//            }
-//
-//            int playerId = playerCursor.getInt(idIndex);
-//            int gender = playerCursor.getInt(genderIndex);
-//            String playerName = playerCursor.getString(nameIndex);
-//            String firestoreID = playerCursor.getString(firestoreIDIndex);
-//            team.add(new Player(playerName, teamName, gender, playerId, firestoreID));
-//        }
-//        return team;
-//    }
-
     private ArrayList<Player> setTeam(String teamID) {
 
         String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=?";
@@ -375,26 +344,14 @@ public class LeagueGameActivity extends AppCompatActivity /*implements LoaderMan
         playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEMP, null,
                 selection, selectionArgs, sortOrder);
 
-        int nameIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
-        int idIndex = playerCursor.getColumnIndex(StatsEntry._ID);
-        int orderIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_ORDER);
-        int genderIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_GENDER);
-        int firestoreIDIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
-        int teamIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_TEAM);
-
         ArrayList<Player> team = new ArrayList<>();
         while (playerCursor.moveToNext()) {
-            int order = playerCursor.getInt(orderIndex);
+            int order = StatsContract.getColumnInt(playerCursor, StatsEntry.COLUMN_ORDER);
             if (order > 100) {
                 continue;
             }
-
-            int playerId = playerCursor.getInt(idIndex);
-            int gender = playerCursor.getInt(genderIndex);
-            String playerName = playerCursor.getString(nameIndex);
-            String teamName = playerCursor.getString(teamIndex);
-            String firestoreID = playerCursor.getString(firestoreIDIndex);
-            team.add(new Player(playerName, teamName, gender, playerId, firestoreID, teamID));
+            Player player = new Player(playerCursor, true);
+            team.add(player);
         }
         return team;
     }

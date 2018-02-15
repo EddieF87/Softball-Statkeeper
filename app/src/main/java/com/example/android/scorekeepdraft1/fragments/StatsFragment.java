@@ -54,7 +54,7 @@ import java.util.List;
 public class StatsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemSelectedListener, View.OnClickListener {
 
     private static final String TAG = "StatActivity: ";
-    private RecyclerView rv;
+    private RecyclerView statsRV;
     private PlayerStatsAdapter mAdapter;
     private ArrayAdapter<String> mSpinnerAdapter;
     private TextView emptyView;
@@ -111,7 +111,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
 
         View rootView = inflater.inflate(R.layout.fragment_stats, container, false);
 
-        rv = rootView.findViewById(R.id.rv_stats);
+        statsRV = rootView.findViewById(R.id.rv_stats);
         emptyView = rootView.findViewById(R.id.empty_stats_view);
 
         rootView.findViewById(R.id.name_title).setOnClickListener(this);
@@ -209,10 +209,10 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
                     .getSharedPreferences(selectionID + "settings", Context.MODE_PRIVATE);
             int genderSorter = settingsPreferences.getInt("genderSort", 0);
 
-            rv.setLayoutManager(new LinearLayoutManager(
+            statsRV.setLayoutManager(new LinearLayoutManager(
                     getActivity(), LinearLayoutManager.VERTICAL, false));
             mAdapter = new PlayerStatsAdapter(mPlayers, getActivity(), genderSorter);
-            rv.setAdapter(mAdapter);
+            statsRV.setAdapter(mAdapter);
         } else {
             mAdapter.notifyDataSetChanged();
         }
@@ -283,60 +283,14 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
             mPlayers.clear();
         }
         mCursor = data;
-        mCursor.moveToPosition(-1);
         while (mCursor.moveToNext()) {
-            int nameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
-            int teamIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_TEAM);
-            int hrIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_HR);
-            int tripleIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_3B);
-            int doubleIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_2B);
-            int singleIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_1B);
-            int bbIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_BB);
-            int outIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_OUT);
-            int rbiIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_RBI);
-            int runIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_RUN);
-            int sfIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_SF);
-            int gameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_G);
-            int idIndex = mCursor.getColumnIndex(StatsEntry._ID);
-            int genderIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_GENDER);
-            int firestoreIDIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
-            int teamfirestoreIDIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_TEAM_FIRESTORE_ID);
-
-            String player = mCursor.getString(nameIndex);
-            String team = mCursor.getString(teamIndex);
-            int gender = mCursor.getInt(genderIndex);
-            int hr = mCursor.getInt(hrIndex);
-            int tpl = mCursor.getInt(tripleIndex);
-            int dbl = mCursor.getInt(doubleIndex);
-            int sgl = mCursor.getInt(singleIndex);
-            int bb = mCursor.getInt(bbIndex);
-            int out = mCursor.getInt(outIndex);
-            int rbi = mCursor.getInt(rbiIndex);
-            int run = mCursor.getInt(runIndex);
-            int sf = mCursor.getInt(sfIndex);
-            int g = mCursor.getInt(gameIndex);
-            String teamFirestoreID = mCursor.getString(teamfirestoreIDIndex);
-            int teamId;
-            if (team == null || team.equals(StatsEntry.FREE_AGENT) || team.equals("")) {
-                teamId = -1;
-            } else {
-                try {
-                    teamId = teamIDs.get(teamFirestoreID);
-                } catch (Exception e) {
-                    teamId = -1;
-                    Log.e("xxx", " error with teamIDs.get(team): " + teamId + "  " + team);
-                }
-            }
-            int playerId = mCursor.getInt(idIndex);
-            String firestoreID = mCursor.getString(firestoreIDIndex);
-
-            mPlayers.add(new Player(player, team, gender, sgl, dbl, tpl, hr, bb, run, rbi, out, sf, g, teamId, playerId, firestoreID, teamFirestoreID));
+            mPlayers.add(new Player(mCursor, false));
         }
         if (mPlayers.isEmpty()) {
-            rv.setVisibility(View.GONE);
+            statsRV.setVisibility(View.GONE);
             emptyView.setVisibility(View.VISIBLE);
         } else {
-            rv.setVisibility(View.VISIBLE);
+            statsRV.setVisibility(View.VISIBLE);
             emptyView.setVisibility(View.GONE);
         }
         if (statSort != -1) {

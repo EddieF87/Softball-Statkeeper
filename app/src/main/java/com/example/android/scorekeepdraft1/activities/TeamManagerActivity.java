@@ -20,6 +20,7 @@ import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.PlayerStatsAdapter;
 import com.example.android.scorekeepdraft1.data.FirestoreHelper;
 import com.example.android.scorekeepdraft1.data.StatsContract;
+import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.dialogs.AddNewPlayersDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.DeleteVsWaiversDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.EditNameDialogFragment;
@@ -84,20 +85,18 @@ public class TeamManagerActivity extends ExportActivity
                 continue;
             }
             int gender = genders.get(i);
-            values.put(StatsContract.StatsEntry.COLUMN_NAME, playerName);
-            values.put(StatsContract.StatsEntry.COLUMN_GENDER, gender);
-            values.put(StatsContract.StatsEntry.COLUMN_TEAM, teamName);
-            values.put(StatsContract.StatsEntry.COLUMN_TEAM_FIRESTORE_ID, teamID);
-            values.put(StatsContract.StatsEntry.ADD, true);
+            values.put(StatsEntry.COLUMN_NAME, playerName);
+            values.put(StatsEntry.COLUMN_GENDER, gender);
+            values.put(StatsEntry.COLUMN_TEAM, teamName);
+            values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, teamID);
+            values.put(StatsEntry.ADD, true);
             Uri uri = getContentResolver().insert(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, values);
             if (uri != null) {
                 Cursor cursor = getContentResolver().query(uri, null, null,
                         null, null);
                 if (cursor.moveToFirst()) {
-                    String firestoreID = cursor.getString(cursor
-                            .getColumnIndex(StatsContract.StatsEntry.COLUMN_FIRESTORE_ID));
-                    long id = ContentUris.parseId(uri);
-                    players.add(new Player(playerName, teamName, gender, id, firestoreID, mTeamID));
+                    String firestoreID = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_FIRESTORE_ID);
+                    players.add(new Player(cursor, false));
                     firestoreHelper.setUpdate(firestoreID, 1);
                 }
             }

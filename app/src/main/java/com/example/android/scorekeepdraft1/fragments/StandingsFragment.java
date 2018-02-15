@@ -22,6 +22,8 @@ import android.support.v4.content.Loader;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -39,6 +41,8 @@ import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.activities.LeagueManagerActivity;
 import com.example.android.scorekeepdraft1.activities.UserSettingsActivity;
 import com.example.android.scorekeepdraft1.activities.TeamPagerActivity;
+import com.example.android.scorekeepdraft1.adapters_listeners_etc.PlayerStatsAdapter;
+import com.example.android.scorekeepdraft1.adapters_listeners_etc.StandingsAdapter;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.StandingsCursorAdapter;
 import com.example.android.scorekeepdraft1.data.FirestoreHelper;
 import com.example.android.scorekeepdraft1.data.StatsContract;
@@ -55,18 +59,15 @@ import java.util.Collections;
 public class StandingsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
         View.OnClickListener {
 
-
-    private String[] projection = new String[]{"*, (CAST ((" + StatsEntry.COLUMN_WINS + ") AS FLOAT) / (" + StatsEntry.COLUMN_WINS + " + "
-            + StatsEntry.COLUMN_LOSSES + ")) AS winpct"};
-    private String statToSortBy = "winpct";
     private static final int STANDINGS_LOADER = 3;
     private int level;
     private String leagueID;
     private String leagueName;
-    private StandingsCursorAdapter mAdapter;
+    private StandingsAdapter mAdapter;
     private ArrayList<Team> mTeams;
     private TextView colorView;
     private FloatingActionButton startAdderButton;
+    private RecyclerView standingsRV;
 
 
     public StandingsFragment() {
@@ -97,23 +98,6 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_standings, container, false);
 
-        ListView listView = rootView.findViewById(R.id.list);
-        mAdapter = new StandingsCursorAdapter(getActivity(), null);
-        listView.setAdapter(mAdapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                Intent intent = new Intent(getActivity(), TeamPagerActivity.class);
-                Uri currentTeamUri = ContentUris.withAppendedId(StatsContract.StatsEntry.CONTENT_URI_TEAMS, id);
-                Log.d("xxx", "onItemClick team id = " + id);
-                intent.setData(currentTeamUri);
-                startActivity(intent);
-            }
-        });
-
-        View emptyView = rootView.findViewById(R.id.empty_text);
-        listView.setEmptyView(emptyView);
-
         Button waiversButton = rootView.findViewById(R.id.btn_waivers);
         waiversButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -122,7 +106,6 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
                 startActivity(intent);
             }
         });
-
         rootView.findViewById(R.id.name_title).setOnClickListener(this);
         rootView.findViewById(R.id.win_title).setOnClickListener(this);
         rootView.findViewById(R.id.loss_title).setOnClickListener(this);
@@ -131,8 +114,8 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
         rootView.findViewById(R.id.runsfor_title).setOnClickListener(this);
         rootView.findViewById(R.id.runsagainst_title).setOnClickListener(this);
         rootView.findViewById(R.id.rundiff_title).setOnClickListener(this);
-
-
+        standingsRV = rootView.findViewById(R.id.rv_standings);
+        View emptyView = rootView.findViewById(R.id.empty_text);
         startAdderButton = rootView.findViewById(R.id.item_team_adder);
 
         startAdderButton.setOnClickListener(new View.OnClickListener() {
@@ -146,6 +129,17 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
         getLoaderManager().initLoader(STANDINGS_LOADER, null, this);
 
         return rootView;
+    }
+
+    private void updateStandingsRV() {
+        if (mAdapter == null) {
+            standingsRV.setLayoutManager(new LinearLayoutManager(
+                    getActivity(), LinearLayoutManager.VERTICAL, false));
+            mAdapter = new StandingsAdapter(mTeams, getActivity());
+            standingsRV.setAdapter(mAdapter);
+        } else {
+            mAdapter.notifyDataSetChanged();
+        }
     }
 
     private void chooseOrCreateTeamDialog() {
@@ -228,21 +222,14 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        String sortOrder;
-        if (statToSortBy.equals(StatsContract.StatsEntry.COLUMN_NAME)) {
-            sortOrder = statToSortBy + " COLLATE NOCASE ASC";
-        } else {
-            sortOrder = statToSortBy + " DESC";
-        }
-
 
         return new CursorLoader(
                 getActivity(),
                 StatsContract.StatsEntry.CONTENT_URI_TEAMS,
-                projection,
                 null,
                 null,
-                sortOrder
+                null,
+                null
         );
     }
 
@@ -254,19 +241,14 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
             mTeams.clear();
         }
 
-        int nameIndex = data.getColumnIndex(StatsEntry.COLUMN_NAME);
-        int firestoreIDIndex = data.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
         while (data.moveToNext()) {
-            String name = data.getString(nameIndex);
-            String firestoreID = data.getString(firestoreIDIndex);
-            mTeams.add(new Team(name, firestoreID));
+            mTeams.add(new Team(data));
         }
-        mAdapter.swapCursor(data);
+        updateStandingsRV();
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        mAdapter.swapCursor(null);
     }
 
     @Override
@@ -279,41 +261,32 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
 
         switch (view.getId()) {
             case R.id.name_title:
-                statToSortBy = StatsEntry.COLUMN_NAME;
-                projection = null;
+                Collections.sort(mTeams, Team.nameComparator());
                 break;
             case R.id.win_title:
-                statToSortBy = StatsEntry.COLUMN_WINS;
-                projection = null;
+                Collections.sort(mTeams, Team.winComparator());
                 break;
             case R.id.loss_title:
-                statToSortBy = StatsEntry.COLUMN_LOSSES;
-                projection = null;
+                Collections.sort(mTeams, Team.lossComparator());
                 break;
             case R.id.tie_title:
-                statToSortBy = StatsEntry.COLUMN_TIES;
-                projection = null;
+                Collections.sort(mTeams, Team.tieComparator());
                 break;
             case R.id.winpct_title:
-                statToSortBy = "winpct";
-                projection = new String[]{"*, (CAST ((" + StatsEntry.COLUMN_WINS + ") AS FLOAT) / (" + StatsEntry.COLUMN_WINS + " + "
-                        + StatsEntry.COLUMN_LOSSES + ")) AS winpct"};
+                Collections.sort(mTeams, Team.winpctComparator());
                 break;
             case R.id.runsfor_title:
-                statToSortBy = StatsEntry.COLUMN_RUNSFOR;
-                projection = null;
+                Collections.sort(mTeams, Team.runsComparator());
                 break;
             case R.id.runsagainst_title:
-                statToSortBy = StatsEntry.COLUMN_RUNSAGAINST;
-                projection = null;
+                Collections.sort(mTeams, Team.runsAllowedComparator());
                 break;
             case R.id.rundiff_title:
-                statToSortBy = "rundiff";
-                projection = new String[]{"*, (" + StatsEntry.COLUMN_RUNSFOR + " - " + StatsEntry.COLUMN_RUNSAGAINST + ") AS rundiff"};
+                Collections.sort(mTeams, Team.runDiffComparator());
                 break;
             default:
                 Toast.makeText(getActivity(), "SOMETHIGN WRONG WITH onClick", Toast.LENGTH_LONG).show();
         }
-        getLoaderManager().restartLoader(STANDINGS_LOADER, null, this);
+        updateStandingsRV();
     }
 }

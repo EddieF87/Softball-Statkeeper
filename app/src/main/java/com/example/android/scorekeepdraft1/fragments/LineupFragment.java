@@ -223,25 +223,16 @@ public class LineupFragment extends Fragment {
             mBench.clear();
         }
 
-        String[] projection = new String[]{StatsEntry._ID, StatsEntry.COLUMN_NAME,
-                StatsEntry.COLUMN_ORDER, StatsEntry.COLUMN_GENDER, StatsEntry.COLUMN_FIRESTORE_ID};
         String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=?";
         String[] selectionArgs = new String[]{mTeamID};
         String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
 
-        Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS, projection,
-                selection, selectionArgs, sortOrder);
+        Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS,
+                null, selection, selectionArgs, sortOrder);
 
         while (cursor.moveToNext()) {
-            int nameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_NAME);
-            int firestoreIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
-            int orderIndex = cursor.getColumnIndex(StatsEntry.COLUMN_ORDER);
-            int genderIndex = cursor.getColumnIndex(StatsEntry.COLUMN_GENDER);
-            String playerName = cursor.getString(nameIndex);
-            String firestoreID = cursor.getString(firestoreIDIndex);
-            int gender = cursor.getInt(genderIndex);
-            Player player = new Player(playerName, gender, firestoreID);
-            int playerOrder = cursor.getInt(orderIndex);
+            Player player = new Player(cursor, false);
+            int playerOrder = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_ORDER);
             if (playerOrder > 50) {
                 mBench.add(player);
             } else {
@@ -334,68 +325,16 @@ public class LineupFragment extends Fragment {
     }
 
     private List<Player> getPreviousLineup(String teamID) {
+
         String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=?";
         String[] selectionArgs = new String[]{teamID};
-        Cursor playerCursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEMP,
+        Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEMP,
                 null, selection, selectionArgs, null);
-
-        int playerIdIndex;
-        int playerNameIndex;
-        int genderIndex;
-        int firestoreIdIndex;
-        int singleIndex;
-        int doubleIndex;
-        int tripleIndex;
-        int hrIndex;
-        int bbIndex;
-        int sfIndex;
-        int playerOutIndex;
-        int playerRunIndex;
-        int rbiIndex;
-        int teamIndex;
-
-        if (playerCursor.moveToFirst()) {
-            playerIdIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_PLAYERID);
-            playerNameIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
-            genderIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_GENDER);
-            firestoreIdIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
-            singleIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_1B);
-            doubleIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_2B);
-            tripleIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_3B);
-            hrIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_HR);
-            bbIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_BB);
-            sfIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_SF);
-            playerOutIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_OUT);
-            playerRunIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_RUN);
-            rbiIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_RBI);
-            teamIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_TEAM);
-            playerCursor.moveToPrevious();
-        } else {
-            return null;
-        }
 
         List<Player> previousLineup = new ArrayList<>();
 
-        while (playerCursor.moveToNext()) {
-            Long id = playerCursor.getLong(playerIdIndex);
-            String name = playerCursor.getString(playerNameIndex);
-            String teamName = playerCursor.getString(teamIndex);
-            int gameRBI = playerCursor.getInt(rbiIndex);
-            int gameRun = playerCursor.getInt(playerRunIndex);
-            int game1b = playerCursor.getInt(singleIndex);
-            int game2b = playerCursor.getInt(doubleIndex);
-            int game3b = playerCursor.getInt(tripleIndex);
-            int gameHR = playerCursor.getInt(hrIndex);
-            int gameOuts = playerCursor.getInt(playerOutIndex);
-            int gameBB = playerCursor.getInt(bbIndex);
-            int gameSF = playerCursor.getInt(sfIndex);
-            int gender = playerCursor.getInt(genderIndex);
-            String firestoreID = playerCursor.getString(firestoreIdIndex);
-
-            previousLineup.add(new Player(name, teamName, gender,
-                    game1b, game2b, game3b, gameHR,
-                    gameBB, gameRun, gameRBI, gameOuts, gameSF, 0, id, firestoreID, teamID));
-            Log.d("xxx", "prev: " + name);
+        while (cursor.moveToNext()) {
+            previousLineup.add(new Player(cursor, true));
         }
         return previousLineup;
     }
@@ -552,29 +491,16 @@ public class LineupFragment extends Fragment {
     private ArrayList<Player> getLineup() {
         ArrayList<Player> lineup = new ArrayList<>();
         try {
-            String[] projection = new String[]{StatsContract.StatsEntry._ID, StatsContract.StatsEntry.COLUMN_ORDER,
-                    StatsEntry.COLUMN_GENDER, StatsEntry.COLUMN_NAME, StatsEntry.COLUMN_FIRESTORE_ID};
             String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=?";
             String[] selectionArgs = new String[]{mTeamID};
             String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
 
-            Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS, projection,
+            Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS, null,
                     selection, selectionArgs, sortOrder);
             while (cursor.moveToNext()) {
-                int nameIndex = cursor.getColumnIndex(StatsContract.StatsEntry.COLUMN_NAME);
-                int orderIndex = cursor.getColumnIndex(StatsEntry.COLUMN_ORDER);
-                int idIndex = cursor.getColumnIndex(StatsEntry._ID);
-                int firestoreIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
-                int genderIndex = cursor.getColumnIndex(StatsEntry.COLUMN_GENDER);
-
-                String playerName = cursor.getString(nameIndex);
-                int id = cursor.getInt(idIndex);
-                int gender = cursor.getInt(genderIndex);
-                String firestoreID = cursor.getString(firestoreIDIndex);
-
-                int order = cursor.getInt(orderIndex);
+                int order = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_ORDER);
                 if (order < 50) {
-                    lineup.add(new Player(playerName, mTeamName, gender, id, firestoreID, mTeamID));
+                    lineup.add(new Player(cursor, false));
                 }
             }
             cursor.close();

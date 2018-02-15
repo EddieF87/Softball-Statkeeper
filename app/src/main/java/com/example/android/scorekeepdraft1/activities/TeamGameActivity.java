@@ -235,12 +235,11 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameDia
         if (isHome) {
             homeTeamName = myTeamName;
             awayTeamName = "Away Team";
-            myTeam = setTeam(homeTeamName);
         } else {
             awayTeamName = myTeamName;
             homeTeamName = "Home Team";
-            myTeam = setTeam(awayTeamName);
         }
+        myTeam = setTeam();
         setTitle(awayTeamName + " @ " + homeTeamName);
 
         if (sortArgument) {
@@ -418,36 +417,20 @@ public class TeamGameActivity extends AppCompatActivity implements FinishGameDia
         }
     }
 
-    private ArrayList<Player> setTeam(String teamName) {
+    private ArrayList<Player> setTeam() {
 
-        String selection = StatsEntry.COLUMN_TEAM + "=?";
-        String[] selectionArgs = new String[]{teamName};
         String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
         playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEMP, null,
-                selection, selectionArgs, sortOrder);
-
-        int nameIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
-        int idIndex = playerCursor.getColumnIndex(StatsEntry._ID);
-        int orderIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_ORDER);
-        int firestoreIDIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
-        int teamfirestoreIDIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_TEAM_FIRESTORE_ID);
-        int genderIndex = playerCursor.getColumnIndex(StatsEntry.COLUMN_GENDER);
+                null, null, sortOrder);
 
         ArrayList<Player> team = new ArrayList<>();
 
         while (playerCursor.moveToNext()) {
-
-            int order = playerCursor.getInt(orderIndex);
+            int order = StatsContract.getColumnInt(playerCursor, StatsEntry.COLUMN_ORDER);
             if (order >100) {
                 continue;
             }
-
-            int playerId = playerCursor.getInt(idIndex);
-            String playerName = playerCursor.getString(nameIndex);
-            String firestoreID = playerCursor.getString(firestoreIDIndex);
-            String teamFirestoreID = playerCursor.getString(teamfirestoreIDIndex);
-            int gender = playerCursor.getInt(genderIndex);
-            team.add(new Player(playerName, teamName, gender, playerId, firestoreID, teamFirestoreID));
+            team.add(new Player(playerCursor, true));
         }
         return team;
     }
