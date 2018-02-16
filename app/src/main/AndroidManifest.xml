@@ -82,8 +82,6 @@
 
         <activity android:name=".activities.LoadingActivity" />
         <activity android:name=".activities.ExportActivity" />
-        <activity android:name=".activities.GameActivity" />
-        <activity android:name=".TestGameActivity"></activity>
     </application>
 
 </manifest>

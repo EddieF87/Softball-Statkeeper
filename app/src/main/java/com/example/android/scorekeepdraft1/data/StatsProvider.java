@@ -161,7 +161,7 @@ public class StatsProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
-        //Get current leagueID
+        //Get current selectionID
         MyApp myApp = (MyApp) getContext().getApplicationContext();
         String leagueID = myApp.getCurrentSelection().getId();
         int selectionType = myApp.getCurrentSelection().getType();
