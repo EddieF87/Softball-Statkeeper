@@ -1,5 +1,9 @@
 package com.example.android.scorekeepdraft1.gamelog;
 
+import android.database.Cursor;
+
+import com.example.android.scorekeepdraft1.data.StatsContract;
+import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.objects.Player;
 
 import java.util.List;
@@ -23,6 +27,19 @@ public class BaseLog {
         this.outCount = outs;
         this.awayTeamRuns = awayTeamRuns;
         this.homeTeamRuns = homeTeamRuns;
+    }
+
+    public BaseLog(Cursor cursor, Player batter, List<Player> team) {
+        this.outCount = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_OUT);
+        this.awayTeamRuns = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_AWAY_RUNS);
+        this.homeTeamRuns = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_HOME_RUNS);
+        String first = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_1B);
+        String second = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_2B);
+        String third = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_3B);
+        this.basepositions =  new String[]{first, second, third};
+
+        this.batter = batter;
+        this.team = team;
     }
 
     public String[] getBasepositions() {
