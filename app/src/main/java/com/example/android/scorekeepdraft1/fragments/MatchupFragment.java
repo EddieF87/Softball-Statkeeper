@@ -130,9 +130,9 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                 return true;
             case R.id.change_game_settings:
                 SharedPreferences settingsPreferences = getActivity()
-                        .getSharedPreferences(leagueID + "settings", Context.MODE_PRIVATE);
-                int innings = settingsPreferences.getInt("innings", 7);
-                int genderSorter = settingsPreferences.getInt("genderSort", 0);
+                        .getSharedPreferences(leagueID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
+                int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
+                int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 DialogFragment newFragment = GameSettingsDialogFragment.newInstance(innings, genderSorter, leagueID);
@@ -235,12 +235,12 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
 //                intent.putExtra("sortArgument", sortArgument);
 
                 SharedPreferences settingsPreferences = getActivity()
-                        .getSharedPreferences(leagueID + "settings", Context.MODE_PRIVATE);
-                int innings = settingsPreferences.getInt("innings", 7);
-                int genderSorter = settingsPreferences.getInt("genderSort", 0);
+                        .getSharedPreferences(leagueID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
+                int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
+                int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
 
                 SharedPreferences gamePreferences =
-                        getActivity().getSharedPreferences(leagueID + "game", Context.MODE_PRIVATE);
+                        getActivity().getSharedPreferences(leagueID + StatsEntry.GAME, Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = gamePreferences.edit();
 //                String awayTeam = getFirestoreIDFromTeamName(awayTeamName);
 //                String homeTeam = getFirestoreIDFromTeamName(homeTeamName);
@@ -287,7 +287,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         getActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, null, null);
         getActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, null, null);
         SharedPreferences savedGamePreferences = getActivity()
-                .getSharedPreferences(leagueID + "game", Context.MODE_PRIVATE);
+                .getSharedPreferences(leagueID + StatsEntry.GAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = savedGamePreferences.edit();
         editor.clear();
         editor.commit();
@@ -295,8 +295,8 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
 
     private int getGenderSorter() {
         SharedPreferences genderPreferences = getActivity()
-                .getSharedPreferences(leagueID + "settings", Context.MODE_PRIVATE);
-        return genderPreferences.getInt("genderSort", 0);
+                .getSharedPreferences(leagueID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
+        return genderPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
     }
 
     private boolean setLineupsToDB() {

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.PlayerStatsAdapter;

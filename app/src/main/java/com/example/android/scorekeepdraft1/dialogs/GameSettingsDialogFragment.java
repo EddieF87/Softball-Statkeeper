@@ -18,6 +18,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.example.android.scorekeepdraft1.R;
+import com.example.android.scorekeepdraft1.data.StatsContract;
 
 
 public class GameSettingsDialogFragment extends DialogFragment {
@@ -37,8 +38,8 @@ public class GameSettingsDialogFragment extends DialogFragment {
 
         Bundle args = new Bundle();
         GameSettingsDialogFragment fragment = new GameSettingsDialogFragment();
-        args.putInt("innings", innings);
-        args.putInt("genderSort", genderSortArg);
+        args.putInt(StatsContract.StatsEntry.INNINGS, innings);
+        args.putInt(StatsContract.StatsEntry.COLUMN_GENDER, genderSortArg);
         args.putString("mSelectionID", selectionID);
         fragment.setArguments(args);
         return fragment;
@@ -48,8 +49,8 @@ public class GameSettingsDialogFragment extends DialogFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
-        innings = args.getInt("innings");
-        genderSorter = args.getInt("genderSort");
+        innings = args.getInt(StatsContract.StatsEntry.INNINGS);
+        genderSorter = args.getInt(StatsContract.StatsEntry.COLUMN_GENDER);
         mSelectionID = args.getString("mSelectionID");
     }
 
@@ -131,10 +132,10 @@ public class GameSettingsDialogFragment extends DialogFragment {
 
 
     public void onButtonPressed() {
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(mSelectionID + "settings", 0);
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(mSelectionID + StatsContract.StatsEntry.SETTINGS, 0);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putInt("innings", innings);
-        editor.putInt("genderSort", genderSorter);
+        editor.putInt(StatsContract.StatsEntry.INNINGS, innings);
+        editor.putInt(StatsContract.StatsEntry.COLUMN_GENDER, genderSorter);
         editor.commit();
         if (mListener != null) {
             mListener.onGameSettingsChanged(innings, genderSorter);

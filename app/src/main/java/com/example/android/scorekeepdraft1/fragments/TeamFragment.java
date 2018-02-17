@@ -196,18 +196,7 @@ public class TeamFragment extends Fragment
             addPlayerView.setVisibility(View.INVISIBLE);
         }
         getLoaderManager().initLoader(EXISTING_TEAM_LOADER, null, this);
-
         return rootView;
-    }
-
-    public void removePlayerByName(String playerName){
-        for (int i = 0; i < mPlayers.size(); i++) {
-            Player player = mPlayers.get(i);
-            if (player.getName().equals(playerName)) {
-                mPlayers.remove(player);
-                return;
-            }
-        }
     }
 
     private void addPlayersDialog(String teamName, String teamID) {
@@ -228,8 +217,8 @@ public class TeamFragment extends Fragment
 
     public void setNewAdapter() {
         SharedPreferences settingsPreferences = getActivity()
-                .getSharedPreferences(mSelectionID + "settings", Context.MODE_PRIVATE);
-        int genderSorter = settingsPreferences.getInt("genderSort", 0);
+                .getSharedPreferences(mSelectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
+        int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
 
         rv.setLayoutManager(new LinearLayoutManager(
                 getActivity(), LinearLayoutManager.VERTICAL, false));
@@ -271,7 +260,7 @@ public class TeamFragment extends Fragment
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        Log.d("xxx", "teamfrag onLoadFinished");
+        Log.d("zzz", "teamfrag onLoadFinished " + mCurrentTeamUri.toString());
 
         int wins = 0;
         int losses = 0;
@@ -454,9 +443,9 @@ public class TeamFragment extends Fragment
 
             case R.id.change_game_settings:
                 SharedPreferences settingsPreferences = getActivity()
-                        .getSharedPreferences(mSelectionID + "settings", Context.MODE_PRIVATE);
-                int innings = settingsPreferences.getInt("innings", 7);
-                int genderSorter = settingsPreferences.getInt("genderSort", 0);
+                        .getSharedPreferences(mSelectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
+                int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
+                int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 DialogFragment newFragment = GameSettingsDialogFragment.newInstance(innings, genderSorter, mSelectionID);

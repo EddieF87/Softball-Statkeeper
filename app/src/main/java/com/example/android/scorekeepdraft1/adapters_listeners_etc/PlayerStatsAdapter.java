@@ -1,10 +1,7 @@
 package com.example.android.scorekeepdraft1.adapters_listeners_etc;
 
-import android.app.AlertDialog;
 import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -21,17 +18,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.activities.ObjectPagerActivity;
 import com.example.android.scorekeepdraft1.activities.PlayerPagerActivity;
 import com.example.android.scorekeepdraft1.activities.TeamManagerActivity;
 import com.example.android.scorekeepdraft1.activities.TeamPagerActivity;
-import com.example.android.scorekeepdraft1.data.FirestoreHelper;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.dialogs.ChangeTeamDialogFragment;
-import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.example.android.scorekeepdraft1.objects.Player;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
@@ -308,9 +301,9 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
                         long playerId = (long) nameView.getTag();
                         Uri playerUri = ContentUris.withAppendedId(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, playerId);
                         intent.setData(playerUri);
+                        Log.d("zzz", "startActivity");
                         if (mContext instanceof TeamPagerActivity) {
                             ((TeamPagerActivity) mContext).startActivityForResult(intent, REQUEST_CODE);
-                            ((TeamPagerActivity) mContext).finish();
                         } else if (mContext instanceof TeamManagerActivity) {
                             ((TeamManagerActivity) mContext).startActivityForResult(intent, REQUEST_CODE);
                         } else {

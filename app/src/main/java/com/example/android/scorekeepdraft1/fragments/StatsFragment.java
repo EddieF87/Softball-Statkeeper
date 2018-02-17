@@ -179,9 +179,9 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
                 return true;
             case R.id.change_game_settings:
                 SharedPreferences settingsPreferences = getActivity()
-                        .getSharedPreferences(selectionID + "settings", Context.MODE_PRIVATE);
-                int innings = settingsPreferences.getInt("innings", 7);
-                int genderSorter = settingsPreferences.getInt("genderSort", 0);
+                        .getSharedPreferences(selectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
+                int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
+                int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 DialogFragment newFragment = GameSettingsDialogFragment.newInstance(innings, genderSorter, selectionID);
@@ -206,8 +206,8 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
     private void updateStatsRV() {
         if (mAdapter == null) {
             SharedPreferences settingsPreferences = getActivity()
-                    .getSharedPreferences(selectionID + "settings", Context.MODE_PRIVATE);
-            int genderSorter = settingsPreferences.getInt("genderSort", 0);
+                    .getSharedPreferences(selectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
+            int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
 
             statsRV.setLayoutManager(new LinearLayoutManager(
                     getActivity(), LinearLayoutManager.VERTICAL, false));
@@ -313,8 +313,8 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         }
 
         SharedPreferences settingsPreferences = getActivity()
-                .getSharedPreferences(selectionID + "settings", Context.MODE_PRIVATE);
-        int genderSorter = settingsPreferences.getInt("genderSort", 0);
+                .getSharedPreferences(selectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
+        int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
         boolean genderSettingsOn = genderSorter != 0;
         mAdapter.changeColors(genderSettingsOn);
     }

@@ -3,6 +3,7 @@ package com.example.android.scorekeepdraft1.data;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -13,6 +14,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.MyApp;
+import com.example.android.scorekeepdraft1.activities.MainActivity;
+import com.example.android.scorekeepdraft1.activities.ObjectPagerActivity;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -84,12 +87,18 @@ public class StatsProvider extends ContentProvider {
     @Override
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection,
                         @Nullable String[] selectionArgs, @Nullable String sortOrder) {
-        MyApp myApp = (MyApp) getContext().getApplicationContext();
-        String leagueID = myApp.getCurrentSelection().getId();
-        if (selection == null || selection.isEmpty()) {
-            selection = StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
-        } else {
-            selection = selection + " AND " + StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
+        try {
+            MyApp myApp = (MyApp) getContext().getApplicationContext();
+            String leagueID = myApp.getCurrentSelection().getId();
+            if (selection == null || selection.isEmpty()) {
+                selection = StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
+            } else {
+                selection = selection + " AND " + StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
+            }
+        } catch (Exception e) {
+            Intent intent = new Intent(getContext(), MainActivity.class);
+            getContext().startActivity(intent);
+            return null;
         }
 
         SQLiteDatabase database = mOpenHelper.getReadableDatabase();
@@ -101,8 +110,11 @@ public class StatsProvider extends ContentProvider {
                 table = StatsEntry.PLAYERS_TABLE_NAME;
                 break;
             case PLAYERS_ID:
+                Log.d("zzz", "StatsProvider case PLAYERS_ID" + uri.toString());
                 selection = StatsEntry._ID + "=?";
-                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                String playerID = String.valueOf(ContentUris.parseId(uri));
+                selectionArgs = new String[]{playerID};
+                sortOrder = null;
                 table = StatsEntry.PLAYERS_TABLE_NAME;
                 break;
             case TEAMS:
@@ -162,10 +174,19 @@ public class StatsProvider extends ContentProvider {
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
         //Get current selectionID
-        MyApp myApp = (MyApp) getContext().getApplicationContext();
-        String leagueID = myApp.getCurrentSelection().getId();
-        int selectionType = myApp.getCurrentSelection().getType();
-        values.put(StatsEntry.COLUMN_LEAGUE_ID, leagueID);
+        MyApp myApp;
+        String leagueID;
+        int selectionType;
+        try {
+            myApp = (MyApp) getContext().getApplicationContext();
+            leagueID = myApp.getCurrentSelection().getId();
+            selectionType = myApp.getCurrentSelection().getType();
+            values.put(StatsEntry.COLUMN_LEAGUE_ID, leagueID);
+        } catch (Exception e) {
+            Intent intent = new Intent(getContext(), MainActivity.class);
+            getContext().startActivity(intent);
+            return null;
+        }
 
         if (sqlSafeguard(values)) {
             Toast.makeText(getContext(), "Please only enter letters, numbers, -, and _", Toast.LENGTH_SHORT).show();
@@ -284,19 +305,25 @@ public class StatsProvider extends ContentProvider {
 
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
-        MyApp myApp = (MyApp) getContext().getApplicationContext();
-        MainPageSelection mainPageSelection = myApp.getCurrentSelection();
-        if (mainPageSelection == null) {
-            Log.d(TAG, "ERROR WITH DELETE!!!");
+        try {
+            MyApp myApp = (MyApp) getContext().getApplicationContext();
+            MainPageSelection mainPageSelection = myApp.getCurrentSelection();
+            if (mainPageSelection == null) {
+                Log.d(TAG, "ERROR WITH DELETE!!!");
+                return -1;
+            }
+            final String leagueID = myApp.getCurrentSelection().getId();
+            if (selection == null || selection.isEmpty()) {
+                selection = StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
+            } else {
+                selection = selection + " AND " + StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
+            }
+        } catch (Exception e) {
+            Intent intent = new Intent(getContext(), MainActivity.class);
+            getContext().startActivity(intent);
             return -1;
         }
-        final String leagueID = myApp.getCurrentSelection().getId();
-        int selectionType = myApp.getCurrentSelection().getType();
-        if (selection == null || selection.isEmpty()) {
-            selection = StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
-        } else {
-            selection = selection + " AND " + StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
-        }
+
 
         SQLiteDatabase database = mOpenHelper.getWritableDatabase();
 
@@ -396,13 +423,21 @@ public class StatsProvider extends ContentProvider {
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues values,
                       @Nullable String selection, @Nullable String[] selectionArgs) {
-        MyApp myApp = (MyApp) getContext().getApplicationContext();
-        String leagueID = myApp.getCurrentSelection().getId();
-        if (selection == null || selection.isEmpty()) {
-            selection = StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
-        } else {
-            selection = selection + " AND " + StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
+        String leagueID;
+        try {
+            MyApp myApp = (MyApp) getContext().getApplicationContext();
+            leagueID = myApp.getCurrentSelection().getId();
+            if (selection == null || selection.isEmpty()) {
+                selection = StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
+            } else {
+                selection = selection + " AND " + StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
+            }
+        } catch (Exception e) {
+            Intent intent = new Intent(getContext(), MainActivity.class);
+            getContext().startActivity(intent);
+            return -1;
         }
+
 
         if (sqlSafeguard(values)) {
             Toast.makeText(getContext(), "Please only enter letters, numbers, -, and _", Toast.LENGTH_SHORT).show();

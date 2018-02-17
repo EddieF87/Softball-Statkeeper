@@ -62,7 +62,7 @@ public class LeagueGameActivity extends GameActivity /*implements LoaderManager.
     protected void setCustomViews() {
         setContentView(R.layout.activity_game);
 
-        SharedPreferences gamePreferences = getSharedPreferences(selectionID + "game", MODE_PRIVATE);
+        SharedPreferences gamePreferences = getSharedPreferences(selectionID + StatsEntry.GAME, MODE_PRIVATE);
         totalInnings = gamePreferences.getInt(KEY_TOTALINNINGS, 7);
         awayTeamID = gamePreferences.getString(KEY_AWAYTEAM, "x");
         awayTeamName = getTeamNameFromFirestoreID(awayTeamID);
@@ -142,7 +142,7 @@ public class LeagueGameActivity extends GameActivity /*implements LoaderManager.
     @Override
     protected void loadGamePreferences() {
         SharedPreferences gamePreferences
-                = getSharedPreferences(selectionID + "game", MODE_PRIVATE);
+                = getSharedPreferences(selectionID + StatsEntry.GAME, MODE_PRIVATE);
         gameLogIndex = gamePreferences.getInt(KEY_GAMELOGINDEX, 0);
         highestIndex = gamePreferences.getInt(KEY_HIGHESTINDEX, 0);
         inningNumber = gamePreferences.getInt(KEY_INNINGNUMBER, 2);
@@ -311,7 +311,7 @@ public class LeagueGameActivity extends GameActivity /*implements LoaderManager.
 
     @Override
     protected void saveGameState() {
-        SharedPreferences gamePreferences = getSharedPreferences(selectionID + "game", MODE_PRIVATE);
+        SharedPreferences gamePreferences = getSharedPreferences(selectionID + StatsEntry.GAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = gamePreferences.edit();
         editor.putInt(KEY_GAMELOGINDEX, gameLogIndex);
         editor.putInt(KEY_HIGHESTINDEX, highestIndex);

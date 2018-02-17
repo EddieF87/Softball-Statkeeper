@@ -10,9 +10,12 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.SparseArray;
+import android.view.MenuItem;
 import android.view.ViewGroup;
 
 import com.example.android.scorekeepdraft1.MyApp;
@@ -60,10 +63,12 @@ public class ObjectPagerActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_object_pager);
+
+        ActionBar ab = getSupportActionBar();
+        ab.setDisplayHomeAsUpEnabled(true);
     }
 
     protected void startPager(int objectType,  Uri uri) {
-
         setLeagueInfo();
 
         mObjectType = objectType;
@@ -77,7 +82,8 @@ public class ObjectPagerActivity extends AppCompatActivity
         } else {
             sortOrder = StatsEntry.COLUMN_NAME + " COLLATE NOCASE ASC";
         }
-        Cursor cursor = getContentResolver().query(uri, null,
+
+        Cursor cursor = getContentResolver().query(uri, new String[]{StatsEntry._ID},
                 null, null, sortOrder);
         while (cursor.moveToNext()) {
             int objectID = cursor.getInt(cursor.getColumnIndex(StatsEntry._ID));
@@ -339,5 +345,23 @@ public class ObjectPagerActivity extends AppCompatActivity
         }
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                Intent intent;
+                if(selectionType == MainPageSelection.TYPE_LEAGUE) {
+                    intent = new Intent(ObjectPagerActivity.this, LeagueManagerActivity.class);
+                } else if (selectionType == MainPageSelection.TYPE_TEAM) {
+                    intent = new Intent(ObjectPagerActivity.this, TeamManagerActivity.class);
+                } else {
+                    return false;
+                }
+                startActivity(intent);
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }
 

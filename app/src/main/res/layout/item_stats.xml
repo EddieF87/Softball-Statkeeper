@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
@@ -10,34 +11,38 @@
         android:id="@+id/name"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
+        android:autoSizeMinTextSize="10sp"
+        android:autoSizeTextType="uniform"
         android:gravity="center_vertical|start"
         android:maxLines="1"
         android:paddingBottom="4dp"
-        android:paddingEnd="20dp"
+        android:paddingEnd="10dp"
         android:paddingLeft="8dp"
-        android:paddingRight="20dp"
+        android:paddingRight="10dp"
         android:paddingStart="8dp"
         android:textAlignment="textStart"
-        android:textSize="20sp"
+        android:textSize="18sp"
         android:textStyle="bold"
-        android:autoSizeMinTextSize="10sp"
-        android:autoSizeTextType="uniform"
-        />
+        tools:text="DFFDFDFDF" />
 
     <TextView
         android:id="@+id/team_abv"
         style="@style/StatsStyle"
-        android:layout_width="60dp"
-        android:paddingRight="10dp"
-        android:textStyle="italic" />
+        android:layout_width="50dp"
+        android:paddingEnd="4dp"
+        android:paddingRight="4dp"
+        android:textStyle="italic"
+        tools:text="AAA" />
 
     <TextView
         android:id="@+id/game"
-        style="@style/StatsStyle" />
+        style="@style/StatsStyle"
+        tools:text="133" />
 
     <TextView
         android:id="@+id/ab"
-        style="@style/StatsStyle" />
+        style="@style/StatsStyle"
+        tools:text="132" />
 
     <TextView
         android:id="@+id/hit"
@@ -45,50 +50,61 @@
 
     <TextView
         android:id="@+id/hr"
-        style="@style/StatsStyle" />
+        style="@style/StatsStyle"
+        tools:text="27" />
 
     <TextView
         android:id="@+id/run"
-        style="@style/StatsStyle" />
+        style="@style/StatsStyle"
+        tools:text="111" />
 
     <TextView
         android:id="@+id/rbi"
-        style="@style/StatsStyle" />
+        style="@style/StatsStyle"
+        tools:text="333" />
 
     <TextView
         android:id="@+id/avg"
         style="@style/StatsStyle"
-        android:layout_width="70dp" />
+        android:layout_width="70dp"
+        tools:text=".444" />
 
     <TextView
         android:id="@+id/obp"
         style="@style/StatsStyle"
-        android:layout_width="70dp"/>
+        android:layout_width="70dp"
+        tools:text=".444" />
 
     <TextView
         android:id="@+id/slg"
         style="@style/StatsStyle"
-        android:layout_width="70dp" />
+        android:layout_width="70dp"
+        tools:text=".444" />
 
     <TextView
         android:id="@+id/ops"
         style="@style/StatsStyle"
-        android:layout_width="70dp" />
+        android:layout_width="70dp"
+        tools:text="1.444" />
 
     <TextView
         android:id="@+id/sgl"
-        style="@style/StatsStyle"/>
+        style="@style/StatsStyle"
+        tools:text="42" />
 
     <TextView
         android:id="@+id/dbl"
-        style="@style/StatsStyle" />
+        style="@style/StatsStyle"
+        tools:text="44" />
 
     <TextView
         android:id="@+id/tpl"
-        style="@style/StatsStyle" />
+        style="@style/StatsStyle"
+        tools:text="44" />
 
     <TextView
         android:id="@+id/bb"
-        style="@style/StatsStyle" />
+        style="@style/StatsStyle"
+        tools:text="44" />
 
 </LinearLayout>

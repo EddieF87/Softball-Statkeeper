@@ -144,7 +144,7 @@ public class LineupFragment extends Fragment {
         if (isLineupOK()) {
             setNewLineupToTempDB(getPreviousLineup(mTeamID));
             Intent intent;
-            SharedPreferences gamePreferences = getActivity().getSharedPreferences(mSelectionID + "game", Context.MODE_PRIVATE);
+            SharedPreferences gamePreferences = getActivity().getSharedPreferences(mSelectionID + StatsEntry.GAME, Context.MODE_PRIVATE);
 
             SharedPreferences.Editor editor = gamePreferences.edit();
             if (mType == MainPageSelection.TYPE_LEAGUE) {
@@ -297,8 +297,8 @@ public class LineupFragment extends Fragment {
 
     private int getGenderSorter() {
         SharedPreferences genderPreferences = getActivity()
-                .getSharedPreferences(mSelectionID + "settings", Context.MODE_PRIVATE);
-        return genderPreferences.getInt("genderSort", 0);
+                .getSharedPreferences(mSelectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
+        return genderPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
     }
 
     private boolean isHome() {
@@ -318,7 +318,7 @@ public class LineupFragment extends Fragment {
     private void clearGameDB() {
         getActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, null, null);
         getActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, null, null);
-        SharedPreferences savedGamePreferences = getActivity().getSharedPreferences(mSelectionID + "game", Context.MODE_PRIVATE);
+        SharedPreferences savedGamePreferences = getActivity().getSharedPreferences(mSelectionID + StatsEntry.GAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = savedGamePreferences.edit();
         editor.clear();
         editor.commit();
@@ -613,9 +613,9 @@ public class LineupFragment extends Fragment {
                 return true;
             case R.id.change_game_settings:
                 SharedPreferences settingsPreferences = getActivity()
-                        .getSharedPreferences(mSelectionID + "settings", Context.MODE_PRIVATE);
-                int innings = settingsPreferences.getInt("innings", 7);
-                int genderSorter = settingsPreferences.getInt("genderSort", 0);
+                        .getSharedPreferences(mSelectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
+                int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
+                int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 DialogFragment newFragment = GameSettingsDialogFragment.newInstance(innings, genderSorter, mSelectionID);

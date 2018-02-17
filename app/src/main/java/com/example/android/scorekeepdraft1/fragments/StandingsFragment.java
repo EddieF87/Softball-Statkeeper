@@ -172,9 +172,9 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
                 return true;
             case R.id.change_game_settings:
                 SharedPreferences settingsPreferences = getActivity()
-                        .getSharedPreferences(leagueID + "settings", Context.MODE_PRIVATE);
-                int innings = settingsPreferences.getInt("innings", 7);
-                int genderSorter = settingsPreferences.getInt("genderSort", 0);
+                        .getSharedPreferences(leagueID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
+                int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
+                int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 DialogFragment newFragment = GameSettingsDialogFragment.newInstance(innings, genderSorter, leagueID);

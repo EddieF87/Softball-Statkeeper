@@ -46,7 +46,6 @@ public class LeagueManagerActivity extends ExportActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manager_pager);
 
-        Log.d("qqq", "onCreate LeagueManager");
         try {
             MyApp myApp = (MyApp) getApplicationContext();
             MainPageSelection mainPageSelection = myApp.getCurrentSelection();leagueName = mainPageSelection.getName();
@@ -61,6 +60,7 @@ public class LeagueManagerActivity extends ExportActivity
 
         ViewPager viewPager = findViewById(R.id.league_view_pager);
         FragmentManager fragmentManager = getSupportFragmentManager();
+        viewPager.setOffscreenPageLimit(2);
         viewPager.setAdapter(new LeagueManagerPagerAdapter(fragmentManager));
 
         TabLayout tabLayout = findViewById(R.id.league_tab_layout);

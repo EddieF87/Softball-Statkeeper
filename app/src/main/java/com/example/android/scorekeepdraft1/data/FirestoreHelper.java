@@ -569,7 +569,7 @@ public class FirestoreHelper {
     private void clearGameDB() {
         mContext.getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, null, null);
         mContext.getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, null, null);
-        SharedPreferences savedGamePreferences = mContext.getSharedPreferences(leagueID + "game", Context.MODE_PRIVATE);
+        SharedPreferences savedGamePreferences = mContext.getSharedPreferences(leagueID + StatsEntry.GAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = savedGamePreferences.edit();
         editor.clear();
         editor.commit();
@@ -886,7 +886,7 @@ public class FirestoreHelper {
         cursor.close();
         if (!currentlyPlaying.isEmpty()) {
             SharedPreferences gamePreferences
-                    = mContext.getSharedPreferences(leagueID + "game", Context.MODE_PRIVATE);
+                    = mContext.getSharedPreferences(leagueID + StatsEntry.GAME, Context.MODE_PRIVATE);
             String awayID = gamePreferences.getString("keyAwayTeam", null);
             String homeID = gamePreferences.getString("keyHomeTeam", null);
             currentlyPlaying.add(awayID);

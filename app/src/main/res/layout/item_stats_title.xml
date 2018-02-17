@@ -13,9 +13,9 @@
         android:gravity="start"
         android:maxLines="1"
         style="@style/StatsTitleStyle"
-        android:paddingEnd="20dp"
+        android:paddingEnd="10dp"
         android:paddingLeft="8dp"
-        android:paddingRight="20dp"
+        android:paddingRight="10dp"
         android:paddingStart="8dp"
         android:text="@string/name"
         android:textAlignment="textStart"
@@ -26,9 +26,9 @@
     <TextView
         android:id="@+id/team_abv_title"
         style="@style/StatsTitleStyle"
-        android:layout_width="60dp"
-        android:paddingRight="10dp"
-        android:paddingEnd="10dp"
+        android:layout_width="50dp"
+        android:paddingRight="4dp"
+        android:paddingEnd="4dp"
         android:text="@string/team"
         android:visibility="gone"/>
 
@@ -98,7 +98,6 @@
 
     <TextView
         android:id="@+id/tpl_title"
-        android:layout_width="50dp"
         style="@style/StatsTitleStyle"
         android:text="@string/_3b" />
 

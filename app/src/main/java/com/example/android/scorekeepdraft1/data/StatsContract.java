@@ -96,6 +96,9 @@ public class StatsContract {
         public static final String COLUMN_TEAM_FIRESTORE_ID = "teamfirestoreid";
 
 
+        public static final String SETTINGS = "settings";
+        public static final String GAME = "game";
+        public static final String INNINGS = "innings";
         public static final String UPDATE = "update";
         public static final String TYPE = "type";
         public static final String TIME = "time";

@@ -67,7 +67,9 @@ public class Team implements Parcelable {
     public long getTeamId() {return teamId;}
     public String getFirestoreID() {return firestoreID;}
     public int getRunDifferential() {return this.getTotalRunsScored() - this.getTotalRunsAllowed();}
-    public double getWinPct() {return this.wins / ((double) this.wins + this.losses);}
+    public double getWinPct() {
+        return this.wins / ((double) this.wins + this.losses);
+    }
 
     public void setName(String name) {this.name = name;}
     public void setTeamId(long teamId) {this.teamId = teamId;}
@@ -146,6 +148,16 @@ public class Team implements Parcelable {
         return new Comparator<Team>() {
             @Override
             public int compare(Team team1, Team team2) {
+                int team1Games = team1.getLosses() + team1.getWins();
+                int team2Games = team2.getLosses() + team2.getWins();
+
+                if(team1Games <= 0 && team2Games <= 0) {
+                    return 0;
+                } else if (team1Games <= 0) {
+                    return 1;
+                } else if (team2Games <= 0) {
+                    return -1;
+                }
                 return (int) (1000 * (team2.getWinPct() - team1.getWinPct()));
             }
         };

@@ -38,7 +38,6 @@ public class PlayerPagerActivity extends ObjectPagerActivity {
         finish();
     }
 
-
     @Override
     public void onTeamChosen(String playerID, String teamName, String teamID) {
         super.onTeamChosen(playerID, teamName, teamID);

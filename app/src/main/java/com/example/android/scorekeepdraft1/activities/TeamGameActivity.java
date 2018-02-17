@@ -71,7 +71,7 @@ public class TeamGameActivity extends GameActivity implements FinishGameDialogFr
     @Override
     protected void loadGamePreferences() {
         SharedPreferences gamePreferences
-                = getSharedPreferences(selectionID + "game", MODE_PRIVATE);
+                = getSharedPreferences(selectionID + StatsEntry.GAME, MODE_PRIVATE);
         gameLogIndex = gamePreferences.getInt(KEY_GAMELOGINDEX, 0);
         highestIndex = gamePreferences.getInt(KEY_HIGHESTINDEX, 0);
         inningNumber = gamePreferences.getInt(KEY_INNINGNUMBER, 2);
@@ -92,13 +92,13 @@ public class TeamGameActivity extends GameActivity implements FinishGameDialogFr
         setContentView(R.layout.activity_team_game);
 
         SharedPreferences settingsPreferences =
-                getSharedPreferences(selectionID + "settings", MODE_PRIVATE);
-        int genderSorter = settingsPreferences.getInt("genderSort", 0) + 1;
-        totalInnings = settingsPreferences.getInt("innings", 7);
+                getSharedPreferences(selectionID + StatsEntry.SETTINGS, MODE_PRIVATE);
+        int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0) + 1;
+        totalInnings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
 
         Bundle args = getIntent().getExtras();
 
-        SharedPreferences gamePreferences = getSharedPreferences(selectionID + "game", MODE_PRIVATE);
+        SharedPreferences gamePreferences = getSharedPreferences(selectionID + StatsEntry.GAME, MODE_PRIVATE);
 
         boolean sortArgument = false;
 
@@ -292,7 +292,7 @@ public class TeamGameActivity extends GameActivity implements FinishGameDialogFr
     //todo diff
     @Override
     protected void saveGameState() {
-        SharedPreferences gamePreferences = getSharedPreferences(selectionID + "game", MODE_PRIVATE);
+        SharedPreferences gamePreferences = getSharedPreferences(selectionID + StatsEntry.GAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = gamePreferences.edit();
         editor.putInt(KEY_GAMELOGINDEX, gameLogIndex);
         editor.putInt(KEY_HIGHESTINDEX, highestIndex);

@@ -77,7 +77,6 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         // Required empty public constructor
     }
 
-
     public static PlayerFragment newInstance(String leagueID, int leagueType, int level, Uri uri) {
         Bundle args = new Bundle();
         args.putInt(MainPageSelection.KEY_SELECTION_TYPE, leagueType);
@@ -114,22 +113,26 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             mCurrentPlayerUri = Uri.parse(uriString);
             mSelectionID = args.getString(MainPageSelection.KEY_SELECTION_ID);
         }
+        Log.d("zzz", "PlayerFragment onCreate " + mCurrentPlayerUri.toString());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Log.d("zzz", "PlayerFragment onCreateView " + mCurrentPlayerUri.toString());
+        getLoaderManager().initLoader(EXISTING_PLAYER_LOADER, null, this);
         return inflater.inflate(R.layout.fragment_player, container, false);
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getLoaderManager().initLoader(EXISTING_PLAYER_LOADER, null, this);
+        Log.d("zzz", "PlayerFragment onActivityCreated " + mCurrentPlayerUri.toString());
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        Log.d("zzz", "PlayerFragment onCreateLoader " + mCurrentPlayerUri.toString());
         return new CursorLoader(
                 getActivity(),
                 mCurrentPlayerUri,
@@ -142,11 +145,11 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        Log.d("zzz", "PlayerFragment onLoadFinishedStart " + mCurrentPlayerUri.toString());
         View rootView = getView();
         TextView nameView = rootView.findViewById(R.id.player_name);
 
         if (cursor.moveToFirst()) {
-
             Player player = new Player(cursor, false);
 
             playerName = player.getName();
@@ -194,7 +197,6 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                                 cursor.close();
                             }
                             startActivity(intent);
-                            getActivity().finish();
                         } else {
                             Log.d("PlayerActivity", "Error going to team page");
                         }
@@ -235,6 +237,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             getActivity().getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
             setPlayerManager();
         }
+        Log.d("zzz", "PlayerFragment onLoadFinishedEnd " + mCurrentPlayerUri.toString());
     }
 
     private void setPlayerManager() {

@@ -22,6 +22,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:windowSoftInputMode="stateHidden|adjustResize">
+
         <activity
             android:name=".activities.MainActivity"
             android:screenOrientation="portrait">
@@ -31,37 +32,51 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".activities.LeagueManagerActivity"
             android:launchMode="singleTask"
             android:parentActivityName=".activities.MainActivity" />
+
         <activity
             android:name=".activities.LeagueGameActivity"
             android:screenOrientation="portrait" />
+
         <activity
             android:name=".activities.SetLineupActivity"
             android:label="Lineup Editor"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
+
         <activity
             android:name=".activities.BoxScoreActivity"
             android:label="Box Score"
             android:parentActivityName=".activities.LeagueGameActivity"
             android:screenOrientation="portrait" />
+
         <activity
             android:name=".activities.TeamGameActivity"
             android:launchMode="singleTask"
             android:parentActivityName=".activities.TeamManagerActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".activities.TeamPagerActivity" />
-        <activity android:name=".activities.PlayerPagerActivity" />
+
+        <activity android:name=".activities.TeamPagerActivity"
+            />
+
+        <activity android:name=".activities.PlayerPagerActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"
+            />
+
         <activity
             android:name=".activities.TeamManagerActivity"
             android:launchMode="singleTask"
             android:parentActivityName=".activities.MainActivity" />
+
         <activity
             android:name=".activities.PlayerManagerActivity"
             android:screenOrientation="portrait" />
+
         <activity
             android:name=".activities.UserSettingsActivity"
             android:screenOrientation="portrait" />
@@ -70,6 +85,7 @@
             android:name=".data.StatsProvider"
             android:authorities="com.example.android.scorekeepdraft1"
             android:exported="false" />
+
         <provider
             android:name=".data.MyFileProvider"
             android:authorities="com.example.android.scorekeepdraft1.data.fileprovider"
