@@ -15,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.android.scorekeepdraft1.R;
+import com.example.android.scorekeepdraft1.activities.LeagueManagerActivity;
 import com.example.android.scorekeepdraft1.activities.TeamPagerActivity;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.objects.Player;
@@ -63,7 +64,7 @@ public class StandingsAdapter extends RecyclerView.Adapter<StandingsAdapter.Stan
                 Uri currentTeamUri = ContentUris.withAppendedId(StatsContract.StatsEntry.CONTENT_URI_TEAMS, id);
                 Log.d("xxx", "onItemClick team id = " + id);
                 intent.setData(currentTeamUri);
-                mContext.startActivity(intent);
+                ((LeagueManagerActivity) mContext).startActivityForResult(intent, 0);
             }
         });
     }

@@ -180,6 +180,7 @@ public class ObjectPagerActivity extends AppCompatActivity
         if (teamFragment != null) {
             teamFragment.changeColorsRV(genderSettingsOn);
         }
+        setResult(RESULT_OK);
     }
 
     @Override

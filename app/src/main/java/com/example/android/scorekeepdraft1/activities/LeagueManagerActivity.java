@@ -1,7 +1,9 @@
 package com.example.android.scorekeepdraft1.activities;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -12,6 +14,7 @@ import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
@@ -197,8 +200,20 @@ public class LeagueManagerActivity extends ExportActivity
         }
 
         if (matchupFragment != null) {
+            matchupFragment.setGameSettings(innings, genderSorter);
             matchupFragment.updateBenchColors();
             matchupFragment.changeColorsRV(genderSettingsOn);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode == RESULT_OK) {
+            SharedPreferences settingsPreferences = getSharedPreferences(leagueID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
+            int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
+            int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
+            onGameSettingsChanged(innings, genderSorter);
         }
     }
 }

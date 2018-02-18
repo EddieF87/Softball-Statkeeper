@@ -1,5 +1,11 @@
 package com.example.android.scorekeepdraft1.activities;
 
+import android.app.LoaderManager;
+import android.content.Loader;
+import android.support.annotation.Nullable;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v7.app.AppCompatActivity;
+
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -7,10 +13,11 @@ import android.net.NetworkInfo;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
@@ -23,15 +30,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LoadingActivity extends AppCompatActivity
-        implements FirestoreHelper.onFirestoreSyncListener, DeletionCheckDialogFragment.OnListFragmentInteractionListener {
+        implements
+        LoaderManager.LoaderCallbacks,
+        FirestoreHelper.onFirestoreSyncListener,
+        DeletionCheckDialogFragment.OnListFragmentInteractionListener {
 
     private int countdown;
     private int numberOfTeams;
     private int numberOfPlayers;
+    private int totalNumber;
     private int mSelectionType;
     private int mLevel;
     private String mSelectionID;
     private FirestoreHelper firestoreHelper;
+
+    private TextView loadTitle;
+    private TextView loadDescription;
+    private ProgressBar loadProgressBar;
+    private boolean loade;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,23 +67,26 @@ public class LoadingActivity extends AppCompatActivity
             startActivity(intent);
             finish();
         }
+        loadDescription = findViewById(R.id.load_desc);
+        loadTitle = findViewById(R.id.load_title);
+        loadProgressBar = findViewById(R.id.load_bar);
 
+    }
 
-        ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-
-        if (mWifi.isConnected()) {
-            Log.d("xxx", "wifi success");
-        } else {
-            Log.d("xxx", "wifi fail");
-        }
-        firestoreHelper = new FirestoreHelper(this, mSelectionID);
-        firestoreHelper.checkForUpdate();
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d("xxx", "initloader");
+        loade = true;
+        getLoaderManager().initLoader(2452, null, this);
     }
 
     @Override
     public void onUpdateCheck(boolean update) {
         if (update) {
+            loadTitle.setText("(1/3)  Preparing Sync");
+            loadDescription.setText("Please wait while data is being prepared.");
+            countdown = 2;
             firestoreHelper.syncStats();
         } else {
             proceedToNext();
@@ -92,6 +113,9 @@ public class LoadingActivity extends AppCompatActivity
     }
 
     private void onCountDownFinished() {
+        loadProgressBar.setVisibility(View.INVISIBLE);
+        loadTitle.setText("(3/3)  Deletion Check");
+        loadDescription.setText("Checking if players or teams were deleted on other devices.");
         firestoreHelper.deletionCheck(mLevel);
     }
 
@@ -103,20 +127,29 @@ public class LoadingActivity extends AppCompatActivity
     }
 
     @Override
-    public void onFirestoreUpdateSync() {
-        countdown = 2;
-    }
-
-    @Override
     public void onSyncStart(int numberOf, boolean teams) {
         if(teams) {
             numberOfTeams = numberOf;
+            if(numberOfPlayers > -1 && totalNumber == -1) {
+                startSyncProgress();
+            }
         } else {
             numberOfPlayers = numberOf;
+            if(numberOfTeams > -1 && totalNumber == -1) {
+                startSyncProgress();
+            }
         }
         if(numberOf < 1) {
             decreaseCountDown();
         }
+    }
+
+    private void startSyncProgress(){
+        totalNumber = numberOfTeams + numberOfPlayers;
+        loadProgressBar.setMax(totalNumber);
+        loadProgressBar.setVisibility(View.VISIBLE);
+        loadTitle.setText("(2/3)  Syncing...");
+        loadDescription.setText("Updating player & team statistics.");
     }
 
     @Override
@@ -132,6 +165,8 @@ public class LoadingActivity extends AppCompatActivity
                 decreaseCountDown();
             }
         }
+        loadProgressBar.incrementProgressBy(1);
+        Log.d("xxx", "loadProgressBar.incrementProgressBy... total = " + loadProgressBar.getProgress());
     }
 
     @Override
@@ -139,11 +174,16 @@ public class LoadingActivity extends AppCompatActivity
         if(error.equals("updating players") || error.equals("updating teams")) {
             countdown = 99;
         }
-        Toast.makeText(this, "Error with " + error, Toast.LENGTH_LONG).show();
+        loadProgressBar.setVisibility(View.INVISIBLE);
+        loadTitle.setText("Error");
+        loadDescription.setText("Error with " + error);
     }
 
     @Override
     public void openDeletionCheckDialog(ArrayList<ItemMarkedForDeletion> itemMarkedForDeletionList) {
+        loadProgressBar.setVisibility(View.INVISIBLE);
+        loadTitle.setVisibility(View.INVISIBLE);
+        loadDescription.setVisibility(View.INVISIBLE);
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         DialogFragment newFragment = DeletionCheckDialogFragment.newInstance(itemMarkedForDeletionList);
@@ -168,4 +208,37 @@ public class LoadingActivity extends AppCompatActivity
     public void onCancel() {
         proceedToNext();
     }
+
+    @Override
+    public Loader onCreateLoader(int i, Bundle bundle) {
+        Log.d("xxx", "ONCREATELOADER");
+        if(loade) {
+            loade = false;
+            Log.d("xxx", "ifloade");
+            ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+            numberOfTeams = -1;
+            numberOfPlayers = -1;
+            totalNumber = -1;
+            if (mWifi.isConnected()) {
+                Log.d("xxx", "wifi success");
+            } else {
+                Log.d("xxx", "wifi fail");
+            }
+            firestoreHelper = new FirestoreHelper(this, mSelectionID);
+            firestoreHelper.checkForUpdate();
+        }
+        return null;
+    }
+
+    @Override
+    public void onLoadFinished(Loader loader, Object o) {
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader loader) {
+        Log.d("xxx", "onLoaderReset");
+    }
+
 }

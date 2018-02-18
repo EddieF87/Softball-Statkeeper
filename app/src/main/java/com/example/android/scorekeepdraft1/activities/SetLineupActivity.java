@@ -104,6 +104,7 @@ public class SetLineupActivity extends SingleFragmentActivity
         if (lineupFragment != null) {
             lineupFragment.changeColorsRV(genderSettingsOn);
         }
+        setResult(RESULT_OK);
     }
 }
 

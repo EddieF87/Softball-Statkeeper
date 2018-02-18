@@ -103,7 +103,7 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getActivity(), TeamPagerActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, 0);
             }
         });
         rootView.findViewById(R.id.name_title).setOnClickListener(this);

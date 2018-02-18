@@ -85,6 +85,7 @@ public class BoxScoreActivity extends AppCompatActivity implements LoaderManager
         if (selectionType == MainPageSelection.TYPE_TEAM) {
             TextView boxscoreHeader = findViewById(R.id.boxscore_header);
             boxscoreHeader.setText(headerString);
+            boxscoreHeader.setVisibility(View.VISIBLE);
             View boxscore = findViewById(R.id.relativelayout_boxscore);
             boxscore.setVisibility(View.GONE);
             awayNameView.setText(selectionName);

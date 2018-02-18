@@ -51,6 +51,8 @@ public class FirestoreHelper {
     private static final String LAST_UPDATE = "last_update";
     private static final String UPDATE_SETTINGS = "_updateSettings";
     public static final String USERS = "users";
+    private int playersofar;
+    private int teamssofar;
     private String leagueID;
 
     private onFirestoreSyncListener mListener;
@@ -127,8 +129,9 @@ public class FirestoreHelper {
     }
 
     private long getLocalTimeStamp() {
-        SharedPreferences updatePreferences = mContext.getSharedPreferences(leagueID + UPDATE_SETTINGS, Context.MODE_PRIVATE);
-        return updatePreferences.getLong(LAST_UPDATE, 0);
+        return 0;
+//        SharedPreferences updatePreferences = mContext.getSharedPreferences(leagueID + UPDATE_SETTINGS, Context.MODE_PRIVATE);
+//        return updatePreferences.getLong(LAST_UPDATE, 0);
     }
 
     public void setLocalTimeStamp(long time) {
@@ -200,7 +203,6 @@ public class FirestoreHelper {
                 return;
             }
         }
-        mListener.onFirestoreUpdateSync();
         updatePlayers(localTimeStamp);
         updateTeams(localTimeStamp);
     }
@@ -215,7 +217,8 @@ public class FirestoreHelper {
                         if (task.isSuccessful()) {
 
                             QuerySnapshot querySnapshot = task.getResult();
-                            int numberOfPlayers = querySnapshot.size();
+                            final int numberOfPlayers = querySnapshot.size();
+                            playersofar = 0;
                             mListener.onSyncStart(numberOfPlayers, false);
 
                             for (DocumentSnapshot document : querySnapshot) {
@@ -230,6 +233,7 @@ public class FirestoreHelper {
                                             @Override
                                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                                 if (task.isSuccessful()) {
+                                                    playersofar++;
 
                                                     QuerySnapshot querySnapshot = task.getResult();
                                                     int games = 0;
@@ -330,6 +334,7 @@ public class FirestoreHelper {
                                                         values.put(StatsEntry.COLUMN_FIRESTORE_ID, playerIdString);
                                                         mContext.getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
                                                     }
+                                                    Log.d("xxx", "onSyncUpdate: " + player.getName() + "  " + playersofar + " / " + numberOfPlayers);
                                                     mListener.onSyncUpdate(false);
                                                 } else {
                                                     mListener.onSyncError("updating players");
@@ -355,7 +360,8 @@ public class FirestoreHelper {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             QuerySnapshot querySnapshot = task.getResult();
-                            int numberOfTeams = querySnapshot.size();
+                            final int numberOfTeams = querySnapshot.size();
+                            teamssofar = 0;
                             Log.d("xxx", "teamsUpdating = " + numberOfTeams);
                             mListener.onSyncStart(numberOfTeams, true);
 
@@ -374,6 +380,7 @@ public class FirestoreHelper {
                                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                                 if (task.isSuccessful()) {
 
+                                                    teamssofar++;
                                                     QuerySnapshot querySnapshot = task.getResult();
                                                     int wins = 0;
                                                     int losses = 0;
@@ -442,6 +449,7 @@ public class FirestoreHelper {
                                                         mContext.getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
                                                     }
                                                     mListener.onSyncUpdate(true);
+                                                    Log.d("xxx", "onSyncUpdate: " + team.getName() + "  " + teamssofar + " / " + numberOfTeams);
                                                 } else {
                                                     mListener.onSyncError("updating teams");
                                                 }
@@ -497,6 +505,7 @@ public class FirestoreHelper {
                                     mListener.openDeletionCheckDialog(itemMarkedForDeletionList);
                                 } else {
                                     deleteItems(itemMarkedForDeletionList);
+                                    mListener.proceedToNext();
                                 }
                             }
                         } else {
@@ -963,18 +972,11 @@ public class FirestoreHelper {
     //LISTENER
     public interface onFirestoreSyncListener {
         void onUpdateCheck(boolean update);
-
-        void onFirestoreUpdateSync();
-
         void onSyncStart(int numberOf, boolean teams);
-
         void onSyncUpdate(boolean teams);
-
-        void onSyncError(String error);
-
         void openDeletionCheckDialog(ArrayList<ItemMarkedForDeletion> deleteList);
-
         void proceedToNext();
+        void onSyncError(String error);
     }
 
 

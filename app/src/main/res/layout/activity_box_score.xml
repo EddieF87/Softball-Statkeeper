@@ -4,7 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@color/colorPrimaryLight"
+    >
 
     <TextView
         android:id="@+id/boxscore_header"
@@ -12,13 +14,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="24sp"
-        android:textStyle="bold"/>
+        android:textStyle="bold"
+        android:visibility="gone"
+        android:background="#FFFFFF"
+        />
 
     <RelativeLayout
         android:id="@+id/relativelayout_boxscore"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp">
+        android:padding="16dp"
+        android:background="#FFFFFF"
+        >
 
         <TextView
             android:id="@+id/top_team"
@@ -27,7 +34,9 @@
             android:layout_marginTop="30dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentLeft="true"
+            android:textStyle="bold"
             android:textSize="16sp"
+            android:singleLine="true"
             />
 
         <TextView
@@ -35,8 +44,9 @@
             android:layout_width="wrap_content"
             android:layout_height="30dp"
             android:layout_below="@id/top_team"
+            android:textStyle="bold"
             android:textSize="16sp"
-            />
+            android:singleLine="true"            />
 
         <include
             layout="@layout/item_boxscore_score"
@@ -56,32 +66,45 @@
             android:layout_toRightOf="@id/top_team"
             android:layout_toEndOf="@id/top_team"
             android:layout_toLeftOf="@id/boxscore_total"
-            android:layout_toStartOf="@id/boxscore_total"/>
+            android:layout_toStartOf="@id/boxscore_total"
+            />
 
     </RelativeLayout>
 
     <include layout="@layout/item_boxscore_title"
         android:id="@+id/away_players_title"
+        android:layout_marginTop="8dp"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="2"/>
+        android:layout_weight="2"
+        android:background="#FFFFFF"
+        />
 
     <ListView
         android:id="@+id/away_players_listview"
+        android:layout_marginTop="4dp"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="10" />
+        android:layout_weight="10"
+        android:background="#FFFFFF"
+        />
 
     <include layout="@layout/item_boxscore_title"
         android:id="@+id/home_players_title"
+        android:layout_marginTop="24dp"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="2"/>
+        android:layout_weight="2"
+        android:background="#FFFFFF"
+        />
 
     <ListView
         android:id="@+id/home_players_listview"
+        android:layout_marginTop="4dp"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="10"/>
+        android:layout_weight="10"
+        android:background="#FFFFFF"
+        />
 
 </LinearLayout>

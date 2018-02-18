@@ -15,6 +15,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.DragEvent;
@@ -95,7 +97,6 @@ public abstract class GameActivity extends AppCompatActivity
 
     protected boolean finalInning;
     protected boolean redoEndsGame = false;
-
 
     protected boolean playEntered = false;
     protected boolean batterMoved = false;
@@ -1146,8 +1147,10 @@ public abstract class GameActivity extends AppCompatActivity
     protected String getTeamNameFromFirestoreID(String firestoreID) {
         String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
         String[] selectionArgs = new String[]{firestoreID};
+        String[] projection = new String[]{StatsEntry.COLUMN_NAME};
+
         Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
-                null, selection, selectionArgs, null);
+                projection, selection, selectionArgs, null);
         String name = null;
         if (cursor.moveToFirst()) {
             int nameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_NAME);

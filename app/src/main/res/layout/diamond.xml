@@ -133,6 +133,8 @@
         android:textColor="#ffffff"
         app:layout_constraintBottom_toBottomOf="@+id/trash"
         app:layout_constraintLeft_toLeftOf="@+id/trash"
-        app:layout_constraintRight_toRightOf="@+id/trash" />
+        app:layout_constraintRight_toRightOf="@+id/trash"
+        app:layout_constraintTop_toTopOf="@+id/trash"
+        app:layout_constraintVertical_bias="0.8" />
 
 </android.support.constraint.ConstraintLayout>

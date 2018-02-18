@@ -45,8 +45,6 @@ import com.example.android.scorekeepdraft1.objects.Player;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.app.Activity.RESULT_OK;
-
 public class LineupFragment extends Fragment {
 
     private LineupListAdapter leftListAdapter;
@@ -203,7 +201,6 @@ public class LineupFragment extends Fragment {
             }
         } else {
             updateAndSubmitLineup();
-            getActivity().setResult(RESULT_OK);
             getActivity().finish();
         }
     }
