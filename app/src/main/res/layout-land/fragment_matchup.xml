@@ -25,18 +25,16 @@
     <LinearLayout
         android:id="@+id/layout_spinners"
         android:layout_width="0dp"
-        android:layout_height="44dp"
-        android:layout_marginTop="8dp"
+        android:layout_height="30dp"
         android:background="@color/colorPrimary"
         android:descendantFocusability="beforeDescendants"
         android:focusableInTouchMode="true"
-        android:textAlignment="gravity"
         android:orientation="horizontal"
         android:paddingLeft="8dp"
         android:paddingRight="8dp"
-        android:paddingBottom="2dp"
+        android:textAlignment="gravity"
+        app:layout_constraintEnd_toStartOf="@+id/settings_separator"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <Spinner
@@ -48,7 +46,7 @@
             android:gravity="center"
             android:textAlignment="center"
             android:textColor="#FFFFFF"
-            android:textSize="20sp"
+            android:textSize="14sp"
             android:textStyle="bold" />
 
         <TextView
@@ -57,11 +55,11 @@
             android:layout_height="match_parent"
             android:layout_weight="2"
             android:background="@color/colorPrimary"
-            android:text="\@"
             android:gravity="center"
+            android:text="\@"
             android:textAlignment="center"
             android:textColor="#FFFFFF"
-            android:textSize="24sp"
+            android:textSize="14sp"
             android:textStyle="bold" />
 
         <Spinner
@@ -73,64 +71,65 @@
             android:gravity="center"
             android:textAlignment="center"
             android:textColor="#FFFFFF"
-            android:textSize="20sp"
+            android:textSize="14sp"
             android:textStyle="bold" />
 
     </LinearLayout>
 
 
-    <LinearLayout
-        android:id="@+id/layout_start_buttons"
+    <Button
+        android:id="@+id/continue_game"
         android:layout_width="0dp"
-        android:layout_height="50dp"
-        android:layout_marginBottom="8dp"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="32dp"
         android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:maxLines="1"
+        android:text="@string/continue_game"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/gender_lineup_view"
+        app:layout_constraintEnd_toEndOf="@+id/start_game"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/start_game"
+        app:layout_constraintTop_toBottomOf="@+id/current_game_view"
+        tools:visibility="visible" />
+
+    <Button
+        android:id="@+id/start_game"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="16dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
-        android:orientation="horizontal"
+        android:layout_weight="1"
+        android:maxLines="1"
+        android:text="@string/start"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent">
-
-        <Button
-            android:id="@+id/continue_game"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:maxLines="1"
-            android:text="@string/continue_game"
-            android:visibility="gone" />
-
-        <Button
-            android:id="@+id/start_game"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:maxLines="1"
-            android:text="@string/start" />
-
-    </LinearLayout>
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintLeft_toRightOf="@+id/settings_separator"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/innings_view" />
 
     <View
         android:id="@+id/lineup_bench_separator"
-        android:layout_width="0dp"
-        android:layout_height="4dp"
+        android:layout_width="4dp"
+        android:layout_height="0dp"
         android:background="@color/colorPrimary"
-        app:layout_constraintBottom_toTopOf="@+id/layout_benches"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintBottom_toTopOf="@id/layout_benches"
+        app:layout_constraintRight_toLeftOf="@id/layout_benches"
+        app:layout_constraintTop_toTopOf="@id/layout_benches"
+        tools:layout_editor_absoluteY="62dp" />
 
     <LinearLayout
         android:id="@+id/layout_recyclerviews"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf="@+id/lineup_bench_separator"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/settings_separator"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/layout_spinners">
 
         <com.example.android.scorekeepdraft1.adapters_listeners_etc.VerticalTextView
@@ -191,30 +190,31 @@
 
     <LinearLayout
         android:id="@+id/layout_benches"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/settings_separator"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/layout_spinners">
 
-        <com.example.android.scorekeepdraft1.adapters_listeners_etc.VerticalTextView
+        <TextView
             android:id="@+id/bench_title_away"
-            android:layout_width="0dp"
+            android:layout_width="60dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
             android:layout_marginBottom="2dp"
+            android:layout_marginTop="2dp"
             android:layout_weight="5"
             android:gravity="center"
             android:maxLines="1"
-            android:rotation="180"
             android:text="@string/bench"
-            android:textSize="18sp" />
+            android:textSize="12sp"
+            tools:text="Bench" />
 
         <TextView
             android:id="@+id/bench_away"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
             android:layout_weight="25"
             android:autoSizeMinTextSize="10sp"
             android:autoSizeTextType="uniform"
@@ -224,15 +224,10 @@
             android:paddingTop="4dp"
             android:textSize="12sp" />
 
-        <View
-            android:layout_width="4dp"
-            android:layout_height="match_parent"
-            android:background="@color/colorPrimary" />
-
         <TextView
             android:id="@+id/bench_home"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
             android:layout_weight="25"
             android:autoSizeMinTextSize="10sp"
             android:autoSizeTextType="uniform"
@@ -243,76 +238,83 @@
             android:textSize="12sp" />
 
         <Space
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
             android:layout_weight="5" />
 
     </LinearLayout>
 
     <View
         android:id="@+id/settings_separator"
-        android:layout_width="0dp"
-        android:layout_height="4dp"
-        android:layout_marginBottom="16dp"
+        android:layout_width="4dp"
+        android:layout_height="0dp"
         android:background="@color/colorPrimary"
-        app:layout_constraintBottom_toTopOf="@+id/layout_settings"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintHorizontal_bias="0.7"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/layout_spinners" />
 
-    <LinearLayout
-        android:id="@+id/layout_settings"
+
+    <TextView
+        android:id="@+id/current_game_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf="@+id/layout_start_buttons"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent">
+        android:layout_gravity="center_vertical"
+        android:layout_marginTop="16dp"
+        android:layout_weight="2"
+        android:gravity="center"
+        android:maxLines="2"
+        android:textSize="12sp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/continue_game"
+        app:layout_constraintEnd_toEndOf="@+id/continue_game"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/continue_game"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="aaaaaaaaaaaaaaaaabbbaa"
+        tools:visibility="visible" />
 
-        <TextView
-            android:id="@+id/current_game_view"
-            android:layout_width="0dp"
-            android:layout_weight="2"
-            android:layout_height="wrap_content"
-            android:maxLines="2"
-            android:textSize="12sp"
-            android:layout_marginLeft="6dp"
-            android:layout_marginRight="6dp"
-            android:visibility="gone"
-            android:gravity="center"
-            android:layout_gravity="center_vertical"
-            tools:text="aaaaaaaaaaaaaaaaabbbaa" />
 
-        <TextView
-            android:id="@+id/gender_lineup_view"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="6dp"
-            android:layout_marginRight="6dp"
-            android:layout_weight="1"
-            android:maxLines="2"
-            android:textSize="16sp"
-            android:autoSizeTextType="uniform"
-            android:autoSizeMinTextSize="12sp"
-            android:gravity="center"
-            android:layout_gravity="center_vertical"
-            tools:text="BGBG" />
+    <TextView
+        android:id="@+id/gender_lineup_view"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="32dp"
+        android:layout_weight="1"
+        android:autoSizeMinTextSize="12sp"
+        android:autoSizeTextType="uniform"
+        android:gravity="center"
+        android:maxLines="1"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/innings_view"
+        app:layout_constraintEnd_toEndOf="@+id/innings_view"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/innings_view"
+        app:layout_constraintTop_toBottomOf="@+id/continue_game"
+        tools:text="BGBG" />
 
-        <TextView
-            android:id="@+id/innings_view"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="6dp"
-            android:layout_marginRight="6dp"
-            android:maxLines="2"
-            android:layout_weight="1"
-            android:textSize="16sp"
-            android:gravity="center"
-            android:layout_gravity="center_vertical"
-            tools:text="Innings: 3" />
+    <TextView
+        android:id="@+id/innings_view"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:maxLines="1"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/start_game"
+        app:layout_constraintEnd_toEndOf="@+id/start_game"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/start_game"
+        app:layout_constraintTop_toBottomOf="@+id/gender_lineup_view"
+        tools:text="Innings: 3" />
 
-    </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

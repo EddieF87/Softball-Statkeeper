@@ -5,8 +5,8 @@
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/stat_title"
-    android:paddingTop="8dp"
-    android:paddingBottom="12dp"
+    android:paddingTop="4dp"
+    android:paddingBottom="6dp"
     >
 
     <TextView
@@ -16,17 +16,15 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        android:gravity="center"
+        app:layout_goneMarginEnd="8dp"
+        app:layout_goneMarginRight="8dp"
         android:maxLines="1"
         android:text="@string/team"
+        android:gravity="center"
         android:textAlignment="center"
         android:textSize="20sp"
         android:textStyle="bold"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@id/win_title"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_goneMarginEnd="8dp"
-        app:layout_goneMarginRight="8dp"
+
         android:textColor="#FFFFFF"/>
 
     <TextView

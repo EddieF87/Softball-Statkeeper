@@ -53,7 +53,7 @@ public class DragListener implements View.OnDragListener {
                         if (viewSource != null) {
                             RecyclerView source = (RecyclerView) viewSource.getParent();
 
-                            LineupListAdapter adapterSource = (LineupListAdapter) source.getAdapter();
+                            SetLineupAdapter adapterSource = (SetLineupAdapter) source.getAdapter();
                             int positionSource = (int) viewSource.getTag();
                             int sourceId = source.getId();
 
@@ -64,7 +64,7 @@ public class DragListener implements View.OnDragListener {
                             adapterSource.updateList(listSource);
                             adapterSource.notifyDataSetChanged();
 
-                            LineupListAdapter adapterTarget = (LineupListAdapter) target.getAdapter();
+                            SetLineupAdapter adapterTarget = (SetLineupAdapter) target.getAdapter();
                             List<Player> customListTarget = adapterTarget.getPlayerList();
                             if (positionTarget >= 0) {
                                 customListTarget.add(positionTarget, player);

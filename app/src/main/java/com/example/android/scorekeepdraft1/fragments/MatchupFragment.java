@@ -4,7 +4,6 @@ package com.example.android.scorekeepdraft1.fragments;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
-import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
@@ -32,7 +31,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -43,20 +41,18 @@ import com.example.android.scorekeepdraft1.activities.LeagueGameActivity;
 import com.example.android.scorekeepdraft1.activities.LeagueManagerActivity;
 import com.example.android.scorekeepdraft1.activities.SetLineupActivity;
 import com.example.android.scorekeepdraft1.activities.UserSettingsActivity;
-import com.example.android.scorekeepdraft1.adapters_listeners_etc.TeamListAdapter;
+import com.example.android.scorekeepdraft1.adapters_listeners_etc.LineupAdapter;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.VerticalTextView;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.dialogs.GameSettingsDialogFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.example.android.scorekeepdraft1.objects.Player;
-import com.example.android.scorekeepdraft1.objects.Team;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 
 public class MatchupFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemSelectedListener {
@@ -67,10 +63,11 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
 
     private RecyclerView rvAway;
     private RecyclerView rvHome;
-    private TeamListAdapter homeLineupAdapter;
-    private TeamListAdapter awayLineupAdapter;
-    private LinearLayout settingsView;
+    private LineupAdapter homeLineupAdapter;
+    private LineupAdapter awayLineupAdapter;
     private TextView gameSummaryView;
+    private TextView inningsView;
+    private TextView orderView;
 
     private String awayTeamName;
     private String homeTeamName;
@@ -166,13 +163,14 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
 
         rvAway = rootView.findViewById(R.id.rv_left_team);
         rvHome = rootView.findViewById(R.id.rv_right_team);
-        settingsView = rootView.findViewById(R.id.layout_settings);
-        gameSummaryView = settingsView.findViewById(R.id.current_game_view);
+        gameSummaryView = rootView.findViewById(R.id.current_game_view);
 
         SharedPreferences settingsPreferences = getActivity()
                 .getSharedPreferences(leagueID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
         final int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
         final int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
+        inningsView = rootView.findViewById(R.id.innings_view);
+        orderView = rootView.findViewById(R.id.gender_lineup_view);
         setGameSettings(innings, genderSorter);
 
         VerticalTextView editAwayLineup = rootView.findViewById(R.id.away_lineup_editor);
@@ -301,13 +299,25 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         inningNumber = inningNumber/2;
         String awayID = savedGamePreferences.getString("keyAwayTeam", "");
         String homeID = savedGamePreferences.getString("keyHomeTeam", "");
-        String awayTeamName = getTeamNameFromFirestoreID(awayID);
-        String homeTeamName = getTeamNameFromFirestoreID(homeID);
+        String awayTeamName = getTeamName(awayID);
+        String homeTeamName = getTeamName(homeID);
         if(awayTeamName == null || homeTeamName == null) {
             return;
         }
         String summary = awayTeamName + ": " + awayRuns + "    "  + homeTeamName + ": " + homeRuns + "\nInning: " + inningNumber;
         gameSummaryView.setText(summary);
+    }
+
+    private String getTeamName(String teamID) {
+        String team = getTeamNameFromFirestoreID(teamID);
+        if(team == null) {
+            return null;
+        }
+        if (team.length() > 2) {
+            return  ("" + team.charAt(0) + team.charAt(1) + team.charAt(2)).toUpperCase();
+        } else {
+            return  ("" + team.charAt(0)).toUpperCase();
+        }
     }
 
 //    private String getKeyFromMap(String firestoreID){
@@ -339,21 +349,18 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     }
 
     public void setGameSettings(int innings, int gendersorter) {
-        if(settingsView == null) {
-            View view = getView();
-            if(view == null) {
-                return;
-            }
-            settingsView = view.findViewById(R.id.layout_settings);
+        if(inningsView == null) {
+            return;
         }
-        TextView inningsView = settingsView.findViewById(R.id.innings_view);
         String inningsText = "Innings: " +  innings;
         inningsView.setText(inningsText);
         setGenderSettingDisplay(gendersorter);
     }
 
     private void setGenderSettingDisplay(int i) {
-        TextView orderView = settingsView.findViewById(R.id.gender_lineup_view);
+        if(orderView == null) {
+            return;
+        }
         if (i == 0) {
             orderView.setVisibility(View.INVISIBLE);
             return;
@@ -607,7 +614,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
 
         rvAway.setLayoutManager(new LinearLayoutManager(
                 getActivity(), LinearLayoutManager.VERTICAL, false));
-        awayLineupAdapter = new TeamListAdapter(awayLineup, getActivity(), genderSorter);
+        awayLineupAdapter = new LineupAdapter(awayLineup, getActivity(), genderSorter);
         rvAway.setAdapter(awayLineupAdapter);
         awayPlayersCount = awayLineupAdapter.getItemCount();
     }
@@ -635,7 +642,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
 
         rvHome.setLayoutManager(new LinearLayoutManager(
                 getActivity(), LinearLayoutManager.VERTICAL, false));
-        homeLineupAdapter = new TeamListAdapter(homeLineup, getActivity(), genderSorter);
+        homeLineupAdapter = new LineupAdapter(homeLineup, getActivity(), genderSorter);
         rvHome.setAdapter(homeLineupAdapter);
         homePlayersCount = homeLineupAdapter.getItemCount();
     }

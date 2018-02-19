@@ -104,7 +104,7 @@ public class ExportActivity extends AppCompatActivity {
             if (wins + losses <= 0) {
                 winPctString = "";
             } else {
-                winPctString = formatter.format(String.valueOf(winPct));
+                winPctString = String.valueOf(formatter.format(winPct));
             }
 
             String[] stringArray = new String[]{
@@ -113,6 +113,9 @@ public class ExportActivity extends AppCompatActivity {
             data.add(stringArray);
         }
         cursor.close();
+        if(data.size() <= 1) {
+            return null;
+        }
         return data;
     }
 
@@ -207,6 +210,9 @@ public class ExportActivity extends AppCompatActivity {
             data.add(stringArray);
         }
         cursor.close();
+        if(data.size() <= 1) {
+            return null;
+        }
         return data;
     }
 
@@ -246,6 +252,9 @@ public class ExportActivity extends AppCompatActivity {
         } else {
             file = new File(exportDir, "teams.csv");
             data = gatherTeamData();
+        }
+        if(data == null) {
+            return;
         }
         file.createNewFile();
 

@@ -7,6 +7,8 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
@@ -40,7 +42,7 @@ import java.util.Map;
  * Created by Eddie on 11/7/2017.
  */
 
-public class FirestoreHelper {
+public class FirestoreHelper implements Parcelable {
     private static final String TAG = "FirestoreHelper: ";
     public static final String LEAGUE_COLLECTION = "leagues";
     static final String PLAYERS_COLLECTION = "players";
@@ -68,6 +70,11 @@ public class FirestoreHelper {
         if (context instanceof onFirestoreSyncListener) {
             mListener = (onFirestoreSyncListener) context;
         }
+    }
+
+    public void setContext(Context context) {
+        mContext = context;
+        mListener = (onFirestoreSyncListener) context;
     }
 
     //SYNC CHECK
@@ -473,47 +480,47 @@ public class FirestoreHelper {
 
         mFirestore.collection(LEAGUE_COLLECTION).document(leagueID).collection(DELETION_COLLECTION)
                 .whereGreaterThanOrEqualTo(StatsEntry.TIME, localTimeStamp).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            ArrayList<ItemMarkedForDeletion> itemMarkedForDeletionList = new ArrayList<>();
-                            QuerySnapshot querySnapshot = task.getResult();
-                            for (DocumentSnapshot documentSnapshot : querySnapshot) {
-                                Map<String, Object> data = documentSnapshot.getData();
-                                long time = (long) data.get(StatsEntry.TIME);
-                                long type = (long) data.get(StatsEntry.TYPE);
-                                long gender;
-                                String team;
-                                if (type == 1) {
-                                    gender = (long) data.get(StatsEntry.COLUMN_GENDER);
-                                    team = (String) data.get(StatsEntry.COLUMN_TEAM_FIRESTORE_ID);
-                                } else {
-                                    gender = -1;
-                                    team = null;
-                                }
-                                String name = (String) data.get(StatsEntry.COLUMN_NAME);
-                                String firestoreID = documentSnapshot.getId();
-                                itemMarkedForDeletionList.add(new ItemMarkedForDeletion(firestoreID, type, name, gender, team));
-                            }
-                            if (itemMarkedForDeletionList.isEmpty()) {
-                                updateAfterSync();
-                                mListener.proceedToNext();
-                            } else {
-                                if (level > 3) {
-                                    Collections.sort(itemMarkedForDeletionList, ItemMarkedForDeletion.nameComparator());
-                                    Collections.sort(itemMarkedForDeletionList, ItemMarkedForDeletion.typeComparator());
-                                    mListener.openDeletionCheckDialog(itemMarkedForDeletionList);
-                                } else {
-                                    deleteItems(itemMarkedForDeletionList);
-                                    mListener.proceedToNext();
-                                }
-                            }
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    ArrayList<ItemMarkedForDeletion> itemMarkedForDeletionList = new ArrayList<>();
+                    QuerySnapshot querySnapshot = task.getResult();
+                    for (DocumentSnapshot documentSnapshot : querySnapshot) {
+                        Map<String, Object> data = documentSnapshot.getData();
+                        long time = (long) data.get(StatsEntry.TIME);
+                        long type = (long) data.get(StatsEntry.TYPE);
+                        long gender;
+                        String team;
+                        if (type == 1) {
+                            gender = (long) data.get(StatsEntry.COLUMN_GENDER);
+                            team = (String) data.get(StatsEntry.COLUMN_TEAM_FIRESTORE_ID);
                         } else {
-                            Log.d("xxx", "filtered_deletionQueryError");
-                            mListener.onSyncError(DELETION_COLLECTION);
+                            gender = -1;
+                            team = null;
+                        }
+                        String name = (String) data.get(StatsEntry.COLUMN_NAME);
+                        String firestoreID = documentSnapshot.getId();
+                        itemMarkedForDeletionList.add(new ItemMarkedForDeletion(firestoreID, type, name, gender, team));
+                    }
+                    if (itemMarkedForDeletionList.isEmpty()) {
+                        updateAfterSync();
+                        mListener.proceedToNext();
+                    } else {
+                        if (level > 3) {
+                            Collections.sort(itemMarkedForDeletionList, ItemMarkedForDeletion.nameComparator());
+                            Collections.sort(itemMarkedForDeletionList, ItemMarkedForDeletion.typeComparator());
+                            mListener.openDeletionCheckDialog(itemMarkedForDeletionList);
+                        } else {
+                            deleteItems(itemMarkedForDeletionList);
+                            mListener.proceedToNext();
                         }
                     }
-                });
+                } else {
+                    Log.d("xxx", "filtered_deletionQueryError");
+                    mListener.onSyncError(DELETION_COLLECTION);
+                }
+            }
+        });
     }
 
     public void deleteItems (List<ItemMarkedForDeletion> deleteList) {
@@ -980,4 +987,41 @@ public class FirestoreHelper {
     }
 
 
+
+    protected FirestoreHelper(Parcel in) {
+        playersofar = in.readInt();
+        teamssofar = in.readInt();
+        leagueID = in.readString();
+        mListener = (onFirestoreSyncListener) in.readValue(onFirestoreSyncListener.class.getClassLoader());
+        mContext = (Context) in.readValue(Context.class.getClassLoader());
+        mFirestore = (FirebaseFirestore) in.readValue(FirebaseFirestore.class.getClassLoader());
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(playersofar);
+        dest.writeInt(teamssofar);
+        dest.writeString(leagueID);
+        dest.writeValue(mListener);
+        dest.writeValue(mContext);
+        dest.writeValue(mFirestore);
+    }
+
+    @SuppressWarnings("unused")
+    public static final Parcelable.Creator<FirestoreHelper> CREATOR = new Parcelable.Creator<FirestoreHelper>() {
+        @Override
+        public FirestoreHelper createFromParcel(Parcel in) {
+            return new FirestoreHelper(in);
+        }
+
+        @Override
+        public FirestoreHelper[] newArray(int size) {
+            return new FirestoreHelper[size];
+        }
+    };
 }

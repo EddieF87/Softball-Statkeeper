@@ -2,8 +2,6 @@ package com.example.android.scorekeepdraft1.activities;
 
 import android.app.LoaderManager;
 import android.content.Loader;
-import android.support.annotation.Nullable;
-import android.support.v4.content.AsyncTaskLoader;
 import android.support.v7.app.AppCompatActivity;
 
 import android.content.Context;
@@ -56,6 +54,13 @@ public class LoadingActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_loading);
 
+        loadDescription = findViewById(R.id.load_desc);
+        loadTitle = findViewById(R.id.load_title);
+        loadProgressBar = findViewById(R.id.load_bar);
+        if(savedInstanceState != null) {
+            firestoreHelper = savedInstanceState.getParcelable("fh");
+            firestoreHelper.setContext(this);
+        }
         try {
             MyApp myApp = (MyApp) getApplicationContext();
             MainPageSelection mainPageSelection = myApp.getCurrentSelection();
@@ -67,16 +72,11 @@ public class LoadingActivity extends AppCompatActivity
             startActivity(intent);
             finish();
         }
-        loadDescription = findViewById(R.id.load_desc);
-        loadTitle = findViewById(R.id.load_title);
-        loadProgressBar = findViewById(R.id.load_bar);
-
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d("xxx", "initloader");
         loade = true;
         getLoaderManager().initLoader(2452, null, this);
     }
@@ -85,7 +85,7 @@ public class LoadingActivity extends AppCompatActivity
     public void onUpdateCheck(boolean update) {
         if (update) {
             loadTitle.setText("(1/3)  Preparing Sync");
-            loadDescription.setText("Please wait while data is being prepared.");
+            loadDescription.setText("Please wait while database is retrieved.");
             countdown = 2;
             firestoreHelper.syncStats();
         } else {
@@ -94,9 +94,13 @@ public class LoadingActivity extends AppCompatActivity
     }
 
     @Override
-    public void proceedToNext() {
-        Log.d("xxx", "proceedToNext =");
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable("fh", firestoreHelper);
+    }
 
+    @Override
+    public void proceedToNext() {
         Intent intent;
         switch (mSelectionType) {
             case MainPageSelection.TYPE_LEAGUE:
@@ -166,7 +170,6 @@ public class LoadingActivity extends AppCompatActivity
             }
         }
         loadProgressBar.incrementProgressBy(1);
-        Log.d("xxx", "loadProgressBar.incrementProgressBy... total = " + loadProgressBar.getProgress());
     }
 
     @Override
@@ -192,12 +195,6 @@ public class LoadingActivity extends AppCompatActivity
 
     @Override
     public void onDeletePlayersListener(List<ItemMarkedForDeletion> deleteList, List<ItemMarkedForDeletion> saveList) {
-        for (ItemMarkedForDeletion itemMarkedForDeletion : deleteList) {
-            Log.d("xxx", "deleteditem = " + itemMarkedForDeletion.getName());
-        }
-        for (ItemMarkedForDeletion itemMarkedForDeletion : saveList) {
-            Log.d("xxx", "saveditem = " + itemMarkedForDeletion.getName());
-        }
         firestoreHelper.deleteItems(deleteList);
         firestoreHelper.saveItems(saveList);
         firestoreHelper.updateAfterSync();
@@ -211,19 +208,15 @@ public class LoadingActivity extends AppCompatActivity
 
     @Override
     public Loader onCreateLoader(int i, Bundle bundle) {
-        Log.d("xxx", "ONCREATELOADER");
         if(loade) {
             loade = false;
-            Log.d("xxx", "ifloade");
             ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
             numberOfTeams = -1;
             numberOfPlayers = -1;
             totalNumber = -1;
             if (mWifi.isConnected()) {
-                Log.d("xxx", "wifi success");
             } else {
-                Log.d("xxx", "wifi fail");
             }
             firestoreHelper = new FirestoreHelper(this, mSelectionID);
             firestoreHelper.checkForUpdate();

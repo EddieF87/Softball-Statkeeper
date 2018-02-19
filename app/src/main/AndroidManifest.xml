@@ -47,8 +47,8 @@
         <activity
             android:name=".activities.SetLineupActivity"
             android:label="Lineup Editor"
-            android:launchMode="singleTask"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask" />
 
         <activity
             android:name=".activities.BoxScoreActivity"
@@ -65,9 +65,7 @@
             />
 
         <activity android:name=".activities.PlayerPagerActivity"
-            android:launchMode="singleTask"
-            android:screenOrientation="portrait"
-            />
+            android:launchMode="singleTask" />
 
         <activity
             android:name=".activities.TeamManagerActivity"
@@ -75,8 +73,7 @@
             android:parentActivityName=".activities.MainActivity" />
 
         <activity
-            android:name=".activities.PlayerManagerActivity"
-            android:screenOrientation="portrait" />
+            android:name=".activities.PlayerManagerActivity" />
 
         <activity
             android:name=".activities.UserSettingsActivity"
@@ -97,7 +94,9 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
-        <activity android:name=".activities.LoadingActivity" />
+        <activity android:name=".activities.LoadingActivity"
+            android:screenOrientation="portrait"
+            />
 
         <activity android:name=".activities.ExportActivity" />
 

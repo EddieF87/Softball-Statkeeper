@@ -19,8 +19,8 @@
     android:id="@+id/main_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="@color/colorPrimaryLight"
+    android:orientation="vertical"
     tools:context="com.example.android.scorekeepdraft1.activities.SetLineupActivity">
 
     <TextView
@@ -31,10 +31,10 @@
         android:layout_marginStart="8dp"
         android:layout_weight="2"
         android:gravity="center"
-        android:padding="8dp"
+        android:padding="4dp"
         android:textAlignment="center"
         android:textColor="@color/colorPrimary"
-        android:textSize="30sp"
+        android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -42,7 +42,7 @@
         tools:text="TeamName" />
 
     <LinearLayout
-        android:id="@+id/linearLayout3"
+        android:id="@+id/layout_lineup_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
@@ -81,14 +81,144 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/item_player_adder"
+    <LinearLayout
+        android:id="@+id/layout_buttons"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_height="48dp"
         android:layout_marginBottom="8dp"
-        android:gravity="end"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout4"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <Button
+            android:id="@+id/continue_game"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/continue_game"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <Button
+            android:id="@+id/lineup_submit"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="@string/submit_lineup" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_lineup"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/item_player_adder"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/layout_lineup_title">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rvLeft"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/bg_accent_left"
+            android:paddingBottom="8dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="8dp"
+            android:scrollbars="vertical" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rvRight"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/bg_accent_right"
+            android:paddingBottom="8dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="8dp"
+            android:scrollbars="vertical" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_settings"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/layout_buttons"
+        app:layout_constraintEnd_toEndOf="@+id/layout_buttons"
+        app:layout_constraintStart_toStartOf="@+id/layout_buttons">
+
+        <TextView
+            android:id="@+id/current_game_view"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="6dp"
+            android:layout_marginRight="6dp"
+            android:layout_weight="3"
+            android:gravity="center"
+            android:maxLines="2"
+            android:textSize="12sp"
+            android:visibility="gone"
+            tools:text="aaaaaaaaaaaaaaaaabbbaa"
+            tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/gender_lineup_view"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="6dp"
+            android:layout_marginRight="6dp"
+            android:layout_weight="2"
+            android:autoSizeMinTextSize="12sp"
+            android:autoSizeTextType="uniform"
+            android:gravity="center"
+            android:maxLines="2"
+            android:textSize="12sp"
+            android:visibility="gone"
+            tools:text="BGBGBGBGBGBG"
+            tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/innings_view"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="6dp"
+            android:layout_marginRight="6dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:maxLines="2"
+            android:textSize="12sp"
+            android:visibility="gone"
+            tools:text="Innings: 3"
+            tools:visibility="visible" />
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/item_player_adder"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/layout_settings"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent">
 
@@ -126,82 +256,15 @@
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/btn_start_adder"
             style="@style/FloatingActionButtonStyle"
+            android:layout_width="36dp"
             android:layout_height="match_parent"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
+            android:layout_marginBottom="2dp"
             android:layout_marginEnd="20dp"
-            android:layout_marginRight="20dp" />
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="2dp" />
 
     </RelativeLayout>
-
-    <LinearLayout
-        android:id="@+id/linearLayout4"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent">
-
-        <Button
-            android:id="@+id/continue_game"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="@string/continue_game"
-            android:visibility="gone" />
-
-        <Button
-            android:id="@+id/lineup_submit"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="@string/submit_lineup" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/linearLayout2"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf="@+id/item_player_adder"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout3">
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/rvLeft"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/bg_accent_left"
-            android:paddingBottom="8dp"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:paddingTop="8dp"
-            android:scrollbars="vertical" />
-
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/rvRight"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/bg_accent_right"
-            android:paddingBottom="8dp"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:paddingTop="8dp"
-            android:scrollbars="vertical" />
-    </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

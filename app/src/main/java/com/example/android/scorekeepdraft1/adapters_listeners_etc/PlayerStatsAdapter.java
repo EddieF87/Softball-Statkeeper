@@ -279,21 +279,11 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             }
 
             if (isTeam && player.getName().equals("Total")) {
-                abView.setTypeface(Typeface.DEFAULT_BOLD);
-                hitView.setTypeface(Typeface.DEFAULT_BOLD);
-                hrView.setTypeface(Typeface.DEFAULT_BOLD);
-                rbiView.setTypeface(Typeface.DEFAULT_BOLD);
-                runView.setTypeface(Typeface.DEFAULT_BOLD);
-                sglView.setTypeface(Typeface.DEFAULT_BOLD);
-                dblView.setTypeface(Typeface.DEFAULT_BOLD);
-                tplView.setTypeface(Typeface.DEFAULT_BOLD);
-                gameView.setTypeface(Typeface.DEFAULT_BOLD);
-                bbView.setTypeface(Typeface.DEFAULT_BOLD);
-                avgView.setTypeface(Typeface.DEFAULT_BOLD);
-                obpView.setTypeface(Typeface.DEFAULT_BOLD);
-                slgView.setTypeface(Typeface.DEFAULT_BOLD);
-                opsView.setTypeface(Typeface.DEFAULT_BOLD);
+                setViewBold();
             } else {
+                if (abView.getTypeface() == Typeface.DEFAULT_BOLD) {
+                    setViewDefault();
+                }
                 nameView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -318,6 +308,40 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
                     nameView.setTextColor(colorFemale);
                 }
             }
+        }
+
+        private void setViewBold(){
+            abView.setTypeface(Typeface.DEFAULT_BOLD);
+            hitView.setTypeface(Typeface.DEFAULT_BOLD);
+            hrView.setTypeface(Typeface.DEFAULT_BOLD);
+            rbiView.setTypeface(Typeface.DEFAULT_BOLD);
+            runView.setTypeface(Typeface.DEFAULT_BOLD);
+            sglView.setTypeface(Typeface.DEFAULT_BOLD);
+            dblView.setTypeface(Typeface.DEFAULT_BOLD);
+            tplView.setTypeface(Typeface.DEFAULT_BOLD);
+            gameView.setTypeface(Typeface.DEFAULT_BOLD);
+            bbView.setTypeface(Typeface.DEFAULT_BOLD);
+            avgView.setTypeface(Typeface.DEFAULT_BOLD);
+            obpView.setTypeface(Typeface.DEFAULT_BOLD);
+            slgView.setTypeface(Typeface.DEFAULT_BOLD);
+            opsView.setTypeface(Typeface.DEFAULT_BOLD);
+        }
+
+        private void setViewDefault(){
+            abView.setTypeface(Typeface.DEFAULT);
+            hitView.setTypeface(Typeface.DEFAULT);
+            hrView.setTypeface(Typeface.DEFAULT);
+            rbiView.setTypeface(Typeface.DEFAULT);
+            runView.setTypeface(Typeface.DEFAULT);
+            sglView.setTypeface(Typeface.DEFAULT);
+            dblView.setTypeface(Typeface.DEFAULT);
+            tplView.setTypeface(Typeface.DEFAULT);
+            gameView.setTypeface(Typeface.DEFAULT);
+            bbView.setTypeface(Typeface.DEFAULT);
+            avgView.setTypeface(Typeface.DEFAULT);
+            obpView.setTypeface(Typeface.DEFAULT);
+            slgView.setTypeface(Typeface.DEFAULT);
+            opsView.setTypeface(Typeface.DEFAULT);
         }
     }
 }

@@ -21,7 +21,7 @@ import android.widget.TextView;
 
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
-import com.example.android.scorekeepdraft1.adapters_listeners_etc.TeamListAdapter;
+import com.example.android.scorekeepdraft1.adapters_listeners_etc.LineupAdapter;
 import com.example.android.scorekeepdraft1.data.FirestoreHelper;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.gamelog.BaseLog;
@@ -46,8 +46,8 @@ public class LeagueGameActivity extends GameActivity /*implements LoaderManager.
     protected int homeTeamIndex;
     private List<Player> currentTeam;
 
-    protected TeamListAdapter awayTeamListAdapter;
-    protected TeamListAdapter homeTeamListAdapter;
+    protected LineupAdapter awayLineupAdapter;
+    protected LineupAdapter homeLineupAdapter;
     protected RecyclerView awayLineupRV;
     protected RecyclerView homeLineupRV;
 
@@ -82,14 +82,14 @@ public class LeagueGameActivity extends GameActivity /*implements LoaderManager.
         awayLineupRV = findViewById(R.id.away_lineup);
         awayLineupRV.setLayoutManager(new LinearLayoutManager(
                 this, LinearLayoutManager.VERTICAL, false));
-        awayTeamListAdapter = new TeamListAdapter(awayTeam, this, genderSorter + 1);
-        awayLineupRV.setAdapter(awayTeamListAdapter);
+        awayLineupAdapter = new LineupAdapter(awayTeam, this, genderSorter + 1);
+        awayLineupRV.setAdapter(awayLineupAdapter);
 
         homeLineupRV = findViewById(R.id.home_lineup);
         homeLineupRV.setLayoutManager(new LinearLayoutManager(
                 this, LinearLayoutManager.VERTICAL, false));
-        homeTeamListAdapter = new TeamListAdapter(homeTeam, this, genderSorter + 1);
-        homeLineupRV.setAdapter(homeTeamListAdapter);
+        homeLineupAdapter = new LineupAdapter(homeTeam, this, genderSorter + 1);
+        homeLineupRV.setAdapter(homeLineupAdapter);
 
         TextView awayText = findViewById(R.id.away_text);
         TextView homeText = findViewById(R.id.home_text);
@@ -199,14 +199,14 @@ public class LeagueGameActivity extends GameActivity /*implements LoaderManager.
         currentBatter = currentBaseLogStart.getBatter();
         int lineupIndex;
         if (currentTeam == homeTeam) {
-            awayTeamListAdapter.setCurrentLineupPosition(-1);
+            awayLineupAdapter.setCurrentLineupPosition(-1);
             setLineupRVPosition(true);
             if (homeTeamIndex >= currentTeam.size()) {
                 homeTeamIndex = 0;
             }
             lineupIndex = homeTeamIndex;
         } else {
-            homeTeamListAdapter.setCurrentLineupPosition(-1);
+            homeLineupAdapter.setCurrentLineupPosition(-1);
             setLineupRVPosition(false);
             if (awayTeamIndex >= currentTeam.size()) {
                 awayTeamIndex = 0;
@@ -350,11 +350,11 @@ public class LeagueGameActivity extends GameActivity /*implements LoaderManager.
                 return;
             }
             currentTeam = homeTeam;
-            awayTeamListAdapter.setCurrentLineupPosition(-1);
+            awayLineupAdapter.setCurrentLineupPosition(-1);
             setLineupRVPosition(true);
         } else {
             currentTeam = awayTeam;
-            homeTeamListAdapter.setCurrentLineupPosition(-1);
+            homeLineupAdapter.setCurrentLineupPosition(-1);
             setLineupRVPosition(false);
         }
         inningNumber++;
@@ -386,11 +386,11 @@ public class LeagueGameActivity extends GameActivity /*implements LoaderManager.
                 inningNumber--;
                 setInningDisplay();
                 if (currentTeam == awayTeam) {
-                    awayTeamListAdapter.setCurrentLineupPosition(-1);
-                    awayTeamListAdapter.notifyDataSetChanged();
+                    awayLineupAdapter.setCurrentLineupPosition(-1);
+                    awayLineupAdapter.notifyDataSetChanged();
                 } else if (currentTeam == homeTeam) {
-                    homeTeamListAdapter.setCurrentLineupPosition(-1);
-                    homeTeamListAdapter.notifyDataSetChanged();
+                    homeLineupAdapter.setCurrentLineupPosition(-1);
+                    homeLineupAdapter.notifyDataSetChanged();
                 }
             }
             gameLogIndex--;
@@ -423,13 +423,13 @@ public class LeagueGameActivity extends GameActivity /*implements LoaderManager.
             if (currentTeam == awayTeam) {
                 increaseHomeIndex();
                 setLineupRVPosition(false);
-                homeTeamListAdapter.setCurrentLineupPosition(-1);
-                homeTeamListAdapter.notifyDataSetChanged();
+                homeLineupAdapter.setCurrentLineupPosition(-1);
+                homeLineupAdapter.notifyDataSetChanged();
             } else if (currentTeam == homeTeam) {
                 increaseAwayIndex();
                 setLineupRVPosition(true);
-                awayTeamListAdapter.setCurrentLineupPosition(-1);
-                awayTeamListAdapter.notifyDataSetChanged();
+                awayLineupAdapter.setCurrentLineupPosition(-1);
+                awayLineupAdapter.notifyDataSetChanged();
             } else {
                 Log.e(TAG, "inningChanged", new Throwable("inningChanged logic error!"));
             }
@@ -538,13 +538,13 @@ public class LeagueGameActivity extends GameActivity /*implements LoaderManager.
 
     private void setLineupRVPosition(boolean home) {
         if (home) {
-            homeTeamListAdapter.setCurrentLineupPosition(homeTeamIndex);
+            homeLineupAdapter.setCurrentLineupPosition(homeTeamIndex);
             homeLineupRV.scrollToPosition(homeTeamIndex);
-            homeTeamListAdapter.notifyDataSetChanged();
+            homeLineupAdapter.notifyDataSetChanged();
         } else {
-            awayTeamListAdapter.setCurrentLineupPosition(awayTeamIndex);
+            awayLineupAdapter.setCurrentLineupPosition(awayTeamIndex);
             awayLineupRV.scrollToPosition(awayTeamIndex);
-            awayTeamListAdapter.notifyDataSetChanged();
+            awayLineupAdapter.notifyDataSetChanged();
         }
     }
 }

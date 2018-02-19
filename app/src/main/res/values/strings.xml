@@ -138,4 +138,8 @@
     <string name="submit">Submit</string>
     <string name="submit_play">Submit Play</string>
     <string name="reset_bases">Reset Bases?</string>
+    <string name="diff">DIFF</string>
+    <string name="ra">RA</string>
+    <string name="rs">RS</string>
+    <string name="winpct">Win%</string>
 </resources>

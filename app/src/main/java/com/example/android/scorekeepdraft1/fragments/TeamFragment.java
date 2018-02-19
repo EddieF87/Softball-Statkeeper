@@ -183,8 +183,7 @@ public class TeamFragment extends Fragment
         rootView.findViewById(R.id.bb_title).setOnClickListener(this);
         rootView.findViewById(R.id.game_title).setOnClickListener(this);
 
-        View addPlayerView = rootView.findViewById(R.id.item_player_adder);
-        FloatingActionButton startAdderBtn = addPlayerView.findViewById(R.id.btn_start_adder);
+        FloatingActionButton startAdderBtn = rootView.findViewById(R.id.btn_start_adder);
         if (levelAuthorized(3)) {
             startAdderBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -193,7 +192,7 @@ public class TeamFragment extends Fragment
                 }
             });
         } else {
-            addPlayerView.setVisibility(View.INVISIBLE);
+            startAdderBtn.setVisibility(View.INVISIBLE);
         }
         getLoaderManager().initLoader(EXISTING_TEAM_LOADER, null, this);
         return rootView;

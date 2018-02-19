@@ -5,7 +5,6 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -15,13 +14,12 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.data.FirestoreHelper;
-import com.example.android.scorekeepdraft1.adapters_listeners_etc.TeamListAdapter;
+import com.example.android.scorekeepdraft1.adapters_listeners_etc.LineupAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.dialogs.FinishGameDialogFragment;
@@ -34,7 +32,7 @@ import java.util.List;
 
 public class TeamGameActivity extends GameActivity implements FinishGameDialogFragment.OnFragmentInteractionListener {
 
-    private TeamListAdapter mTeamListAdapter;
+    private LineupAdapter mLineupAdapter;
     private RecyclerView mRecyclerView;
 
     private TextView otherTeamOutsView;
@@ -146,8 +144,8 @@ public class TeamGameActivity extends GameActivity implements FinishGameDialogFr
         mRecyclerView = findViewById(R.id.team_lineup);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this,
                 LinearLayoutManager.VERTICAL, false));
-        mTeamListAdapter = new TeamListAdapter(myTeam, this, genderSorter);
-        mRecyclerView.setAdapter(mTeamListAdapter);
+        mLineupAdapter = new LineupAdapter(myTeam, this, genderSorter);
+        mRecyclerView.setAdapter(mLineupAdapter);
 
         TextView teamText = findViewById(R.id.team_text);
         teamText.setText(myTeamName);
@@ -562,9 +560,9 @@ public class TeamGameActivity extends GameActivity implements FinishGameDialogFr
     }
 
     private void setLineupRVPosition() {
-        mTeamListAdapter.setCurrentLineupPosition(myTeamIndex);
+        mLineupAdapter.setCurrentLineupPosition(myTeamIndex);
         mRecyclerView.scrollToPosition(myTeamIndex);
-        mTeamListAdapter.notifyDataSetChanged();
+        mLineupAdapter.notifyDataSetChanged();
     }
 }
 

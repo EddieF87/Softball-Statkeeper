@@ -119,6 +119,7 @@ public class TeamManagerActivity extends ExportActivity
 
         if (lineupFragment != null) {
             lineupFragment.changeColorsRV(genderSettingsOn);
+            lineupFragment.setGameSettings(innings, genderSorter);
         }
         if (teamFragment != null) {
             teamFragment.changeColorsRV(genderSettingsOn);

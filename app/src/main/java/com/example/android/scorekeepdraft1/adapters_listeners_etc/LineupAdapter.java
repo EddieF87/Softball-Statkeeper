@@ -1,12 +1,10 @@
 package com.example.android.scorekeepdraft1.adapters_listeners_etc;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +20,7 @@ import java.util.List;
  * Created by Eddie on 02/09/2017.
  */
 
-public class TeamListAdapter extends RecyclerView.Adapter<TeamListAdapter.ListViewHolder> {
+public class LineupAdapter extends RecyclerView.Adapter<LineupAdapter.ListViewHolder> {
 
     private List<Player> list;
     private Context mContext;
@@ -31,7 +29,7 @@ public class TeamListAdapter extends RecyclerView.Adapter<TeamListAdapter.ListVi
     private boolean genderSettingsOff;
     private int currentLineupPosition = -1;
 
-    public TeamListAdapter(List<Player> list, Context context, int genderSorter) {
+    public LineupAdapter(List<Player> list, Context context, int genderSorter) {
         this.list = list;
         this.mContext = context;
         this.genderSettingsOff = genderSorter == 0;
@@ -64,7 +62,7 @@ public class TeamListAdapter extends RecyclerView.Adapter<TeamListAdapter.ListVi
     }
 
     @Override
-    public TeamListAdapter.ListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public LineupAdapter.ListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         FrameLayout frameLayout = (FrameLayout) LayoutInflater.from(parent.getContext()).inflate(R.layout.item_team, parent, false);
         return new ListViewHolder(frameLayout);
     }

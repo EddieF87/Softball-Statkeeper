@@ -66,7 +66,6 @@ public class SetLineupActivity extends SingleFragmentActivity
             startActivity(intent);
             finish();
         }
-
         return lineupFragment;
     }
 

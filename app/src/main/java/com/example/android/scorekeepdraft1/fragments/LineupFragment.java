@@ -17,6 +17,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -34,7 +35,7 @@ import com.example.android.scorekeepdraft1.activities.LeagueGameActivity;
 import com.example.android.scorekeepdraft1.activities.TeamGameActivity;
 import com.example.android.scorekeepdraft1.activities.TeamManagerActivity;
 import com.example.android.scorekeepdraft1.activities.UserSettingsActivity;
-import com.example.android.scorekeepdraft1.adapters_listeners_etc.LineupListAdapter;
+import com.example.android.scorekeepdraft1.adapters_listeners_etc.SetLineupAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.dialogs.AddNewPlayersDialogFragment;
@@ -47,12 +48,16 @@ import java.util.List;
 
 public class LineupFragment extends Fragment {
 
-    private LineupListAdapter leftListAdapter;
-    private LineupListAdapter rightListAdapter;
+    private SetLineupAdapter leftListAdapter;
+    private SetLineupAdapter rightListAdapter;
 
     private RecyclerView rvLeftLineup;
     private RecyclerView rvRightLineup;
     private boolean sortLineup;
+
+    private TextView gameSummaryView;
+    private TextView inningsView;
+    private TextView orderView;
 
     private List<Player> mLineup;
     private List<Player> mBench;
@@ -126,8 +131,7 @@ public class LineupFragment extends Fragment {
         final TextView teamNameTextView = rootView.findViewById(R.id.team_name_display);
         teamNameTextView.setText(mTeamName);
 
-        View addPlayerView = rootView.findViewById(R.id.item_player_adder);
-        final FloatingActionButton addPlayersButton = addPlayerView.findViewById(R.id.btn_start_adder);
+        final FloatingActionButton addPlayersButton = rootView.findViewById(R.id.btn_start_adder);
         addPlayersButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -241,6 +245,16 @@ public class LineupFragment extends Fragment {
         updateBenchRV();
 
         if (mType == MainPageSelection.TYPE_TEAM && !inGame) {
+            SharedPreferences settingsPreferences = getActivity()
+                    .getSharedPreferences(mSelectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
+            final int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
+            final int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
+            inningsView = getView().findViewById(R.id.innings_view);
+            inningsView.setVisibility(View.VISIBLE);
+            orderView = getView().findViewById(R.id.gender_lineup_view);
+            gameSummaryView = getView().findViewById(R.id.current_game_view);
+            setGameSettings(innings, genderSorter);
+
             Button lineupSubmitButton = getView().findViewById(R.id.lineup_submit);
             lineupSubmitButton.setText(R.string.start);
             View radioButtonGroup = getView().findViewById(R.id.radiobtns_away_or_home_team);
@@ -258,10 +272,15 @@ public class LineupFragment extends Fragment {
 
             cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG,
                     null, null, null, null);
-            if (cursor.moveToFirst()) {
+            if (cursor.moveToLast()) {
+                int awayRuns = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_AWAY_RUNS);
+                int homeRuns = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_HOME_RUNS);
+                setGameSummaryView(awayRuns, homeRuns);
                 continueGameButton.setVisibility(View.VISIBLE);
+                gameSummaryView.setVisibility(View.VISIBLE);
             } else {
                 continueGameButton.setVisibility(View.GONE);
+                gameSummaryView.setVisibility(View.GONE);
             }
             cursor.close();
         }
@@ -277,6 +296,51 @@ public class LineupFragment extends Fragment {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         DialogFragment newFragment = AddNewPlayersDialogFragment.newInstance(teamName, teamID);
         newFragment.show(fragmentTransaction, "");
+    }
+
+    public void setGameSettings(int innings, int gendersorter) {
+        if(inningsView == null) {
+            return;
+        }
+        String inningsText = "Innings: " +  innings;
+        inningsView.setText(inningsText);
+        setGenderSettingDisplay(gendersorter);
+    }
+
+    private void setGenderSettingDisplay(int i) {
+        if(orderView == null) {
+            return;
+        }
+        if (i == 0) {
+            orderView.setVisibility(View.INVISIBLE);
+            return;
+        }
+        orderView.setVisibility(View.VISIBLE);
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("Order: ");
+        for (int index = 0; index < i; index++) {
+            stringBuilder.append("<font color='#6fa2ef'>B</font>");
+        }
+        stringBuilder.append("<font color='#f99da2'>G</font>");
+        String order = stringBuilder.toString();
+        orderView.setText(Html.fromHtml(order));
+    }
+
+    private void setGameSummaryView(int awayRuns, int homeRuns){
+        SharedPreferences savedGamePreferences = getActivity()
+                .getSharedPreferences(mSelectionID + StatsEntry.GAME, Context.MODE_PRIVATE);
+        int inningNumber = savedGamePreferences.getInt("keyInningNumber", 2);
+        inningNumber = inningNumber/2;
+        boolean isHome = savedGamePreferences.getBoolean("isHome", false);
+        String awayTeamName = "A";
+        String homeTeamName = "H";
+        if(isHome) {
+            homeTeamName = mTeamName;
+        } else {
+            awayTeamName = mTeamName;
+        }
+        String summary = awayTeamName + ": " + awayRuns + "    "  + homeTeamName + ": " + homeRuns + "\nInning: " + inningNumber;
+        gameSummaryView.setText(summary);
     }
 
 
@@ -514,7 +578,7 @@ public class LineupFragment extends Fragment {
 
             rvLeftLineup.setLayoutManager(new LinearLayoutManager(
                     getActivity(), LinearLayoutManager.VERTICAL, false));
-            leftListAdapter = new LineupListAdapter(mLineup, getContext(), false, genderSorter);
+            leftListAdapter = new SetLineupAdapter(mLineup, getContext(), false, genderSorter);
             rvLeftLineup.setAdapter(leftListAdapter);
             rvLeftLineup.setOnDragListener(leftListAdapter.getDragInstance());
         } else {
@@ -529,7 +593,7 @@ public class LineupFragment extends Fragment {
             rvRightLineup.setLayoutManager(new LinearLayoutManager(
                     getActivity(), LinearLayoutManager.VERTICAL, false));
 
-            rightListAdapter = new LineupListAdapter(mBench, getContext(), true, genderSorter);
+            rightListAdapter = new SetLineupAdapter(mBench, getContext(), true, genderSorter);
             rvRightLineup.setAdapter(rightListAdapter);
             rvRightLineup.setOnDragListener(rightListAdapter.getDragInstance());
         } else {
@@ -579,11 +643,11 @@ public class LineupFragment extends Fragment {
         return lineupList.size();
     }
 
-    public LineupListAdapter getLeftListAdapter() {
+    public SetLineupAdapter getLeftListAdapter() {
         return leftListAdapter;
     }
 
-    public LineupListAdapter getRightListAdapter() {
+    public SetLineupAdapter getRightListAdapter() {
         return rightListAdapter;
     }
 

@@ -63,10 +63,10 @@
     </style>
 
     <style name="StatsTitleStyle" parent="StatsStyle">
-        <item name="android:paddingBottom">8dp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:background">@color/stat_title</item>
-        <item name="android:paddingTop">8dp</item>
+        <!--<item name="android:paddingTop">8dp</item>-->
+        <!--<item name="android:paddingBottom">8dp</item>-->
         <item name="android:textSize">16sp</item>
         <item name="android:textColor">#FFFFFF</item>
     </style>
@@ -74,21 +74,26 @@
     <style name="StatsStyle">
         <item name="android:layout_width">40dp</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:paddingBottom">5dp</item>
+        <!--<item name="android:paddingTop">2dp</item>-->
+        <!--<item name="android:paddingBottom">5dp</item>-->
         <item name="android:maxLines">1</item>
         <item name="android:textSize">14sp</item>
         <item name="android:gravity">center</item>
-        <item name="android:paddingTop">2dp</item>
     </style>
 
-    <style name="StandingsTitleStyle">
+    <style name="StandingsTitleStyle" parent="StandingsStyle">
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="StandingsStyle">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_weight">30</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">16sp</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:textAlignment">center</item>
         <item name="android:gravity">center</item>
-        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:maxLines">1</item>
     </style>
 
     <style name="ItemUserStyle">
