@@ -113,7 +113,7 @@
 
     </LinearLayout>
 
-    <LinearLayout
+    <FrameLayout
         android:id="@+id/layout_lineup"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -126,30 +126,41 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/layout_lineup_title">
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/rvLeft"
-            android:layout_width="0dp"
+        <com.woxthebox.draglistview.BoardView
+            android:id="@+id/team_bv"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/bg_accent_left"
-            android:paddingBottom="8dp"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:paddingTop="8dp"
-            android:scrollbars="vertical" />
+            >
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/rvRight"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@drawable/bg_accent_right"
-            android:paddingBottom="8dp"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:paddingTop="8dp"
-            android:scrollbars="vertical" />
-    </LinearLayout>
+
+
+
+        </com.woxthebox.draglistview.BoardView>
+
+        <!--<android.support.v7.widget.RecyclerView-->
+            <!--android:id="@+id/rvLeft"-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:layout_weight="1"-->
+            <!--android:background="@drawable/bg_accent_left"-->
+            <!--android:paddingBottom="8dp"-->
+            <!--android:paddingLeft="16dp"-->
+            <!--android:paddingRight="16dp"-->
+            <!--android:paddingTop="8dp"-->
+            <!--android:scrollbars="vertical" />-->
+
+        <!--<android.support.v7.widget.RecyclerView-->
+            <!--android:id="@+id/rvRight"-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:layout_weight="1"-->
+            <!--android:background="@drawable/bg_accent_right"-->
+            <!--android:paddingBottom="8dp"-->
+            <!--android:paddingLeft="16dp"-->
+            <!--android:paddingRight="16dp"-->
+            <!--android:paddingTop="8dp"-->
+            <!--android:scrollbars="vertical" />-->
+    </FrameLayout>
 
     <LinearLayout
         android:id="@+id/layout_settings"
@@ -264,7 +275,6 @@
             android:layout_marginEnd="20dp"
             android:layout_marginRight="20dp"
             android:layout_marginTop="2dp" />
-
     </RelativeLayout>
 
 </android.support.constraint.ConstraintLayout>

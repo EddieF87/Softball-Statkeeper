@@ -37,7 +37,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="16sp"
                 android:autoSizeTextType="uniform"
-                android:autoSizeMinTextSize="8sp"
+                android:autoSizeMinTextSize="10sp"
                 android:padding="4dp"
                 android:layout_gravity="center"
                 android:textAlignment="center"
@@ -45,7 +45,6 @@
                 android:layout_marginStart="8dp"
                 android:maxLines="1"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
-
         </LinearLayout>
     </android.support.v7.widget.CardView>
 </FrameLayout>

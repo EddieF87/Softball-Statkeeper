@@ -12,11 +12,14 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
+import com.example.android.scorekeepdraft1.adapters_listeners_etc.CustomViewPager;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.PlayerStatsAdapter;
 import com.example.android.scorekeepdraft1.data.FirestoreHelper;
 import com.example.android.scorekeepdraft1.data.StatsContract;
@@ -42,6 +45,7 @@ public class TeamManagerActivity extends ExportActivity
 
     private LineupFragment lineupFragment;
     private TeamFragment teamFragment;
+    private CustomViewPager mViewPager;
     private String mTeamID;
     private int level;
     private int leagueType;
@@ -66,12 +70,12 @@ public class TeamManagerActivity extends ExportActivity
             finish();
         }
 
-        ViewPager viewPager = findViewById(R.id.league_view_pager);
+        mViewPager = findViewById(R.id.league_view_pager);
         FragmentManager fragmentManager = getSupportFragmentManager();
-        viewPager.setAdapter(new TeamManagerPagerAdapter(fragmentManager));
+        mViewPager.setAdapter(new TeamManagerPagerAdapter(fragmentManager));
 
         TabLayout tabLayout = findViewById(R.id.league_tab_layout);
-        tabLayout.setupWithViewPager(viewPager);
+        tabLayout.setupWithViewPager(mViewPager);
     }
 
     @Override
@@ -112,6 +116,19 @@ public class TeamManagerActivity extends ExportActivity
             }
         }
     }
+
+//    public void enablePagerSwipe() {
+//        mViewPager.setOnTouchListener(null);
+//    }
+//
+//    public void disablePagerSwipe() {
+//        mViewPager.setOnTouchListener(new View.OnTouchListener() {
+//
+//            public boolean onTouch(View arg0, MotionEvent arg1) {
+//                return true;
+//            }
+//        });
+//    }
 
     @Override
     public void onGameSettingsChanged(int innings, int genderSorter) {
@@ -208,6 +225,8 @@ public class TeamManagerActivity extends ExportActivity
             }
             return createdFragment;
         }
+
+
     }
 
     @Override

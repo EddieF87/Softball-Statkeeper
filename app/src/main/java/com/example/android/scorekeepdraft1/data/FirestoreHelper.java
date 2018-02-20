@@ -136,9 +136,9 @@ public class FirestoreHelper implements Parcelable {
     }
 
     private long getLocalTimeStamp() {
-        return 0;
-//        SharedPreferences updatePreferences = mContext.getSharedPreferences(leagueID + UPDATE_SETTINGS, Context.MODE_PRIVATE);
-//        return updatePreferences.getLong(LAST_UPDATE, 0);
+//        return 0;
+        SharedPreferences updatePreferences = mContext.getSharedPreferences(leagueID + UPDATE_SETTINGS, Context.MODE_PRIVATE);
+        return updatePreferences.getLong(LAST_UPDATE, 0);
     }
 
     public void setLocalTimeStamp(long time) {
