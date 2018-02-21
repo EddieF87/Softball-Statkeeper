@@ -8,13 +8,10 @@ import android.database.Cursor;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
@@ -47,7 +44,7 @@ public class LeagueManagerActivity extends ExportActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_manager_pager);
+        setContentView(R.layout.activity_lg_mgr_pager);
 
         try {
             MyApp myApp = (MyApp) getApplicationContext();

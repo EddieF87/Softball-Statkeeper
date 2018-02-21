@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.example.android.scorekeepdraft1.adapters_listeners_etc.CustomViewPager
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/team_view_pager"
+    >
+
+    <android.support.design.widget.TabLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:id="@+id/league_tab_layout"/>
+
+</com.example.android.scorekeepdraft1.adapters_listeners_etc.CustomViewPager>

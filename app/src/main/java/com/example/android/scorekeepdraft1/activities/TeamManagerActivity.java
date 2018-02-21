@@ -54,7 +54,7 @@ public class TeamManagerActivity extends ExportActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_manager_pager);
+        setContentView(R.layout.activity_team_mgr_pager);
 
         try {
             MyApp myApp = (MyApp) getApplicationContext();
@@ -70,7 +70,7 @@ public class TeamManagerActivity extends ExportActivity
             finish();
         }
 
-        mViewPager = findViewById(R.id.league_view_pager);
+        mViewPager = findViewById(R.id.team_view_pager);
         FragmentManager fragmentManager = getSupportFragmentManager();
         mViewPager.setAdapter(new TeamManagerPagerAdapter(fragmentManager));
 

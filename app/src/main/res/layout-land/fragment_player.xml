@@ -12,8 +12,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:autoSizeMinTextSize="12sp"
         android:autoSizeTextType="uniform"
         android:gravity="center"
@@ -22,7 +21,7 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@+id/player_team"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintHorizontal_weight="7"
+        app:layout_constraintHorizontal_weight="8"
         app:layout_constraintStart_toEndOf="@+id/player_image"
         app:layout_constraintStart_toStartOf="@+id/guideline_titles"
         app:layout_constraintTop_toTopOf="parent"
@@ -38,12 +37,11 @@
         android:maxLines="1"
         android:textSize="14sp"
         android:textStyle="italic"
+        app:layout_constraintHorizontal_weight="3"
         app:layout_constraintBottom_toBottomOf="@+id/player_name"
         app:layout_constraintEnd_toStartOf="@+id/player_mgr"
-        app:layout_constraintHorizontal_weight="3"
         app:layout_constraintStart_toEndOf="@+id/player_name"
         app:layout_constraintTop_toTopOf="@+id/player_name"
-        app:layout_constraintVertical_bias="1.0"
         tools:text="Playertope" />
 
 
@@ -54,13 +52,11 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        app:layout_constraintHorizontal_weight="3"
         app:layout_constraintBottom_toTopOf="@+id/stats"
         app:layout_constraintEnd_toStartOf="@+id/guideline_titles"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintHorizontal_weight="3"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0"
         app:srcCompat="@mipmap/ic_launcher_round" />
 
 
@@ -107,7 +103,7 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/stats"
         app:layout_constraintTop_toTopOf="parent"
-        tools:visibility="gone" />
+        tools:visibility="visible" />
 
     <include
         android:id="@+id/stats"

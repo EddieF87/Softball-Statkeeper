@@ -60,7 +60,7 @@ public class LeagueGameActivity extends GameActivity /*implements LoaderManager.
 
     @Override
     protected void setCustomViews() {
-        setContentView(R.layout.activity_game);
+        setContentView(R.layout.activity_lg_game);
 
         SharedPreferences gamePreferences = getSharedPreferences(selectionID + StatsEntry.GAME, MODE_PRIVATE);
         totalInnings = gamePreferences.getInt(KEY_TOTALINNINGS, 7);

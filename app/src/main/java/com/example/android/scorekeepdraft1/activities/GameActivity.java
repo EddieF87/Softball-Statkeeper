@@ -169,7 +169,8 @@ public abstract class GameActivity extends AppCompatActivity
                 onSubmit();
             }
         });
-        submitPlay.setVisibility(View.INVISIBLE);
+        submitPlay.setEnabled(false);
+        submitPlay.getBackground().setAlpha(64);
 
         resetBases = findViewById(R.id.reset);
         resetBases.setOnClickListener(new View.OnClickListener() {
@@ -319,7 +320,8 @@ public abstract class GameActivity extends AppCompatActivity
                 break;
         }
         if (batterMoved) {
-            submitPlay.setVisibility(View.VISIBLE);
+            submitPlay.setEnabled(true);
+            submitPlay.getBackground().setAlpha(255);
         }
     }
 
@@ -381,6 +383,7 @@ public abstract class GameActivity extends AppCompatActivity
             increaseLineupIndex();
         }
         submitPlay.setEnabled(true);
+        submitPlay.getBackground().setAlpha(255);
         updateGameLogs();
     }
 
@@ -392,7 +395,8 @@ public abstract class GameActivity extends AppCompatActivity
         group2.clearCheck();
         tempRunsLog.clear();
         currentRunsLog.clear();
-        submitPlay.setVisibility(View.INVISIBLE);
+        submitPlay.setEnabled(false);
+        submitPlay.getBackground().setAlpha(64);
         resetBases.setVisibility(View.INVISIBLE);
         tempOuts = 0;
         tempRuns = 0;
@@ -693,7 +697,8 @@ public abstract class GameActivity extends AppCompatActivity
         if (!tempRunsLog.isEmpty()) {
             tempRunsLog.clear();
         }
-        submitPlay.setVisibility(View.INVISIBLE);
+        submitPlay.setEnabled(false);
+        submitPlay.getBackground().setAlpha(64);
         resetBases.setVisibility(View.INVISIBLE);
         setBaseListeners();
         tempOuts = 0;
@@ -716,6 +721,7 @@ public abstract class GameActivity extends AppCompatActivity
 
     protected void onSubmit() {
         submitPlay.setEnabled(false);
+        submitPlay.getBackground().setAlpha(64);
         if (undoRedo) {
             deleteGameLogs();
             currentRunsLog.clear();
@@ -855,6 +861,7 @@ public abstract class GameActivity extends AppCompatActivity
             }
             undoPlay();
             submitPlay.setEnabled(true);
+            submitPlay.getBackground().setAlpha(255);
         }
     }
 
@@ -910,6 +917,7 @@ public abstract class GameActivity extends AppCompatActivity
                             batterMoved = true;
                             if (playEntered) {
                                 submitPlay.setVisibility(View.VISIBLE);
+                                submitPlay.getBackground().setAlpha(255);
                             }
                         }
                         tempOuts++;
@@ -929,6 +937,7 @@ public abstract class GameActivity extends AppCompatActivity
                             batterMoved = true;
                             if (playEntered) {
                                 submitPlay.setVisibility(View.VISIBLE);
+                                submitPlay.getBackground().setAlpha(255);
                             }
                         }
                         dropPoint.setAlpha(1);

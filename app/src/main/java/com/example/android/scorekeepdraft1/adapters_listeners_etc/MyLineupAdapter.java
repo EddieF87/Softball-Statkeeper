@@ -24,11 +24,24 @@ public class MyLineupAdapter extends DragItemAdapter<Pair<Long, Player>, MyLineu
     private int mLayoutId;
     private int mGrabHandleId;
     private boolean mDragOnLongPress;
+    private boolean genderSettingsOff;
+    private boolean isBench;
+    private int colorMale;
+    private int colorFemale;
 
     public MyLineupAdapter(ArrayList<Pair<Long, Player>> list, int layoutId, int grabHandleId, boolean dragOnLongPress) {
         mLayoutId = layoutId;
         mGrabHandleId = grabHandleId;
         mDragOnLongPress = dragOnLongPress;
+        //        this.isBench = isBench;
+//        genderSettingsOff = genderSorter == 0;
+//        if (genderSettingsOff) {
+//            colorMale = Color.TRANSPARENT;
+//            colorFemale = Color.TRANSPARENT;
+//        } else {
+//            colorMale = ContextCompat.getColor(context, R.color.male);
+//            colorFemale = ContextCompat.getColor(context, R.color.female);
+//        }
         setItemList(list);
     }
 
@@ -44,6 +57,22 @@ public class MyLineupAdapter extends DragItemAdapter<Pair<Long, Player>, MyLineu
         Player player = mItemList.get(position).second;
         holder.mText.setText(player.getName());
         holder.itemView.setTag(mItemList.get(position));
+//        int gender = player.getGender();
+//
+//        if (gender == 0) {
+//            holder.mFrameLayout.setBackgroundColor(colorMale);
+//        } else {
+//            holder.mFrameLayout.setBackgroundColor(colorFemale);
+//        }
+//
+//        if(isBench) {
+//            String benchPlayer = "B:   " + name;
+//            holder.mTextView.setText(benchPlayer);
+//        } else {
+//            String positionText = (position + 1) + ". " + name;
+//            holder.mTextView.setText(positionText);
+//        }
+//
     }
 
     @Override
@@ -51,6 +80,24 @@ public class MyLineupAdapter extends DragItemAdapter<Pair<Long, Player>, MyLineu
         return mItemList.get(position).first;
     }
 
+    public boolean changeColors(boolean genderSettingsOn){
+//        if (genderSettingsOn) {
+//            if (!genderSettingsOff) {
+//                return false;
+//            }
+//            colorMale = ContextCompat.getColor(mContext, R.color.male);
+//            colorFemale = ContextCompat.getColor(mContext, R.color.female);
+//            genderSettingsOff = false;
+//        } else {
+//            if (genderSettingsOff) {
+//                return false;
+//            }
+//            colorMale = Color.TRANSPARENT;
+//            colorFemale = Color.TRANSPARENT;
+//            genderSettingsOff = true;
+//        }
+        return true;
+    }
 
 
     class ViewHolder extends DragItemAdapter.ViewHolder  {
