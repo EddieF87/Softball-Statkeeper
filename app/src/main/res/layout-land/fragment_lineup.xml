@@ -106,7 +106,7 @@
             android:checked="true"
             android:maxLines="1"
             android:text="@string/away"
-            android:textSize="14sp" />
+            android:textSize="12sp" />
 
         <RadioButton
             android:id="@+id/radio_home"
@@ -115,7 +115,7 @@
             android:layout_weight="1"
             android:maxLines="1"
             android:text="@string/home"
-            android:textSize="14sp" />
+            android:textSize="12sp" />
 
     </RadioGroup>
 
@@ -139,10 +139,10 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:layout_weight="1"
         android:gravity="center"
         android:maxLines="1"
         android:text="@string/continue_game"
+        android:textSize="12sp"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/guideline_v"
         app:layout_constraintEnd_toEndOf="@+id/lineup_submit"
@@ -158,9 +158,9 @@
         android:layout_marginBottom="16dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_weight="1"
         android:maxLines="1"
         android:text="@string/submit_lineup"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -217,10 +217,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:layout_marginTop="8dp"
-        android:layout_weight="2"
+        android:layout_marginTop="4dp"
         android:gravity="center"
-        android:maxLines="2"
+        android:maxLines="1"
         android:textSize="12sp"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/continue_game"
@@ -237,20 +236,16 @@
         android:id="@+id/gender_lineup_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_weight="1"
-        android:autoSizeMinTextSize="12sp"
-        android:autoSizeTextType="uniform"
+        android:layout_marginTop="16dp"
         android:gravity="center"
         android:maxLines="1"
-        android:textSize="16sp"
+        android:textSize="12sp"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/radiobtns_away_or_home_team"
         app:layout_constraintEnd_toEndOf="@+id/lineup_submit"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="@+id/lineup_submit"
         app:layout_constraintTop_toBottomOf="@+id/guideline_v"
-        app:layout_constraintVertical_bias="0.32999998"
         app:layout_constraintVertical_chainStyle="packed"
         tools:text="BGBG"
         tools:visibility="visible" />
@@ -259,10 +254,9 @@
         android:id="@+id/innings_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
         android:gravity="center"
         android:maxLines="1"
-        android:textSize="16sp"
+        android:textSize="12sp"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/lineup_submit"
         app:layout_constraintEnd_toEndOf="@+id/lineup_submit"
@@ -284,6 +278,6 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.4" />
+        app:layout_constraintGuide_percent="0.35" />
 
 </android.support.constraint.ConstraintLayout>

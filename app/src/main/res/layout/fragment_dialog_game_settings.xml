@@ -1,79 +1,73 @@
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:orientation="vertical">
 
     <TextView
+        android:layout_marginTop="8dp"
         android:id="@+id/innings_description"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:gravity="center"
         android:text="@string/Innings"
         android:textSize="24sp"
-        app:layout_constraintBottom_toTopOf="@+id/innings_textview"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="16dp" />
+        android:autoSizeMinTextSize="12sp"
+        android:autoSizeTextType="uniform"
+        />
 
     <TextView
+        android:layout_marginTop="8dp"
         android:id="@+id/innings_textview"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:gravity="center"
         android:textSize="24sp"
-        app:layout_constraintBottom_toTopOf="@+id/innings_seekbar"
-        app:layout_constraintTop_toBottomOf="@+id/innings_description"
-        tools:layout_editor_absoluteX="16dp" />
+        android:autoSizeMinTextSize="12sp"
+        android:autoSizeTextType="uniform"/>
 
     <SeekBar
         android:id="@+id/innings_seekbar"
         style="@style/Widget.AppCompat.SeekBar.Discrete"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:max="8"
-        android:progress="1"
-        app:layout_constraintBottom_toTopOf="@+id/gender_sort_description"
-        app:layout_constraintTop_toBottomOf="@+id/innings_textview"
-        tools:layout_editor_absoluteX="16dp" />
+        android:progress="1" />
 
     <TextView
+        android:layout_marginTop="32dp"
         android:id="@+id/gender_sort_description"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:gravity="center"
         android:text="@string/set_gender_lineup"
         android:textSize="24sp"
-        app:layout_constraintBottom_toTopOf="@+id/gender_sort_textview"
-        app:layout_constraintTop_toBottomOf="@+id/innings_seekbar"
-        tools:layout_editor_absoluteX="0dp" />
+        android:autoSizeMinTextSize="12sp"
+        android:autoSizeTextType="uniform"
+        />
 
     <TextView
+        android:layout_marginTop="8dp"
         android:id="@+id/gender_sort_textview"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:gravity="center"
         android:textColor="@color/male"
         android:textSize="24sp"
-        app:layout_constraintBottom_toTopOf="@+id/gender_sort_seekbar"
-        app:layout_constraintTop_toBottomOf="@+id/gender_sort_description"
-        tools:layout_editor_absoluteX="16dp" />
+        android:autoSizeMinTextSize="12sp"
+        android:autoSizeTextType="uniform"/>
 
     <SeekBar
         android:id="@+id/gender_sort_seekbar"
         style="@style/Widget.AppCompat.SeekBar.Discrete"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:max="4"
-        android:progress="1"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/gender_sort_textview"
-        tools:layout_editor_absoluteX="0dp" />
+        android:progress="1" />
 
-</android.support.constraint.ConstraintLayout>
+</LinearLayout>

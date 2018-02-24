@@ -1,107 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="8dp">
+    android:orientation="vertical"
+    android:padding="4dp">
 
-    <TextView
-        android:id="@+id/choose_team_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Choose Team"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="16dp"
-        />
 
-    <LinearLayout
-        android:id="@+id/top_team_chooser"
+    <Button
+        android:id="@+id/select_current_team_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_below="@id/choose_team_text"
-        >
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginLeft="24dp"
+        android:layout_marginRight="24dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="8dp"
+        android:text="Select from current teams" />
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/team_list"
-            android:layout_width="0dp"
-            android:layout_weight="2"
-            android:layout_height="240dp"
-            android:minHeight="160dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
-            android:paddingTop="16dp"
-            android:paddingBottom="16dp"/>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:layout_gravity="bottom">
-
-            <TextView
-                android:id="@+id/team_chosen_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAlignment="center"
-                android:textSize="16sp"
-                android:maxLines="1"
-                android:autoSizeTextType="uniform"
-                android:autoSizeMinTextSize="12sp"
-                android:hint="Select Team"/>
-
-            <Button
-                android:id="@+id/btn_submit_team_chosen"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:textSize="12sp"
-                android:text="Submit" />
-
-        </LinearLayout>
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/create_team_text"
-        android:layout_width="wrap_content"
-        android:layout_below="@id/top_team_chooser"
-        android:layout_height="wrap_content"
-        android:text="Create Team"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp"
-        />
-
-    <LinearLayout
+    <EditText
+        android:id="@+id/edit_text_new_team"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/create_team_text"
-        android:orientation="horizontal"
-        android:layout_marginTop="16dp">
-
-        <EditText
-            android:id="@+id/edit_text_new_team"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_weight="2"
-            android:hint="Create New Team"
-            android:inputType="textPersonName" />
-
-        <Button
-            android:id="@+id/btn_submit_new_team"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Add" />
-    </LinearLayout>
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:hint="Create New Team"
+        android:inputType="textPersonName" />
 
 
-</RelativeLayout>
+
+</LinearLayout>

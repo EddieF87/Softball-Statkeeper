@@ -76,42 +76,6 @@
 
     </LinearLayout>
 
-
-    <Button
-        android:id="@+id/continue_game"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="32dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_weight="1"
-        android:gravity="center"
-        android:maxLines="1"
-        android:text="@string/continue_game"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@+id/gender_lineup_view"
-        app:layout_constraintEnd_toEndOf="@+id/start_game"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="@+id/start_game"
-        app:layout_constraintTop_toBottomOf="@+id/current_game_view"
-        tools:visibility="visible" />
-
-    <Button
-        android:id="@+id/start_game"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="16dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_weight="1"
-        android:maxLines="1"
-        android:text="@string/start"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintLeft_toRightOf="@+id/settings_separator"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/innings_view" />
-
     <View
         android:id="@+id/lineup_bench_separator"
         android:layout_width="4dp"
@@ -262,7 +226,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:layout_marginTop="16dp"
-        android:layout_weight="2"
         android:gravity="center"
         android:maxLines="2"
         android:textSize="12sp"
@@ -272,7 +235,6 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="@+id/continue_game"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed"
         tools:text="aaaaaaaaaaaaaaaaabbbaa"
         tools:visibility="visible" />
 
@@ -280,12 +242,9 @@
     <TextView
         android:id="@+id/gender_lineup_view"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="4dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="32dp"
-        android:layout_weight="1"
+        android:layout_height="0dp"
+        android:layout_marginBottom="2dp"
+        android:layout_marginTop="8dp"
         android:autoSizeMinTextSize="12sp"
         android:autoSizeTextType="uniform"
         android:gravity="center"
@@ -295,17 +254,16 @@
         app:layout_constraintEnd_toEndOf="@+id/innings_view"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="@+id/innings_view"
-        app:layout_constraintTop_toBottomOf="@+id/continue_game"
+        app:layout_constraintTop_toTopOf="@+id/guideline_buttons"
+        app:layout_constraintVertical_chainStyle="spread"
         tools:text="BGBG" />
 
     <TextView
         android:id="@+id/innings_view"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="4dp"
+        android:layout_height="0dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_weight="1"
         android:gravity="center"
         android:maxLines="1"
         android:textSize="16sp"
@@ -316,5 +274,45 @@
         app:layout_constraintTop_toBottomOf="@+id/gender_lineup_view"
         tools:text="Innings: 3" />
 
+
+    <Button
+        android:id="@+id/continue_game"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:maxLines="1"
+        android:text="@string/continue_game"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/guideline_buttons"
+        app:layout_constraintEnd_toEndOf="@+id/start_game"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/start_game"
+        app:layout_constraintTop_toBottomOf="@+id/current_game_view"
+        tools:visibility="visible" />
+
+    <Button
+        android:id="@+id/start_game"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="2dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:maxLines="1"
+        android:text="@string/start"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/settings_separator"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/innings_view" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".50" />
 
 </android.support.constraint.ConstraintLayout>

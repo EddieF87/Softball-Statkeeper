@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.SelectTeamRecyclerViewAdapter;
@@ -28,15 +29,13 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class ChooseOrCreateTeamDialogFragment extends DialogFragment
-implements SelectTeamRecyclerViewAdapter.OnAdapterInteractionListener{
+public class ChooseOrCreateTeamDialogFragment extends DialogFragment {
 
 
-    private List<Team> mTeams;
+    private ArrayList<Team> mTeams;
     private static final String KEY_TEAMS = "mTeams";
-    private TextView teamChoiceText;
-    private Team mTeamChoice;
     private EditText newTeamEditText;
+    private Button mButton;
 
     private ChooseOrCreateTeamDialogFragment.OnFragmentInteractionListener mListener;
 
@@ -64,45 +63,44 @@ implements SelectTeamRecyclerViewAdapter.OnAdapterInteractionListener{
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_dialog_choose_or_create_team, null);
-
         newTeamEditText = view.findViewById(R.id.edit_text_new_team);
-        teamChoiceText = view.findViewById(R.id.team_chosen_text);
-
-        SelectTeamRecyclerViewAdapter mAdapter = new SelectTeamRecyclerViewAdapter(mTeams, this);
-        RecyclerView recyclerView = view.findViewById(R.id.team_list);
-//        recyclerView.setHasFixedSize(true);
-
-        Context context = view.getContext();
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recyclerView.setAdapter(mAdapter);
-
-//        final CharSequence[] teams_array = mTeams.toArray(new CharSequence[mTeams.size()]);
+        mButton = view.findViewById(R.id.select_current_team_btn);
 
         final AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
                 .setView(view)
                 .setTitle("Choose or Create a Team")
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        mListener.onCancel();
+                        dialogInterface.dismiss();
+                    }
+                })
+                .setPositiveButton(R.string.submit, null)
                 .create();
 
-        Button submitTeamChosenButton = view.findViewById(R.id.btn_submit_team_chosen);
-        submitTeamChosenButton.setOnClickListener(new View.OnClickListener() {
+        alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
-            public void onClick(View view) {
-                if (mTeamChoice == null) {
-                    return;
-                }
-                mListener.onTeamSelected(mTeamChoice.getName(), mTeamChoice.getFirestoreID());
-                alertDialog.dismiss();
+            public void onShow(DialogInterface dialogInterface) {
+
+                Button button = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        String newTeam = newTeamEditText.getText().toString();
+                        mListener.onNewTeam(newTeam);
+                        if (!newTeam.isEmpty()) {
+                            alertDialog.dismiss();
+                        }
+                    }
+                });
             }
         });
-        Button submitNewTeam = view.findViewById(R.id.btn_submit_new_team);
-        submitNewTeam.setOnClickListener(new View.OnClickListener() {
+
+        mButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(newTeamEditText.getText().length() == 0) {
-                    return;
-                }
-                String newTeam = newTeamEditText.getText().toString();
-                mListener.onNewTeam(newTeam);
+                mListener.chooseTeamDialog(mTeams);
                 alertDialog.dismiss();
             }
         });
@@ -114,12 +112,6 @@ implements SelectTeamRecyclerViewAdapter.OnAdapterInteractionListener{
     public void onCancel(DialogInterface dialog) {
         super.onCancel(dialog);
         mListener.onCancel();
-    }
-
-    public void onButtonPressed(String teamName, String teamID) {
-        if (mListener != null) {
-            mListener.onTeamSelected(teamName, teamID);
-        }
     }
 
     @Override
@@ -139,15 +131,12 @@ implements SelectTeamRecyclerViewAdapter.OnAdapterInteractionListener{
         mListener = null;
     }
 
-    @Override
-    public void onTeamClicked(Team team) {
-        mTeamChoice = team;
-        teamChoiceText.setText(mTeamChoice.getName());
-    }
 
     public interface OnFragmentInteractionListener {
-        void onTeamSelected(String teamName, String teamID);
+        void chooseTeamDialog(ArrayList<Team> teams);
+
         void onNewTeam(String team);
+
         void onCancel();
     }
 }

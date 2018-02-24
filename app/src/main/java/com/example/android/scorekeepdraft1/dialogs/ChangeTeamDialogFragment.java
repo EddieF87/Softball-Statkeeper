@@ -10,6 +10,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 
 import com.example.android.scorekeepdraft1.R;
+import com.example.android.scorekeepdraft1.activities.LeagueManagerActivity;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.objects.Team;
 
@@ -59,8 +60,13 @@ public class ChangeTeamDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-        String titleString = getContext().getResources().getString(R.string.edit_player_team);
-        String title = String.format(titleString, playerName);
+        String title;
+        if(getContext() instanceof LeagueManagerActivity){
+            title = "Choose a team";
+        } else {
+            String titleString = getContext().getResources().getString(R.string.edit_player_team);
+            title = String.format(titleString, playerName);
+        }
 
         final Map<String, String> teamMap = new HashMap<>();
         final List<String> teamNames = new ArrayList<>();

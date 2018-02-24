@@ -476,6 +476,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         return super.onOptionsItemSelected(item);
     }
 
+
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
@@ -484,6 +485,9 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         }
         if (selectionType == MainPageSelection.TYPE_LEAGUE) {
             menu.findItem(R.id.action_change_team).setVisible(true);
+        }
+        if (selectionType == MainPageSelection.TYPE_PLAYER) {
+            menu.findItem(R.id.action_export_stats).setVisible(true);
         }
     }
 

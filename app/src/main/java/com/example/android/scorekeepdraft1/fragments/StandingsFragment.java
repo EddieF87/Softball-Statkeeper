@@ -206,11 +206,12 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
         values.put(StatsEntry.COLUMN_NAME, team);
         values.put(StatsEntry.ADD, true);
         Uri teamUri = getActivity().getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
-        new FirestoreHelper(getActivity(), leagueID).updateTimeStamps();
 
         if (teamUri == null) {
             return;
         }
+        new FirestoreHelper(getActivity(), leagueID).updateTimeStamps();
+
         Cursor cursor = getActivity().getContentResolver().query(teamUri, new String[]{StatsEntry.COLUMN_FIRESTORE_ID}, null, null, null);
         if (cursor.moveToFirst()) {
             int teamIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);

@@ -92,6 +92,8 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
 
     private String leagueID;
     private String leagueName;
+    private int innings;
+    private int genderSorter;
 
     public MatchupFragment() {
         // Required empty public constructor
@@ -165,13 +167,9 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         rvHome = rootView.findViewById(R.id.rv_right_team);
         gameSummaryView = rootView.findViewById(R.id.current_game_view);
 
-        SharedPreferences settingsPreferences = getActivity()
-                .getSharedPreferences(leagueID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
-        final int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
-        final int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
         inningsView = rootView.findViewById(R.id.innings_view);
         orderView = rootView.findViewById(R.id.gender_lineup_view);
-        setGameSettings(innings, genderSorter);
+        setGameSettings();
 
         VerticalTextView editAwayLineup = rootView.findViewById(R.id.away_lineup_editor);
         VerticalTextView editHomeLineup = rootView.findViewById(R.id.home_lineup_editor);
@@ -348,13 +346,17 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         return name;
     }
 
-    public void setGameSettings(int innings, int gendersorter) {
+    public void setGameSettings() {
+        SharedPreferences settingsPreferences = getActivity()
+                .getSharedPreferences(leagueID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
+        innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
+        genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
         if(inningsView == null) {
             return;
         }
         String inningsText = "Innings: " +  innings;
         inningsView.setText(inningsText);
-        setGenderSettingDisplay(gendersorter);
+        setGenderSettingDisplay(genderSorter);
     }
 
     private void setGenderSettingDisplay(int i) {

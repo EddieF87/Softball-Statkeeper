@@ -6,12 +6,15 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
@@ -19,19 +22,24 @@ import com.example.android.scorekeepdraft1.data.FirestoreHelper;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.dialogs.AddNewPlayersDialogFragment;
+import com.example.android.scorekeepdraft1.dialogs.ChangeTeamDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.ChooseOrCreateTeamDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.GameSettingsDialogFragment;
 import com.example.android.scorekeepdraft1.fragments.MatchupFragment;
 import com.example.android.scorekeepdraft1.fragments.StandingsFragment;
 import com.example.android.scorekeepdraft1.fragments.StatsFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
+import com.example.android.scorekeepdraft1.objects.Team;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.List;
 
 public class LeagueManagerActivity extends ExportActivity
         implements AddNewPlayersDialogFragment.OnListFragmentInteractionListener,
         GameSettingsDialogFragment.OnFragmentInteractionListener,
-        ChooseOrCreateTeamDialogFragment.OnFragmentInteractionListener{
+        ChooseOrCreateTeamDialogFragment.OnFragmentInteractionListener,
+        ChangeTeamDialogFragment.OnFragmentInteractionListener {
 
     private StandingsFragment standingsFragment;
     private StatsFragment statsFragment;
@@ -48,7 +56,8 @@ public class LeagueManagerActivity extends ExportActivity
 
         try {
             MyApp myApp = (MyApp) getApplicationContext();
-            MainPageSelection mainPageSelection = myApp.getCurrentSelection();leagueName = mainPageSelection.getName();
+            MainPageSelection mainPageSelection = myApp.getCurrentSelection();
+            leagueName = mainPageSelection.getName();
             leagueID = mainPageSelection.getId();
             level = mainPageSelection.getLevel();
             setTitle(leagueName);
@@ -68,24 +77,37 @@ public class LeagueManagerActivity extends ExportActivity
     }
 
     @Override
-    public void onTeamSelected(String teamName, String teamID) {
-        if(standingsFragment != null) {
-            standingsFragment.addNewPlayersDialog(teamName, teamID);
-            standingsFragment.setAdderButtonVisible();
-        }
+    public void chooseTeamDialog(ArrayList<Team> teams) {
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        DialogFragment newFragment = ChangeTeamDialogFragment.newInstance(teams, null, null);
+        newFragment.show(fragmentTransaction, "");
     }
 
     @Override
     public void onNewTeam(String teamName) {
-        if(standingsFragment != null) {
-            standingsFragment.addTeam(teamName);
-            standingsFragment.setAdderButtonVisible();
+        if (teamName.isEmpty()) {
+            Toast.makeText(LeagueManagerActivity.this, "Please type a team name", Toast.LENGTH_SHORT).show();
+        } else {
+            if (standingsFragment != null) {
+                standingsFragment.addTeam(teamName);
+                standingsFragment.setAdderButtonVisible();
+            }
         }
     }
 
     @Override
     public void onCancel() {
-        if(standingsFragment != null) {
+        if (standingsFragment != null) {
+            standingsFragment.setAdderButtonVisible();
+        }
+    }
+
+    @Override
+    public void onTeamChosen(String playerID, String teamName, String teamID) {
+        if (standingsFragment != null) {
+            standingsFragment.addNewPlayersDialog(teamName, teamID);
             standingsFragment.setAdderButtonVisible();
         }
     }
@@ -197,7 +219,7 @@ public class LeagueManagerActivity extends ExportActivity
         }
 
         if (matchupFragment != null) {
-            matchupFragment.setGameSettings(innings, genderSorter);
+            matchupFragment.setGameSettings();
             matchupFragment.updateBenchColors();
             matchupFragment.changeColorsRV(genderSettingsOn);
         }
@@ -206,7 +228,7 @@ public class LeagueManagerActivity extends ExportActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(resultCode == RESULT_OK) {
+        if (resultCode == RESULT_OK) {
             SharedPreferences settingsPreferences = getSharedPreferences(leagueID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
             int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
             int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);

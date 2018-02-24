@@ -18,7 +18,7 @@
         android:autoSizeTextType="uniform"
         android:maxLines="1"
         android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-        android:textSize="18sp"
+        android:textSize="16sp"
         app:layout_constraintEnd_toStartOf="@+id/inning_top_arrow"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -27,13 +27,20 @@
     <TextView
         android:id="@+id/nowbatting"
         style="@style/ScoreboardStyle"
-        android:layout_marginTop="16dp"
+        android:layout_width="0dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="8dp"
+        android:autoSizeMinTextSize="12sp"
+        android:autoSizeTextType="uniform"
         android:maxLines="1"
+        android:singleLine="true"
         android:text="@string/nowbatting"
         android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-        android:textSize="18sp"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toStartOf="@+id/inning_bottom_arrow"
         app:layout_constraintLeft_toLeftOf="@+id/scoreboard"
-        app:layout_constraintTop_toBottomOf="@+id/scoreboard" />
+        app:layout_constraintTop_toBottomOf="@+id/scoreboard"
+        tools:text="at bat: gggggggggggggd" />
 
     <ImageView
         android:id="@+id/inning_top_arrow"

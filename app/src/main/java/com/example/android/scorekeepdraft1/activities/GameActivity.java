@@ -44,7 +44,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class GameActivity extends AppCompatActivity
-        implements FinishGameDialogFragment.OnFragmentInteractionListener{
+        implements FinishGameDialogFragment.OnFragmentInteractionListener {
 
     protected Cursor gameCursor;
 
@@ -147,7 +147,7 @@ public abstract class GameActivity extends AppCompatActivity
 
     protected abstract void getSelectionData();
 
-    protected void setViews(){
+    protected void setViews() {
         scoreboard = findViewById(R.id.scoreboard);
         nowBatting = findViewById(R.id.nowbatting);
         outsDisplay = findViewById(R.id.num_of_outs);
@@ -169,8 +169,7 @@ public abstract class GameActivity extends AppCompatActivity
                 onSubmit();
             }
         });
-        submitPlay.setEnabled(false);
-        submitPlay.getBackground().setAlpha(64);
+        disableSubmitButton();
 
         resetBases = findViewById(R.id.reset);
         resetBases.setOnClickListener(new View.OnClickListener() {
@@ -179,7 +178,7 @@ public abstract class GameActivity extends AppCompatActivity
                 resetBases(currentBaseLogStart);
             }
         });
-        resetBases.setVisibility(View.INVISIBLE);
+        disableResetButton();
 
         batterDisplay = findViewById(R.id.batter);
         firstDisplay = findViewById(R.id.first_display);
@@ -320,8 +319,7 @@ public abstract class GameActivity extends AppCompatActivity
                 break;
         }
         if (batterMoved) {
-            submitPlay.setEnabled(true);
-            submitPlay.getBackground().setAlpha(255);
+            enableSubmitButton();
         }
     }
 
@@ -359,11 +357,12 @@ public abstract class GameActivity extends AppCompatActivity
     }
 
     protected abstract void startGame();
+
     protected abstract void resumeGame();
 
     protected void nextBatter() {
         if (!isTopOfInning() && finalInning && homeTeamRuns > awayTeamRuns) {
-            if(isLeagueGameOrHomeTeam()){
+            if (isLeagueGameOrHomeTeam()) {
                 increaseLineupIndex();
             }
             showFinishGameDialog();
@@ -382,12 +381,12 @@ public abstract class GameActivity extends AppCompatActivity
         } else {
             increaseLineupIndex();
         }
-        submitPlay.setEnabled(true);
-        submitPlay.getBackground().setAlpha(255);
+        enableSubmitButton();
         updateGameLogs();
     }
 
     protected abstract boolean isLeagueGameOrHomeTeam();
+
     protected abstract void updateGameLogs();
 
     protected void clearTempState() {
@@ -395,9 +394,8 @@ public abstract class GameActivity extends AppCompatActivity
         group2.clearCheck();
         tempRunsLog.clear();
         currentRunsLog.clear();
-        submitPlay.setEnabled(false);
-        submitPlay.getBackground().setAlpha(64);
-        resetBases.setVisibility(View.INVISIBLE);
+        disableSubmitButton();
+        disableResetButton();
         tempOuts = 0;
         tempRuns = 0;
         playEntered = false;
@@ -406,7 +404,7 @@ public abstract class GameActivity extends AppCompatActivity
     }
 
     protected void enterGameValues(BaseLog currentBaseLogEnd, int team,
-                                   String previousBatterID, String onDeckID){
+                                   String previousBatterID, String onDeckID) {
 
         String first = currentBaseLogEnd.getBasepositions()[0];
         String second = currentBaseLogEnd.getBasepositions()[1];
@@ -455,6 +453,7 @@ public abstract class GameActivity extends AppCompatActivity
     }
 
     protected abstract void saveGameState();
+
     protected abstract void nextInning();
 
 
@@ -544,7 +543,6 @@ public abstract class GameActivity extends AppCompatActivity
     }
 
 
-
     protected void setScoreDisplay() {
         String scoreString = awayTeamName + " " + awayTeamRuns + "    " + homeTeamName + " " + homeTeamRuns;
         scoreboard.setText(scoreString);
@@ -583,13 +581,13 @@ public abstract class GameActivity extends AppCompatActivity
     protected void updatePlayerStats(String action, int n) {
         String playerFirestoreID;
         if (undoRedo) {
-            if(tempBatter == null) {
+            if (tempBatter == null) {
                 return;
             }
             playerFirestoreID = tempBatter;
 
         } else {
-            if(currentBatter == null) {
+            if (currentBatter == null) {
                 return;
             }
             playerFirestoreID = currentBatter.getFirestoreID();
@@ -684,6 +682,26 @@ public abstract class GameActivity extends AppCompatActivity
         }
     }
 
+    protected void enableSubmitButton() {
+        submitPlay.setEnabled(true);
+        submitPlay.getBackground().setAlpha(255);
+    }
+
+    protected void disableSubmitButton() {
+        submitPlay.setEnabled(false);
+        submitPlay.getBackground().setAlpha(64);
+    }
+
+    protected void disableResetButton() {
+        resetBases.setEnabled(false);
+        resetBases.getBackground().setAlpha(64);
+    }
+
+    protected void enableResetButton() {
+        resetBases.setEnabled(true);
+        resetBases.getBackground().setAlpha(255);
+    }
+
     protected void resetBases(BaseLog baseLog) {
         String[] bases = baseLog.getBasepositions();
         firstDisplay.setText(bases[0]);
@@ -697,9 +715,8 @@ public abstract class GameActivity extends AppCompatActivity
         if (!tempRunsLog.isEmpty()) {
             tempRunsLog.clear();
         }
-        submitPlay.setEnabled(false);
-        submitPlay.getBackground().setAlpha(64);
-        resetBases.setVisibility(View.INVISIBLE);
+        disableSubmitButton();
+        disableResetButton();
         setBaseListeners();
         tempOuts = 0;
         tempRuns = 0;
@@ -720,8 +737,7 @@ public abstract class GameActivity extends AppCompatActivity
     }
 
     protected void onSubmit() {
-        submitPlay.setEnabled(false);
-        submitPlay.getBackground().setAlpha(64);
+        disableSubmitButton();
         if (undoRedo) {
             deleteGameLogs();
             currentRunsLog.clear();
@@ -747,7 +763,7 @@ public abstract class GameActivity extends AppCompatActivity
 
     protected abstract void undoPlay();
 
-    protected String getUndoPlayResult(){
+    protected String getUndoPlayResult() {
         gameCursor = getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG, null,
                 null, null, null);
         gameCursor.moveToPosition(gameLogIndex);
@@ -772,7 +788,7 @@ public abstract class GameActivity extends AppCompatActivity
 
     protected abstract void redoPlay();
 
-    protected String getRedoResult(){
+    protected String getRedoResult() {
         gameCursor = getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG, null,
                 null, null, null);
 
@@ -860,8 +876,6 @@ public abstract class GameActivity extends AppCompatActivity
                 redoEndsGame = true;
             }
             undoPlay();
-            submitPlay.setEnabled(true);
-            submitPlay.getBackground().setAlpha(255);
         }
     }
 
@@ -916,8 +930,7 @@ public abstract class GameActivity extends AppCompatActivity
                             batterDisplay.setVisibility(View.INVISIBLE);
                             batterMoved = true;
                             if (playEntered) {
-                                submitPlay.setVisibility(View.VISIBLE);
-                                submitPlay.getBackground().setAlpha(255);
+                                enableSubmitButton();
                             }
                         }
                         tempOuts++;
@@ -936,8 +949,7 @@ public abstract class GameActivity extends AppCompatActivity
                             batterDisplay.setVisibility(View.INVISIBLE);
                             batterMoved = true;
                             if (playEntered) {
-                                submitPlay.setVisibility(View.VISIBLE);
-                                submitPlay.getBackground().setAlpha(255);
+                                enableSubmitButton();
                             }
                         }
                         dropPoint.setAlpha(1);
@@ -970,7 +982,7 @@ public abstract class GameActivity extends AppCompatActivity
                         }
                         scoreboard.setText(scoreString);
                     }
-                    resetBases.setVisibility(View.VISIBLE);
+                    enableResetButton();
                     setBaseListeners();
                     break;
                 case DragEvent.ACTION_DRAG_ENDED:
@@ -1102,6 +1114,7 @@ public abstract class GameActivity extends AppCompatActivity
     }
 
     protected abstract void exitToManager();
+
     protected abstract void actionEditLineup();
 
     @Override
@@ -1118,10 +1131,8 @@ public abstract class GameActivity extends AppCompatActivity
 
         if (gameLogIndex >= highestIndex) {
             redoItem.setVisible(false);
-            finishItem.setVisible(true);
         } else {
             redoItem.setVisible(true);
-            finishItem.setVisible(false);
         }
         return true;
     }
@@ -1143,14 +1154,15 @@ public abstract class GameActivity extends AppCompatActivity
                 if (dialog != null) {
                     dialog.dismiss();
                 }
+                if (undoRedo) {
+                    deleteGameLogs();
+                }
                 endGame();
-                finish();
             }
         });
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
     }
-
 
 
     protected String getTeamNameFromFirestoreID(String firestoreID) {
