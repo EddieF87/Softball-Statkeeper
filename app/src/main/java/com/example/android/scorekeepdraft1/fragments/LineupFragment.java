@@ -308,24 +308,24 @@ public class LineupFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        Button continueGameButton = getView().findViewById(R.id.continue_game);
+        gameSummaryView = getView().findViewById(R.id.current_game_view);
+        inningsView = getView().findViewById(R.id.innings_view);
+        View radioButtonGroup = getView().findViewById(R.id.radiobtns_away_or_home_team);
+        orderView = getView().findViewById(R.id.gender_lineup_view);
 
         if (mType == MainPageSelection.TYPE_TEAM && !inGame) {
             SharedPreferences settingsPreferences = getActivity()
                     .getSharedPreferences(mSelectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
             final int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
             final int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
-            inningsView = getView().findViewById(R.id.innings_view);
             inningsView.setVisibility(View.VISIBLE);
-            orderView = getView().findViewById(R.id.gender_lineup_view);
-            gameSummaryView = getView().findViewById(R.id.current_game_view);
             setGameSettings(innings, genderSorter);
 
             Button lineupSubmitButton = getView().findViewById(R.id.lineup_submit);
             lineupSubmitButton.setText(R.string.start);
-            View radioButtonGroup = getView().findViewById(R.id.radiobtns_away_or_home_team);
             radioButtonGroup.setVisibility(View.VISIBLE);
 
-            Button continueGameButton = getView().findViewById(R.id.continue_game);
             continueGameButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -345,9 +345,15 @@ public class LineupFragment extends Fragment {
                 gameSummaryView.setVisibility(View.VISIBLE);
             } else {
                 continueGameButton.setVisibility(View.GONE);
-                gameSummaryView.setVisibility(View.GONE);
+                gameSummaryView.setVisibility(View.INVISIBLE);
             }
             cursor.close();
+        } else {
+            continueGameButton.setVisibility(View.GONE);
+            gameSummaryView.setVisibility(View.GONE);
+            inningsView.setVisibility(View.GONE);
+            radioButtonGroup.setVisibility(View.GONE);
+            orderView.setVisibility(View.INVISIBLE);
         }
     }
 
