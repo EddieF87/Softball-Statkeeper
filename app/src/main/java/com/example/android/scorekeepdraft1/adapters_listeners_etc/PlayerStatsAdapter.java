@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.example.android.scorekeepdraft1.activities.LeagueManagerActivity;
 import com.example.android.scorekeepdraft1.activities.ObjectPagerActivity;
 import com.example.android.scorekeepdraft1.activities.PlayerPagerActivity;
 import com.example.android.scorekeepdraft1.activities.TeamManagerActivity;
@@ -188,23 +189,27 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
 
         private void bindPlayer(Player player) {
             this.mPlayer = player;
+            String teamfirestoreid = player.getTeamfirestoreid();
             String team = player.getTeam();
             String teamabv;
             boolean FA = false;
 
-            if (team == null || team.equals(StatsEntry.FREE_AGENT)) {
+            if (teamfirestoreid == null || teamfirestoreid.equals(StatsEntry.FREE_AGENT)) {
                 teamabv = "FA";
                 FA = true;
             } else if (team.length() > 2) {
                 teamabv = ("" + team.charAt(0) + team.charAt(1) + team.charAt(2)).toUpperCase();
-            } else {
+            } else if (team.length() > 1) {
+                teamabv = ("" + team.charAt(0) + team.charAt(1)).toUpperCase();
+            } else if (team.length() > 0) {
                 teamabv = ("" + team.charAt(0)).toUpperCase();
+            } else {
+                teamabv = "   ";
             }
 
             long playerId = player.getPlayerId();
             nameView.setTag(playerId);
 
-            String teamfirestoreid = player.getTeamfirestoreid();
             teamView.setTag(teamfirestoreid);
 
             if (!isTeam) {
@@ -230,7 +235,11 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
                             }
                         }
                         intent.setData(currentTeamUri);
-                        startActivity(mContext, intent, null);
+                        if (mContext instanceof LeagueManagerActivity) {
+                            ((LeagueManagerActivity) mContext).startActivityForResult(intent, REQUEST_CODE);
+                        } else {
+                            startActivity(mContext, intent, null);
+                        }
                     }
                 });
             }
@@ -296,8 +305,10 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
                             ((TeamPagerActivity) mContext).startActivityForResult(intent, REQUEST_CODE);
                         } else if (mContext instanceof TeamManagerActivity) {
                             ((TeamManagerActivity) mContext).startActivityForResult(intent, REQUEST_CODE);
+                        } else if (mContext instanceof LeagueManagerActivity) {
+                            ((LeagueManagerActivity) mContext).startActivityForResult(intent, REQUEST_CODE);
                         } else {
-                            startActivity(mContext, intent, null);
+                                startActivity(mContext, intent, null);
                         }
                     }
                 });

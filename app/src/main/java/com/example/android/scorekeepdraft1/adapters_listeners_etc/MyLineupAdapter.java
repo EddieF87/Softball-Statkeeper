@@ -1,11 +1,16 @@
 package com.example.android.scorekeepdraft1.adapters_listeners_etc;
 
+import android.content.Context;
+import android.graphics.Color;
+import android.os.Build;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.util.Pair;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,20 +33,20 @@ public class MyLineupAdapter extends DragItemAdapter<Pair<Long, Player>, MyLineu
     private boolean isBench;
     private int colorMale;
     private int colorFemale;
+    private Context mContext;
 
-    public MyLineupAdapter(ArrayList<Pair<Long, Player>> list, int layoutId, int grabHandleId, boolean dragOnLongPress) {
+    public MyLineupAdapter(ArrayList<Pair<Long, Player>> list, int layoutId, int grabHandleId, boolean dragOnLongPress, Context context, boolean isBench, int genderSorter) {
         mLayoutId = layoutId;
         mGrabHandleId = grabHandleId;
         mDragOnLongPress = dragOnLongPress;
-        //        this.isBench = isBench;
-//        genderSettingsOff = genderSorter == 0;
-//        if (genderSettingsOff) {
-//            colorMale = Color.TRANSPARENT;
-//            colorFemale = Color.TRANSPARENT;
-//        } else {
-//            colorMale = ContextCompat.getColor(context, R.color.male);
-//            colorFemale = ContextCompat.getColor(context, R.color.female);
-//        }
+        this.mContext = context;
+        this.isBench = isBench;
+        genderSettingsOff = genderSorter == 0;
+        if (genderSettingsOff) {
+            setNormalColors();
+        } else {
+            setGenderColors();
+        }
         setItemList(list);
     }
 
@@ -55,24 +60,22 @@ public class MyLineupAdapter extends DragItemAdapter<Pair<Long, Player>, MyLineu
     public void onBindViewHolder(ViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);
         Player player = mItemList.get(position).second;
-        holder.mText.setText(player.getName());
+        String name = player.getName();
         holder.itemView.setTag(mItemList.get(position));
-//        int gender = player.getGender();
-//
-//        if (gender == 0) {
-//            holder.mFrameLayout.setBackgroundColor(colorMale);
-//        } else {
-//            holder.mFrameLayout.setBackgroundColor(colorFemale);
-//        }
-//
-//        if(isBench) {
-//            String benchPlayer = "B:   " + name;
-//            holder.mTextView.setText(benchPlayer);
-//        } else {
-//            String positionText = (position + 1) + ". " + name;
-//            holder.mTextView.setText(positionText);
-//        }
-//
+        int gender = player.getGender();
+
+        if (gender == 0) {
+            holder.mGrabView.setBackgroundColor(colorMale);
+        } else {
+            holder.mGrabView.setBackgroundColor(colorFemale);
+        }
+
+        if(isBench) {
+            holder.mText.setText(name);
+        } else {
+            String positionText = (position + 1) + ". " + name;
+            holder.mText.setText(positionText);
+        }
     }
 
     @Override
@@ -80,23 +83,36 @@ public class MyLineupAdapter extends DragItemAdapter<Pair<Long, Player>, MyLineu
         return mItemList.get(position).first;
     }
 
+    public void removePlayers() {
+        mItemList.clear();
+        notifyDataSetChanged();
+    }
+
     public boolean changeColors(boolean genderSettingsOn){
-//        if (genderSettingsOn) {
-//            if (!genderSettingsOff) {
-//                return false;
-//            }
-//            colorMale = ContextCompat.getColor(mContext, R.color.male);
-//            colorFemale = ContextCompat.getColor(mContext, R.color.female);
-//            genderSettingsOff = false;
-//        } else {
-//            if (genderSettingsOff) {
-//                return false;
-//            }
-//            colorMale = Color.TRANSPARENT;
-//            colorFemale = Color.TRANSPARENT;
-//            genderSettingsOff = true;
-//        }
+        if (genderSettingsOn) {
+            if (!genderSettingsOff) {
+                return false;
+            }
+            setGenderColors();
+            genderSettingsOff = false;
+        } else {
+            if (genderSettingsOff) {
+                return false;
+            }
+            setNormalColors();
+            genderSettingsOff = true;
+        }
         return true;
+    }
+
+    private void setNormalColors(){
+        colorMale = ContextCompat.getColor(mContext, R.color.colorPrimary);
+        colorFemale = ContextCompat.getColor(mContext, R.color.colorPrimary);
+    }
+
+    private void setGenderColors(){
+        colorMale = ContextCompat.getColor(mContext, R.color.male);
+        colorFemale = ContextCompat.getColor(mContext, R.color.female);
     }
 
 
@@ -107,24 +123,5 @@ public class MyLineupAdapter extends DragItemAdapter<Pair<Long, Player>, MyLineu
             super(itemView, mGrabHandleId, mDragOnLongPress);
             mText = itemView.findViewById(R.id.lineup_text);
         }
-
-        @Override
-        public boolean onItemTouch(View view, MotionEvent event) {
-            Log.d("yyy", "onItemTouch");
-            return super.onItemTouch(view, event);
-
-        }
-
-        @Override
-        public void onItemClicked(View view) {
-            Toast.makeText(view.getContext(), "Item clicked", Toast.LENGTH_SHORT).show();
-        }
-
-        @Override
-        public boolean onItemLongClicked(View view) {
-            Toast.makeText(view.getContext(), "Item long clicked", Toast.LENGTH_SHORT).show();
-            return true;
-        }
-
     }
 }

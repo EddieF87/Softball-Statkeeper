@@ -18,12 +18,15 @@ package com.example.android.scorekeepdraft1.activities;
 
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 
 
 import com.example.android.scorekeepdraft1.MyApp;
+import com.example.android.scorekeepdraft1.data.FirestoreHelper;
+import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.dialogs.AddNewPlayersDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.GameSettingsDialogFragment;
@@ -40,6 +43,7 @@ public class SetLineupActivity extends SingleFragmentActivity
         GameSettingsDialogFragment.OnFragmentInteractionListener {
 
     private LineupFragment lineupFragment;
+    private String mSelectionID;
 
     @Override
     protected Fragment createFragment() {
@@ -59,8 +63,8 @@ public class SetLineupActivity extends SingleFragmentActivity
             MyApp myApp = (MyApp) getApplicationContext();
             MainPageSelection mainPageSelection = myApp.getCurrentSelection();
             int type = mainPageSelection.getType();
-            String leagueId = mainPageSelection.getId();
-            lineupFragment = LineupFragment.newInstance(leagueId, type, teamName, teamID, inGame);
+            mSelectionID = mainPageSelection.getId();
+            lineupFragment = LineupFragment.newInstance(mSelectionID, type, teamName, teamID, inGame);
         } catch (Exception e) {
             Intent intent = new Intent(SetLineupActivity.this, MainActivity.class);
             startActivity(intent);
@@ -72,6 +76,7 @@ public class SetLineupActivity extends SingleFragmentActivity
     @Override
     public void onSubmitPlayersListener(List<String> names, List<Integer> genders, String team, String teamID) {
         List<Player> players = new ArrayList<>();
+
         for (int i = 0; i < names.size() - 1; i++) {
             ContentValues values = new ContentValues();
             String name = names.get(i);
@@ -86,13 +91,22 @@ public class SetLineupActivity extends SingleFragmentActivity
             values.put(StatsEntry.COLUMN_ORDER, 99);
             values.put(StatsEntry.ADD, true);
             Uri uri = getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
-            Player player = new Player(name, team, gender, teamID);
             if (uri != null) {
-                players.add(player);
+                Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+                if(cursor.moveToFirst()) {
+
+                    Player player = new Player(cursor, false);
+                    players.add(player);
+                }
             }
         }
-        if (!players.isEmpty() && lineupFragment != null) {
-            lineupFragment.updateBench(players);
+        if (!players.isEmpty()) {
+            new FirestoreHelper(this, mSelectionID).updateTimeStamps();
+
+            if(lineupFragment != null)
+            {
+                lineupFragment.updateBench(players);
+            }
         }
     }
 

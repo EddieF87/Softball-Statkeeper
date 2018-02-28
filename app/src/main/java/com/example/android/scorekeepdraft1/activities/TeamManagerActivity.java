@@ -93,21 +93,21 @@ public class TeamManagerActivity extends ExportActivity
             values.put(StatsEntry.COLUMN_GENDER, gender);
             values.put(StatsEntry.COLUMN_TEAM, teamName);
             values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, teamID);
+            values.put(StatsEntry.COLUMN_ORDER, 99);
             values.put(StatsEntry.ADD, true);
             Uri uri = getContentResolver().insert(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, values);
             if (uri != null) {
                 Cursor cursor = getContentResolver().query(uri, null, null,
                         null, null);
                 if (cursor.moveToFirst()) {
-                    String firestoreID = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_FIRESTORE_ID);
                     players.add(new Player(cursor, false));
-                    firestoreHelper.setUpdate(firestoreID, 1);
                 }
             }
         }
-        firestoreHelper.updateTimeStamps();
 
         if (!players.isEmpty()) {
+            firestoreHelper.updateTimeStamps();
+
             if (lineupFragment != null) {
                 lineupFragment.updateBench(players);
             }
@@ -147,9 +147,14 @@ public class TeamManagerActivity extends ExportActivity
     public void onRemoveChoice(int choice) {
         if (choice == DeleteVsWaiversDialogFragment.CHOICE_DELETE) {
             if (teamFragment != null) {
-                teamFragment.deletePlayers();
-                teamFragment.setEmptyViewVisible();
+                List<String> firestoreIDsToDelete = teamFragment.deletePlayers();
+                if (lineupFragment != null && !firestoreIDsToDelete.isEmpty()) {
+                    lineupFragment.removePlayers(firestoreIDsToDelete);
+                }
             }
+
+
+
         }
     }
 
@@ -240,7 +245,9 @@ public class TeamManagerActivity extends ExportActivity
                     teamFragment.removePlayerFromTeam(deletedPlayer);
                 }
                 if (lineupFragment != null) {
-                    lineupFragment.removePlayerFromTeam(deletedPlayer);
+                    List<String> players = new ArrayList<>();
+                    players.add(deletedPlayer);
+                    lineupFragment.removePlayers(players);
                 }
             }
         } catch (Exception ex) {

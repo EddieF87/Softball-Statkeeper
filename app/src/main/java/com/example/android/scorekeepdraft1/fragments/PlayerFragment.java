@@ -534,6 +534,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 Toast.makeText(getActivity(), playerName + " " + getString(R.string.editor_delete_player_successful), Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(getActivity(), getString(R.string.editor_delete_player_failed), Toast.LENGTH_SHORT).show();
+                return;
             }
         }
         if (getActivity() instanceof PlayerPagerActivity) {

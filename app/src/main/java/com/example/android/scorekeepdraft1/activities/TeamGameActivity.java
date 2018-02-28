@@ -155,14 +155,6 @@ public class TeamGameActivity extends GameActivity implements FinishGameDialogFr
                 gotoLineupEditor(myTeamName, selectionID);
             }
         });
-
-        Button teamEdit = findViewById(R.id.team_edit);
-        teamEdit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                gotoLineupEditor(myTeamName, selectionID);
-            }
-        });
     }
 
     @Override

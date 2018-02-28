@@ -3,7 +3,9 @@ package com.example.android.scorekeepdraft1.data;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -15,11 +17,8 @@ import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.activities.MainActivity;
-import com.example.android.scorekeepdraft1.activities.ObjectPagerActivity;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
@@ -305,6 +304,14 @@ public class StatsProvider extends ContentProvider {
 
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
+        final int match = sUriMatcher.match(uri);
+        String firestoreID;
+        if(match == PLAYERS || match == PLAYERS_ID || match == TEAMS || match == TEAMS_ID) {
+            firestoreID = selectionArgs[0];
+        } else {
+            firestoreID = null;
+        }
+        final String leagueID;
         try {
             MyApp myApp = (MyApp) getContext().getApplicationContext();
             MainPageSelection mainPageSelection = myApp.getCurrentSelection();
@@ -312,7 +319,7 @@ public class StatsProvider extends ContentProvider {
                 Log.d(TAG, "ERROR WITH DELETE!!!");
                 return -1;
             }
-            final String leagueID = myApp.getCurrentSelection().getId();
+            leagueID = myApp.getCurrentSelection().getId();
             if (selection == null || selection.isEmpty()) {
                 selection = StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
             } else {
@@ -327,7 +334,6 @@ public class StatsProvider extends ContentProvider {
 
         SQLiteDatabase database = mOpenHelper.getWritableDatabase();
 
-        final int match = sUriMatcher.match(uri);
 
         int rowsDeleted;
         String table;
@@ -337,11 +343,17 @@ public class StatsProvider extends ContentProvider {
                 if (selectionArgs == null) {
                     return -1;
                 }
+                if(inGamePlayerCheck(firestoreID)) {
+                    return -1;
+                }
                 table = StatsEntry.PLAYERS_TABLE_NAME;
                 break;
 
             case PLAYERS_ID:
                 if (selectionArgs == null) {
+                    return -1;
+                }
+                if(inGamePlayerCheck(firestoreID)) {
                     return -1;
                 }
                 selection = StatsEntry._ID + "=?";
@@ -353,11 +365,17 @@ public class StatsProvider extends ContentProvider {
                 if (selectionArgs == null) {
                     return -1;
                 }
+                if(inGameTeamCheck(leagueID, firestoreID)){
+                    return -1;
+                }
                 table = StatsEntry.TEAMS_TABLE_NAME;
                 break;
 
             case TEAMS_ID:
                 if (selectionArgs == null) {
+                    return -1;
+                }
+                if(inGameTeamCheck(leagueID, firestoreID)){
                     return -1;
                 }
                 selection = StatsEntry._ID + "=?";
@@ -582,8 +600,7 @@ public class StatsProvider extends ContentProvider {
             String[] projection = new String[]{StatsEntry.COLUMN_NAME};
             Cursor cursor = query(uri, projection, selection, null, null);
             while (cursor.moveToNext()) {
-                int nameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_NAME);
-                String teamName = cursor.getString(nameIndex).toLowerCase();
+                String teamName = (StatsContract.getColumnString(cursor, StatsEntry.COLUMN_NAME)).toLowerCase();
                 if (teamName.equals(name)) {
                     if (isTeam) {
                         Toast.makeText(getContext(), "This team already exists!", Toast.LENGTH_SHORT).show();
@@ -598,6 +615,38 @@ public class StatsProvider extends ContentProvider {
             cursor.close();
             Log.d(TAG, name + "is good to go!");
 
+        }
+        return false;
+    }
+
+    private boolean inGamePlayerCheck(String firestoreID) {
+        String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
+        String[] selctionArgs = new String[] {firestoreID};
+
+        Cursor cursor = query(StatsEntry.CONTENT_URI_TEMP, null, selection, selctionArgs, null);
+        if (cursor.moveToFirst()) {
+            String name = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_NAME);
+            cursor.close();
+            Toast.makeText(getContext(), name + " is in an active game!", Toast.LENGTH_SHORT).show();
+            return true;
+        }
+        cursor.close();
+        return false;
+    }
+
+    private boolean inGameTeamCheck(String leagueID, String firestoreID) {
+
+        SharedPreferences gamePreferences =
+                getContext().getSharedPreferences(leagueID + StatsEntry.GAME, Context.MODE_PRIVATE);
+        String team = gamePreferences.getString("keyAwayTeam", null);
+        if(firestoreID.equals(team)) {
+            Toast.makeText(getContext(), "Team is in an active game!", Toast.LENGTH_SHORT).show();
+            return true;
+        }
+        team = gamePreferences.getString("keyHomeTeam", null);
+        if(firestoreID.equals(team)) {
+            Toast.makeText(getContext(), "Team is in an active game!", Toast.LENGTH_SHORT).show();
+            return true;
         }
         return false;
     }

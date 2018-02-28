@@ -155,7 +155,7 @@ public class ObjectPagerActivity extends AppCompatActivity
                 if (cursor.moveToFirst()) {
                     String firestoreID = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_FIRESTORE_ID);
                     players.add(new Player(cursor, false));
-                    firestoreHelper.setUpdate(firestoreID, 1);
+//                    firestoreHelper.setUpdate(firestoreID, 1);
                 }
             }
         }
@@ -169,6 +169,7 @@ public class ObjectPagerActivity extends AppCompatActivity
                 teamFragment.addPlayers(players);
             }
         }
+        setResult(RESULT_OK);
     }
 
     @Override
@@ -202,6 +203,7 @@ public class ObjectPagerActivity extends AppCompatActivity
             }
         }
         new FirestoreHelper(this, selectionID).updateTimeStamps();
+        setResult(RESULT_OK);
     }
 
     @Override
@@ -214,11 +216,12 @@ public class ObjectPagerActivity extends AppCompatActivity
 
         if (choice == DeleteVsWaiversDialogFragment.CHOICE_WAIVERS) {
             teamFragment.updatePlayersTeam(StatsEntry.FREE_AGENT);
-            teamFragment.deleteTeam();
+            teamFragment.clearPlayers();
         } else if (choice == DeleteVsWaiversDialogFragment.CHOICE_DELETE) {
             teamFragment.deletePlayers();
-            teamFragment.deleteTeam();
         }
+        teamFragment.deleteTeam();
+        setResult(RESULT_OK);
     }
 
     @Override
@@ -232,11 +235,10 @@ public class ObjectPagerActivity extends AppCompatActivity
         if (choice == DeleteVsWaiversDialogFragment.CHOICE_WAIVERS) {
             teamFragment.updatePlayersTeam(StatsEntry.FREE_AGENT);
             teamFragment.clearPlayers();
-            teamFragment.setEmptyViewVisible();
-
         } else if (choice == DeleteVsWaiversDialogFragment.CHOICE_DELETE) {
             teamFragment.deletePlayers();
         }
+        setResult(RESULT_OK);
     }
 
     @Override
@@ -262,6 +264,7 @@ public class ObjectPagerActivity extends AppCompatActivity
         if(update) {
             new FirestoreHelper(this, selectionID).updateTimeStamps();
         }
+        setResult(RESULT_OK);
     }
 
     @Override
@@ -292,6 +295,7 @@ public class ObjectPagerActivity extends AppCompatActivity
             }
             new FirestoreHelper(this, selectionID).updateTimeStamps();
         }
+        setResult(RESULT_OK);
     }
 
     private class MyFragmentStatePagerAdapter extends FragmentStatePagerAdapter{

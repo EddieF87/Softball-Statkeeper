@@ -618,6 +618,7 @@ public class FirestoreHelper implements Parcelable {
                 Toast.makeText(mContext, "POKEMON! GOTTA CATCH THEM ALLLLL!!!", Toast.LENGTH_LONG).show();
             }
         });
+        updateTimeStamps();
     }
 
     public void addDeletion(final String firestoreID, final int type, final String name, final int gender, final String team) {
@@ -671,19 +672,8 @@ public class FirestoreHelper implements Parcelable {
         Cursor cursor = mContext.getContentResolver().query(StatsEntry.CONTENT_URI_TEMP, null,
                 null, null, null);
 
-        final int playerIdIndex = cursor.getColumnIndex(StatsEntry.COLUMN_PLAYERID);
-        final int singleIndex = cursor.getColumnIndex(StatsEntry.COLUMN_1B);
-        final int doubleIndex = cursor.getColumnIndex(StatsEntry.COLUMN_2B);
-        final int tripleIndex = cursor.getColumnIndex(StatsEntry.COLUMN_3B);
-        final int hrIndex = cursor.getColumnIndex(StatsEntry.COLUMN_HR);
-        final int bbIndex = cursor.getColumnIndex(StatsEntry.COLUMN_BB);
-        final int sfIndex = cursor.getColumnIndex(StatsEntry.COLUMN_SF);
-        final int playerOutIndex = cursor.getColumnIndex(StatsEntry.COLUMN_OUT);
-        final int playerRunIndex = cursor.getColumnIndex(StatsEntry.COLUMN_RUN);
-        final int rbiIndex = cursor.getColumnIndex(StatsEntry.COLUMN_RBI);
-
         while (cursor.moveToNext()) {
-            long playerId = cursor.getLong(playerIdIndex);
+            long playerId = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_PLAYERID);
             playerList.add(playerId);
         }
 
@@ -695,15 +685,15 @@ public class FirestoreHelper implements Parcelable {
             cursor = mContext.getContentResolver().query(StatsEntry.CONTENT_URI_TEMP, null,
                     selection, selectionArgs, null);
             cursor.moveToFirst();
-            int gameRBI = cursor.getInt(rbiIndex);
-            int gameRun = cursor.getInt(playerRunIndex);
-            int game1b = cursor.getInt(singleIndex);
-            int game2b = cursor.getInt(doubleIndex);
-            int game3b = cursor.getInt(tripleIndex);
-            int gameHR = cursor.getInt(hrIndex);
-            int gameOuts = cursor.getInt(playerOutIndex);
-            int gameBB = cursor.getInt(bbIndex);
-            int gameSF = cursor.getInt(sfIndex);
+            int gameRBI = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_RBI);
+            int gameRun = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_RUN);
+            int game1b = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_1B);
+            int game2b = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_2B);
+            int game3b = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_3B);
+            int gameHR = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_HR);
+            int gameOuts = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_OUT);
+            int gameBB = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_BB);
+            int gameSF = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_SF);
 
             int firestoreIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
             String firestoreID = cursor.getString(firestoreIDIndex);
@@ -727,28 +717,17 @@ public class FirestoreHelper implements Parcelable {
             cursor = mContext.getContentResolver().query(playerUri, null, null, null, null);
             cursor.moveToFirst();
 
-            int pRBIIndex = cursor.getColumnIndex(StatsEntry.COLUMN_RBI);
-            int pRBI = cursor.getInt(pRBIIndex);
-            int pRunIndex = cursor.getColumnIndex(StatsEntry.COLUMN_RUN);
-            int pRun = cursor.getInt(pRunIndex);
-            int p1bIndex = cursor.getColumnIndex(StatsEntry.COLUMN_1B);
-            int p1b = cursor.getInt(p1bIndex);
-            int p2bIndex = cursor.getColumnIndex(StatsEntry.COLUMN_2B);
-            int p2b = cursor.getInt(p2bIndex);
-            int p3bIndex = cursor.getColumnIndex(StatsEntry.COLUMN_3B);
-            int p3b = cursor.getInt(p3bIndex);
-            int pHRIndex = cursor.getColumnIndex(StatsEntry.COLUMN_HR);
-            int pHR = cursor.getInt(pHRIndex);
-            int pOutsIndex = cursor.getColumnIndex(StatsEntry.COLUMN_OUT);
-            int pOuts = cursor.getInt(pOutsIndex);
-            int pBBIndex = cursor.getColumnIndex(StatsEntry.COLUMN_BB);
-            int pBB = cursor.getInt(pBBIndex);
-            int pSFIndex = cursor.getColumnIndex(StatsEntry.COLUMN_SF);
-            int pSF = cursor.getInt(pSFIndex);
-            int gamesPlayedIndex = cursor.getColumnIndex(StatsEntry.COLUMN_G);
-            int games = cursor.getInt(gamesPlayedIndex);
-            firestoreIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
-            firestoreID = cursor.getString(firestoreIDIndex);
+            int pRBI = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_RBI);
+            int pRun = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_RUN);
+            int p1b = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_1B);
+            int p2b = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_2B);
+            int p3b = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_3B);
+            int pHR = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_HR);
+            int pOuts = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_OUT);
+            int pBB = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_BB);
+            int pSF = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_SF);
+            int games = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_G);
+            firestoreID = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_FIRESTORE_ID);
 
             ContentValues values = new ContentValues();
             values.put(StatsEntry.COLUMN_1B, p1b + game1b);
@@ -780,15 +759,15 @@ public class FirestoreHelper implements Parcelable {
                         logId = System.currentTimeMillis();
                     }
                     int playerId = cursor.getInt(cursor.getColumnIndex(StatsEntry.COLUMN_PLAYERID));
-                    int gameRBI = cursor.getInt(rbiIndex);
-                    int gameRun = cursor.getInt(playerRunIndex);
-                    int game1b = cursor.getInt(singleIndex);
-                    int game2b = cursor.getInt(doubleIndex);
-                    int game3b = cursor.getInt(tripleIndex);
-                    int gameHR = cursor.getInt(hrIndex);
-                    int gameOuts = cursor.getInt(playerOutIndex);
-                    int gameBB = cursor.getInt(bbIndex);
-                    int gameSF = cursor.getInt(sfIndex);
+                    int gameRBI = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_RBI);
+                    int gameRun = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_RUN);
+                    int game1b = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_1B);
+                    int game2b = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_2B);
+                    int game3b = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_3B);
+                    int gameHR = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_HR);
+                    int gameOuts = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_OUT);
+                    int gameBB = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_BB);
+                    int gameSF = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_SF);
 
                     ContentValues backupValues = new ContentValues();
                     backupValues.put(StatsEntry.COLUMN_PLAYERID, playerId);
@@ -829,7 +808,7 @@ public class FirestoreHelper implements Parcelable {
             logId = System.currentTimeMillis();
         }
 
-        long teamId = cursor.getLong(cursor.getColumnIndex(StatsEntry._ID));
+        long teamId = StatsContract.getColumnLong(cursor, StatsEntry._ID);
         TeamLog teamLog = new TeamLog(teamId, teamRuns, otherTeamRuns);
         backupValues.put(StatsEntry.COLUMN_TEAM_ID, teamId);
 
@@ -838,32 +817,27 @@ public class FirestoreHelper implements Parcelable {
                 .collection(FirestoreHelper.TEAM_LOGS).document(String.valueOf(logId));
 
         if (teamRuns > otherTeamRuns) {
-            int valueIndex = cursor.getColumnIndex(StatsEntry.COLUMN_WINS);
-            int newValue = cursor.getInt(valueIndex) + 1;
+            int newValue = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_WINS) + 1;
             values.put(StatsEntry.COLUMN_WINS, newValue);
             backupValues.put(StatsEntry.COLUMN_WINS, 1);
             teamLog.setWins(1);
         } else if (otherTeamRuns > teamRuns) {
-            int valueIndex = cursor.getColumnIndex(StatsEntry.COLUMN_LOSSES);
-            int newValue = cursor.getInt(valueIndex) + 1;
+            int newValue = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_LOSSES) + 1;
             values.put(StatsEntry.COLUMN_LOSSES, newValue);
             backupValues.put(StatsEntry.COLUMN_LOSSES, 1);
             teamLog.setLosses(1);
         } else {
-            int valueIndex = cursor.getColumnIndex(StatsEntry.COLUMN_TIES);
-            int newValue = cursor.getInt(valueIndex) + 1;
+            int newValue = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_TIES) + 1;
             values.put(StatsEntry.COLUMN_TIES, newValue);
             backupValues.put(StatsEntry.COLUMN_TIES, 1);
             teamLog.setTies(1);
         }
 
-        int valueIndex = cursor.getColumnIndex(StatsEntry.COLUMN_RUNSFOR);
-        int newValue = cursor.getInt(valueIndex) + teamRuns;
+        int newValue = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_RUNSFOR) + teamRuns;
         values.put(StatsEntry.COLUMN_RUNSFOR, newValue);
         backupValues.put(StatsEntry.COLUMN_RUNSFOR, teamRuns);
 
-        valueIndex = cursor.getColumnIndex(StatsEntry.COLUMN_RUNSAGAINST);
-        newValue = cursor.getInt(valueIndex) + otherTeamRuns;
+        newValue = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_RUNSAGAINST) + otherTeamRuns;
         values.put(StatsEntry.COLUMN_RUNSAGAINST, newValue);
         backupValues.put(StatsEntry.COLUMN_RUNSAGAINST, otherTeamRuns);
         cursor.close();
@@ -895,8 +869,7 @@ public class FirestoreHelper implements Parcelable {
         Cursor cursor = mContext.getContentResolver().query(StatsEntry.CONTENT_URI_TEMP,
                 null, null, null, null);
         while (cursor.moveToNext()) {
-            int firestoreIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
-            String firestoreID = cursor.getString(firestoreIndex);
+            String firestoreID = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_FIRESTORE_ID);
             currentlyPlaying.add(firestoreID);
         }
         cursor.close();

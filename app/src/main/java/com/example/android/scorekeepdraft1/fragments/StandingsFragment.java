@@ -202,6 +202,8 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
 
 
     public void addTeam(String team) {
+        setAdderButtonVisible();
+
         ContentValues values = new ContentValues();
         values.put(StatsEntry.COLUMN_NAME, team);
         values.put(StatsEntry.ADD, true);
@@ -214,9 +216,8 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
 
         Cursor cursor = getActivity().getContentResolver().query(teamUri, new String[]{StatsEntry.COLUMN_FIRESTORE_ID}, null, null, null);
         if (cursor.moveToFirst()) {
-            int teamIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
-            String teamID = cursor.getString(teamIDIndex);
-            addNewPlayersDialog(team, teamID);
+            String firestoreID = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_FIRESTORE_ID);
+            addNewPlayersDialog(team, firestoreID);
         }
     }
 

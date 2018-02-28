@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.net.Uri;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -13,6 +14,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
@@ -31,7 +33,6 @@ import com.example.android.scorekeepdraft1.fragments.StatsFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.example.android.scorekeepdraft1.objects.Team;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -92,7 +93,18 @@ public class LeagueManagerActivity extends ExportActivity
         } else {
             if (standingsFragment != null) {
                 standingsFragment.addTeam(teamName);
-                standingsFragment.setAdderButtonVisible();
+            }
+
+            if (statsFragment != null) {
+                String selection = StatsEntry.COLUMN_NAME + "=?";
+                String[] selectionArgs = new String[]{teamName};
+                Cursor cursor = getContentResolver().query(StatsContract.StatsEntry.CONTENT_URI_TEAMS,
+                        null, selection, selectionArgs, null);
+                if (cursor.moveToFirst()) {
+                    int id = StatsContract.getColumnInt(cursor, StatsEntry._ID);
+                    String firestoreID = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_FIRESTORE_ID);
+                    statsFragment.updateTeams(teamName, id, firestoreID);
+                }
             }
         }
     }
@@ -177,6 +189,7 @@ public class LeagueManagerActivity extends ExportActivity
 
     @Override
     public void onSubmitPlayersListener(List<String> names, List<Integer> genders, String team, String teamID) {
+        boolean update = false;
 
         for (int i = 0; i < names.size() - 1; i++) {
             ContentValues values = new ContentValues();
@@ -191,23 +204,19 @@ public class LeagueManagerActivity extends ExportActivity
             values.put(StatsEntry.COLUMN_TEAM, team);
             values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, teamID);
             values.put(StatsEntry.ADD, true);
-            getContentResolver().insert(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, values);
-        }
-
-        if (statsFragment != null) {
-            String selection = StatsEntry.COLUMN_NAME + "=?";
-            String[] selectionArgs = new String[]{team};
-            Cursor cursor = getContentResolver().query(StatsContract.StatsEntry.CONTENT_URI_TEAMS,
-                    null, selection, selectionArgs, null);
-            if (cursor.moveToFirst()) {
-                int idIndex = cursor.getColumnIndex(StatsEntry._ID);
-                int firestoreIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
-                int id = cursor.getInt(idIndex);
-                String firestoreID = cursor.getString(firestoreIDIndex);
-                statsFragment.updateTeams(team, id, firestoreID);
+            Uri uri = getContentResolver().insert(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, values);
+            if(uri != null) {
+                update = true;
             }
         }
-        new FirestoreHelper(this, leagueID).updateTimeStamps();
+        if(update) {
+            new FirestoreHelper(this, leagueID).updateTimeStamps();
+            Log.d("hhh", "updatetimestamps");
+        }
+
+        if(matchupFragment != null) {
+            matchupFragment.updateMatchup();
+        }
     }
 
     @Override
@@ -233,6 +242,10 @@ public class LeagueManagerActivity extends ExportActivity
             int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
             int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
             onGameSettingsChanged(innings, genderSorter);
+
+            if (matchupFragment != null) {
+                matchupFragment.updateMatchup();
+            }
         }
     }
 }

@@ -500,19 +500,20 @@ public class TeamFragment extends Fragment
                         Toast.LENGTH_SHORT).show();
                 new FirestoreHelper(getActivity(), mSelectionID).addDeletion(teamFirestoreID, 0, teamName, -1, teamName);
             } else {
-                Toast.makeText(getActivity(), getString(R.string.editor_delete_team_failed),
-                        Toast.LENGTH_SHORT).show();
+                return;
             }
         }
         getActivity().finish();
     }
 
-    public void deletePlayers() {
+    public List<String> deletePlayers() {
+        List<String> firestoreIDsToDelete = new ArrayList<>();
         String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
         int total = 1;
         if (waivers) {
             total--;
         }
+        int amountDeleted = 0;
         FirestoreHelper firestoreHelper = new FirestoreHelper(getActivity(), mSelectionID);
         for (int i = 0; i < mPlayers.size() - total; i++) {
             Player player = mPlayers.get(i);
@@ -523,14 +524,25 @@ public class TeamFragment extends Fragment
             int deleted = getActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_PLAYERS, selection, selectionArgs);
             if(deleted > 0) {
                 firestoreHelper.addDeletion(firestoreID, 1, name, gender, teamFirestoreID);
+                mPlayers.remove(i);
+                i--;
+                amountDeleted++;
+                firestoreIDsToDelete.add(firestoreID);
             }
         }
-        clearPlayers();
+        if (amountDeleted > 0) {
+            updateTeamRV();
+        }
+        if(mPlayers.size() == 0) {
+            setEmptyViewVisible();
+        }
+        return firestoreIDsToDelete;
     }
 
     public void clearPlayers() {
         mPlayers.clear();
         updateTeamRV();
+        setEmptyViewVisible();
     }
 
     public boolean updateTeamName(String newName) {
@@ -570,13 +582,13 @@ public class TeamFragment extends Fragment
 
             if(team.equals(StatsEntry.FREE_AGENT)) {
                 contentValues.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, StatsEntry.FREE_AGENT);
-                FirestoreHelper firestoreHelper = new FirestoreHelper(getActivity(), mSelectionID);
-                firestoreHelper.setUpdate(firestoreID, 1);
             }
 
             Uri playerURI = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_PLAYERS, playerID);
             getActivity().getContentResolver().update(playerURI, contentValues, null, null);
 
+            FirestoreHelper firestoreHelper = new FirestoreHelper(getActivity(), mSelectionID);
+            firestoreHelper.setUpdate(firestoreID, 1);
         }
         updateTeamRV();
     }

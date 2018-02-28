@@ -318,18 +318,6 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         }
     }
 
-//    private String getKeyFromMap(String firestoreID){
-//        if(mTeamMap == null) {
-//            return null;
-//        }
-//        for(Map.Entry entry: mTeamMap.entrySet()){
-//            if(firestoreID.equals(entry.getValue())) {
-//                return entry.getKey().toString();
-//            }
-//        }
-//        return null;
-//    }
-
     private String getTeamNameFromFirestoreID(String firestoreID) {
         String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
         String[] selectionArgs = new String[]{firestoreID};
@@ -561,18 +549,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        if (awayTeamSpinner.getSelectedItem() == null || homeTeamSpinner.getSelectedItem() == null) {
-            Log.d("qqq", "awayTeamSpinner.getSelectedItem() == null || homeTeamSpinner.getSelectedItem() == nul");
-            return;
-        }
-
-        List<Player> awayList = getLineup(awayTeamID);
-        Log.d("qqq", "List<Player> awayList = getLineup(" + awayTeamName + "  " + awayTeamID);
-        List<Player> homeList = getLineup(homeTeamID);
-        Log.d("qqq", "List<Player> homeList = getLineup(" + homeTeamName + "  " + homeTeamID);
-
-        updateRVs(rvAway, awayList);
-        updateRVs(rvHome, homeList);
+        updateMatchup();
     }
 
 
@@ -591,6 +568,21 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
             Log.d("qqq", "rv == rvHome");
             updateHomeRV(playerList);
         }
+    }
+
+    public void updateMatchup() {
+        if (awayTeamSpinner.getSelectedItem() == null || homeTeamSpinner.getSelectedItem() == null) {
+            Log.d("qqq", "awayTeamSpinner.getSelectedItem() == null || homeTeamSpinner.getSelectedItem() == nul");
+            return;
+        }
+
+        List<Player> awayList = getLineup(awayTeamID);
+        Log.d("qqq", "List<Player> awayList = getLineup(" + awayTeamName + "  " + awayTeamID);
+        List<Player> homeList = getLineup(homeTeamID);
+        Log.d("qqq", "List<Player> homeList = getLineup(" + homeTeamName + "  " + homeTeamID);
+
+        updateRVs(rvAway, awayList);
+        updateRVs(rvHome, homeList);
     }
 
     public void updateAwayRV(List<Player> lineup) {
@@ -796,10 +788,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                 .getSharedPreferences(SPINNER_STATE, Context.MODE_PRIVATE);
         awayTeamSpinner.setAdapter(getSpinnerAdapter(R.layout.spinner_matchup_left, cursor));
         homeTeamSpinner.setAdapter(getSpinnerAdapter(R.layout.spinner_matchup, cursor));
-        Log.d("qqq", "homeTeamSpinner.setOnItemSelectedListener(this);");
         awayTeamSpinner.setOnItemSelectedListener(this);
-        Log.d("qqq", "awayTeamSpinner.setOnItemSelectedListener(this);");
-
         homeTeamSpinner.setOnItemSelectedListener(this);
         int awayIndex = spinnerStates.getInt(KEY_AWAY_STATE, 0);
         int homeIndex = spinnerStates.getInt(KEY_HOME_STATE, 1);
