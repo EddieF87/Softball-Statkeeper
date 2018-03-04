@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
@@ -210,16 +211,24 @@ public class LoadingActivity extends AppCompatActivity
     public Loader onCreateLoader(int i, Bundle bundle) {
         if(loade) {
             loade = false;
-            ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
             numberOfTeams = -1;
             numberOfPlayers = -1;
             totalNumber = -1;
-            if (mWifi.isConnected()) {
+            ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = connManager.getActiveNetworkInfo();
+            if (networkInfo != null && networkInfo.isConnected()) {
+                Toast.makeText(LoadingActivity.this, "ALL GOOD IN DA HOOD", Toast.LENGTH_LONG).show();
+                firestoreHelper = new FirestoreHelper(this, mSelectionID);
+                firestoreHelper.checkForUpdate();
             } else {
+                Toast.makeText(LoadingActivity.this, "NO NETWROK", Toast.LENGTH_LONG).show();
+                if(firestoreHelper != null) {
+                    firestoreHelper.detachListener();
+                    firestoreHelper = null;
+                }
+                finish();
             }
-            firestoreHelper = new FirestoreHelper(this, mSelectionID);
-            firestoreHelper.checkForUpdate();
         }
         return null;
     }
@@ -234,4 +243,12 @@ public class LoadingActivity extends AppCompatActivity
         Log.d("xxx", "onLoaderReset");
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if(firestoreHelper != null) {
+            firestoreHelper.detachListener();
+            firestoreHelper = null;
+        }
+    }
 }

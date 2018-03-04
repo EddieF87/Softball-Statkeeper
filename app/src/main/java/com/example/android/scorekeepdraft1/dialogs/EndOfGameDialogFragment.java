@@ -12,16 +12,16 @@ import android.view.View;
 
 import com.example.android.scorekeepdraft1.R;
 
-public class FinishGameDialogFragment extends DialogFragment {
+public class EndOfGameDialogFragment extends DialogFragment {
 
     private OnFragmentInteractionListener mListener;
 
-    public FinishGameDialogFragment() {
+    public EndOfGameDialogFragment() {
         // Required empty public constructor
     }
 
-    public static FinishGameDialogFragment newInstance() {
-        return new FinishGameDialogFragment();
+    public static EndOfGameDialogFragment newInstance() {
+        return new EndOfGameDialogFragment();
     }
 
     public void onButtonPressed(boolean isOver) {
@@ -67,9 +67,6 @@ public class FinishGameDialogFragment extends DialogFragment {
                 .setNegativeButton(R.string.undo, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         onButtonPressed(false);
-                        if (dialog != null) {
-                            dialog.dismiss();
-                        }
                     }
                 })
                 .setCancelable(false)

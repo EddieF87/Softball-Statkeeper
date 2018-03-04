@@ -142,4 +142,8 @@
     <string name="ra">RA</string>
     <string name="rs">RS</string>
     <string name="winpct">Win%</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="exit_game">Exit Game</string>
 </resources>

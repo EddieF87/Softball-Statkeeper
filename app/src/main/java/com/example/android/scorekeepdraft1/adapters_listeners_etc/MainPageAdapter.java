@@ -3,6 +3,7 @@ package com.example.android.scorekeepdraft1.adapters_listeners_etc;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +15,7 @@ import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.activities.LeagueManagerActivity;
 import com.example.android.scorekeepdraft1.activities.LoadingActivity;
+import com.example.android.scorekeepdraft1.activities.MainActivity;
 import com.example.android.scorekeepdraft1.activities.PlayerManagerActivity;
 import com.example.android.scorekeepdraft1.activities.TeamManagerActivity;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
@@ -40,15 +42,13 @@ public class MainPageAdapter extends RecyclerView.Adapter<MainPageAdapter.MainPa
     @Override
     public MainPageViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         FrameLayout frameLayout = (FrameLayout) LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_team, parent, false);
+                .inflate(R.layout.item_mainpageselection, parent, false);
 
         return new MainPageViewHolder(frameLayout);
     }
 
     @Override
     public void onBindViewHolder(MainPageViewHolder holder, int position) {
-        FrameLayout frameLayout = holder.mFrameLayout;
-        TextView nameView = frameLayout.findViewById(R.id.team_text);
         final MainPageSelection mainPageSelection = mList.get(position);
         final int selectionType = mainPageSelection.getType();
         final Intent intent;
@@ -57,25 +57,25 @@ public class MainPageAdapter extends RecyclerView.Adapter<MainPageAdapter.MainPa
         switch (selectionType) {
             case MainPageSelection.TYPE_LEAGUE:
                 intent = new Intent(mContext, LoadingActivity.class);
-                name = mainPageSelection.getName() + "  (League)";
-                nameView.setTextColor(Color.argb(255,100,0,255));
+                name = mainPageSelection.getName() + "  (L)";
+                holder.mNameView.setTextColor(Color.rgb(160, 160, 0));
                 break;
             case MainPageSelection.TYPE_TEAM:
                 intent = new Intent(mContext, LoadingActivity.class);
-                name = mainPageSelection.getName() + "  (Team)";
-                nameView.setTextColor(Color.argb(255,0,100,255));
+                name = mainPageSelection.getName() + "  (T)";
+                holder.mNameView.setTextColor(Color.rgb(0, 160, 160));
                 break;
             case MainPageSelection.TYPE_PLAYER:
                 intent = new Intent(mContext, PlayerManagerActivity.class);
-                name = mainPageSelection.getName() + "  (Player)";
-                nameView.setTextColor(Color.argb(255,0,0,255));
+                name = mainPageSelection.getName() + "  (P)";
+                holder.mNameView.setTextColor(Color.rgb(0, 160, 0));
                 break;
             default:
                 return;
         }
 
-        nameView.setText(name);
-        nameView.setOnClickListener(new View.OnClickListener() {
+        holder.mNameView.setText(name);
+        holder.mNameView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 MyApp myApp = (MyApp) mContext.getApplicationContext();
@@ -93,11 +93,13 @@ public class MainPageAdapter extends RecyclerView.Adapter<MainPageAdapter.MainPa
     }
 
     static class MainPageViewHolder extends RecyclerView.ViewHolder {
-        FrameLayout mFrameLayout;
+        private CardView mCardView;
+        private TextView mNameView;
 
         private MainPageViewHolder(View itemView) {
             super(itemView);
-            mFrameLayout = (FrameLayout) itemView;
+            mCardView = itemView.findViewById(R.id.card);
+            mNameView = itemView.findViewById(R.id.name_text);
         }
     }
 }

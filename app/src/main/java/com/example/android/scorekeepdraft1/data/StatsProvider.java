@@ -442,9 +442,11 @@ public class StatsProvider extends ContentProvider {
     public int update(@NonNull Uri uri, @Nullable ContentValues values,
                       @Nullable String selection, @Nullable String[] selectionArgs) {
         String leagueID;
+        int type;
         try {
             MyApp myApp = (MyApp) getContext().getApplicationContext();
             leagueID = myApp.getCurrentSelection().getId();
+            type = myApp.getCurrentSelection().getType();
             if (selection == null || selection.isEmpty()) {
                 selection = StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
             } else {
@@ -482,10 +484,12 @@ public class StatsProvider extends ContentProvider {
                 }
                 break;
             case PLAYERS_ID:
+
                 selection = StatsEntry._ID + "=?";
                 long id = ContentUris.parseId(uri);
                 selectionArgs = new String[]{String.valueOf(id)};
                 table = StatsEntry.PLAYERS_TABLE_NAME;
+
                 if (values.containsKey(StatsEntry.SYNC)) {
                     values.remove(StatsEntry.SYNC);
                 } else if (containsName(StatsEntry.CONTENT_URI_PLAYERS, values, false)) {

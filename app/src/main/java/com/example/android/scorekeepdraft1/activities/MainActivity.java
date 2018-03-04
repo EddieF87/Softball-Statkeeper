@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.CountDownTimer;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
@@ -23,6 +24,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
@@ -130,6 +132,21 @@ public class MainActivity extends AppCompatActivity
         FirebaseUser currentUser = mAuth.getCurrentUser();
         userID = currentUser.getUid();
 
+        final CountDownTimer countDownTimer = new CountDownTimer(10000, 300) {
+            @Override
+            public void onTick(long l) {
+
+            }
+
+            @Override
+            public void onFinish() {
+                TextView rvErrorView = findViewById(R.id.error_rv_main);
+                rvErrorView.setVisibility(View.VISIBLE);
+                Toast.makeText(MainActivity.this, "FINISSHHHH", Toast.LENGTH_SHORT).show();
+            }
+        };
+        countDownTimer.start();
+
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         firestore.collection(LEAGUE_COLLECTION)
                 .whereLessThan(userID, 99)
@@ -141,6 +158,7 @@ public class MainActivity extends AppCompatActivity
                         selections = new ArrayList<>();
                         TextView rvErrorView = findViewById(R.id.error_rv_main);
                         if (task.isSuccessful()) {
+                            countDownTimer.cancel();
                             rvErrorView.setVisibility(View.GONE);
                             for (DocumentSnapshot documentSnapshot : task.getResult()) {
                                 int level = documentSnapshot.getLong(userID).intValue();

@@ -10,7 +10,7 @@
     <TextView
         android:id="@+id/player_name"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:layout_marginEnd="8dp"
         android:layout_marginTop="16dp"
         android:autoSizeMinTextSize="12sp"
@@ -52,12 +52,13 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        app:layout_constraintHorizontal_weight="3"
+        android:padding="8dp"
         app:layout_constraintBottom_toTopOf="@+id/stats"
         app:layout_constraintEnd_toStartOf="@+id/guideline_titles"
+        app:layout_constraintHorizontal_weight="3"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@mipmap/ic_launcher_round" />
+        app:srcCompat="@drawable/img_batter" />
 
 
     <FrameLayout

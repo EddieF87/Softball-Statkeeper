@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -36,7 +37,6 @@ import com.example.android.scorekeepdraft1.activities.PlayerManagerActivity;
 import com.example.android.scorekeepdraft1.activities.PlayerPagerActivity;
 import com.example.android.scorekeepdraft1.activities.TeamPagerActivity;
 import com.example.android.scorekeepdraft1.data.FirestoreHelper;
-import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.dialogs.ChangeTeamDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.DeleteConfirmationDialogFragment;
@@ -65,7 +65,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     private String teamFirestoreID;
     private int gender;
     private static final String KEY_PLAYER_URI = "playerURI";
-    private int selectionType;
+    private int mSelectionType;
     private TextView resultCountText;
     private int resultCount;
     private String result;
@@ -103,9 +103,9 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         Bundle args = getArguments();
-        selectionType = args.getInt(MainPageSelection.KEY_SELECTION_TYPE);
+        mSelectionType = args.getInt(MainPageSelection.KEY_SELECTION_TYPE);
         mLevel = args.getInt(MainPageSelection.KEY_SELECTION_LEVEL);
-        if (selectionType == MainPageSelection.TYPE_PLAYER) {
+        if (mSelectionType == MainPageSelection.TYPE_PLAYER) {
             playerName = args.getString(MainPageSelection.KEY_SELECTION_NAME);
             mCurrentPlayerUri = StatsEntry.CONTENT_URI_PLAYERS;
         } else {
@@ -172,8 +172,9 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             TextView tplView = rootView.findViewById(R.id.playerboard_3b);
             TextView bbView = rootView.findViewById(R.id.playerboard_bb);
             TextView teamView = rootView.findViewById(R.id.player_team);
+            ImageView playerImage = rootView.findViewById(R.id.player_image);
 
-            if (selectionType == MainPageSelection.TYPE_LEAGUE) {
+            if (mSelectionType == MainPageSelection.TYPE_LEAGUE) {
                 teamView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -211,6 +212,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 color = R.color.female;
             }
             nameView.setTextColor(getResources().getColor(color));
+            playerImage.setColorFilter(getResources().getColor(color));
             playerName = player.getName();
             nameView.setText(playerName);
             teamView.setText(teamString);
@@ -228,10 +230,10 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             slgView.setText(String.valueOf(formatter.format(player.getSLG())));
             opsView.setText(String.valueOf(formatter.format(player.getOPS())));
 
-            if (selectionType == MainPageSelection.TYPE_PLAYER) {
+            if (mSelectionType == MainPageSelection.TYPE_PLAYER) {
                 setPlayerManager();
             }
-        } else if (selectionType == MainPageSelection.TYPE_PLAYER) {
+        } else if (mSelectionType == MainPageSelection.TYPE_PLAYER) {
             ContentValues values = new ContentValues();
             values.put(StatsEntry.COLUMN_NAME, playerName);
             getActivity().getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
@@ -457,7 +459,15 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 editNameDialog();
                 return true;
             case R.id.action_change_team:
-                changeTeamDialog();
+                if (mSelectionType == MainPageSelection.TYPE_LEAGUE) {
+                    changeTeamDialog();
+                } else {
+                    Activity activity = getActivity();
+                    if(activity instanceof  PlayerManagerActivity) {
+                        ((PlayerManagerActivity) activity).setEditTeam();
+                        editNameDialog();
+                    }
+                }
                 return true;
             case R.id.action_edit_photo:
                 return true;
@@ -483,10 +493,10 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         if (levelAuthorized(4)) {
             menu.findItem(R.id.action_delete_player).setVisible(true);
         }
-        if (selectionType == MainPageSelection.TYPE_LEAGUE) {
+        if (mSelectionType != MainPageSelection.TYPE_TEAM) {
             menu.findItem(R.id.action_change_team).setVisible(true);
         }
-        if (selectionType == MainPageSelection.TYPE_PLAYER) {
+        if (mSelectionType == MainPageSelection.TYPE_PLAYER) {
             menu.findItem(R.id.action_export_stats).setVisible(true);
         }
     }
@@ -533,14 +543,13 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 firestoreHelper.addDeletion(firestoreID, 1, playerName, gender, teamFirestoreID);
                 Toast.makeText(getActivity(), playerName + " " + getString(R.string.editor_delete_player_successful), Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(getActivity(), getString(R.string.editor_delete_player_failed), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getActivity(), getString(R.string.editor_delete_player_failed), Toast.LENGTH_SHORT).show();
                 return;
             }
         }
         if (getActivity() instanceof PlayerPagerActivity) {
             ((PlayerPagerActivity) getActivity()).returnDeleteResult(Activity.RESULT_OK, firestoreID);
         }
-        ;
     }
 
     public boolean updatePlayerName(String player) {
@@ -550,8 +559,15 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         contentValues.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
 
         int rowsUpdated = getActivity().getContentResolver().update(mCurrentPlayerUri, contentValues, null, null);
-        getLoaderManager().restartLoader(EXISTING_PLAYER_LOADER, null, this);
+//        getLoaderManager().restartLoader(EXISTING_PLAYER_LOADER, null, this);
         return rowsUpdated > 0;
+    }
+
+    public void updateTeamName(String team) {
+        teamString = team;
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(StatsEntry.COLUMN_TEAM, team);
+        getActivity().getContentResolver().update(mCurrentPlayerUri, contentValues, null, null);
     }
 
     private boolean levelAuthorized(int level) {

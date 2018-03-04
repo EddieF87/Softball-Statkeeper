@@ -15,6 +15,8 @@
         android:layout_marginTop="8dp"
         android:gravity="center"
         android:text="Welcome to StatKeeper!"
+        android:textStyle="bold"
+        android:textColor="@color/colorPrimary"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -24,6 +26,7 @@
         android:id="@+id/leagueFrameLayout"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:background="@color/colorPrimaryLight"
         app:layout_constraintBottom_toTopOf="@+id/textview_join_or_create"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -58,7 +61,7 @@
         android:layout_width="344dp"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="Keep stats for yourself, your team, or an entire league!"
+        android:text="Keep stats for a player, a team, or an entire league!"
         android:textSize="12sp"
         android:textStyle="italic"
         app:layout_constraintEnd_toEndOf="parent"
@@ -72,7 +75,7 @@
         android:layout_marginTop="8dp"
         android:background="@color/stat_title"
         android:padding="4dp"
-        android:text="Your League, Team, &amp; Player StatKeepers"
+        android:text="My League, Team, &amp; Player StatKeepers"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
         android:textColor="#ffffff"
         android:textSize="16sp"
@@ -90,6 +93,7 @@
         android:text="@string/playerStatKeeper"
         android:textSize="18sp"
         android:textStyle="bold"
+        android:textColor="@color/colorPrimary"
         app:layout_constraintBottom_toTopOf="@+id/textview_players_description"
         app:layout_constraintStart_toEndOf="@+id/btn_create_plyr" />
 
@@ -100,6 +104,7 @@
         android:text="@string/leagueStatKeeper"
         android:textSize="18sp"
         android:textStyle="bold"
+        android:textColor="@color/colorPrimary"
         app:layout_constraintBottom_toTopOf="@+id/textview_leagues_description"
         app:layout_constraintStart_toStartOf="@+id/textview_teams_title" />
 
@@ -107,7 +112,7 @@
         android:id="@+id/textview_leagues_description"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Manage, view, &amp; share stats, scores, &amp; standings of your entire league"
+        android:text="Manage, view, &amp; share stats, scores, &amp; standings of an entire league"
         android:textSize="12sp"
         android:textStyle="italic"
         android:layout_marginEnd="16dp"
@@ -121,22 +126,12 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="16dp"
-        android:text="Manage, view, &amp; share stats &amp; scores of your team"
+        android:text="Manage, view, &amp; share stats &amp; scores of a team"
         android:textSize="12sp"
         android:textStyle="italic"
         app:layout_constraintBottom_toTopOf="@+id/textview_leagues_title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/textview_teams_title" />
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/btn_create_join_lg"
-        style="@style/FloatingActionButtonStyle"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_marginStart="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/textview_leagues_title"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textview_leagues_title" />
 
     <TextView
         android:id="@+id/textview_join_or_create"
@@ -159,7 +154,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="16dp"
-        android:text="Manage &amp; view your individual stats"
+        android:text="Manage &amp; view my individual stats"
         android:textSize="12sp"
         android:textStyle="italic"
         app:layout_constraintBottom_toTopOf="@+id/textview_teams_title"
@@ -173,12 +168,25 @@
         android:text="@string/teamStatKeeper"
         android:textSize="18sp"
         android:textStyle="bold"
+        android:textColor="@color/colorPrimary"
         app:layout_constraintBottom_toTopOf="@+id/textview_teams_description"
         app:layout_constraintStart_toStartOf="@+id/textview_players_title" />
+
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/btn_create_join_lg"
+        style="@style/FloatingActionButtonStyle"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/textview_leagues_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textview_leagues_title" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/btn_create_join_tm"
         style="@style/FloatingActionButtonStyle"
+        android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_marginStart="8dp"
         app:layout_constraintBottom_toBottomOf="@+id/textview_teams_title"

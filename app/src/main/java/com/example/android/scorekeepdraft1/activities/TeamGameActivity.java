@@ -12,7 +12,6 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -22,7 +21,7 @@ import com.example.android.scorekeepdraft1.data.FirestoreHelper;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.LineupAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
-import com.example.android.scorekeepdraft1.dialogs.FinishGameDialogFragment;
+import com.example.android.scorekeepdraft1.dialogs.EndOfGameDialogFragment;
 import com.example.android.scorekeepdraft1.gamelog.BaseLog;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.example.android.scorekeepdraft1.objects.Player;
@@ -30,7 +29,7 @@ import com.example.android.scorekeepdraft1.objects.Player;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TeamGameActivity extends GameActivity implements FinishGameDialogFragment.OnFragmentInteractionListener {
+public class TeamGameActivity extends GameActivity implements EndOfGameDialogFragment.OnFragmentInteractionListener {
 
     private LineupAdapter mLineupAdapter;
     private RecyclerView mRecyclerView;

@@ -9,6 +9,7 @@ import android.os.Bundle;
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.data.FirestoreHelper;
+import com.example.android.scorekeepdraft1.dialogs.DeleteConfirmationDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.EditNameDialogFragment;
 import com.example.android.scorekeepdraft1.fragments.PlayerFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
@@ -19,9 +20,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PlayerManagerActivity extends ExportActivity
-        implements EditNameDialogFragment.OnFragmentInteractionListener {
+        implements EditNameDialogFragment.OnFragmentInteractionListener,
+        DeleteConfirmationDialogFragment.OnFragmentInteractionListener {
 
     private PlayerFragment playerFragment;
+    private boolean editTeam = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +39,8 @@ public class PlayerManagerActivity extends ExportActivity
             fragmentManager.beginTransaction()
                     .add(R.id.fragment_container, fragment)
                     .commit();
+        } else {
+            playerFragment = (PlayerFragment) fragment;
         }
     }
 
@@ -53,6 +58,10 @@ public class PlayerManagerActivity extends ExportActivity
         return playerFragment;
     }
 
+    public void setEditTeam(){
+        editTeam = true;
+    }
+
     @Override
     public void onEdit(String enteredText) {
         if (enteredText.isEmpty()) {
@@ -60,22 +69,32 @@ public class PlayerManagerActivity extends ExportActivity
         }
 
         if (playerFragment != null) {
-            boolean updated = playerFragment.updatePlayerName(enteredText);
-            if (!updated) {
-                return;
-            }
+            if (editTeam) {
+                editTeam = false;
+                playerFragment.updateTeamName(enteredText);
+            } else {
+                boolean updated = playerFragment.updatePlayerName(enteredText);
+                if (!updated) {
+                    return;
+                }
 
-            try {
-                FirebaseFirestore db = FirebaseFirestore.getInstance();
-                MyApp myApp = (MyApp) getApplicationContext();
-                MainPageSelection mainPageSelection = myApp.getCurrentSelection();
-                String playerID = mainPageSelection.getId();
-                db.collection(FirestoreHelper.LEAGUE_COLLECTION).document(playerID).update("name", enteredText);
-            } catch (Exception e) {
-                Intent intent = new Intent(PlayerManagerActivity.this, MainActivity.class);
-                startActivity(intent);
-                finish();
+                try {
+                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+                    MyApp myApp = (MyApp) getApplicationContext();
+                    MainPageSelection mainPageSelection = myApp.getCurrentSelection();
+                    String playerID = mainPageSelection.getId();
+                    db.collection(FirestoreHelper.LEAGUE_COLLECTION).document(playerID).update("name", enteredText);
+                } catch (Exception e) {
+                    Intent intent = new Intent(PlayerManagerActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
             }
         }
+    }
+
+    @Override
+    public void onDeletionChoice(boolean delete) {
+
     }
 }

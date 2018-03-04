@@ -89,7 +89,6 @@
         android:autoSizeMaxTextSize="16sp"
         android:autoSizeMinTextSize="8sp"
         android:autoSizeTextType="uniform"
-        android:stateListAnimator="@null"
         android:text="Submit"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"

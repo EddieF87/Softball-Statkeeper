@@ -188,6 +188,27 @@ public class LeagueManagerActivity extends ExportActivity
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences settingsPreferences = getSharedPreferences(leagueID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
+        int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
+        int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
+        onGameSettingsChanged(innings, genderSorter);
+        boolean genderSettingsOn = genderSorter != 0;
+
+        if (statsFragment != null) {
+            statsFragment.changeColorsRV(genderSettingsOn);
+        }
+
+        if (matchupFragment != null) {
+            matchupFragment.setGameSettings();
+            matchupFragment.updateBenchColors();
+            matchupFragment.changeColorsRV(genderSettingsOn);
+            matchupFragment.updateMatchup();
+        }
+    }
+
+    @Override
     public void onSubmitPlayersListener(List<String> names, List<Integer> genders, String team, String teamID) {
         boolean update = false;
 
@@ -237,15 +258,15 @@ public class LeagueManagerActivity extends ExportActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
-            SharedPreferences settingsPreferences = getSharedPreferences(leagueID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
-            int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
-            int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
-            onGameSettingsChanged(innings, genderSorter);
-
-            if (matchupFragment != null) {
-                matchupFragment.updateMatchup();
-            }
-        }
+//        if (resultCode == RESULT_OK) {
+//            SharedPreferences settingsPreferences = getSharedPreferences(leagueID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
+//            int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
+//            int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
+//            onGameSettingsChanged(innings, genderSorter);
+//
+//            if (matchupFragment != null) {
+//                matchupFragment.updateMatchup();
+//            }
+//        }
     }
 }

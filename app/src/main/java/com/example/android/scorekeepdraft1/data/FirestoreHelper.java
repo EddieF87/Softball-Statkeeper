@@ -77,6 +77,10 @@ public class FirestoreHelper implements Parcelable {
         mListener = (onFirestoreSyncListener) context;
     }
 
+    public void detachListener() {
+        mListener = null;
+    }
+
     //SYNC CHECK
 
     public void checkForUpdate() {
@@ -95,21 +99,29 @@ public class FirestoreHelper implements Parcelable {
 
                             if (cloudTimeStamp > localTimeStamp) {
                                 Log.d("xxx", "onUpdateCheck(true)");
-                                mListener.onUpdateCheck(true);
+                                if(mListener != null) {
+                                    mListener.onUpdateCheck(true);
+                                }
                             } else {
                                 Log.d("xxx", "onUpdateCheck(false)");
-                                mListener.onUpdateCheck(false);
+                                if(mListener != null) {
+                                    mListener.onUpdateCheck(false);
+                                }
                             }
                         } else {
                             Log.d("xxx", "onUpdateCheck(false)");
-                            mListener.onUpdateCheck(false);
+                            if(mListener != null) {
+                                mListener.onUpdateCheck(false);
+                            }
                         }
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        mListener.onUpdateCheck(false);
+                        if(mListener != null) {
+                            mListener.onUpdateCheck(false);
+                        }
                     }
                 });
     }
@@ -226,8 +238,9 @@ public class FirestoreHelper implements Parcelable {
                             QuerySnapshot querySnapshot = task.getResult();
                             final int numberOfPlayers = querySnapshot.size();
                             playersofar = 0;
-                            mListener.onSyncStart(numberOfPlayers, false);
-
+                            if(mListener != null) {
+                                mListener.onSyncStart(numberOfPlayers, false);
+                            }
                             for (DocumentSnapshot document : querySnapshot) {
                                 Log.d(TAG, document.getId() + " => " + document.getData());
                                 final Player player = document.toObject(Player.class);
@@ -342,15 +355,21 @@ public class FirestoreHelper implements Parcelable {
                                                         mContext.getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
                                                     }
                                                     Log.d("xxx", "onSyncUpdate: " + player.getName() + "  " + playersofar + " / " + numberOfPlayers);
-                                                    mListener.onSyncUpdate(false);
+                                                    if(mListener != null) {
+                                                        mListener.onSyncUpdate(false);
+                                                    }
                                                 } else {
-                                                    mListener.onSyncError("updating players");
+                                                    if(mListener != null) {
+                                                        mListener.onSyncError("updating players");
+                                                    }
                                                 }
                                             }
                                         });
                             }
                         } else {
-                            mListener.onSyncError("updating players");
+                            if(mListener != null) {
+                                mListener.onSyncError("updating players");
+                            }
                             Log.d(TAG, "Error getting documents: ", task.getException());
                         }
                     }
@@ -370,8 +389,9 @@ public class FirestoreHelper implements Parcelable {
                             final int numberOfTeams = querySnapshot.size();
                             teamssofar = 0;
                             Log.d("xxx", "teamsUpdating = " + numberOfTeams);
-                            mListener.onSyncStart(numberOfTeams, true);
-
+                            if(mListener != null) {
+                                mListener.onSyncStart(numberOfTeams, true);
+                            }
                             //loop through teams
                             for (DocumentSnapshot document : querySnapshot) {
                                 //Get the document data and ID of a team
@@ -455,16 +475,22 @@ public class FirestoreHelper implements Parcelable {
                                                         values.put(StatsEntry.COLUMN_FIRESTORE_ID, teamIdString);
                                                         mContext.getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
                                                     }
-                                                    mListener.onSyncUpdate(true);
+                                                    if(mListener != null) {
+                                                        mListener.onSyncUpdate(true);
+                                                    }
                                                     Log.d("xxx", "onSyncUpdate: " + team.getName() + "  " + teamssofar + " / " + numberOfTeams);
                                                 } else {
-                                                    mListener.onSyncError("updating teams");
+                                                    if(mListener != null) {
+                                                        mListener.onSyncError("updating teams");
+                                                    }
                                                 }
                                             }
                                         });
                             }
                         } else {
-                            mListener.onSyncError("updating teams");
+                            if(mListener != null) {
+                                mListener.onSyncError("updating teams");
+                            }
                             Log.d(TAG, "Error getting documents: ", task.getException());
                         }
                     }
@@ -504,20 +530,28 @@ public class FirestoreHelper implements Parcelable {
                     }
                     if (itemMarkedForDeletionList.isEmpty()) {
                         updateAfterSync();
-                        mListener.proceedToNext();
+                        if(mListener != null) {
+                            mListener.proceedToNext();
+                        }
                     } else {
                         if (level > 3) {
                             Collections.sort(itemMarkedForDeletionList, ItemMarkedForDeletion.nameComparator());
                             Collections.sort(itemMarkedForDeletionList, ItemMarkedForDeletion.typeComparator());
-                            mListener.openDeletionCheckDialog(itemMarkedForDeletionList);
+                            if(mListener != null) {
+                                mListener.openDeletionCheckDialog(itemMarkedForDeletionList);
+                            }
                         } else {
                             deleteItems(itemMarkedForDeletionList);
-                            mListener.proceedToNext();
+                            if(mListener != null) {
+                                mListener.proceedToNext();
+                            }
                         }
                     }
                 } else {
                     Log.d("xxx", "filtered_deletionQueryError");
-                    mListener.onSyncError(DELETION_COLLECTION);
+                    if(mListener != null) {
+                        mListener.onSyncError(DELETION_COLLECTION);
+                    }
                 }
             }
         });

@@ -4,8 +4,10 @@ import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -15,8 +17,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.DragEvent;
@@ -32,7 +32,9 @@ import android.widget.TextView;
 
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.data.StatsContract;
-import com.example.android.scorekeepdraft1.dialogs.FinishGameDialogFragment;
+import com.example.android.scorekeepdraft1.dialogs.EndOfGameDialogFragment;
+import com.example.android.scorekeepdraft1.dialogs.FinishGameConfirmationDialogFragment;
+import com.example.android.scorekeepdraft1.dialogs.SaveDeleteGameFragment;
 import com.example.android.scorekeepdraft1.gamelog.BaseLog;
 
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
@@ -44,7 +46,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class GameActivity extends AppCompatActivity
-        implements FinishGameDialogFragment.OnFragmentInteractionListener {
+        implements EndOfGameDialogFragment.OnFragmentInteractionListener,
+                    SaveDeleteGameFragment.OnFragmentInteractionListener,
+                     FinishGameConfirmationDialogFragment.OnFragmentInteractionListener {
 
     protected Cursor gameCursor;
 
@@ -477,7 +481,7 @@ public abstract class GameActivity extends AppCompatActivity
         }
         fragmentTransaction.addToBackStack(null);
 
-        DialogFragment newFragment = FinishGameDialogFragment.newInstance();
+        DialogFragment newFragment = EndOfGameDialogFragment.newInstance();
         newFragment.show(fragmentTransaction, DIALOG_FINISH);
     }
 
@@ -1091,7 +1095,7 @@ public abstract class GameActivity extends AppCompatActivity
                 actionViewBoxScore();
                 break;
             case R.id.action_exit_game:
-                exitToManager();
+                showExitDialog();
                 break;
             case R.id.action_finish_game:
                 showFinishConfirmationDialog();
@@ -1111,6 +1115,26 @@ public abstract class GameActivity extends AppCompatActivity
         b.putInt("homeTeamRuns", homeTeamRuns);
         statsIntent.putExtras(b);
         startActivity(statsIntent);
+    }
+
+    protected void showExitDialog() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        DialogFragment newFragment = SaveDeleteGameFragment.newInstance();
+        newFragment.show(fragmentTransaction, "");
+    }
+
+    @Override
+    public void exitGameChoice(boolean save) {
+        if (!save) {
+            getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, null, null);
+            getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, null, null);
+            SharedPreferences savedGamePreferences = getSharedPreferences(selectionID + StatsEntry.GAME, Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = savedGamePreferences.edit();
+            editor.clear();
+            editor.commit();
+        }
+        exitToManager();
     }
 
     protected abstract void exitToManager();
@@ -1138,30 +1162,18 @@ public abstract class GameActivity extends AppCompatActivity
     }
 
     protected void showFinishConfirmationDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Complete game and update stats?");
-        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int i) {
-                if (dialog != null) {
-                    dialog.dismiss();
-                }
-            }
-        });
-        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int i) {
-                if (dialog != null) {
-                    dialog.dismiss();
-                }
-                if (undoRedo) {
-                    deleteGameLogs();
-                }
-                endGame();
-            }
-        });
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        DialogFragment newFragment = FinishGameConfirmationDialogFragment.newInstance();
+        newFragment.show(fragmentTransaction, "");
+    }
+
+    @Override
+    public void finishEarly() {
+        if (undoRedo) {
+            deleteGameLogs();
+        }
+        endGame();
     }
 
 
