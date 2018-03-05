@@ -36,6 +36,7 @@ import com.example.android.scorekeepdraft1.activities.LeagueManagerActivity;
 import com.example.android.scorekeepdraft1.activities.PlayerManagerActivity;
 import com.example.android.scorekeepdraft1.activities.PlayerPagerActivity;
 import com.example.android.scorekeepdraft1.activities.TeamPagerActivity;
+import com.example.android.scorekeepdraft1.activities.UserSettingsActivity;
 import com.example.android.scorekeepdraft1.data.FirestoreHelper;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.dialogs.ChangeTeamDialogFragment;
@@ -182,7 +183,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                             Intent intent;
                             String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
                             String[] selectionArgs = new String[]{teamFirestoreID};
-                            if(teamFirestoreID.equals(StatsEntry.FREE_AGENT)) {
+                            if (teamFirestoreID.equals(StatsEntry.FREE_AGENT)) {
                                 intent = new Intent(getActivity(), TeamPagerActivity.class);
                             } else {
                                 Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
@@ -231,6 +232,14 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             opsView.setText(String.valueOf(formatter.format(player.getOPS())));
 
             if (mSelectionType == MainPageSelection.TYPE_PLAYER) {
+                nameView.setTextColor(getResources().getColor(R.color.colorPrimary));
+                playerImage.setColorFilter(getResources().getColor(R.color.colorPrimary));
+                teamView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        editNameDialog(teamString);
+                    }
+                });
                 setPlayerManager();
             }
         } else if (mSelectionType == MainPageSelection.TYPE_PLAYER) {
@@ -447,7 +456,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        if (levelAuthorized(3)) {
+        if (levelAuthorized(UserSettingsActivity.LEVEL_VIEW_WRITE)) {
             inflater.inflate(R.menu.menu_player, menu);
         }
     }
@@ -456,16 +465,16 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_change_name:
-                editNameDialog();
+                editNameDialog(playerName);
                 return true;
             case R.id.action_change_team:
                 if (mSelectionType == MainPageSelection.TYPE_LEAGUE) {
                     changeTeamDialog();
                 } else {
                     Activity activity = getActivity();
-                    if(activity instanceof  PlayerManagerActivity) {
+                    if (activity instanceof PlayerManagerActivity) {
                         ((PlayerManagerActivity) activity).setEditTeam();
-                        editNameDialog();
+                        editNameDialog(teamString);
                     }
                 }
                 return true;
@@ -490,7 +499,10 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        if (levelAuthorized(4)) {
+        if (!levelAuthorized(UserSettingsActivity.LEVEL_VIEW_WRITE)) {
+            return;
+        }
+        if (levelAuthorized(UserSettingsActivity.LEVEL_ADMIN)) {
             menu.findItem(R.id.action_delete_player).setVisible(true);
         }
         if (mSelectionType != MainPageSelection.TYPE_TEAM) {
@@ -508,10 +520,10 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         newFragment.show(fragmentTransaction, "");
     }
 
-    private void editNameDialog() {
+    private void editNameDialog(String name) {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = EditNameDialogFragment.newInstance(playerName);
+        DialogFragment newFragment = EditNameDialogFragment.newInstance(name);
         newFragment.show(fragmentTransaction, "");
     }
 
@@ -525,7 +537,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         while (cursor.moveToNext()) {
             teams.add(new Team(cursor));
         }
-        teams.add(new Team(getString(R.string.waivers), StatsEntry.FREE_AGENT));
+//        teams.add(new Team(getString(R.string.waivers), StatsEntry.FREE_AGENT));
 
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -543,7 +555,6 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 firestoreHelper.addDeletion(firestoreID, 1, playerName, gender, teamFirestoreID);
                 Toast.makeText(getActivity(), playerName + " " + getString(R.string.editor_delete_player_successful), Toast.LENGTH_SHORT).show();
             } else {
-//                Toast.makeText(getActivity(), getString(R.string.editor_delete_player_failed), Toast.LENGTH_SHORT).show();
                 return;
             }
         }
@@ -559,7 +570,6 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         contentValues.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
 
         int rowsUpdated = getActivity().getContentResolver().update(mCurrentPlayerUri, contentValues, null, null);
-//        getLoaderManager().restartLoader(EXISTING_PLAYER_LOADER, null, this);
         return rowsUpdated > 0;
     }
 

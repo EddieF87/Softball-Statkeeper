@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
@@ -15,8 +14,6 @@ import android.support.v7.widget.RecyclerView;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
 
 import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.InviteListRecyclerViewAdapter;
@@ -84,9 +81,6 @@ public class InviteListDialogFragment extends DialogFragment {
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int i) {
-                        if (dialog != null) {
-                            dialog.dismiss();
-                        }
                     }
                 })
                 .setCancelable(false)
@@ -101,7 +95,7 @@ public class InviteListDialogFragment extends DialogFragment {
 
     public void onButtonPressed(SparseIntArray changes) {
         if (mListener != null) {
-            mListener.onFragmentInteraction(inviteList, changes);
+            mListener.onInvitesSorted(inviteList, changes);
         }
     }
 
@@ -123,6 +117,6 @@ public class InviteListDialogFragment extends DialogFragment {
     }
 
     public interface OnFragmentInteractionListener {
-        void onFragmentInteraction(List<MainPageSelection> list, SparseIntArray changes);
+        void onInvitesSorted(List<MainPageSelection> list, SparseIntArray changes);
     }
 }

@@ -39,6 +39,24 @@ public class InviteListRecyclerViewAdapter extends RecyclerView.Adapter<InviteLi
         MainPageSelection mainPageSelection = inviteList.get(position);
         holder.leagueTextView.setText(mainPageSelection.getName());
         final int level = mainPageSelection.getLevel();
+
+        int progress = holder.mSeekBar.getProgress();
+        String initialText;
+        switch (progress) {
+            case 0:
+                initialText = "Decline";
+                break;
+            case 1:
+                initialText = "Decline <---> Accept";
+                break;
+            case 2:
+                initialText = "Accept";
+                break;
+            default:
+                initialText = "Error";
+        }
+        holder.levelTextView.setText(initialText);
+
         holder.mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int choice, boolean b) {

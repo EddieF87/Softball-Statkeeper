@@ -52,6 +52,7 @@ public class ChangeTeamDialogFragment extends DialogFragment {
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
         mTeams = args.getParcelableArrayList(KEY_TEAMS);
+        mTeams.add(new Team("Waivers", StatsContract.StatsEntry.FREE_AGENT));
         playerName = args.getString(KEY_PLAYER_NAME);
         playerFirestoreID = args.getString(KEY_PLAYER_FS_ID);
     }
@@ -89,6 +90,12 @@ public class ChangeTeamDialogFragment extends DialogFragment {
                         onButtonPressed(teamName, teamID);
                     }
                 })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        mListener.onTeamChoiceCancel();
+                    }
+                })
                 .create();
         alertDialog.setCancelable(false);
         alertDialog.setCanceledOnTouchOutside(false);
@@ -118,7 +125,14 @@ public class ChangeTeamDialogFragment extends DialogFragment {
         mListener = null;
     }
 
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        super.onCancel(dialog);
+        mListener.onTeamChoiceCancel();
+    }
+
     public interface OnFragmentInteractionListener {
         void onTeamChosen(String playerID, String teamName, String teamID);
+        void onTeamChoiceCancel();
     }
 }

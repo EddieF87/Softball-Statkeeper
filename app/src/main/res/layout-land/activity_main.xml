@@ -5,15 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.example.android.scorekeepdraft1.activities.MainActivity"
-    >
+    tools:layout_editor_absoluteY="73dp">
 
 
     <TextView
         android:id="@+id/welcome_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:autoSizeMinTextSize="18sp"
         android:autoSizeTextType="uniform"
@@ -31,11 +29,12 @@
         android:id="@+id/league_framelayout"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:padding="16dp"
+        android:layout_marginEnd="16dp"
         android:background="@color/colorPrimaryLight"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/textview_join_or_create"
+        android:padding="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/team_sk_card"
+        app:layout_constraintStart_toStartOf="@+id/current_statkeepers_title"
         app:layout_constraintTop_toBottomOf="@+id/current_statkeepers_title">
 
         <TextView
@@ -59,25 +58,13 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone" />
-
     </FrameLayout>
-
-    <TextView
-        android:id="@+id/textview_description"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="Keep stats for a player, team, or entire league!"
-        android:textSize="14sp"
-        android:textStyle="italic"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/welcome_title" />
 
     <TextView
         android:id="@+id/current_statkeepers_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
         android:layout_marginTop="8dp"
         android:background="@color/stat_title"
         android:maxLines="1"
@@ -87,64 +74,69 @@
         android:textColor="#ffffff"
         android:textSize="24sp"
         android:textStyle="bold|italic"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/textview_join_or_create"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textview_description" />
-
+        app:layout_constraintTop_toBottomOf="@+id/welcome_title" />
 
     <TextView
         android:id="@+id/textview_join_or_create"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:autoSizeMinTextSize="16sp"
+        android:autoSizeTextType="uniform"
         android:background="@color/stat_title"
+        android:drawableLeft="@drawable/ic_reorder_white_500_24dp"
+        android:drawableStart="@drawable/ic_reorder_white_500_24dp"
         android:maxLines="1"
         android:padding="8dp"
         android:text="   Create a new StatKeeper!"
         android:textColor="#ffffff"
         android:textSize="24sp"
         android:textStyle="bold|italic"
-        android:autoSizeMinTextSize="18sp"
-        android:autoSizeTextType="uniform"
-        android:drawableLeft="@drawable/ic_reorder_white_500_24dp"
-        android:drawableStart="@drawable/ic_reorder_white_500_24dp"
-        app:layout_constraintBottom_toTopOf="@+id/player_sk_card"
+        app:layout_constraintBottom_toBottomOf="@+id/current_statkeepers_title"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toEndOf="@+id/current_statkeepers_title"
+        app:layout_constraintTop_toTopOf="@+id/current_statkeepers_title" />
 
     <include
         android:id="@+id/player_sk_card"
         layout="@layout/item_create_player_sk_card"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/team_sk_card"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:visibility="gone"
-        tools:visibility="visible"
-        />
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/textview_join_or_create"
+        app:layout_constraintTop_toBottomOf="@+id/textview_join_or_create"
+        tools:visibility="visible" />
 
     <include
         android:id="@+id/team_sk_card"
         layout="@layout/item_create_team_sk_card"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/lg_sk_card"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:visibility="gone"
-        tools:visibility="visible"
-        />
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/player_sk_card"
+        app:layout_constraintTop_toBottomOf="@+id/player_sk_card"
+        tools:visibility="visible" />
 
     <include
         android:id="@+id/lg_sk_card"
         layout="@layout/item_create_league_sk_card"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:visibility="gone"
-        tools:visibility="visible"
-        />
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/team_sk_card"
+        app:layout_constraintTop_toBottomOf="@+id/team_sk_card"
+        tools:visibility="visible" />
 
 </android.support.constraint.ConstraintLayout>

@@ -79,7 +79,6 @@ public class LeagueManagerActivity extends ExportActivity
 
     @Override
     public void chooseTeamDialog(ArrayList<Team> teams) {
-
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         DialogFragment newFragment = ChangeTeamDialogFragment.newInstance(teams, null, null);
@@ -120,6 +119,13 @@ public class LeagueManagerActivity extends ExportActivity
     public void onTeamChosen(String playerID, String teamName, String teamID) {
         if (standingsFragment != null) {
             standingsFragment.addNewPlayersDialog(teamName, teamID);
+            standingsFragment.setAdderButtonVisible();
+        }
+    }
+
+    @Override
+    public void onTeamChoiceCancel() {
+        if (standingsFragment != null) {
             standingsFragment.setAdderButtonVisible();
         }
     }

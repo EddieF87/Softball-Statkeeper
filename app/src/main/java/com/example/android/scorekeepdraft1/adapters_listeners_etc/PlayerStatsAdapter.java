@@ -104,7 +104,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
         while (cursor.moveToNext()) {
             teams.add(new Team(cursor));
         }
-        teams.add(new Team(mContext.getString(R.string.waivers), StatsEntry.FREE_AGENT));
+//        teams.add(new Team(mContext.getString(R.string.waivers), StatsEntry.FREE_AGENT));
 
         FragmentManager fragmentManager = ((ObjectPagerActivity)mContext).getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();

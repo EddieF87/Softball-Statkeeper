@@ -3,6 +3,9 @@ package com.example.android.scorekeepdraft1.adapters_listeners_etc;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -13,11 +16,12 @@ import android.widget.TextView;
 
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
-import com.example.android.scorekeepdraft1.activities.LeagueManagerActivity;
 import com.example.android.scorekeepdraft1.activities.LoadingActivity;
 import com.example.android.scorekeepdraft1.activities.MainActivity;
+import com.example.android.scorekeepdraft1.activities.ObjectPagerActivity;
 import com.example.android.scorekeepdraft1.activities.PlayerManagerActivity;
-import com.example.android.scorekeepdraft1.activities.TeamManagerActivity;
+import com.example.android.scorekeepdraft1.dialogs.ChangeTeamDialogFragment;
+import com.example.android.scorekeepdraft1.dialogs.SelectionInfoDialogFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 
 import java.util.List;
@@ -42,7 +46,7 @@ public class MainPageAdapter extends RecyclerView.Adapter<MainPageAdapter.MainPa
     @Override
     public MainPageViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         FrameLayout frameLayout = (FrameLayout) LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_mainpageselection, parent, false);
+                .inflate(R.layout.item_statkeeper, parent, false);
 
         return new MainPageViewHolder(frameLayout);
     }
@@ -85,6 +89,20 @@ public class MainPageAdapter extends RecyclerView.Adapter<MainPageAdapter.MainPa
                 notifyDataSetChanged();
             }
         });
+        holder.mCardView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                openInfoDialog(mainPageSelection);
+                return true;
+            }
+        });
+    }
+
+    private void openInfoDialog(MainPageSelection selection){
+        FragmentManager fragmentManager = ((MainActivity)mContext).getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        DialogFragment newFragment = SelectionInfoDialogFragment.newInstance(selection);
+        newFragment.show(fragmentTransaction, "");
     }
 
     @Override

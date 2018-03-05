@@ -62,6 +62,8 @@ public abstract class GameActivity extends AppCompatActivity
     protected TextView inningDisplay;
     protected ImageView inningTopArrow;
     protected ImageView inningBottomArrow;
+    protected ImageView undoButton;
+    protected ImageView redoButton;
 
     protected Button submitPlay;
     protected Button resetBases;
@@ -139,6 +141,8 @@ public abstract class GameActivity extends AppCompatActivity
                     deleteGameLogs();
                     highestIndex = gameLogIndex;
                     invalidateOptionsMenu();
+                    setUndoButton();
+                    setRedoButton();
                 }
             }
             resumeGame();
@@ -183,6 +187,24 @@ public abstract class GameActivity extends AppCompatActivity
             }
         });
         disableResetButton();
+
+        undoButton = findViewById(R.id.btn_undo);
+        undoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                undoButton.setClickable(false);
+                undoPlay();
+            }
+        });
+
+        redoButton = findViewById(R.id.btn_redo);
+        redoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                redoButton.setClickable(false);
+                redoPlay();
+            }
+        });
 
         batterDisplay = findViewById(R.id.batter);
         firstDisplay = findViewById(R.id.first_display);
@@ -529,9 +551,15 @@ public abstract class GameActivity extends AppCompatActivity
         int triples = t3b + p3b;
         int playerOuts = tOuts + pOuts;
         double avg = calculateAverage(singles, doubles, triples, displayHR, playerOuts);
+        String avgString;
+        if(Double.isNaN(avg)) {
+            avgString = "---";
+        } else {
+            avgString = formatter.format(avg);
+        }
 
         String nowBattingString = getString(R.string.nowbatting) + " " + name;
-        String avgDisplayText = "AVG: " + formatter.format(avg);
+        String avgDisplayText = "AVG: " + avgString;
         String hrDisplayText = "HR: " + displayHR;
         String rbiDisplayText = "RBI: " + displayRBI;
         String runDisplayText = "R: " + displayRun;
@@ -543,6 +571,8 @@ public abstract class GameActivity extends AppCompatActivity
         runDisplay.setText(runDisplayText);
         batterDisplay.setVisibility(View.VISIBLE);
 
+        setUndoButton();
+        setRedoButton();
         setScoreDisplay();
     }
 
@@ -1141,23 +1171,37 @@ public abstract class GameActivity extends AppCompatActivity
 
     protected abstract void actionEditLineup();
 
+    protected void setUndoButton() {
+        boolean undo = gameLogIndex > 0;
+        undoButton.setClickable(undo);
+        if(undo) {
+            undoButton.setAlpha(1f);
+        } else {
+            undoButton.setAlpha(.1f);
+        }
+    }
+
+    protected void setRedoButton() {
+        boolean redo = gameLogIndex < highestIndex;
+        redoButton.setClickable(redo);
+        if(redo) {
+            redoButton.setAlpha(1f);
+        } else {
+            redoButton.setAlpha(.1f);
+        }
+    }
+
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem undoItem = menu.findItem(R.id.action_undo_play);
-        MenuItem finishItem = menu.findItem(R.id.action_finish_game);
         MenuItem redoItem = menu.findItem(R.id.action_redo_play);
 
-        if (gameLogIndex <= 0) {
-            undoItem.setVisible(false);
-        } else {
-            undoItem.setVisible(true);
-        }
+        boolean undo = gameLogIndex > 0;
+        boolean redo = gameLogIndex < highestIndex;
 
-        if (gameLogIndex >= highestIndex) {
-            redoItem.setVisible(false);
-        } else {
-            redoItem.setVisible(true);
-        }
+        undoItem.setVisible(undo);
+        redoItem.setVisible(redo);
+
         return true;
     }
 

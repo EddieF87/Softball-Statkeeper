@@ -298,6 +298,9 @@ public class ObjectPagerActivity extends AppCompatActivity
         setResult(RESULT_OK);
     }
 
+    @Override
+    public void onTeamChoiceCancel() {}
+
     private class MyFragmentStatePagerAdapter extends FragmentStatePagerAdapter{
 
         SparseArray<Fragment> registeredFragments = new SparseArray<>();

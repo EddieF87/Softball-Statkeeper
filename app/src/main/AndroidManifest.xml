@@ -24,8 +24,7 @@
         android:windowSoftInputMode="stateHidden|adjustResize">
 
         <activity
-            android:name=".activities.MainActivity"
-            android:screenOrientation="portrait">
+            android:name=".activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -184,7 +184,7 @@ public class TeamFragment extends Fragment
         rootView.findViewById(R.id.game_title).setOnClickListener(this);
 
         FloatingActionButton startAdderBtn = rootView.findViewById(R.id.btn_start_adder);
-        if (levelAuthorized(3)) {
+        if (levelAuthorized(UserSettingsActivity.LEVEL_VIEW_WRITE)) {
             startAdderBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -377,7 +377,7 @@ public class TeamFragment extends Fragment
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        if (levelAuthorized(3)) {
+        if (levelAuthorized(UserSettingsActivity.LEVEL_VIEW_WRITE)) {
             inflater.inflate(R.menu.menu_team, menu);
         }
     }
@@ -385,7 +385,10 @@ public class TeamFragment extends Fragment
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        if (levelAuthorized(4)) {
+        if (!levelAuthorized(UserSettingsActivity.LEVEL_VIEW_WRITE)) {
+            return;
+        }
+        if (levelAuthorized(UserSettingsActivity.LEVEL_ADMIN)) {
             menu.setGroupVisible(R.id.group_high_level_team_options, true);
         }
         if (waivers) {

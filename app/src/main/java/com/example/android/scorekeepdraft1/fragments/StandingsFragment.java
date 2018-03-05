@@ -115,16 +115,20 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
         rootView.findViewById(R.id.runsagainst_title).setOnClickListener(this);
         rootView.findViewById(R.id.rundiff_title).setOnClickListener(this);
         standingsRV = rootView.findViewById(R.id.rv_standings);
-        View emptyView = rootView.findViewById(R.id.empty_text);
+//        View emptyView = rootView.findViewById(R.id.empty_text);
         startAdderButton = rootView.findViewById(R.id.item_team_adder);
 
-        startAdderButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startAdderButton.setVisibility(View.INVISIBLE);
-                chooseOrCreateTeamDialog();
-            }
-        });
+        if(level < UserSettingsActivity.LEVEL_VIEW_WRITE) {
+            startAdderButton.setVisibility(View.INVISIBLE);
+        } else {
+            startAdderButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    startAdderButton.setVisibility(View.INVISIBLE);
+                    chooseOrCreateTeamDialog();
+                }
+            });
+        }
 
         getLoaderManager().initLoader(STANDINGS_LOADER, null, this);
         return rootView;
@@ -143,16 +147,17 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
 
     private void chooseOrCreateTeamDialog() {
         Collections.sort(mTeams, Team.nameComparator());
+        ArrayList<Team> teamsCopy = new ArrayList<>(mTeams);
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = ChooseOrCreateTeamDialogFragment.newInstance(mTeams);
+        DialogFragment newFragment = ChooseOrCreateTeamDialogFragment.newInstance(teamsCopy);
         newFragment.show(fragmentTransaction, "");
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        if (level >= 3) {
+        if (level >= UserSettingsActivity.LEVEL_VIEW_WRITE) {
             inflater.inflate(R.menu.menu_league, menu);
         }
     }

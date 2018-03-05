@@ -51,12 +51,12 @@ public class UserSettingsActivity extends AppCompatActivity
     private static final String SAVED_REQUESTLIST = "requestlist";
     private static final String SAVED_CREATOR = "creator";
 
-    private static final int REMOVE_USER = 0;
-    private static final int ACCESS_REQUEST = 1;
-    private static final int VIEW_ONLY = 2;
-    private static final int VIEW_WRITE = 3;
-    private static final int ADMIN = 4;
-    private static final int CREATOR = 5;
+    public static final int LEVEL_REMOVE_USER = 0;
+    public static final int LEVEL_ACCESS_REQUEST = 1;
+    public static final int LEVEL_VIEW_ONLY = 2;
+    public static final int LEVEL_VIEW_WRITE = 3;
+    public static final int LEVEL_ADMIN = 4;
+    public static final int LEVEL_CREATOR = 5;
 
     private ArrayList<StatKeepUser> mUserList;
     private ArrayList<StatKeepUser> mRequestList;
@@ -140,11 +140,11 @@ public class UserSettingsActivity extends AppCompatActivity
 
                                 int level = statKeepUser.getLevel();
                                 switch (level) {
-                                    case CREATOR:
+                                    case LEVEL_CREATOR:
                                         creator = statKeepUser;
                                         setCreator(statKeepUser);
                                         break;
-                                    case ACCESS_REQUEST:
+                                    case LEVEL_ACCESS_REQUEST:
                                         mRequestList.add(statKeepUser);
                                         break;
                                     default:

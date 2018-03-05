@@ -31,6 +31,7 @@ import com.example.android.scorekeepdraft1.R;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.MainPageAdapter;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.dialogs.InviteListDialogFragment;
+import com.example.android.scorekeepdraft1.dialogs.SelectionInfoDialogFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -54,7 +55,9 @@ import static com.example.android.scorekeepdraft1.data.FirestoreHelper.LEAGUE_CO
 import static com.example.android.scorekeepdraft1.data.FirestoreHelper.USERS;
 
 public class MainActivity extends AppCompatActivity
-        implements View.OnClickListener, InviteListDialogFragment.OnFragmentInteractionListener {
+        implements View.OnClickListener,
+        InviteListDialogFragment.OnFragmentInteractionListener,
+        SelectionInfoDialogFragment.OnFragmentInteractionListener {
 
     private static final String TAG = "MainActivity";
     private static final String AUTH = "FirebaseAuth";
@@ -63,18 +66,26 @@ public class MainActivity extends AppCompatActivity
     private List<MainPageSelection> selections;
     private List<MainPageSelection> inviteList;
     private String userID;
+    private boolean visible;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        FloatingActionButton addPlayer = findViewById(R.id.btn_create_plyr);
-        addPlayer.setOnClickListener(this);
-        FloatingActionButton addTeam = findViewById(R.id.btn_create_join_tm);
-        addTeam.setOnClickListener(this);
-        FloatingActionButton addLeague = findViewById(R.id.btn_create_join_lg);
-        addLeague.setOnClickListener(this);
+        View playerV = findViewById(R.id.player_sk_card);
+        View teamV = findViewById(R.id.team_sk_card);
+        View leagueV = findViewById(R.id.lg_sk_card);
+        playerV.setOnClickListener(this);
+        teamV.setOnClickListener(this);
+        leagueV.setOnClickListener(this);
+        TextView joinOrCreate = findViewById(R.id.textview_join_or_create);
+        joinOrCreate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                shuffleCreateStatKeeperViewsVisibility();
+            }
+        });
     }
 
     @Override
@@ -132,20 +143,20 @@ public class MainActivity extends AppCompatActivity
         FirebaseUser currentUser = mAuth.getCurrentUser();
         userID = currentUser.getUid();
 
-        final CountDownTimer countDownTimer = new CountDownTimer(10000, 300) {
-            @Override
-            public void onTick(long l) {
-
-            }
-
-            @Override
-            public void onFinish() {
-                TextView rvErrorView = findViewById(R.id.error_rv_main);
-                rvErrorView.setVisibility(View.VISIBLE);
-                Toast.makeText(MainActivity.this, "FINISSHHHH", Toast.LENGTH_SHORT).show();
-            }
-        };
-        countDownTimer.start();
+//        final CountDownTimer countDownTimer = new CountDownTimer(10000, 300) {
+//            @Override
+//            public void onTick(long l) {
+//
+//            }
+//
+//            @Override
+//            public void onFinish() {
+//                TextView rvErrorView = findViewById(R.id.error_rv_main);
+//                rvErrorView.setVisibility(View.VISIBLE);
+//                Toast.makeText(MainActivity.this, "FINISSHHHH", Toast.LENGTH_SHORT).show();
+//            }
+//        };
+//        countDownTimer.start();
 
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         firestore.collection(LEAGUE_COLLECTION)
@@ -158,7 +169,7 @@ public class MainActivity extends AppCompatActivity
                         selections = new ArrayList<>();
                         TextView rvErrorView = findViewById(R.id.error_rv_main);
                         if (task.isSuccessful()) {
-                            countDownTimer.cancel();
+//                            countDownTimer.cancel();
                             rvErrorView.setVisibility(View.GONE);
                             for (DocumentSnapshot documentSnapshot : task.getResult()) {
                                 int level = documentSnapshot.getLong(userID).intValue();
@@ -204,6 +215,21 @@ public class MainActivity extends AppCompatActivity
                 });
     }
 
+    public void shuffleCreateStatKeeperViewsVisibility(){
+        View playerV = findViewById(R.id.player_sk_card);
+        View teamV = findViewById(R.id.team_sk_card);
+        View leagueV = findViewById(R.id.lg_sk_card);
+        int visibilitySetting;
+        if(visible) {
+            visibilitySetting = View.GONE;
+        } else {
+            visibilitySetting = View.VISIBLE;
+        }
+        playerV.setVisibility(visibilitySetting);
+        teamV.setVisibility(visibilitySetting);
+        leagueV.setVisibility(visibilitySetting);
+        visible = !visible;
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -254,17 +280,17 @@ public class MainActivity extends AppCompatActivity
         int type;
         String selection;
         switch (view.getId()) {
-            case R.id.btn_create_plyr:
+            case R.id.player_sk_card:
                 type = MainPageSelection.TYPE_PLAYER;
                 selection = "Player";
                 break;
 
-            case R.id.btn_create_join_tm:
+            case R.id.team_sk_card:
                 type = MainPageSelection.TYPE_TEAM;
                 selection = "Team";
                 break;
 
-            case R.id.btn_create_join_lg:
+            case R.id.lg_sk_card:
                 type = MainPageSelection.TYPE_LEAGUE;
                 selection = "League";
                 break;
@@ -279,7 +305,7 @@ public class MainActivity extends AppCompatActivity
     public void joinCreateDialog(final int type, String selection) {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        final String dialogMessage = "Create a new" + selection;
+        final String dialogMessage = "Create a new " + selection;
         builder.setMessage(dialogMessage).
                 setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
@@ -392,7 +418,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onFragmentInteraction(List<MainPageSelection> list, SparseIntArray changes) {
+    public void onInvitesSorted(List<MainPageSelection> list, SparseIntArray changes) {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         if (userID == null) {
             FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -420,5 +446,10 @@ public class MainActivity extends AppCompatActivity
             }
             docRef.update(updates);
         }
+    }
+
+    @Override
+    public void onDelete(MainPageSelection selection) {
+
     }
 }

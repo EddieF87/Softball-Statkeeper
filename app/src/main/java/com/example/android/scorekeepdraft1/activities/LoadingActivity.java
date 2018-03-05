@@ -218,11 +218,9 @@ public class LoadingActivity extends AppCompatActivity
             ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo networkInfo = connManager.getActiveNetworkInfo();
             if (networkInfo != null && networkInfo.isConnected()) {
-                Toast.makeText(LoadingActivity.this, "ALL GOOD IN DA HOOD", Toast.LENGTH_LONG).show();
                 firestoreHelper = new FirestoreHelper(this, mSelectionID);
                 firestoreHelper.checkForUpdate();
             } else {
-                Toast.makeText(LoadingActivity.this, "NO NETWROK", Toast.LENGTH_LONG).show();
                 if(firestoreHelper != null) {
                     firestoreHelper.detachListener();
                     firestoreHelper = null;
