@@ -73,7 +73,7 @@ public class ObjectPagerActivity extends AppCompatActivity
 
         mObjectType = objectType;
         mUri = uri;
-        setTitle(selectionName);
+        setPagerTitle(selectionName);
 
         objectIDs = new ArrayList<>();
         String sortOrder;
@@ -114,6 +114,10 @@ public class ObjectPagerActivity extends AppCompatActivity
                 mViewPager.setCurrentItem(pagerPosition);;
             }
         }
+    }
+
+    protected void setPagerTitle(String name) {
+
     }
 
     private void setLeagueInfo() {

@@ -31,4 +31,10 @@ public class TeamPagerActivity extends ObjectPagerActivity {
                     Toast.LENGTH_SHORT).show();
         }
     }
+
+    @Override
+    protected void setPagerTitle(String name) {
+        super.setPagerTitle(name);
+        setTitle(name + ": Teams");
+    }
 }

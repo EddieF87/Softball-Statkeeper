@@ -81,9 +81,21 @@
         <item name="android:gravity">center</item>
     </style>
 
-    <style name="StandingsTitleStyle" parent="StandingsStyle">
+    <style name="BoxScoreStyle">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:paddingBottom">4dp</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="BoxScoreTitleStyle" parent="BoxScoreStyle">
         <item name="android:textColor">#FFFFFF</item>
         <item name="android:textStyle">bold</item>
+        <item name="android:textSize">16sp</item>
     </style>
 
     <style name="StandingsStyle">
@@ -94,6 +106,11 @@
         <item name="android:textAlignment">center</item>
         <item name="android:gravity">center</item>
         <item name="android:maxLines">1</item>
+    </style>
+
+    <style name="StandingsTitleStyle" parent="StandingsStyle">
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="ItemUserStyle">

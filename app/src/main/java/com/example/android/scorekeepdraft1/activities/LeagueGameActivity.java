@@ -13,6 +13,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -45,6 +46,7 @@ public class LeagueGameActivity extends GameActivity /*implements LoaderManager.
     protected int awayTeamIndex;
     protected int homeTeamIndex;
     private List<Player> currentTeam;
+    private String leagueName;
 
     protected LineupAdapter awayLineupAdapter;
     protected LineupAdapter homeLineupAdapter;
@@ -71,7 +73,7 @@ public class LeagueGameActivity extends GameActivity /*implements LoaderManager.
         int genderSorter = gamePreferences.getInt(KEY_FEMALEORDER, 0);
         int sortArgument = gamePreferences.getInt(KEY_GENDERSORT, 0);
 
-        setTitle(awayTeamName + " @ " + homeTeamName);
+        setTitle(leagueName + ": " + awayTeamName + " @ " + homeTeamName);
         awayTeam = setTeam(awayTeamID);
         homeTeam = setTeam(homeTeamID);
 
@@ -132,11 +134,25 @@ public class LeagueGameActivity extends GameActivity /*implements LoaderManager.
             MyApp myApp = (MyApp) getApplicationContext();
             MainPageSelection mainPageSelection = myApp.getCurrentSelection();
             selectionID = mainPageSelection.getId();
+            leagueName = mainPageSelection.getName();
         } catch (Exception e) {
             Intent intent = new Intent(LeagueGameActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
         }
+    }
+
+    @Override
+    protected Bundle getBoxScoreBundle() {
+        Bundle b = new Bundle();
+        b.putString("awayTeamName", awayTeamName);
+        b.putString("homeTeamName", homeTeamName);
+        b.putString("awayTeamID", awayTeamID);
+        b.putString("homeTeamID", homeTeamID);
+        b.putInt("totalInnings", totalInnings);
+        b.putInt("awayTeamRuns", awayTeamRuns);
+        b.putInt("homeTeamRuns", homeTeamRuns);
+        return b;
     }
 
     @Override

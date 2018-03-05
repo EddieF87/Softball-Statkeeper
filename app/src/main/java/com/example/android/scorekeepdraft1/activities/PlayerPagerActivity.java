@@ -44,4 +44,10 @@ public class PlayerPagerActivity extends ObjectPagerActivity {
         Intent intent = getIntent();
         setResult(RESULT_OK, intent);
     }
+
+    @Override
+    protected void setPagerTitle(String name) {
+        super.setPagerTitle(name);
+        setTitle(name + ": Players");
+    }
 }

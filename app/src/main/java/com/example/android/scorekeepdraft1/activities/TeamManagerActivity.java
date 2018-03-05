@@ -1,6 +1,5 @@
 package com.example.android.scorekeepdraft1.activities;
 
-import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
@@ -9,11 +8,8 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MotionEvent;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
@@ -47,9 +43,9 @@ public class TeamManagerActivity extends ExportActivity
     private TeamFragment teamFragment;
     private CustomViewPager mViewPager;
     private String mTeamID;
-    private int level;
-    private int leagueType;
-    private String leagueName;
+    private int mLevel;
+    private int mSelectionType;
+    private String mTeamName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,11 +55,11 @@ public class TeamManagerActivity extends ExportActivity
         try {
             MyApp myApp = (MyApp) getApplicationContext();
             MainPageSelection mainPageSelection = myApp.getCurrentSelection();
-            leagueName = mainPageSelection.getName();
+            mTeamName = mainPageSelection.getName();
             mTeamID = mainPageSelection.getId();
-            leagueType = mainPageSelection.getType();
-            level = mainPageSelection.getLevel();
-            setTitle(leagueName);
+            mSelectionType = mainPageSelection.getType();
+            mLevel = mainPageSelection.getLevel();
+            setTitle(mTeamName);
         } catch (Exception e) {
             Intent intent = new Intent(TeamManagerActivity.this, MainActivity.class);
             startActivity(intent);
@@ -184,13 +180,12 @@ public class TeamManagerActivity extends ExportActivity
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return TeamFragment.newInstance(mTeamID, leagueType, leagueName, level);
+                    return TeamFragment.newInstance(mTeamID, mSelectionType, mTeamName, mLevel);
                 case 1:
-                    if (level < 3) {
-                        Log.d("xxx", "level < 3");
+                    if (mLevel < UserSettingsActivity.LEVEL_VIEW_WRITE) {
                         return null;
                     }
-                    return LineupFragment.newInstance(mTeamID, leagueType, leagueName, mTeamID, false);
+                    return LineupFragment.newInstance(mTeamID, mSelectionType, mTeamName, mTeamID, false);
                 default:
                     return null;
             }
@@ -210,7 +205,7 @@ public class TeamManagerActivity extends ExportActivity
 
         @Override
         public int getCount() {
-            if (level < 3) {
+            if (mLevel < UserSettingsActivity.LEVEL_VIEW_WRITE) {
                 return 1;
             }
             return 2;

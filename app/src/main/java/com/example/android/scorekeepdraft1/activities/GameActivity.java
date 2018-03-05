@@ -28,6 +28,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.android.scorekeepdraft1.R;
@@ -47,8 +48,8 @@ import java.util.List;
 
 public abstract class GameActivity extends AppCompatActivity
         implements EndOfGameDialogFragment.OnFragmentInteractionListener,
-                    SaveDeleteGameFragment.OnFragmentInteractionListener,
-                     FinishGameConfirmationDialogFragment.OnFragmentInteractionListener {
+        SaveDeleteGameFragment.OnFragmentInteractionListener,
+        FinishGameConfirmationDialogFragment.OnFragmentInteractionListener {
 
     protected Cursor gameCursor;
 
@@ -72,7 +73,8 @@ public abstract class GameActivity extends AppCompatActivity
     protected RadioGroup group2;
     protected String result;
 
-    protected ImageView batterDisplay;
+    protected RelativeLayout batterDisplay;
+    protected TextView batterText;
     protected TextView firstDisplay;
     protected TextView secondDisplay;
     protected TextView thirdDisplay;
@@ -207,6 +209,7 @@ public abstract class GameActivity extends AppCompatActivity
         });
 
         batterDisplay = findViewById(R.id.batter);
+        batterText = findViewById(R.id.batter_name_view);
         firstDisplay = findViewById(R.id.first_display);
         secondDisplay = findViewById(R.id.second_display);
         thirdDisplay = findViewById(R.id.third_display);
@@ -552,7 +555,7 @@ public abstract class GameActivity extends AppCompatActivity
         int playerOuts = tOuts + pOuts;
         double avg = calculateAverage(singles, doubles, triples, displayHR, playerOuts);
         String avgString;
-        if(Double.isNaN(avg)) {
+        if (Double.isNaN(avg)) {
             avgString = "---";
         } else {
             avgString = formatter.format(avg);
@@ -564,6 +567,7 @@ public abstract class GameActivity extends AppCompatActivity
         String rbiDisplayText = "RBI: " + displayRBI;
         String runDisplayText = "R: " + displayRun;
 
+        batterText.setText(name);
         nowBatting.setText(nowBattingString);
         avgDisplay.setText(avgDisplayText);
         hrDisplay.setText(hrDisplayText);
@@ -924,14 +928,12 @@ public abstract class GameActivity extends AppCompatActivity
                 dropPoint = (TextView) v;
             }
             final View eventView = (View) event.getLocalState();
-
             switch (action) {
                 case DragEvent.ACTION_DRAG_STARTED:
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         if (v.getId() == R.id.home_display) {
                             v.setBackground(getDrawable(R.drawable.img_home2));
                         } else if (v.getId() == R.id.trash) {
-                            //todo
                             v.setBackground(getDrawable(R.drawable.img_base2));
                         } else {
                             v.setBackground(getDrawable(R.drawable.img_base2));
@@ -1020,17 +1022,20 @@ public abstract class GameActivity extends AppCompatActivity
                     setBaseListeners();
                     break;
                 case DragEvent.ACTION_DRAG_ENDED:
+                    View dragView = (View) event.getLocalState();
+                    dragView.setAlpha(1f);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        if (v.getId() == R.id.home_display) {
-                            v.setBackground(getDrawable(R.drawable.img_home));
-                        } else if (v.getId() == R.id.trash) {
-                            v.setBackgroundResource(0);
-                        } else {
-                            v.setBackground(getDrawable(R.drawable.img_base));
+                        switch (v.getId()) {
+                            case R.id.home_display:
+                                v.setBackground(getDrawable(R.drawable.img_home));
+                                break;
+                            case R.id.trash:
+                                v.setBackgroundResource(0);
+                                break;
+                            default:
+                                v.setBackground(getDrawable(R.drawable.img_base));
                         }
                     }
-                    break;
-                default:
                     break;
             }
             return true;
@@ -1042,6 +1047,7 @@ public abstract class GameActivity extends AppCompatActivity
         public boolean onTouch(View view, MotionEvent event) {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 setBaseListeners();
+                view.setAlpha(.1f);
                 switch (view.getId()) {
                     case R.id.batter:
                         if (firstOccupied) {
@@ -1136,16 +1142,12 @@ public abstract class GameActivity extends AppCompatActivity
 
     protected void actionViewBoxScore() {
         Intent statsIntent = new Intent(GameActivity.this, BoxScoreActivity.class);
-        Bundle b = new Bundle();
-        //todo convert to teamid
-        b.putString("awayTeam", awayTeamName);
-        b.putString("homeTeam", homeTeamName);
-        b.putInt("totalInnings", totalInnings);
-        b.putInt("awayTeamRuns", awayTeamRuns);
-        b.putInt("homeTeamRuns", homeTeamRuns);
+        Bundle b = getBoxScoreBundle();
         statsIntent.putExtras(b);
         startActivity(statsIntent);
     }
+
+    protected abstract Bundle getBoxScoreBundle();
 
     protected void showExitDialog() {
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -1174,7 +1176,7 @@ public abstract class GameActivity extends AppCompatActivity
     protected void setUndoButton() {
         boolean undo = gameLogIndex > 0;
         undoButton.setClickable(undo);
-        if(undo) {
+        if (undo) {
             undoButton.setAlpha(1f);
         } else {
             undoButton.setAlpha(.1f);
@@ -1184,7 +1186,7 @@ public abstract class GameActivity extends AppCompatActivity
     protected void setRedoButton() {
         boolean redo = gameLogIndex < highestIndex;
         redoButton.setClickable(redo);
-        if(redo) {
+        if (redo) {
             redoButton.setAlpha(1f);
         } else {
             redoButton.setAlpha(.1f);

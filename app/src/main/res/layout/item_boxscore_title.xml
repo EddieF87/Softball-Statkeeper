@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:gravity="center"
-    android:background="#FFFFFF"
+    android:background="@color/colorPrimary"
     >
 
     <TextView
@@ -17,68 +17,39 @@
         android:layout_gravity="center_vertical"
         android:textSize="22sp"
         android:textStyle="bold"
-        android:layout_marginBottom="2dp"
+        android:textColor="#ffffff"
+        android:paddingBottom="2dp"
         android:paddingLeft="8dp"
         android:autoSizeTextType="uniform"
         android:autoSizeMinTextSize="8sp"/>
 
     <TextView
         android:id="@+id/ab_title"
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="@string/ab"
-        android:textSize="16sp"
-        android:textStyle="bold" />
+        style="@style/BoxScoreTitleStyle"
+        android:text="@string/ab"/>
 
     <TextView
         android:id="@+id/run_title"
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="@string/r"
-        android:textSize="16sp"
-        android:textStyle="bold" />
+        style="@style/BoxScoreTitleStyle"
+        android:text="@string/r" />
 
     <TextView
         android:id="@+id/hit_title"
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="@string/h"
-        android:textSize="16sp"
-        android:textStyle="bold" />
+        style="@style/BoxScoreTitleStyle"
+        android:text="@string/h" />
 
     <TextView
         android:id="@+id/rbi_title"
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="@string/rbi"
-        android:textSize="16sp"
-        android:textStyle="bold" />
+        style="@style/BoxScoreTitleStyle"
+        android:text="@string/rbi" />
 
     <TextView
         android:id="@+id/hr_title"
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="@string/hr"
-        android:textSize="16sp"
-        android:textStyle="bold" />
+        style="@style/BoxScoreTitleStyle"
+        android:text="@string/hr" />
 
     <TextView
         android:id="@+id/bb_title"
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="@string/bb"
-        android:textSize="16sp"
-        android:textStyle="bold" />
+        style="@style/BoxScoreTitleStyle"
+        android:text="@string/bb" />
 </LinearLayout>

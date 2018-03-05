@@ -51,8 +51,7 @@
 
         <activity
             android:name=".activities.BoxScoreActivity"
-            android:label="Box Score"
-            android:screenOrientation="portrait" />
+            android:label="Box Score" />
 
         <activity
             android:name=".activities.TeamGameActivity"

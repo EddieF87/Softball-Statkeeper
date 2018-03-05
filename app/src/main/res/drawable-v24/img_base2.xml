@@ -3,5 +3,5 @@
     <path android:fillAlpha="1" android:fillColor="@color/color_base" android:pathData="M320,0L639.9,320L320,639.9L0,320L320,0Z"/>
     <path android:fillAlpha="0" android:fillColor="#FF000000"
         android:pathData="M320,0L639.9,320L320,639.9L0,320L320,0Z"
-        android:strokeAlpha="1" android:strokeColor="#2cf2e2" android:strokeWidth="32"/>
+        android:strokeAlpha="1" android:strokeColor="#2bffa7" android:strokeWidth="32"/>
 </vector>

@@ -31,6 +31,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.R;
+import com.example.android.scorekeepdraft1.activities.BoxScoreActivity;
 import com.example.android.scorekeepdraft1.activities.LeagueGameActivity;
 import com.example.android.scorekeepdraft1.activities.TeamGameActivity;
 import com.example.android.scorekeepdraft1.activities.TeamManagerActivity;
@@ -316,6 +317,18 @@ public class LineupFragment extends Fragment {
         inningsView = getView().findViewById(R.id.innings_view);
         View radioButtonGroup = getView().findViewById(R.id.radiobtns_away_or_home_team);
         orderView = getView().findViewById(R.id.gender_lineup_view);
+        inningsView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openGameSettingsDialog();
+            }
+        });
+        orderView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openGameSettingsDialog();
+            }
+        });
 
         if (mType == MainPageSelection.TYPE_TEAM && !inGame) {
             SharedPreferences settingsPreferences = getActivity()
@@ -404,14 +417,15 @@ public class LineupFragment extends Fragment {
         orderView.setText(Html.fromHtml(order));
     }
 
-    private void setGameSummaryView(int awayRuns, int homeRuns) {
+    private void setGameSummaryView(final int awayRuns, final int homeRuns) {
         SharedPreferences savedGamePreferences = getActivity()
                 .getSharedPreferences(mSelectionID + StatsEntry.GAME, Context.MODE_PRIVATE);
         int inningNumber = savedGamePreferences.getInt("keyInningNumber", 2);
         inningNumber = inningNumber / 2;
         boolean isHome = savedGamePreferences.getBoolean("isHome", false);
-        String awayTeamName = "A";
-        String homeTeamName = "H";
+        final int totalInnings = savedGamePreferences.getInt("keyTotalInnings", 7);
+        String awayTeamName = "Away";
+        String homeTeamName = "Home";
         if (isHome) {
             homeTeamName = mTeamName;
         } else {
@@ -419,6 +433,26 @@ public class LineupFragment extends Fragment {
         }
         String summary = awayTeamName + ": " + awayRuns + "    " + homeTeamName + ": " + homeRuns + "\nInning: " + inningNumber;
         gameSummaryView.setText(summary);
+        final String finalAwayTeamName = awayTeamName;
+        final String finalHomeTeamName = homeTeamName;
+        gameSummaryView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), BoxScoreActivity.class);
+                Bundle b = new Bundle();
+                //todo convert to teamid
+                b.putString("awayTeamName", finalAwayTeamName);
+                b.putString("homeTeamName", finalHomeTeamName);
+                b.putString("awayTeamID", mSelectionID);
+                b.putString("homeTeamID", null);
+                b.putInt("totalInnings", totalInnings);
+                b.putInt("awayTeamRuns", awayRuns);
+                b.putInt("homeTeamRuns", homeRuns);
+                intent.putExtras(b);
+                startActivity(intent);
+
+            }
+        });
     }
 
 
@@ -718,14 +752,7 @@ public class LineupFragment extends Fragment {
                 startActivity(settingsIntent);
                 return true;
             case R.id.change_game_settings:
-                SharedPreferences settingsPreferences = getActivity()
-                        .getSharedPreferences(mSelectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
-                int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
-                int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                DialogFragment newFragment = GameSettingsDialogFragment.newInstance(innings, genderSorter, mSelectionID);
-                newFragment.show(fragmentTransaction, "");
+                openGameSettingsDialog();
                 return true;
             case R.id.action_export_stats:
                 Activity activity = getActivity();
@@ -737,6 +764,17 @@ public class LineupFragment extends Fragment {
                 return false;
         }
         return false;
+    }
+
+    private void openGameSettingsDialog() {
+        SharedPreferences settingsPreferences = getActivity()
+                .getSharedPreferences(mSelectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
+        int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
+        int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        DialogFragment newFragment = GameSettingsDialogFragment.newInstance(innings, genderSorter, mSelectionID);
+        newFragment.show(fragmentTransaction, "");
     }
 
     private int removePlayerFromTeam(String playerFirestoreID) {

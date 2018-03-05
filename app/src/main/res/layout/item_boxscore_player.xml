@@ -24,73 +24,31 @@
 
     <TextView
         android:id="@+id/ab"
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLines="1"
-        android:paddingBottom="5dp"
-        android:paddingTop="2dp"
-        android:text="@string/ab"
-        android:textSize="14sp" />
+        style="@style/BoxScoreStyle"
+        android:text="@string/ab" />
 
     <TextView
         android:id="@+id/run"
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLines="1"
-        android:paddingBottom="5dp"
-        android:paddingTop="2dp"
-        android:text="@string/r"
-        android:textSize="14sp" />
+        style="@style/BoxScoreStyle"
+        android:text="@string/r" />
 
     <TextView
         android:id="@+id/hit"
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLines="1"
-        android:paddingBottom="5dp"
-        android:paddingTop="2dp"
-        android:text="@string/h"
-        android:textSize="14sp" />
+        style="@style/BoxScoreStyle"
+        android:text="@string/h" />
 
     <TextView
         android:id="@+id/rbi"
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLines="1"
-        android:paddingBottom="5dp"
-        android:paddingTop="2dp"
-        android:text="@string/rbi"
-        android:textSize="14sp" />
+        style="@style/BoxScoreStyle"
+        android:text="@string/rbi" />
 
     <TextView
         android:id="@+id/hr"
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLines="1"
-        android:paddingBottom="5dp"
-        android:paddingTop="2dp"
-        android:text="@string/hr"
-        android:textSize="14sp" />
+        style="@style/BoxScoreStyle"
+        android:text="@string/hr" />
 
     <TextView
         android:id="@+id/bb"
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLines="1"
-        android:paddingBottom="5dp"
-        android:paddingTop="2dp"
-        android:text="@string/bb"
-        android:textSize="14sp" />
+        style="@style/BoxScoreStyle"
+        android:text="@string/bb" />
 </LinearLayout>

@@ -66,6 +66,19 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialogFra
     }
 
     @Override
+    protected Bundle getBoxScoreBundle() {
+        Bundle b = new Bundle();
+        b.putString("awayTeamName", awayTeamName);
+        b.putString("homeTeamName", homeTeamName);
+        b.putString("awayTeamID", selectionID);
+        b.putString("homeTeamID", null);
+        b.putInt("totalInnings", totalInnings);
+        b.putInt("awayTeamRuns", awayTeamRuns);
+        b.putInt("homeTeamRuns", homeTeamRuns);
+        return b;
+    }
+
+    @Override
     protected void loadGamePreferences() {
         SharedPreferences gamePreferences
                 = getSharedPreferences(selectionID + StatsEntry.GAME, MODE_PRIVATE);
@@ -126,7 +139,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialogFra
             homeTeamName = "Home Team";
         }
         myTeam = setTeam(selectionID);
-        setTitle(awayTeamName + " @ " + homeTeamName);
+        setTitle(selectionID + ": " + awayTeamName + " @ " + homeTeamName);
 
         if (sortArgument) {
             myTeam = genderSort(myTeam, genderSorter);

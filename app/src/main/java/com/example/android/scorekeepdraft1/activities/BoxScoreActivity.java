@@ -34,9 +34,12 @@ public class BoxScoreActivity extends AppCompatActivity implements LoaderManager
     private static final int SCORE_LOADER = 9;
     private BoxScorePlayerCursorAdapter awayAdapter;
     private BoxScorePlayerCursorAdapter homeAdapter;
-    private String awayTeam;
-    private String homeTeam;
+    private String awayTeamID;
+    private String homeTeamID;
+    private String awayTeamName;
+    private String homeTeamName;
     private String selectionName;
+    private String selectionID;
     private int awayTeamRuns;
     private int homeTeamRuns;
     private int totalInnings;
@@ -50,8 +53,10 @@ public class BoxScoreActivity extends AppCompatActivity implements LoaderManager
         try {
             MyApp myApp = (MyApp) getApplicationContext();
             MainPageSelection mainPageSelection = myApp.getCurrentSelection();
+            selectionID = mainPageSelection.getId();
             selectionType = mainPageSelection.getType();
             selectionName = mainPageSelection.getName();
+            setTitle(selectionName + " BoxScore");
         } catch (Exception e) {
             Intent intent = new Intent(BoxScoreActivity.this, MainActivity.class);
             startActivity(intent);
@@ -60,19 +65,24 @@ public class BoxScoreActivity extends AppCompatActivity implements LoaderManager
 
         Bundle b = getIntent().getExtras();
         if (savedInstanceState != null) {
-            awayTeam = savedInstanceState.getString("awayTeam");
-            homeTeam = savedInstanceState.getString("homeTeam");
+            awayTeamID = savedInstanceState.getString("awayTeamID", null);
+            homeTeamID = savedInstanceState.getString("homeTeamID", null);
+            awayTeamName = savedInstanceState.getString("awayTeamName");
+            homeTeamName = savedInstanceState.getString("homeTeamName");
             totalInnings = savedInstanceState.getInt("totalInnings", 0);
             awayTeamRuns = savedInstanceState.getInt("awayTeamRuns", 0);
             homeTeamRuns = savedInstanceState.getInt("homeTeamRuns", 0);
         } else if (b != null) {
-            awayTeam = b.getString("awayTeam");
-            homeTeam = b.getString("homeTeam");
+            awayTeamID = b.getString("awayTeamID", null);
+            homeTeamID = b.getString("homeTeamID", null);
+            awayTeamName = b.getString("awayTeamName");
+            homeTeamName = b.getString("homeTeamName");
             totalInnings = b.getInt("totalInnings", 0);
             awayTeamRuns = b.getInt("awayTeamRuns", 0);
             homeTeamRuns = b.getInt("homeTeamRuns", 0);
         }
 
+        TextView header = findViewById(R.id.boxscore_header);
         View awayTitle = findViewById(R.id.away_players_title);
         View homeTitle = findViewById(R.id.home_players_title);
         TextView awayNameView = awayTitle.findViewById(R.id.name_title);
@@ -80,27 +90,26 @@ public class BoxScoreActivity extends AppCompatActivity implements LoaderManager
         ListView awayListView = findViewById(R.id.away_players_listview);
         ListView homeListView = findViewById(R.id.home_players_listview);
 
-        String headerString = awayTeam + " " + awayTeamRuns + "   " + homeTeam + " " + homeTeamRuns;
+        String headerString = awayTeamName + "  " + awayTeamRuns + "     " + homeTeamName + "  " + homeTeamRuns;
+        header.setText(headerString);
 
         if (selectionType == MainPageSelection.TYPE_TEAM) {
-            TextView boxscoreHeader = findViewById(R.id.boxscore_header);
-            boxscoreHeader.setText(headerString);
-            boxscoreHeader.setVisibility(View.VISIBLE);
+
             View boxscore = findViewById(R.id.relativelayout_boxscore);
             boxscore.setVisibility(View.GONE);
+            LinearLayout homeLayout = findViewById(R.id.linearLayoutHome);
+            homeLayout.setVisibility(View.GONE);
+
             awayNameView.setText(selectionName);
-            homeNameView.setVisibility(View.GONE);
-            homeListView.setVisibility(View.GONE);
-            homeTitle.setVisibility(View.GONE);
+
             awayAdapter = new BoxScorePlayerCursorAdapter(this, null);
             awayListView.setAdapter(awayAdapter);
             getLoaderManager().initLoader(AWAY_LOADER, null, this);
             return;
         }
 
-        awayNameView.setText(awayTeam);
-        homeNameView.setText(homeTeam);
-        setTitle(headerString);
+        awayNameView.setText(awayTeamName);
+        homeNameView.setText(homeTeamName);
 
         awayAdapter = new BoxScorePlayerCursorAdapter(this, null);
         awayListView.setAdapter(awayAdapter);
@@ -120,17 +129,17 @@ public class BoxScoreActivity extends AppCompatActivity implements LoaderManager
         switch (id) {
             case AWAY_LOADER:
                 uri = StatsEntry.CONTENT_URI_TEMP;
-                selection = StatsEntry.COLUMN_TEAM + "=?";
+                selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=?";
                 if(selectionType == MainPageSelection.TYPE_TEAM){
-                    selectionArgs = new String[]{selectionName};
+                    selectionArgs = new String[]{selectionID};
                 } else {
-                    selectionArgs = new String[]{awayTeam};
+                    selectionArgs = new String[]{awayTeamID};
                 }
                 break;
             case HOME_LOADER:
                 uri = StatsEntry.CONTENT_URI_TEMP;
-                selection = StatsEntry.COLUMN_TEAM + "=?";
-                selectionArgs = new String[]{homeTeam};
+                selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=?";
+                selectionArgs = new String[]{homeTeamID};
                 break;
             case SCORE_LOADER:
                 uri = StatsEntry.CONTENT_URI_GAMELOG;
@@ -214,8 +223,8 @@ public class BoxScoreActivity extends AppCompatActivity implements LoaderManager
                 }
                 TextView awayTeamView = findViewById(R.id.top_team);
                 TextView homeTeamView = findViewById(R.id.bottom_team);
-                awayTeamView.setText(awayTeam);
-                homeTeamView.setText(homeTeam);
+                awayTeamView.setText(awayTeamName);
+                homeTeamView.setText(homeTeamName);
                 LinearLayout boxScoreTotal = findViewById(R.id.boxscore_total);
                 TextView topTotalView = boxScoreTotal.findViewById(R.id.inning_top_row);
                 TextView bottomTotalView = boxScoreTotal.findViewById(R.id.inning_bottom_row);
@@ -247,8 +256,10 @@ public class BoxScoreActivity extends AppCompatActivity implements LoaderManager
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString("awayTeam", awayTeam);
-        outState.putString("homeTeam", homeTeam);
+        outState.putString("awayTeamID", awayTeamID);
+        outState.putString("homeTeamID", homeTeamID);
+        outState.putString("awayTeamName", awayTeamName);
+        outState.putString("homeTeamName", homeTeamName);
         outState.putInt("totalInnings", totalInnings);
         outState.putInt("awayTeamRuns", awayTeamRuns);
         outState.putInt("homeTeamRuns", homeTeamRuns);

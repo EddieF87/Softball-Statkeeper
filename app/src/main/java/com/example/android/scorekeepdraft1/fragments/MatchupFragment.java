@@ -37,6 +37,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.R;
+import com.example.android.scorekeepdraft1.activities.BoxScoreActivity;
 import com.example.android.scorekeepdraft1.activities.LeagueGameActivity;
 import com.example.android.scorekeepdraft1.activities.LeagueManagerActivity;
 import com.example.android.scorekeepdraft1.activities.SetLineupActivity;
@@ -133,14 +134,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                 startActivity(settingsIntent);
                 return true;
             case R.id.change_game_settings:
-                SharedPreferences settingsPreferences = getActivity()
-                        .getSharedPreferences(leagueID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
-                int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
-                int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                DialogFragment newFragment = GameSettingsDialogFragment.newInstance(innings, genderSorter, leagueID);
-                newFragment.show(fragmentTransaction, "");
+                openGameSettingsDialog();
                 return true;
             case R.id.action_export_stats:
                 Activity activity = getActivity();
@@ -152,6 +146,17 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                 return false;
         }
         return false;
+    }
+
+    private void openGameSettingsDialog() {
+        SharedPreferences settingsPreferences = getActivity()
+                .getSharedPreferences(leagueID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
+        int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
+        int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        DialogFragment newFragment = GameSettingsDialogFragment.newInstance(innings, genderSorter, leagueID);
+        newFragment.show(fragmentTransaction, "");
     }
 
     @Override
@@ -166,9 +171,21 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         rvAway = rootView.findViewById(R.id.rv_left_team);
         rvHome = rootView.findViewById(R.id.rv_right_team);
         gameSummaryView = rootView.findViewById(R.id.current_game_view);
-
         inningsView = rootView.findViewById(R.id.innings_view);
         orderView = rootView.findViewById(R.id.gender_lineup_view);
+
+        inningsView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openGameSettingsDialog();
+            }
+        });
+        orderView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openGameSettingsDialog();
+            }
+        });
         setGameSettings();
 
         VerticalTextView editAwayLineup = rootView.findViewById(R.id.away_lineup_editor);
@@ -290,29 +307,51 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         Log.d("qqq", "onResume initRVs");
     }
 
-    private void setGameSummaryView(int awayRuns, int homeRuns){
+    private void setGameSummaryView(final int awayRuns, final int homeRuns){
         SharedPreferences savedGamePreferences = getActivity()
                 .getSharedPreferences(leagueID + StatsEntry.GAME, Context.MODE_PRIVATE);
         int inningNumber = savedGamePreferences.getInt("keyInningNumber", 2);
         inningNumber = inningNumber/2;
-        String awayID = savedGamePreferences.getString("keyAwayTeam", "");
-        String homeID = savedGamePreferences.getString("keyHomeTeam", "");
-        String awayTeamName = getTeamName(awayID);
-        String homeTeamName = getTeamName(homeID);
+        final int totalInnings = savedGamePreferences.getInt("keyTotalInnings", 7);
+        final String awayID = savedGamePreferences.getString("keyAwayTeam", "");
+        final String homeID = savedGamePreferences.getString("keyHomeTeam", "");
+        final String awayTeamName = getTeamNameFromFirestoreID(awayID);
+        final String homeTeamName = getTeamNameFromFirestoreID(homeID);
         if(awayTeamName == null || homeTeamName == null) {
             return;
         }
-        String summary = awayTeamName + ": " + awayRuns + "    "  + homeTeamName + ": " + homeRuns + "\nInning: " + inningNumber;
+        String awayTeamAbv = getTeamAbv(awayTeamName);
+        String homeTeamAbv = getTeamAbv(homeTeamName);
+        String summary = awayTeamAbv + ": " + awayRuns + "    "  + homeTeamAbv + ": " + homeRuns + "\nInning: " + inningNumber;
         gameSummaryView.setText(summary);
+        gameSummaryView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), BoxScoreActivity.class);
+                Bundle b = new Bundle();
+                //todo convert to teamid
+                b.putString("awayTeamName", awayTeamName);
+                b.putString("homeTeamName", homeTeamName);
+                b.putString("awayTeamID", awayID);
+                b.putString("homeTeamID", homeID);
+                b.putInt("totalInnings", totalInnings);
+                b.putInt("awayTeamRuns", awayRuns);
+                b.putInt("homeTeamRuns", homeRuns);
+                intent.putExtras(b);
+                startActivity(intent);
+
+            }
+        });
     }
 
-    private String getTeamName(String teamID) {
-        String team = getTeamNameFromFirestoreID(teamID);
+    private String getTeamAbv(String team) {
         if(team == null) {
             return null;
         }
         if (team.length() > 2) {
             return  ("" + team.charAt(0) + team.charAt(1) + team.charAt(2)).toUpperCase();
+        } else if (team.length() > 1) {
+            return  ("" + team.charAt(0)  + team.charAt(1)).toUpperCase();
         } else {
             return  ("" + team.charAt(0)).toUpperCase();
         }
