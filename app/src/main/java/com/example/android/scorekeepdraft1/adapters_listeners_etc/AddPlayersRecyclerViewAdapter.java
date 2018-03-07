@@ -1,5 +1,6 @@
 package com.example.android.scorekeepdraft1.adapters_listeners_etc;
 
+import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -118,9 +119,15 @@ public class AddPlayersRecyclerViewAdapter extends RecyclerView.Adapter<AddPlaye
                     String string = mEditText.getText().toString();
                     mNameEntries.set(position, string);
                     if (!previouslyEdited(position)) {
-                        mNameEntries.add(null);
-                        mGenderEntries.add(0);
-                        notifyDataSetChanged();
+                        Handler handler = new Handler();
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                mNameEntries.add(null);
+                                mGenderEntries.add(0);
+                                notifyDataSetChanged();
+                            }
+                        }, 500);
                     }
                 }
             });

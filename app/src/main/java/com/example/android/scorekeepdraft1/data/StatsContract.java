@@ -113,7 +113,7 @@ public class StatsContract {
 
     /* Helpers to retrieve column values */
     public static String getColumnString(Cursor cursor, String columnName) {
-        return cursor.getString( cursor.getColumnIndex(columnName) );
+        return cursor.getString(cursor.getColumnIndex(columnName) );
     }
 
     public static int getColumnInt(Cursor cursor, String columnName) {

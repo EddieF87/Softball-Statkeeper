@@ -126,33 +126,6 @@
         app:layout_constraintTop_toTopOf="@+id/trash"
         app:layout_constraintVertical_bias="0.8" />
 
-    <ImageView
-        android:id="@+id/btn_undo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:tint="@android:color/holo_red_dark"
-        app:layout_constraintBottom_toTopOf="@+id/third_display"
-        app:layout_constraintEnd_toStartOf="@+id/second_display"
-        app:layout_constraintHorizontal_bias="0.1"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.25"
-        app:srcCompat="@android:drawable/ic_media_rew" />
-
-    <ImageView
-        android:id="@+id/btn_redo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:tint="@android:color/holo_red_dark"
-        app:layout_constraintBottom_toTopOf="@+id/first_display"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.9"
-        app:layout_constraintStart_toEndOf="@+id/second_display"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.25"
-        app:srcCompat="@android:drawable/ic_media_ff" />
-
-
     <TextView
         android:id="@+id/step1text"
         android:layout_width="0dp"
@@ -164,6 +137,7 @@
         android:text="Step 1: Drag batter to a base!"
         android:textSize="12sp"
         android:textStyle="bold"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/third_display"
         app:layout_constraintEnd_toStartOf="@+id/guide_v1"
         app:layout_constraintHorizontal_bias="0.0"
@@ -171,7 +145,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/step1_arrow"
         android:layout_width="75dp"
         android:layout_height="65dp"
         android:layout_marginEnd="8dp"
@@ -179,8 +153,10 @@
         android:layout_marginTop="8dp"
         android:rotation="225"
         android:tint="@color/colorAccent"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/step1text"
         app:layout_constraintEnd_toStartOf="@+id/guide_v1"
+        app:layout_constraintHorizontal_bias="0.41"
         app:layout_constraintStart_toEndOf="@+id/step1text"
         app:layout_constraintTop_toBottomOf="@+id/step1text"
         app:srcCompat="?attr/actionModeCloseDrawable" />
@@ -221,7 +197,10 @@
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:gravity="center"
-            android:padding="4dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
             />
     </RelativeLayout>
 

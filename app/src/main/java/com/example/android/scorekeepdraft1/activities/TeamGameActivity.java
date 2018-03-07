@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.android.scorekeepdraft1.MyApp;
@@ -37,7 +38,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialogFra
     private TextView otherTeamOutsView;
     private TextView otherTeamRunsView;
     private int otherTeamRuns;
-    private ImageButton addOutButton;
+    private ImageView addOutButton;
 
     private List<Player> myTeam;
     private int myTeamIndex;
@@ -139,7 +140,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialogFra
             homeTeamName = "Home Team";
         }
         myTeam = setTeam(selectionID);
-        setTitle(selectionID + ": " + awayTeamName + " @ " + homeTeamName);
+        setTitle(awayTeamName + " @ " + homeTeamName);
 
         if (sortArgument) {
             myTeam = genderSort(myTeam, genderSorter);
@@ -171,6 +172,8 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialogFra
 
     @Override
     protected void startGame() {
+        super.startGame();
+
         isTop = true;
         chooseDisplay();
 
@@ -188,6 +191,12 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialogFra
         if (isAlternate) {
             myTeamIndex = 0;
             onDeck = null;
+            step1View.setVisibility(View.GONE);
+            step2View.setVisibility(View.GONE);
+            step3View.setVisibility(View.GONE);
+            step4View.setVisibility(View.GONE);
+            step1Arrow.setVisibility(View.GONE);
+            step2Arrow.setVisibility(View.GONE);
         } else {
             onDeck = currentBatter.getFirestoreID();
         }
@@ -358,9 +367,15 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialogFra
         View diamond = findViewById(R.id.diamond);
         View alternateTeamDisplay = findViewById(R.id.alternate_team_display);
         if (alternateDisplay) {
+            setUndoButton();
+            setRedoButton();
             radioGroup.setVisibility(View.GONE);
             diamond.setVisibility(View.GONE);
             alternateTeamDisplay.setVisibility(View.VISIBLE);
+            TextView otherTeamTitle = findViewById(R.id.other_team_title);
+            if (isHome) {otherTeamTitle.setText(awayTeamName);
+            } else {otherTeamTitle.setText(homeTeamName);
+            }
             addOutButton.setEnabled(true);
             otherTeamOutsView = alternateTeamDisplay.findViewById(R.id.tv_outs);
             otherTeamRunsView = alternateTeamDisplay.findViewById(R.id.tv_runs_scored);
@@ -489,7 +504,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialogFra
     @Override
     protected void redoPlay() {
         String redoResult = getRedoResult();
-        if(redoResult == null) {
+        if(redoResult == null & !isAlternate) {
             return;
         }
         if (inningChanged == 1) {

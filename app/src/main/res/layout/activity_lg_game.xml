@@ -20,19 +20,18 @@
 
         <include
             android:id="@+id/diamond"
-            layout="@layout/diamond"
             style="@style/Diamond"
-            app:layout_constraintDimensionRatio="1:1"
+            layout="@layout/diamond"
             app:layout_constraintBottom_toTopOf="@+id/radio_group_results"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/sb_table"
-             />
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/sb_table" />
 
         <include
             android:id="@+id/radio_group_results"
-            layout="@layout/item_radio_group_results"
             style="@style/RadioGroupResults"
+            layout="@layout/item_radio_group_results"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -48,23 +47,21 @@
             android:text="Step 2: Choose at bat result!"
             android:textSize="12sp"
             android:textStyle="bold"
+            android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@+id/radio_group_results"
             app:layout_constraintStart_toStartOf="parent" />
-
-
-
 
         <TextView
             android:id="@+id/step3text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
             android:layout_marginEnd="8dp"
             android:background="@drawable/bg_popup"
             android:padding="8dp"
             android:text="Step 3: Submit Play!"
             android:textSize="12sp"
             android:textStyle="bold"
+            android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@+id/radio_group_results"
             app:layout_constraintEnd_toEndOf="parent" />
 
@@ -79,21 +76,45 @@
             android:text="Step 4: Repeat!"
             android:textSize="12sp"
             android:textStyle="bold"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/diamond" />
 
         <ImageView
-            android:id="@+id/imageView2"
+            android:id="@+id/step2_arrow"
             android:layout_width="75dp"
             android:layout_height="65dp"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="18dp"
             android:rotation="270"
             android:tint="@color/colorAccent"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="@+id/step2text"
-            app:layout_constraintStart_toEndOf="@+id/step2text"
+            app:layout_constraintHorizontal_bias="0.88"
+            app:layout_constraintStart_toStartOf="@+id/step2text"
+            app:layout_constraintTop_toBottomOf="@+id/step2text"
             app:layout_constraintTop_toTopOf="@+id/step2text"
             app:srcCompat="?attr/actionModeCloseDrawable" />
+
+        <ImageView
+            android:id="@+id/btn_undo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:tint="@android:color/holo_red_dark"
+            app:layout_constraintStart_toStartOf="@+id/diamond"
+            app:layout_constraintTop_toTopOf="@+id/diamond"
+            app:srcCompat="@android:drawable/ic_media_rew" />
+
+        <ImageView
+            android:id="@+id/btn_redo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:tint="@android:color/holo_red_dark"
+            app:layout_constraintEnd_toEndOf="@+id/diamond"
+            app:layout_constraintTop_toTopOf="@+id/diamond"
+            app:srcCompat="@android:drawable/ic_media_ff" />
 
     </android.support.constraint.ConstraintLayout>
 

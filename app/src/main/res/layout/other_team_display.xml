@@ -1,100 +1,128 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    tools:background="@color/colorPrimary">
 
-    <ImageButton
+    <ImageView
         android:id="@+id/btn_add_run"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/tv_runs_scored"
-        app:layout_constraintEnd_toEndOf="@+id/tv_runs_scored"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="@+id/tv_runs_scored"
-        app:srcCompat="@android:drawable/arrow_up_float"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginTop="8dp"
         android:onClick="teamAddRun"
-        />
-
-    <ImageButton
-        android:id="@+id/btn_remove_run"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:tint="#ffffff"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/tv_runs_scored"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="@+id/tv_runs_scored"
-        app:srcCompat="@android:drawable/arrow_down_float"
+        app:layout_constraintEnd_toEndOf="@+id/tv_runs_scored_title"
+        app:layout_constraintStart_toEndOf="@+id/tv_runs_scored_title"
+        app:layout_constraintTop_toBottomOf="@+id/tv_runs_scored_title"
+        app:srcCompat="@drawable/ic_add_circle_outline_black_18dp" />
+
+    <ImageView
+        android:id="@+id/btn_remove_run"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginTop="8dp"
         android:onClick="teamRemoveRun"
-        />
+        android:tint="#ffffff"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/tv_runs_scored_title"
+        app:layout_constraintStart_toStartOf="@+id/tv_runs_scored_title"
+        app:layout_constraintTop_toBottomOf="@+id/tv_runs_scored_title"
+        app:srcCompat="@drawable/ic_remove_circle_outline_black_18dp" />
 
     <TextView
         android:id="@+id/tv_runs_scored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginStart="32dp"
         android:text="0"
-        app:layout_constraintBottom_toTopOf="@+id/btn_remove_run"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/tv_outs" />
+        android:textSize="18sp"
+        android:textColor="#ffffff"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btn_add_run"
+        app:layout_constraintStart_toEndOf="@+id/btn_remove_run"
+        app:layout_constraintTop_toBottomOf="@+id/tv_runs_scored_title" />
 
     <TextView
         android:id="@+id/tv_runs_scored_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="24dp"
         android:text="Runs this inning"
-        app:layout_constraintBottom_toTopOf="@+id/btn_add_run"
-        app:layout_constraintEnd_toEndOf="@+id/tv_runs_scored"
-        app:layout_constraintStart_toStartOf="@+id/tv_runs_scored" />
+        android:textSize="18sp"
+        android:textColor="#ffffff"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/tv_outs_title"
+        app:layout_constraintTop_toBottomOf="@+id/other_team_title" />
 
 
-    <ImageButton
+    <ImageView
         android:id="@+id/btn_add_out"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/tv_outs"
-        app:layout_constraintEnd_toEndOf="@+id/tv_outs"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="@+id/tv_outs"
-        app:srcCompat="@android:drawable/arrow_up_float"
-        />
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:tint="#ffffff"
+        app:layout_constraintStart_toEndOf="@+id/tv_outs_title"
+        app:layout_constraintTop_toBottomOf="@+id/tv_outs_title"
+        app:srcCompat="@drawable/ic_add_circle_outline_black_18dp" />
 
-    <ImageButton
+    <ImageView
         android:id="@+id/btn_remove_out"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/tv_outs"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="@+id/tv_outs"
-        app:srcCompat="@android:drawable/arrow_down_float"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="8dp"
         android:onClick="teamRemoveOut"
-        />
+        android:tint="#ffffff"
+        app:layout_constraintEnd_toStartOf="@+id/tv_outs_title"
+        app:layout_constraintTop_toBottomOf="@+id/tv_outs_title"
+        app:srcCompat="@drawable/ic_remove_circle_outline_black_18dp" />
 
     <TextView
         android:id="@+id/tv_outs"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="32dp"
-        android:layout_marginStart="8dp"
         android:text="0"
-        app:layout_constraintBottom_toTopOf="@+id/btn_remove_out"
-        app:layout_constraintEnd_toStartOf="@+id/tv_runs_scored"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:textSize="18sp"
+        android:textColor="#ffffff"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btn_add_out"
+        app:layout_constraintStart_toEndOf="@+id/btn_remove_out"
+        app:layout_constraintTop_toBottomOf="@+id/tv_outs_title" />
 
     <TextView
         android:id="@+id/tv_outs_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginTop="24dp"
         android:text="@string/outs"
-        app:layout_constraintBottom_toTopOf="@+id/btn_add_out"
-        app:layout_constraintEnd_toEndOf="@+id/tv_outs"
-        app:layout_constraintStart_toStartOf="@+id/tv_outs" />
+        android:textColor="#ffffff"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@+id/tv_runs_scored_title"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/other_team_title" />
+
+    <TextView
+        android:id="@+id/other_team_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:gravity="center"
+        android:text="TextView"
+        android:textSize="36sp"
+        android:textColor="#ffffff"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="TextView" />
 </android.support.constraint.ConstraintLayout>

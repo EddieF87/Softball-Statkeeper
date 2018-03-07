@@ -171,6 +171,7 @@ public class LeagueGameActivity extends GameActivity /*implements LoaderManager.
 
     @Override
     protected void startGame() {
+        super.startGame();
         awayTeamRuns = 0;
         homeTeamRuns = 0;
 

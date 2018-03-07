@@ -237,6 +237,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 teamView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        ((PlayerManagerActivity) getActivity()).setEditTeam();
                         editNameDialog(teamString);
                     }
                 });
@@ -260,8 +261,8 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         resultCountText = playerManager.findViewById(R.id.textview_result_count);
         resultText = playerManager.findViewById(R.id.textview_result_chosen);
         Button submitBtn = playerManager.findViewById(R.id.submit);
-        ImageButton addBtn = playerManager.findViewById(R.id.btn_add_result);
-        ImageButton subtractBtn = playerManager.findViewById(R.id.btn_subtract_result);
+        ImageView addBtn = playerManager.findViewById(R.id.btn_add_result);
+        ImageView subtractBtn = playerManager.findViewById(R.id.btn_subtract_result);
 
         subtractBtn.setOnClickListener(new View.OnClickListener() {
             @Override

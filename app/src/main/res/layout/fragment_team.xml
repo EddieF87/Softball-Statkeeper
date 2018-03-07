@@ -96,6 +96,8 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:text="Add players!"
+            android:textSize="18sp"
+            android:textStyle="bold"
             android:visibility="gone" />
     </FrameLayout>
 

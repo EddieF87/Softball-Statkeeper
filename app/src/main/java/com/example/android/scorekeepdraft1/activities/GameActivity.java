@@ -80,6 +80,14 @@ public abstract class GameActivity extends AppCompatActivity
     protected TextView thirdDisplay;
     protected TextView homeDisplay;
 
+    protected TextView step1View;
+    protected TextView step2View;
+    protected TextView step3View;
+    protected TextView step4View;
+    protected ImageView step1Arrow;
+    protected ImageView step2Arrow;
+
+
     protected String awayTeamName;
     protected String homeTeamName;
     protected int awayTeamRuns;
@@ -385,7 +393,41 @@ public abstract class GameActivity extends AppCompatActivity
         homeDisplay.setOnDragListener(new GameActivity.MyDragListener());
     }
 
-    protected abstract void startGame();
+    protected void startGame() {
+        step1View = findViewById(R.id.step1text);
+        step2View = findViewById(R.id.step2text);
+        step3View = findViewById(R.id.step3text);
+        step4View = findViewById(R.id.step4text);
+        step1Arrow = findViewById(R.id.step1_arrow);
+        step2Arrow = findViewById(R.id.step2_arrow);
+        step1View.setVisibility(View.VISIBLE);
+        step2View.setVisibility(View.VISIBLE);
+        step3View.setVisibility(View.VISIBLE);
+        step4View.setVisibility(View.VISIBLE);
+        step1Arrow.setVisibility(View.VISIBLE);
+        step2Arrow.setVisibility(View.VISIBLE);
+        submitPlay.setOnClickListener(null);
+
+        submitPlay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                step1View.setVisibility(View.GONE);
+                step2View.setVisibility(View.GONE);
+                step3View.setVisibility(View.GONE);
+                step4View.setVisibility(View.GONE);
+                step1Arrow.setVisibility(View.GONE);
+                step2Arrow.setVisibility(View.GONE);
+                onSubmit();
+                submitPlay.setOnClickListener(null);
+                submitPlay.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onSubmit();
+                    }
+                });
+            }
+        });
+    }
 
     protected abstract void resumeGame();
 
