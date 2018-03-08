@@ -101,6 +101,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="32dp"
+        android:layout_marginStart="32dp"
         android:layout_marginTop="24dp"
         android:text="@string/outs"
         android:textColor="#ffffff"
@@ -117,12 +118,11 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:gravity="center"
-        android:text="TextView"
-        android:textSize="36sp"
+        android:text="----"
         android:textColor="#ffffff"
+        android:textSize="36sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="TextView" />
+        app:layout_constraintTop_toTopOf="parent" />
 </android.support.constraint.ConstraintLayout>

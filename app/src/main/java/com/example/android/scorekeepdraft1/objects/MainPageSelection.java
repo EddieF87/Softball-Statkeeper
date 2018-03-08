@@ -126,4 +126,14 @@ public class MainPageSelection implements Parcelable {
             }
         };
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        MainPageSelection comparedSelection = (MainPageSelection) obj;
+        return this.id.equals(comparedSelection.getId());
+    }
 }

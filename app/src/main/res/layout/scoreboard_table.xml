@@ -5,20 +5,22 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="#000"
-    android:padding="8dp">
+    android:padding="4dp">
 
     <TextView
         android:id="@+id/scoreboard"
         style="@style/ScoreboardStyle"
         android:layout_width="0dp"
         android:layout_marginEnd="24dp"
+        android:layout_marginRight="24dp"
+        android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginTop="4dp"
         android:autoSizeMinTextSize="10sp"
         android:autoSizeTextType="uniform"
         android:maxLines="1"
         android:textAppearance="@style/TextAppearance.AppCompat.Headline"
         android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/inning_top_arrow"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -56,7 +58,7 @@
         android:id="@+id/inning_bottom_arrow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="4dp"
         android:background="#00000000"
         android:tint="@color/cardview_dark_background"
         app:layout_constraintLeft_toLeftOf="@+id/inning"
@@ -67,7 +69,7 @@
     <TextView
         android:id="@+id/inning"
         style="@style/ScoreboardStyle"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="4dp"
         android:textStyle="bold"
         app:layout_constraintLeft_toLeftOf="@+id/inning_top_arrow"
         app:layout_constraintRight_toRightOf="@+id/inning_top_arrow"
@@ -77,16 +79,17 @@
     <TextView
         android:id="@+id/num_of_outs"
         style="@style/ScoreboardStyle"
-        android:layout_marginRight="8dp"
-        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginRight="4dp"
+        android:layout_marginEnd="4dp"
+        app:layout_constraintBottom_toBottomOf="@+id/inning"
         app:layout_constraintTop_toTopOf="@+id/inning"
+        app:layout_constraintRight_toRightOf="parent"
         tools:text="0 outs" />
 
     <TextView
         android:id="@+id/hrdisplay"
         style="@style/ScoreboardStyle"
         android:layout_marginLeft="16dp"
-        android:layout_marginStart="16dp"
         app:layout_constraintLeft_toRightOf="@+id/avgdisplay"
         app:layout_constraintTop_toTopOf="@+id/avgdisplay"
         tools:text="playerHR" />
@@ -95,7 +98,6 @@
         android:id="@+id/rbidisplay"
         style="@style/ScoreboardStyle"
         android:layout_marginLeft="16dp"
-        android:layout_marginStart="16dp"
         app:layout_constraintLeft_toRightOf="@+id/hrdisplay"
         app:layout_constraintTop_toTopOf="@+id/hrdisplay"
         tools:text="playerRBI" />
@@ -104,7 +106,6 @@
         android:id="@+id/rundisplay"
         style="@style/ScoreboardStyle"
         android:layout_marginLeft="16dp"
-        android:layout_marginStart="16dp"
         app:layout_constraintLeft_toRightOf="@+id/rbidisplay"
         app:layout_constraintTop_toTopOf="@+id/rbidisplay"
         tools:text="playerRuns" />
@@ -112,7 +113,7 @@
     <TextView
         android:id="@+id/avgdisplay"
         style="@style/ScoreboardStyle"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintLeft_toLeftOf="@+id/nowbatting"
         app:layout_constraintTop_toBottomOf="@+id/nowbatting"
         tools:text=".XXX" />

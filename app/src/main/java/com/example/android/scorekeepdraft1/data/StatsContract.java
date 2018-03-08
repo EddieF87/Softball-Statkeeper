@@ -19,6 +19,7 @@ public class StatsContract {
     public static final String PATH_GAME = "game";
     public static final String PATH_BACKUP_PLAYERS = "backupplayers";
     public static final String PATH_BACKUP_TEAMS = "backupteams";
+    public static final String PATH_SELECTIONS = "selections";
 
     public StatsContract() {
     }
@@ -31,6 +32,7 @@ public class StatsContract {
         public static final Uri CONTENT_URI_BACKUP_TEAMS = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_BACKUP_TEAMS);
         public static final Uri CONTENT_URI_TEMP = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_TEMP);
         public static final Uri CONTENT_URI_GAMELOG = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_GAME);
+        public static final Uri CONTENT_URI_SELECTIONS = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_SELECTIONS);
 
 
         public static final String PLAYERS_TABLE_NAME = "players";
@@ -39,6 +41,7 @@ public class StatsContract {
         public static final String BACKUP_TEAMS_TABLE_NAME = "backupteams";
         public static final String TEMPPLAYERS_TABLE_NAME = "temps";
         public static final String GAME_TABLE_NAME = "game";
+        public static final String SELECTIONS_TABLE_NAME = "selections";
 
 
         public static final String COLUMN_NAME = "name";
@@ -108,7 +111,6 @@ public class StatsContract {
         public static final String EMAIL = "email";
         public static final String LEVEL = "level";
         public static final String FREE_AGENT = "Free Agent";
-
     }
 
     /* Helpers to retrieve column values */

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_grass"
-    android:padding="8dp"
+    android:padding="4dp"
     tools:context="com.example.android.scorekeepdraft1.activities.LeagueGameActivity">
 
     <android.support.constraint.ConstraintLayout
@@ -15,8 +15,11 @@
         <include
             android:id="@+id/sb_table"
             layout="@layout/scoreboard_table"
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/game_ad" />
 
         <include
             android:id="@+id/diamond"
@@ -115,6 +118,15 @@
             app:layout_constraintEnd_toEndOf="@+id/diamond"
             app:layout_constraintTop_toTopOf="@+id/diamond"
             app:srcCompat="@android:drawable/ic_media_ff" />
+
+        <View
+            android:id="@+id/game_ad"
+            android:layout_width="0dp"
+            android:layout_height="51dp"
+            android:background="@color/colorAccent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </android.support.constraint.ConstraintLayout>
 

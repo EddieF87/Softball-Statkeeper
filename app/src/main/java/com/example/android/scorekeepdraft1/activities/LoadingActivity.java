@@ -16,7 +16,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
@@ -46,7 +45,7 @@ public class LoadingActivity extends AppCompatActivity
     private TextView loadTitle;
     private TextView loadDescription;
     private ProgressBar loadProgressBar;
-    private boolean loade;
+    private boolean initialize;
 
 
 
@@ -78,7 +77,7 @@ public class LoadingActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        loade = true;
+        initialize = true;
         getLoaderManager().initLoader(2452, null, this);
     }
 
@@ -209,8 +208,8 @@ public class LoadingActivity extends AppCompatActivity
 
     @Override
     public Loader onCreateLoader(int i, Bundle bundle) {
-        if(loade) {
-            loade = false;
+        if(initialize) {
+            initialize = false;
 
             numberOfTeams = -1;
             numberOfPlayers = -1;

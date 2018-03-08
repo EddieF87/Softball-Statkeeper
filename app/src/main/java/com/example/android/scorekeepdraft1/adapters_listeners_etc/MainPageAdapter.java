@@ -52,7 +52,7 @@ public class MainPageAdapter extends RecyclerView.Adapter<MainPageAdapter.MainPa
     }
 
     @Override
-    public void onBindViewHolder(MainPageViewHolder holder, int position) {
+    public void onBindViewHolder(MainPageViewHolder holder, final int position) {
         final MainPageSelection mainPageSelection = mList.get(position);
         final int selectionType = mainPageSelection.getType();
         final Intent intent;
@@ -92,16 +92,16 @@ public class MainPageAdapter extends RecyclerView.Adapter<MainPageAdapter.MainPa
         holder.mCardView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                openInfoDialog(mainPageSelection);
+                openInfoDialog(mainPageSelection, position);
                 return true;
             }
         });
     }
 
-    private void openInfoDialog(MainPageSelection selection){
+    private void openInfoDialog(MainPageSelection selection, int pos){
         FragmentManager fragmentManager = ((MainActivity)mContext).getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = SelectionInfoDialogFragment.newInstance(selection);
+        DialogFragment newFragment = SelectionInfoDialogFragment.newInstance(selection, pos);
         newFragment.show(fragmentTransaction, "");
     }
 

@@ -1,6 +1,7 @@
 package com.example.android.scorekeepdraft1.adapters_listeners_etc;
 
 import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -194,6 +195,24 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             String teamabv;
             boolean FA = false;
 
+            if(team == null) {
+                String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
+                String[] selectionArgs = new String[]{teamfirestoreid};
+                String[] projection = new String[]{StatsEntry.COLUMN_NAME};
+
+                Cursor cursor = mContext.getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
+                        projection, selection, selectionArgs, null);
+                if(cursor.moveToFirst()) {
+                    team = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_NAME);
+                }
+                cursor.close();
+                ContentValues values = new ContentValues();
+                values.put(StatsEntry.COLUMN_FIRESTORE_ID, player.getFirestoreID());
+                values.put(StatsEntry.COLUMN_TEAM, team);
+                long id = player.getPlayerId();
+                Uri playerUri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_PLAYERS, id);
+                mContext.getContentResolver().update(playerUri, values, null, null);
+            }
             if (teamfirestoreid == null || teamfirestoreid.equals(StatsEntry.FREE_AGENT)) {
                 teamabv = "FA";
                 FA = true;

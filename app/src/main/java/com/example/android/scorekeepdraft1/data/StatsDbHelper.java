@@ -145,6 +145,16 @@ public class StatsDbHelper extends SQLiteOpenHelper {
                         StatsEntry.COLUMN_LOG_INDEX + " INTEGER" +
                         ");";
 
+        final String SQL_CREATE_LEAGUES_TABLE =
+                "CREATE TABLE " + StatsEntry.SELECTIONS_TABLE_NAME + " (" +
+                        StatsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        StatsEntry.COLUMN_FIRESTORE_ID + " TEXT NOT NULL, " +
+                        StatsEntry.COLUMN_NAME + " TEXT NOT NULL, " +
+                        StatsEntry.TYPE + " INTEGER NOT NULL, " +
+                        StatsEntry.LEVEL + " INTEGER NOT NULL" +
+                        ");";
+
+        db.execSQL(SQL_CREATE_LEAGUES_TABLE);
         db.execSQL(SQL_CREATE_PLAYERSTATS_TABLE);
         db.execSQL(SQL_CREATE_TEAMSTATS_TABLE);
         db.execSQL(SQL_CREATE_TEMPPLAYERSTATS_TABLE);
@@ -156,6 +166,7 @@ public class StatsDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DROP TABLE IF EXISTS " + StatsEntry.PLAYERS_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + StatsEntry.PLAYERS_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + StatsEntry.TEAMS_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + StatsEntry.TEMPPLAYERS_TABLE_NAME);

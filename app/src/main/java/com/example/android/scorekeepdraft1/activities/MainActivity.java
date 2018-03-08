@@ -4,12 +4,14 @@ import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.CountDownTimer;
+import android.database.Cursor;
+import android.os.Handler;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -28,9 +30,12 @@ import android.widget.Toast;
 
 import com.example.android.scorekeepdraft1.MyApp;
 import com.example.android.scorekeepdraft1.R;
+import com.example.android.scorekeepdraft1.adapters_listeners_etc.FireTaskLoader;
 import com.example.android.scorekeepdraft1.adapters_listeners_etc.MainPageAdapter;
+import com.example.android.scorekeepdraft1.data.StatsContract;
 import com.example.android.scorekeepdraft1.data.StatsContract.StatsEntry;
 import com.example.android.scorekeepdraft1.dialogs.InviteListDialogFragment;
+import com.example.android.scorekeepdraft1.dialogs.LoadErrorDialogFragment;
 import com.example.android.scorekeepdraft1.dialogs.SelectionInfoDialogFragment;
 import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 import com.firebase.ui.auth.AuthUI;
@@ -55,18 +60,23 @@ import static com.example.android.scorekeepdraft1.data.FirestoreHelper.LEAGUE_CO
 import static com.example.android.scorekeepdraft1.data.FirestoreHelper.USERS;
 
 public class MainActivity extends AppCompatActivity
-        implements View.OnClickListener,
+        implements LoaderManager.LoaderCallbacks<QuerySnapshot>,
+        View.OnClickListener,
         InviteListDialogFragment.OnFragmentInteractionListener,
-        SelectionInfoDialogFragment.OnFragmentInteractionListener {
+        SelectionInfoDialogFragment.OnFragmentInteractionListener,
+        LoadErrorDialogFragment.OnFragmentInteractionListener
+{
 
     private static final String TAG = "MainActivity";
     private static final String AUTH = "FirebaseAuth";
     private FirebaseAuth mAuth;
     private static final int RC_SIGN_IN = 0;
-    private List<MainPageSelection> selections;
-    private List<MainPageSelection> inviteList;
+    private List<MainPageSelection> mSelectionList;
+    private List<MainPageSelection> mInviteList;
     private String userID;
     private boolean visible;
+    private MainPageAdapter mainPageAdapter;
+    private static final int MAIN_LOADER = 22;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,7 +108,7 @@ public class MainActivity extends AppCompatActivity
         mAuth = FirebaseAuth.getInstance();
         if (mAuth.getCurrentUser() != null) {
             Log.v(AUTH, "signed in already");
-            loadLeaguesTeamsPlayers();
+            loadSelections();
             invalidateOptionsMenu();
         } else {
             Log.d(AUTH, "else");
@@ -129,90 +139,43 @@ public class MainActivity extends AppCompatActivity
 
                     FirebaseFirestore firestore = FirebaseFirestore.getInstance();
                     firestore.collection(USERS).document(id).set(userInfo);
-                    loadLeaguesTeamsPlayers();
+                    loadSelections();
                 }
             }
         }
         invalidateOptionsMenu();
     }
 
-    private void loadLeaguesTeamsPlayers() {
-        Log.d(AUTH, "loadLeaguesTeamsPlayers");
-        ProgressBar progressBar = findViewById(R.id.progressBarMain);
-        progressBar.setVisibility(View.VISIBLE);
+    private void loadSelections() {
+        Log.d(AUTH, "loadSelections");
         FirebaseUser currentUser = mAuth.getCurrentUser();
         userID = currentUser.getUid();
+        getSupportLoaderManager().initLoader(MAIN_LOADER, null, this);
+    }
 
-//        final CountDownTimer countDownTimer = new CountDownTimer(10000, 300) {
-//            @Override
-//            public void onTick(long l) {
-//
-//            }
-//
-//            @Override
-//            public void onFinish() {
-//                TextView rvErrorView = findViewById(R.id.error_rv_main);
-//                rvErrorView.setVisibility(View.VISIBLE);
-//                Toast.makeText(MainActivity.this, "FINISSHHHH", Toast.LENGTH_SHORT).show();
-//            }
-//        };
-//        countDownTimer.start();
-
-        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-        firestore.collection(LEAGUE_COLLECTION)
-                .whereLessThan(userID, 99)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        inviteList = new ArrayList<>();
-                        selections = new ArrayList<>();
-                        TextView rvErrorView = findViewById(R.id.error_rv_main);
-                        if (task.isSuccessful()) {
-//                            countDownTimer.cancel();
-                            rvErrorView.setVisibility(View.GONE);
-                            for (DocumentSnapshot documentSnapshot : task.getResult()) {
-                                int level = documentSnapshot.getLong(userID).intValue();
-                                String selectionID = documentSnapshot.getId();
-                                String name = documentSnapshot.getString(StatsEntry.COLUMN_NAME);
-                                int type = documentSnapshot.getLong(StatsEntry.TYPE).intValue();
-                                MainPageSelection mainPageSelection = new MainPageSelection(
-                                        selectionID, name, type, level);
-                                if (level < -1) {
-                                    inviteList.add(mainPageSelection);
-                                } else if (level > 1) {
-                                    selections.add(mainPageSelection);
-                                }
-                            }
-                            ProgressBar progressBar = findViewById(R.id.progressBarMain);
-                            if (selections.isEmpty()) {
-                                rvErrorView = findViewById(R.id.error_rv_main);
-                                rvErrorView.setText("Please create a StatKeeper!");
-                                progressBar.setVisibility(View.GONE);
-                                rvErrorView.setVisibility(View.VISIBLE);
-                            } else {
-                                Collections.sort(selections, MainPageSelection.nameComparator());
-                                Collections.sort(selections, MainPageSelection.typeComparator());
-                                MainPageAdapter mainPageAdapter = new MainPageAdapter(selections, MainActivity.this);
-                                RecyclerView recyclerView = findViewById(R.id.rv_main);
-                                recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this, LinearLayoutManager.VERTICAL, false));
-                                recyclerView.setAdapter(mainPageAdapter);
-                                progressBar.setVisibility(View.GONE);
-                                recyclerView.setVisibility(View.VISIBLE);
-                            }
-                            if (!inviteList.isEmpty()) {
-                                FragmentManager fragmentManager = getSupportFragmentManager();
-                                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                                DialogFragment newFragment = InviteListDialogFragment.newInstance(inviteList);
-                                newFragment.show(fragmentTransaction, "");
-                            }
-                        } else {
-                            rvErrorView = findViewById(R.id.error_rv_main);
-                            rvErrorView.setVisibility(View.VISIBLE);
-                            Log.d(TAG, "Error getting documents: ", task.getException());
-                        }
-                    }
-                });
+    public void setViews(){
+        ProgressBar progressBar = findViewById(R.id.progressBarMain);
+        TextView rvErrorView = findViewById(R.id.error_rv_main);
+        if (mSelectionList.isEmpty()) {
+            rvErrorView.setText("Please create a StatKeeper!");
+            progressBar.setVisibility(View.GONE);
+            rvErrorView.setVisibility(View.VISIBLE);
+        } else {
+            Collections.sort(mSelectionList, MainPageSelection.nameComparator());
+            Collections.sort(mSelectionList, MainPageSelection.typeComparator());
+            mainPageAdapter = new MainPageAdapter(mSelectionList, MainActivity.this);
+            RecyclerView recyclerView = findViewById(R.id.rv_main);
+            recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this, LinearLayoutManager.VERTICAL, false));
+            recyclerView.setAdapter(mainPageAdapter);
+            progressBar.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+        }
+        if (!mInviteList.isEmpty()) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            DialogFragment newFragment = InviteListDialogFragment.newInstance(mInviteList);
+            newFragment.show(fragmentTransaction, "");
+        }
     }
 
     public void shuffleCreateStatKeeperViewsVisibility(){
@@ -398,8 +361,11 @@ public class MainActivity extends AppCompatActivity
                         documentReference.collection(USERS).document(userID).set(firestoreUserMap);
 
                         MyApp myApp = (MyApp) getApplicationContext();
-                        MainPageSelection mainPageSelection = new MainPageSelection(documentReference.getId(), name, type, level);
+                        String selectionID = documentReference.getId();
+                        MainPageSelection mainPageSelection = new MainPageSelection(selectionID, name, type, level);
                         myApp.setCurrentSelection(mainPageSelection);
+                        insertSelectionToSQL(selectionID, name, type, level);
+
                         if (type == MainPageSelection.TYPE_TEAM) {
                             ContentValues values = new ContentValues();
                             values.put(StatsEntry.COLUMN_NAME, name);
@@ -410,6 +376,8 @@ public class MainActivity extends AppCompatActivity
                             values.put(StatsEntry.COLUMN_NAME, name);
                             getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
                         }
+
+
                         startActivity(intent);
                     }
                 });
@@ -435,6 +403,8 @@ public class MainActivity extends AppCompatActivity
             mainPageSelection = list.get(key);
             mainPageSelection.setLevel(level);
             String selectionID = mainPageSelection.getId();
+            String name = mainPageSelection.getName();
+            int type = mainPageSelection.getType();
 
             DocumentReference docRef = firestore.collection(LEAGUE_COLLECTION).document(selectionID);
 
@@ -443,13 +413,115 @@ public class MainActivity extends AppCompatActivity
                 updates.put(userID, FieldValue.delete());
             } else if (level > 0) {
                 updates.put(userID, level);
+                insertSelectionToSQL(selectionID, name, type, level);
             }
             docRef.update(updates);
         }
     }
 
-    @Override
-    public void onDelete(MainPageSelection selection) {
+    private void insertSelectionToSQL(String selectionID, String name, int type, int level){
+        ContentValues selectionValues = new ContentValues();
+        selectionValues.put(StatsEntry.COLUMN_FIRESTORE_ID, selectionID);
+        selectionValues.put(StatsEntry.COLUMN_NAME, name);
+        selectionValues.put(StatsEntry.TYPE, type);
+        selectionValues.put(StatsEntry.LEVEL, level);
+        getContentResolver().insert(StatsEntry.CONTENT_URI_SELECTIONS, selectionValues);
+    }
 
+    @Override
+    public void onDelete(MainPageSelection selection, int pos) {
+        mSelectionList.remove(pos);
+        mainPageAdapter.notifyItemRemoved(pos);
+    }
+
+    @Override
+    public Loader<QuerySnapshot> onCreateLoader(int id, Bundle args) {
+        ProgressBar progressBar = findViewById(R.id.progressBarMain);
+        progressBar.setVisibility(View.VISIBLE);
+        final FireTaskLoader fireTaskLoader = new FireTaskLoader(this, userID);
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                fireTaskLoader.cancelLoadInBackground();
+            }
+        }, 7000);
+        return fireTaskLoader;
+    }
+
+    @Override
+    public void onLoadFinished(android.support.v4.content.Loader<QuerySnapshot> loader, QuerySnapshot querySnapshot) {
+        if(querySnapshot == null) {
+            ProgressBar progressBar = findViewById(R.id.progressBarMain);
+            progressBar.setVisibility(View.GONE);
+            TextView rvErrorView = findViewById(R.id.error_rv_main);
+            rvErrorView.setVisibility(View.VISIBLE);
+            rvErrorView.setText("Error getting documents.");
+            Handler handler = new Handler();
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    FragmentManager fragmentManager = getSupportFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    DialogFragment newFragment = LoadErrorDialogFragment.newInstance();
+                    newFragment.show(fragmentTransaction, "");
+                }
+            });
+            return;
+        }
+
+        if(mInviteList == null) {
+            mInviteList = new ArrayList<>();
+        } else {
+            mInviteList.clear();
+        }
+
+        if(mSelectionList == null) {
+            mSelectionList = new ArrayList<>();
+        } else {
+            mSelectionList.clear();
+        }
+
+        for (DocumentSnapshot documentSnapshot : querySnapshot) {
+            int level = documentSnapshot.getLong(userID).intValue();
+            String selectionID = documentSnapshot.getId();
+            String name = documentSnapshot.getString(StatsEntry.COLUMN_NAME);
+            int type = documentSnapshot.getLong(StatsEntry.TYPE).intValue();
+            MainPageSelection mainPageSelection = new MainPageSelection(
+                    selectionID, name, type, level);
+            if (level < -1) {
+                mInviteList.add(mainPageSelection);
+            } else if (level >= UserSettingsActivity.LEVEL_VIEW_ONLY) {
+                mSelectionList.add(mainPageSelection);
+            }
+        }
+        setViews();
+    }
+
+    @Override
+    public void onLoaderReset(android.support.v4.content.Loader<QuerySnapshot> loader) {
+
+    }
+
+    @Override
+    public void loadChoice(boolean load) {
+        TextView rvErrorView = findViewById(R.id.error_rv_main);
+        rvErrorView.setVisibility(View.VISIBLE);
+        if(load) {
+            mInviteList = new ArrayList<>();
+            mSelectionList = new ArrayList<>();
+            Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_SELECTIONS,
+                    null, null, null, null);
+            while (cursor.moveToNext()) {
+                String id = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_FIRESTORE_ID);
+                String name = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_NAME);
+                int type = StatsContract.getColumnInt(cursor, StatsEntry.TYPE);
+                int level = StatsContract.getColumnInt(cursor, StatsEntry.LEVEL);
+                mSelectionList.add(new MainPageSelection(id, name, type, level));
+            }
+            setViews();
+        }  else {
+            getSupportLoaderManager().restartLoader(MAIN_LOADER, null, this);
+        }
     }
 }

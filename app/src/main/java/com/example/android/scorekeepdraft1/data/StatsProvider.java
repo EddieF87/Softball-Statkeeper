@@ -51,6 +51,7 @@ public class StatsProvider extends ContentProvider {
     public static final int BACKUP_PLAYERS_ID = 501;
     public static final int BACKUP_TEAMS = 600;
     public static final int BACKUP_TEAMS_ID = 601;
+    public static final int SELECTIONS = 700;
 
 
     private static final UriMatcher sUriMatcher = buildUriMatcher();
@@ -72,6 +73,7 @@ public class StatsProvider extends ContentProvider {
         matcher.addURI(authority, StatsContract.PATH_BACKUP_PLAYERS + "/#", BACKUP_PLAYERS_ID);
         matcher.addURI(authority, StatsContract.PATH_BACKUP_TEAMS, BACKUP_TEAMS);
         matcher.addURI(authority, StatsContract.PATH_BACKUP_TEAMS + "/#", BACKUP_TEAMS_ID);
+        matcher.addURI(authority, StatsContract.PATH_SELECTIONS, SELECTIONS);
 
         return matcher;
     }
@@ -86,6 +88,11 @@ public class StatsProvider extends ContentProvider {
     @Override
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection,
                         @Nullable String[] selectionArgs, @Nullable String sortOrder) {
+        int match = sUriMatcher.match(uri);
+        if(match == SELECTIONS) {
+            return querySelection(uri, projection, selection, selectionArgs, sortOrder);
+        }
+
         try {
             MyApp myApp = (MyApp) getContext().getApplicationContext();
             String leagueID = myApp.getCurrentSelection().getId();
@@ -103,7 +110,6 @@ public class StatsProvider extends ContentProvider {
         SQLiteDatabase database = mOpenHelper.getReadableDatabase();
         Cursor cursor;
         String table;
-        int match = sUriMatcher.match(uri);
         switch (match) {
             case PLAYERS:
                 table = StatsEntry.PLAYERS_TABLE_NAME;
@@ -155,6 +161,12 @@ public class StatsProvider extends ContentProvider {
         return cursor;
     }
 
+    private Cursor querySelection(Uri uri,  String[] projection,  String selection,
+                                   String[] selectionArgs,  String sortOrder){
+        SQLiteDatabase database = mOpenHelper.getReadableDatabase();
+        return database.query(StatsEntry.SELECTIONS_TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
+    }
+
     @Nullable
     @Override
     public String getType(@NonNull Uri uri) {
@@ -173,6 +185,11 @@ public class StatsProvider extends ContentProvider {
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
         //Get current selectionID
+        final int match = sUriMatcher.match(uri);
+        if(match == SELECTIONS) {
+            return insertSelection(uri, values);
+        }
+
         MyApp myApp;
         String leagueID;
         int selectionType;
@@ -193,7 +210,6 @@ public class StatsProvider extends ContentProvider {
         }
 
         String table;
-        final int match = sUriMatcher.match(uri);
         switch (match) {
             case PLAYERS:
                 if (containsName(StatsEntry.CONTENT_URI_PLAYERS, values, false)) {
@@ -588,6 +604,12 @@ public class StatsProvider extends ContentProvider {
         } catch (Exception e) {
             return -1;
         }
+    }
+
+    public Uri insertSelection(@NonNull Uri uri, @Nullable ContentValues values) {
+        SQLiteDatabase database = mOpenHelper.getWritableDatabase();
+        long id = database.insert(StatsEntry.SELECTIONS_TABLE_NAME, null, values);
+        return ContentUris.withAppendedId(uri, id);
     }
 
     public boolean containsName(Uri uri, ContentValues values, boolean isTeam) {

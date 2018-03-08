@@ -24,13 +24,15 @@ import com.example.android.scorekeepdraft1.objects.MainPageSelection;
 public class SelectionInfoDialogFragment extends DialogFragment {
 
     private MainPageSelection mSelection;
+    private int position;
     private SelectionInfoDialogFragment.OnFragmentInteractionListener mListener;
 
-    public static SelectionInfoDialogFragment newInstance(MainPageSelection selection) {
+    public static SelectionInfoDialogFragment newInstance(MainPageSelection selection, int pos) {
 
         Bundle args = new Bundle();
         SelectionInfoDialogFragment fragment = new SelectionInfoDialogFragment();
         args.putParcelable("mSelection", selection);
+        args.putInt("position", pos);
         fragment.setArguments(args);
         return fragment;
     }
@@ -39,6 +41,7 @@ public class SelectionInfoDialogFragment extends DialogFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
+        position = args.getInt("position");
         mSelection = args.getParcelable("mSelection");
     }
 
@@ -56,7 +59,7 @@ public class SelectionInfoDialogFragment extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         if (mListener != null) {
-                            mListener.onDelete(mSelection);
+                            mListener.onDelete(mSelection, position);
                         }
                     }
                 })
@@ -86,6 +89,6 @@ public class SelectionInfoDialogFragment extends DialogFragment {
     }
 
     public interface OnFragmentInteractionListener {
-        void onDelete(MainPageSelection selection);
+        void onDelete(MainPageSelection selection, int pos);
     }
 }

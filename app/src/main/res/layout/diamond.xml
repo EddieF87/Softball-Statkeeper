@@ -175,7 +175,6 @@
             android:id="@+id/batter_img_view"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:padding="8dp"
             android:scaleType="centerInside"
             app:srcCompat="@drawable/img_batter"
             android:layout_alignParentStart="true"
