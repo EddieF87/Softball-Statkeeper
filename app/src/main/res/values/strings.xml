@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">scorekeepdraft1</string>
+    <string name="app_name">StatKeeper Softball</string>
     <string name="scoreboard">Team1: X    Team2: Y</string>
     <string name="nowbatting">At Bat:</string>
     <string name="_3b">3B</string>
@@ -18,6 +18,8 @@
     <string name="name">Name</string>
     <string name="delete_dialog_msg">Are you sure you want to permanently delete %1$s from the league?</string>
     <string name="delete_team_msg">Are you sure you want to permanently delete this team from the league?</string>
+    <string name="delete_warning_msg">Deleting will cause all info to be lost forever.</string>
+    <string name="remove_warning_msg">You will no longer have any access to this %1$s.</string>
     <string name="delete">Delete</string>
     <string name="cancel">Cancel</string>
     <string name="editor_delete_player_failed">There was an error deleting the player!</string>
@@ -142,11 +144,12 @@
     <string name="ra">RA</string>
     <string name="rs">RS</string>
     <string name="winpct">Win%</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="exit_game">Exit Game</string>
     <string name="load_from_cache">Load from Cache?</string>
     <string name="retry">Retry</string>
     <string name="load">Load</string>
+    <string name="back">Back</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

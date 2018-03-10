@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.example.android.scorekeepdraft1.dialogs.InviteUserDialogFragment"
+    tools:context="com.example.android.softballstatkeeper.dialogs.InviteUserDialogFragment"
     android:padding="8dp">
 
     <TextView

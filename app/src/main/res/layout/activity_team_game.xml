@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_grass"
     android:padding="4dp"
-    tools:context="com.example.android.scorekeepdraft1.activities.TeamGameActivity">
+    tools:context="com.example.android.softballstatkeeper.activities.TeamGameActivity">
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
@@ -117,11 +118,12 @@
             app:layout_constraintTop_toTopOf="@+id/step2text"
             app:srcCompat="?attr/actionModeCloseDrawable" />
 
-        <View
+        <com.google.android.gms.ads.AdView
             android:id="@+id/game_ad"
-            android:layout_width="0dp"
-            android:layout_height="51dp"
-            android:background="@color/colorAccent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            ads:adSize="BANNER"
+            ads:adUnitId="ca-app-pub-3940256099942544/6300978111"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

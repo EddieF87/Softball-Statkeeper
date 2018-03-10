@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "472325178022",
+    "firebase_url": "https://scorekeep-f30c5.firebaseio.com",
+    "project_id": "scorekeep-f30c5",
+    "storage_bucket": "scorekeep-f30c5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:472325178022:android:7e2846ce256e3dd1",
+        "android_client_info": {
+          "package_name": "com.example.android.softballstatkeeper"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "472325178022-22dfgmngce4tgsshiplg393pj1p7v302.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.android.softballstatkeeper",
+            "certificate_hash": "26a8da60b6dfccb6a88fe02d4f361cf7ce851666"
+          }
+        },
+        {
+          "client_id": "472325178022-4de12s0ki3a2msgqbtl97b3lpjkbqdmk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBRUIoGLYac9PT-4FKY49u2TidtuACdXvQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "472325178022-4de12s0ki3a2msgqbtl97b3lpjkbqdmk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

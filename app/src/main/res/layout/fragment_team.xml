@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/colorPrimaryLight"
-    tools:context="com.example.android.scorekeepdraft1.activities.TeamManagerActivity">
+    tools:context="com.example.android.softballstatkeeper.activities.TeamManagerActivity">
 
     <LinearLayout
         android:id="@+id/team_header"

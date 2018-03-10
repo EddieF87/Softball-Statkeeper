@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/list"
-    android:name="com.example.android.scorekeepdraft1.fragments.CreateTeamFragment"
+    android:name="com.example.android.softballstatkeeper.fragments.CreateTeamFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:minHeight="350dp"
