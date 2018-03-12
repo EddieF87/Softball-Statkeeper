@@ -6,7 +6,7 @@
     android:paddingBottom="4dp"
     android:orientation="horizontal">
 
-    <EditText
+    <com.example.android.softballstatkeeper.adapters_listeners_etc.MyEditText
         android:id="@+id/text_adder"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

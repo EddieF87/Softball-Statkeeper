@@ -4,6 +4,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.DataSetObserver;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -13,6 +14,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.MenuItem;
 import android.view.ViewGroup;
@@ -256,28 +258,24 @@ public class ObjectPagerActivity extends AppCompatActivity
 
     @Override
     public void onEdit(String enteredText) {
-        if (enteredText.isEmpty()) {
-            return;
-        }
+    }
+
+    public String getSelectionID() {
+        return selectionID;
+    }
+
+    public int getSelectionType() {
+        return selectionType;
+    }
+
+    public PlayerFragment getCurrentPlayerFragment(){
         int pos = mViewPager.getCurrentItem();
-        boolean update = false;
+        return (PlayerFragment) mAdapter.getRegisteredFragment(pos);
+    }
 
-        if (mObjectType == KEY_PLAYER_PAGER) {
-            PlayerFragment playerFragment = (PlayerFragment) mAdapter.getRegisteredFragment(pos);
-            if (playerFragment != null) {
-                update = playerFragment.updatePlayerName(enteredText);
-            }
-        } else if (mObjectType == KEY_TEAM_PAGER) {
-            TeamFragment teamFragment = (TeamFragment) mAdapter.getRegisteredFragment(pos);
-            if (teamFragment != null) {
-                update = teamFragment.updateTeamName(enteredText);
-            }
-        }
-
-        if(update) {
-            new FirestoreHelper(this, selectionID).updateTimeStamps();
-        }
-        setResult(RESULT_OK);
+    public TeamFragment getCurrentTeamFragment() {
+        int pos = mViewPager.getCurrentItem();
+        return (TeamFragment) mAdapter.getRegisteredFragment(pos);
     }
 
     @Override
@@ -303,7 +301,7 @@ public class ObjectPagerActivity extends AppCompatActivity
 
         if (mObjectType == KEY_TEAM_PAGER) {
             TeamFragment teamFragment = (TeamFragment) mAdapter.getRegisteredFragment(pos);
-            if (teamFragment != null) {
+            if (teamFragment != null && !teamFirestoreID.equals(StatsEntry.FREE_AGENT)) {
                 teamFragment.removePlayerFromTeam(playerFirestoreID);
             }
             new FirestoreHelper(this, selectionID).updateTimeStamps();
@@ -364,6 +362,13 @@ public class ObjectPagerActivity extends AppCompatActivity
         public int getCount() {
             return objectIDs.size();
         }
+
+        public void unregisterFragments(){
+            if(registeredFragments != null) {
+                registeredFragments.clear();
+                registeredFragments = null;
+            }
+        }
     }
 
     @Override
@@ -383,6 +388,16 @@ public class ObjectPagerActivity extends AppCompatActivity
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onDestroy() {
+        mViewPager.setAdapter(null);
+        mAdapter.unregisterFragments();
+        mAdapter = null;
+        mViewPager = null;
+        super.onDestroy();
+        Log.d("aaa", "onDestroy ObjectPagerActivity");
     }
 }
 

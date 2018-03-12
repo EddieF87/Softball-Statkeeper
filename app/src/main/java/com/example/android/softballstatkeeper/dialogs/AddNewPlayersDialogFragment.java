@@ -25,6 +25,7 @@ import java.util.List;
 public class AddNewPlayersDialogFragment extends DialogFragment {
 
     private AddPlayersRecyclerViewAdapter mAdapter;
+    private RecyclerView mRecyclerView;
     private OnListFragmentInteractionListener mListener;
     private static final String KEY_NAMES = "names";
     private static final String KEY_GENDERS = "genders";
@@ -68,19 +69,17 @@ public class AddNewPlayersDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_createteam_list, null);
 
-        RecyclerView recyclerView;
-
         if (view instanceof RecyclerView) {
             Context context = view.getContext();
-            recyclerView = (RecyclerView) view;
-            recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            recyclerView.setAdapter(mAdapter);
+            mRecyclerView = (RecyclerView) view;
+            mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
+            mRecyclerView.setAdapter(mAdapter);
         } else {
             return null;
         }
 
         AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
-                .setView(recyclerView)
+                .setView(mRecyclerView)
                 .setTitle("Add new players to " + mTeamName)
                 .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
@@ -149,6 +148,9 @@ public class AddNewPlayersDialogFragment extends DialogFragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+        mRecyclerView.setAdapter(null);
+        mAdapter = null;
+        mRecyclerView = null;
     }
 
     public interface OnListFragmentInteractionListener {

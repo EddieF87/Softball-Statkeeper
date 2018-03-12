@@ -6,16 +6,18 @@
     <item
         android:id="@+id/action_change_name"
         android:title="@string/edit_name"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/action_edit_photo"
-        android:title="@string/edit_photo"
+        android:visible="false"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/action_change_team"
         android:title="@string/edit_team"
+        android:visible="false"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_change_gender"
+        android:title="@string/edit_gender"
         android:visible="false"
         app:showAsAction="never" />
 

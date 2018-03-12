@@ -515,8 +515,18 @@ public class StatsProvider extends ContentProvider {
                 documentReference = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION).document(leagueID)
                         .collection(FirestoreHelper.PLAYERS_COLLECTION).document(firestoreID);
                 if (values.containsKey(StatsEntry.COLUMN_TEAM_FIRESTORE_ID)) {
+                    Map<String, Object> data = new HashMap<>();
                     String teamFirestoreID = values.getAsString(StatsEntry.COLUMN_TEAM_FIRESTORE_ID);
-                    documentReference.update(StatsEntry.COLUMN_TEAM, teamFirestoreID);
+                    data.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, teamFirestoreID);
+                    if (values.containsKey(StatsEntry.COLUMN_TEAM)) {
+                        String teamName = values.getAsString(StatsEntry.COLUMN_TEAM);
+                        data.put(StatsEntry.COLUMN_TEAM, teamName);
+                    }
+                    documentReference.update(data);
+                }
+                if (values.containsKey(StatsEntry.COLUMN_GENDER)) {
+                    int gender = values.getAsInteger(StatsEntry.COLUMN_GENDER);
+                    documentReference.update(StatsEntry.COLUMN_GENDER, gender);
                 }
                 break;
             case PLAYERS_ID:
@@ -541,8 +551,14 @@ public class StatsProvider extends ContentProvider {
                     String playerName = values.getAsString(StatsEntry.COLUMN_NAME);
                     documentReference.update(StatsEntry.COLUMN_NAME, playerName);
                 } else if (values.containsKey(StatsEntry.COLUMN_TEAM_FIRESTORE_ID)) {
+                    Map<String, Object> data = new HashMap<>();
                     String teamFirestoreID = values.getAsString(StatsEntry.COLUMN_TEAM_FIRESTORE_ID);
-                    documentReference.update(StatsEntry.COLUMN_TEAM, teamFirestoreID);
+                    data.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, teamFirestoreID);
+                    if (values.containsKey(StatsEntry.COLUMN_TEAM)) {
+                        String teamName = values.getAsString(StatsEntry.COLUMN_TEAM);
+                        data.put(StatsEntry.COLUMN_TEAM, teamName);
+                    }
+                    documentReference.update(data);
                 }
                 break;
             case TEAMS:

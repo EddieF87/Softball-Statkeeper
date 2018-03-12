@@ -4,6 +4,7 @@ package com.example.android.softballstatkeeper.fragments;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
@@ -36,7 +37,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.softballstatkeeper.MyApp;
 import com.example.android.softballstatkeeper.R;
+import com.example.android.softballstatkeeper.activities.BlankFragment;
 import com.example.android.softballstatkeeper.activities.BoxScoreActivity;
 import com.example.android.softballstatkeeper.activities.LeagueGameActivity;
 import com.example.android.softballstatkeeper.activities.LeagueManagerActivity;
@@ -49,6 +52,7 @@ import com.example.android.softballstatkeeper.data.StatsContract.StatsEntry;
 import com.example.android.softballstatkeeper.dialogs.GameSettingsDialogFragment;
 import com.example.android.softballstatkeeper.objects.MainPageSelection;
 import com.example.android.softballstatkeeper.objects.Player;
+import com.squareup.leakcanary.RefWatcher;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,6 +63,7 @@ import java.util.Map;
 public class MatchupFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemSelectedListener {
 
 
+    private OnFragmentInteractionListener mListener;
     private Spinner awayTeamSpinner;
     private Spinner homeTeamSpinner;
 
@@ -113,7 +118,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        Log.d("qqq", "onCreate MatchupFragment");
+        Log.d("aaa", "onCreate MatchupFragment");
 
         Bundle args = getArguments();
         leagueID = args.getString(MainPageSelection.KEY_SELECTION_ID);
@@ -130,20 +135,18 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.change_user_settings:
-                Intent settingsIntent = new Intent(getActivity(), UserSettingsActivity.class);
-                startActivity(settingsIntent);
+                if(mListener != null) {
+                    mListener.goToUserSettings();
+                }
                 return true;
             case R.id.change_game_settings:
                 openGameSettingsDialog();
                 return true;
             case R.id.action_export_stats:
-                Activity activity = getActivity();
-                if (activity instanceof LeagueManagerActivity) {
-                    LeagueManagerActivity leagueManagerActivity = (LeagueManagerActivity) activity;
-                    leagueManagerActivity.startExport(leagueName);
-                    return true;
+                if(mListener != null) {
+                    mListener.exportStats();
                 }
-                return false;
+                return true;
         }
         return false;
     }
@@ -242,7 +245,9 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                     Toast.makeText(getActivity(), "Add more players to " + homeTeamName + " lineup first.", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                clearGameDB();
+                if(mListener != null) {
+                    clearGameDB();
+                }
                 if (setLineupsToDB()) {
                     return;
                 }
@@ -851,5 +856,43 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                 new int[]{R.id.spinnerTarget}, 0);
         adapter.setDropDownViewResource(R.layout.spinner_matchup_dropdown);
         return adapter;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        RefWatcher refWatcher = MyApp.getRefWatcher(getActivity());
+        refWatcher.watch(this);
+        Log.d("aaa", "onDestroy MatchupFragment");
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        Log.d("aaa", "onDestroyView MatchupFragment");
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof MatchupFragment.OnFragmentInteractionListener) {
+            mListener = (MatchupFragment.OnFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+        Log.d("aaa", "onDetach MatchupFragment");
+    }
+
+    public interface OnFragmentInteractionListener {
+        void goToUserSettings();
+        void exportStats();
+        void clearGameDB();
     }
 }

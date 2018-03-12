@@ -804,4 +804,44 @@ public class LineupFragment extends Fragment {
             resetBoardView();
         }
     }
+
+    public void updatePlayerName(String name, String playerFirestoreID) {
+        for(Player player : mLineup) {
+            if(player.getFirestoreID().equals(playerFirestoreID)) {
+                player.setName(name);
+                resetBoardView();
+                return;
+            }
+        }
+        for(Player player : mBench) {
+            if(player.getFirestoreID().equals(playerFirestoreID)) {
+                player.setName(name);
+                resetBoardView();
+                return;
+            }
+        }
+    }
+
+    public void updatePlayerGender(int gender, String playerFirestoreID) {
+        for(Player player : mLineup) {
+            if(player.getFirestoreID().equals(playerFirestoreID)) {
+                player.setGender(gender);
+                resetBoardView();
+                return;
+            }
+        }
+        for(Player player : mBench) {
+            if(player.getFirestoreID().equals(playerFirestoreID)) {
+                player.setGender(gender);
+                resetBoardView();
+                return;
+            }
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        mBoardView = null;
+        super.onDestroyView();
+    }
 }

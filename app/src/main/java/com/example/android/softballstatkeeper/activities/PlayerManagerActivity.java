@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.example.android.softballstatkeeper.MyApp;
 import com.example.android.softballstatkeeper.R;
@@ -16,7 +17,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 public class PlayerManagerActivity extends ExportActivity
         implements EditNameDialogFragment.OnFragmentInteractionListener,
-        DeleteConfirmationDialogFragment.OnFragmentInteractionListener {
+        PlayerFragment.OnFragmentInteractionListener {
 
     private PlayerFragment playerFragment;
     private boolean editTeam = false;
@@ -53,19 +54,10 @@ public class PlayerManagerActivity extends ExportActivity
         return playerFragment;
     }
 
-    public void setEditTeam(){
-        editTeam = true;
-    }
-
     @Override
     public void onEdit(String enteredText) {
-        if (enteredText.isEmpty()) {
-            return;
-        }
-
-        if (playerFragment != null) {
+        if (playerFragment != null && !enteredText.isEmpty()) {
             if (editTeam) {
-                editTeam = false;
                 playerFragment.updateTeamName(enteredText);
             } else {
                 boolean updated = playerFragment.updatePlayerName(enteredText);
@@ -86,10 +78,18 @@ public class PlayerManagerActivity extends ExportActivity
                 }
             }
         }
+        editTeam = false;
     }
 
     @Override
-    public void onDeletionChoice(boolean delete) {
+    protected void onDestroy() {
+        Log.d("aaa", "onDestroy() PlayerManagerActivity");
+        super.onDestroy();
+        playerFragment = null;
+    }
 
+    @Override
+    public void setTeamEdit() {
+        editTeam = true;
     }
 }

@@ -79,6 +79,7 @@ public class FirestoreHelper implements Parcelable {
 
     public void detachListener() {
         mListener = null;
+
     }
 
     //SYNC CHECK

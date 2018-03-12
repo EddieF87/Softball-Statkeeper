@@ -4,6 +4,7 @@ package com.example.android.softballstatkeeper.fragments;
 import android.app.Activity;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
@@ -30,6 +31,7 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.softballstatkeeper.MyApp;
 import com.example.android.softballstatkeeper.R;
 import com.example.android.softballstatkeeper.activities.LeagueManagerActivity;
 import com.example.android.softballstatkeeper.activities.PlayerManagerActivity;
@@ -37,6 +39,7 @@ import com.example.android.softballstatkeeper.activities.PlayerPagerActivity;
 import com.example.android.softballstatkeeper.activities.TeamPagerActivity;
 import com.example.android.softballstatkeeper.activities.UserSettingsActivity;
 import com.example.android.softballstatkeeper.data.FirestoreHelper;
+import com.example.android.softballstatkeeper.data.StatsContract;
 import com.example.android.softballstatkeeper.data.StatsContract.StatsEntry;
 import com.example.android.softballstatkeeper.dialogs.ChangeTeamDialogFragment;
 import com.example.android.softballstatkeeper.dialogs.DeleteConfirmationDialogFragment;
@@ -44,6 +47,7 @@ import com.example.android.softballstatkeeper.dialogs.EditNameDialogFragment;
 import com.example.android.softballstatkeeper.objects.MainPageSelection;
 import com.example.android.softballstatkeeper.objects.Player;
 import com.example.android.softballstatkeeper.objects.Team;
+import com.squareup.leakcanary.RefWatcher;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -64,14 +68,19 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     private String firestoreID;
     private String teamFirestoreID;
     private int gender;
-    private static final String KEY_PLAYER_URI = "playerURI";
     private int mSelectionType;
     private TextView resultCountText;
     private int resultCount;
     private String result;
     private TextView resultText;
+    private TextView nameView;
+    private ImageView playerImage;
+
     private RadioGroup group1;
     private RadioGroup group2;
+    private OnFragmentInteractionListener mListener;
+
+    private static final String KEY_PLAYER_URI = "playerURI";
 
     public PlayerFragment() {
         // Required empty public constructor
@@ -147,7 +156,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         Log.d("zzz", "PlayerFragment onLoadFinishedStart " + mCurrentPlayerUri.toString());
         View rootView = getView();
-        TextView nameView = rootView.findViewById(R.id.player_name);
+        nameView = rootView.findViewById(R.id.player_name);
 
         if (cursor.moveToFirst()) {
             Player player = new Player(cursor, false);
@@ -172,7 +181,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             TextView tplView = rootView.findViewById(R.id.playerboard_3b);
             TextView bbView = rootView.findViewById(R.id.playerboard_bb);
             TextView teamView = rootView.findViewById(R.id.player_team);
-            ImageView playerImage = rootView.findViewById(R.id.player_image);
+            playerImage = rootView.findViewById(R.id.player_image);
 
             if (mSelectionType == MainPageSelection.TYPE_LEAGUE) {
                 teamView.setOnClickListener(new View.OnClickListener() {
@@ -205,14 +214,6 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 });
             }
 
-            int color;
-            if (gender == 0) {
-                color = R.color.male;
-            } else {
-                color = R.color.female;
-            }
-            nameView.setTextColor(getResources().getColor(color));
-            playerImage.setColorFilter(getResources().getColor(color));
             playerName = player.getName();
             nameView.setText(playerName);
             teamView.setText(teamString);
@@ -236,11 +237,15 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 teamView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        ((PlayerManagerActivity) getActivity()).setEditTeam();
-                        editNameDialog(teamString);
+                        if (mListener != null) {
+                            mListener.setTeamEdit();
+                            editNameDialog(teamString);
+                        }
                     }
                 });
                 setPlayerManager();
+            } else {
+                setColor();
             }
         } else if (mSelectionType == MainPageSelection.TYPE_PLAYER) {
             ContentValues values = new ContentValues();
@@ -249,6 +254,17 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             setPlayerManager();
         }
         Log.d("zzz", "PlayerFragment onLoadFinishedEnd " + mCurrentPlayerUri.toString());
+    }
+
+    private void setColor() {
+        int color;
+        if (gender == 0) {
+            color = R.color.male;
+        } else {
+            color = R.color.female;
+        }
+        nameView.setTextColor(getResources().getColor(color));
+        playerImage.setColorFilter(getResources().getColor(color));
     }
 
     private void setPlayerManager() {
@@ -470,15 +486,28 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             case R.id.action_change_team:
                 if (mSelectionType == MainPageSelection.TYPE_LEAGUE) {
                     changeTeamDialog();
-                } else {
-                    Activity activity = getActivity();
-                    if (activity instanceof PlayerManagerActivity) {
-                        ((PlayerManagerActivity) activity).setEditTeam();
+                } else if (mSelectionType == MainPageSelection.TYPE_PLAYER) {
+                    if (mListener != null) {
+                        mListener.setTeamEdit();
                         editNameDialog(teamString);
                     }
                 }
                 return true;
-            case R.id.action_edit_photo:
+            case R.id.action_change_gender:
+                if (gender == 0) {
+                    gender = 1;
+                } else {
+                    gender = 0;
+                }
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(StatsEntry.COLUMN_GENDER, gender);
+                contentValues.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
+                int rowsUpdated = getActivity().getContentResolver().update(mCurrentPlayerUri, contentValues, null, null);
+                if(rowsUpdated > 0) {
+                    new FirestoreHelper(getActivity(), mSelectionID).updateTimeStamps();
+                }
+                setColor();
+                ((PlayerPagerActivity) getActivity()).returnGenderEdit(gender, firestoreID);
                 return true;
             case R.id.action_delete_player:
                 showDeleteConfirmationDialog();
@@ -492,7 +521,9 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 }
                 return false;
         }
-        return super.onOptionsItemSelected(item);
+        return super.
+
+                onOptionsItemSelected(item);
     }
 
 
@@ -502,6 +533,9 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         if (!levelAuthorized(UserSettingsActivity.LEVEL_VIEW_WRITE)) {
             return;
         }
+        menu.findItem(R.id.action_change_name).setVisible(true);
+        menu.findItem(R.id.action_change_gender).setVisible(true);
+
         if (levelAuthorized(UserSettingsActivity.LEVEL_ADMIN)) {
             menu.findItem(R.id.action_delete_player).setVisible(true);
         }
@@ -510,6 +544,9 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         }
         if (mSelectionType == MainPageSelection.TYPE_PLAYER) {
             menu.findItem(R.id.action_export_stats).setVisible(true);
+            menu.findItem(R.id.action_delete_player).setVisible(false);
+            menu.findItem(R.id.action_change_gender).setVisible(false);
+            menu.findItem(R.id.action_change_gender).setVisible(false);
         }
     }
 
@@ -563,6 +600,10 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         }
     }
 
+    public String getFirestoreID() {
+        return firestoreID;
+    }
+
     public boolean updatePlayerName(String player) {
         playerName = player;
         ContentValues contentValues = new ContentValues();
@@ -586,4 +627,30 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         return mLevel >= level;
     }
 
+    public interface OnFragmentInteractionListener {
+        void setTeamEdit();
+
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof PlayerFragment.OnFragmentInteractionListener) {
+            mListener = (PlayerFragment.OnFragmentInteractionListener) context;
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d("aaa", "onDestroy() PlayerFragment");
+        RefWatcher refWatcher = MyApp.getRefWatcher(getActivity());
+        refWatcher.watch(this);
+    }
 }

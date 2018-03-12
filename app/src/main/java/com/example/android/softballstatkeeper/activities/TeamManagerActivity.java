@@ -112,19 +112,6 @@ public class TeamManagerActivity extends ExportActivity
         }
     }
 
-//    public void enablePagerSwipe() {
-//        mViewPager.setOnTouchListener(null);
-//    }
-//
-//    public void disablePagerSwipe() {
-//        mViewPager.setOnTouchListener(new View.OnTouchListener() {
-//
-//            public boolean onTouch(View arg0, MotionEvent arg1) {
-//                return true;
-//            }
-//        });
-//    }
-
     @Override
     public void onGameSettingsChanged(int innings, int genderSorter) {
         boolean genderSettingsOn = genderSorter != 0;
@@ -147,9 +134,6 @@ public class TeamManagerActivity extends ExportActivity
                     lineupFragment.removePlayers(firestoreIDsToDelete);
                 }
             }
-
-
-
         }
     }
 
@@ -233,15 +217,45 @@ public class TeamManagerActivity extends ExportActivity
         try {
             super.onActivityResult(requestCode, resultCode, data);
 
-            if (requestCode == PlayerStatsAdapter.REQUEST_CODE && resultCode == RESULT_OK) {
-                String deletedPlayer = data.getStringExtra(StatsContract.StatsEntry.DELETE);
-                if (teamFragment != null) {
-                    teamFragment.removePlayerFromTeam(deletedPlayer);
-                }
-                if (lineupFragment != null) {
-                    List<String> players = new ArrayList<>();
-                    players.add(deletedPlayer);
-                    lineupFragment.removePlayers(players);
+            if (requestCode == PlayerStatsAdapter.REQUEST_CODE) {
+                if (resultCode == RESULT_OK) {
+                    String deletedPlayer = data.getStringExtra(StatsEntry.DELETE);
+                    if (teamFragment != null) {
+                        teamFragment.removePlayerFromTeam(deletedPlayer);
+                    }
+                    if (lineupFragment != null) {
+                        List<String> players = new ArrayList<>();
+                        players.add(deletedPlayer);
+                        lineupFragment.removePlayers(players);
+                    }
+                } else if (resultCode == 17) {
+                    if (teamFragment != null) {
+                        String id = data.getStringExtra(StatsEntry.COLUMN_FIRESTORE_ID);
+                        int gender = data.getIntExtra(StatsEntry.COLUMN_GENDER, -1);
+
+                        if (teamFragment != null) {
+                            teamFragment.updatePlayerGender(gender, id);
+                        }
+
+                        if (lineupFragment != null) {
+                            lineupFragment.updatePlayerGender(gender, id);
+                        }
+                    }
+                } else if (resultCode == 18) {
+                    if (teamFragment != null) {
+                        String id = data.getStringExtra(StatsEntry.COLUMN_FIRESTORE_ID);
+                        String name = data.getStringExtra(StatsEntry.COLUMN_NAME);
+
+                        if (teamFragment != null) {
+                            teamFragment.updatePlayerName(name, id);
+                        }
+
+                        if (lineupFragment != null) {
+                            lineupFragment.updatePlayerName(name, id);
+                        }
+                    }
+
+
                 }
             }
         } catch (Exception ex) {

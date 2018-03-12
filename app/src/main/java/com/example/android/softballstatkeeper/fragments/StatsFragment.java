@@ -19,6 +19,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -31,6 +32,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.softballstatkeeper.MyApp;
 import com.example.android.softballstatkeeper.R;
 import com.example.android.softballstatkeeper.activities.LeagueManagerActivity;
 import com.example.android.softballstatkeeper.activities.TeamManagerActivity;
@@ -41,6 +43,7 @@ import com.example.android.softballstatkeeper.data.StatsContract.StatsEntry;
 import com.example.android.softballstatkeeper.dialogs.GameSettingsDialogFragment;
 import com.example.android.softballstatkeeper.objects.MainPageSelection;
 import com.example.android.softballstatkeeper.objects.Player;
+import com.squareup.leakcanary.RefWatcher;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -91,6 +94,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        Log.d("aaa", "onCreate StatsFragment");
         Bundle args = getArguments();
         level = args.getInt(MainPageSelection.KEY_SELECTION_LEVEL);
         selectionID = args.getString(MainPageSelection.KEY_SELECTION_ID);
@@ -420,5 +424,27 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         teamsArray.add(teamsArray.size(), StatsEntry.FREE_AGENT);
         teamsArray.add(0, ALL_TEAMS);
         mSpinnerAdapter.notifyDataSetChanged();
+    }
+
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d("aaa", "onDestroy StatsFragment");
+        RefWatcher refWatcher = MyApp.getRefWatcher(getActivity());
+        refWatcher.watch(this);
+    }
+
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        Log.d("aaa", "onDestroyView StatsFragment");
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        Log.d("aaa", "onDetach StatsFragment");
     }
 }

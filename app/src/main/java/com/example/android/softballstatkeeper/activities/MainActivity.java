@@ -84,8 +84,10 @@ public class MainActivity extends AppCompatActivity
     private List<MainPageSelection> mInviteList;
     private String userID;
     private boolean visible;
+    private RecyclerView mRecyclerView;
     private MainPageAdapter mainPageAdapter;
     private static final int MAIN_LOADER = 22;
+    private boolean loadFinished;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -164,6 +166,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void setViews(){
+        loadFinished = true;
+        Log.d("aaa", "setViews() MainActivity");
         ProgressBar progressBar = findViewById(R.id.progressBarMain);
         TextView rvErrorView = findViewById(R.id.error_rv_main);
         if (mSelectionList.isEmpty()) {
@@ -174,11 +178,11 @@ public class MainActivity extends AppCompatActivity
             Collections.sort(mSelectionList, MainPageSelection.nameComparator());
             Collections.sort(mSelectionList, MainPageSelection.typeComparator());
             mainPageAdapter = new MainPageAdapter(mSelectionList, MainActivity.this);
-            RecyclerView recyclerView = findViewById(R.id.rv_main);
-            recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this, LinearLayoutManager.VERTICAL, false));
-            recyclerView.setAdapter(mainPageAdapter);
+            mRecyclerView = findViewById(R.id.rv_main);
+            mRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this, LinearLayoutManager.VERTICAL, false));
+            mRecyclerView.setAdapter(mainPageAdapter);
             progressBar.setVisibility(View.GONE);
-            recyclerView.setVisibility(View.VISIBLE);
+            mRecyclerView.setVisibility(View.VISIBLE);
         }
         if (!mInviteList.isEmpty()) {
             FragmentManager fragmentManager = getSupportFragmentManager();
@@ -547,12 +551,17 @@ public class MainActivity extends AppCompatActivity
             public void run() {
                 fireTaskLoader.cancelLoadInBackground();
             }
-        }, 7000);
+        }, 12000);
         return fireTaskLoader;
     }
 
     @Override
     public void onLoadFinished(android.support.v4.content.Loader<QuerySnapshot> loader, QuerySnapshot querySnapshot) {
+        Log.d("aaa", "onLoadFinished() MainActivity");
+        if(loadFinished) {
+            return;
+        }
+
         if(querySnapshot == null) {
             ProgressBar progressBar = findViewById(R.id.progressBarMain);
             progressBar.setVisibility(View.GONE);
@@ -625,5 +634,31 @@ public class MainActivity extends AppCompatActivity
         }  else {
             getSupportLoaderManager().restartLoader(MAIN_LOADER, null, this);
         }
+    }
+
+    @Override
+    protected void onStop() {
+        Log.d("aaa", "onStop() MainActivity");
+        if(mRecyclerView != null) {
+            mRecyclerView.setAdapter(null);
+            mRecyclerView.setLayoutManager(null);
+        }
+        if(mainPageAdapter != null) {
+            mainPageAdapter = null;
+        }
+        super.onStop();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        loadFinished = false;
+        Log.d("aaa", "onRestart() MainActivity");
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.d("aaa", "onStart() MainActivity");
     }
 }

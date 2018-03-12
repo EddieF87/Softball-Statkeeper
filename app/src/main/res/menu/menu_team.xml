@@ -14,11 +14,6 @@
             app:showAsAction="never" />
 
         <item
-            android:id="@+id/action_edit_photo"
-            android:title="@string/edit_photo"
-            app:showAsAction="never" />
-
-        <item
             android:id="@+id/action_remove_players"
             android:title="@string/remove_all_players"
             app:showAsAction="never" />

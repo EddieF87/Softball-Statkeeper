@@ -36,7 +36,7 @@
             android:autoSizeTextType="uniform"
             android:maxLines="1"
             android:textAlignment="center"
-            android:textSize="36sp"
+            android:textSize="30sp"
             tools:text="teambitres" />
 
         <TextView

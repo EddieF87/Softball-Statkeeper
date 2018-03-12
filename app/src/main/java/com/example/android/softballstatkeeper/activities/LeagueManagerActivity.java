@@ -40,7 +40,10 @@ public class LeagueManagerActivity extends ExportActivity
         implements AddNewPlayersDialogFragment.OnListFragmentInteractionListener,
         GameSettingsDialogFragment.OnFragmentInteractionListener,
         ChooseOrCreateTeamDialogFragment.OnFragmentInteractionListener,
-        ChangeTeamDialogFragment.OnFragmentInteractionListener {
+        ChangeTeamDialogFragment.OnFragmentInteractionListener,
+        MatchupFragment.OnFragmentInteractionListener,
+        StandingsFragment.OnFragmentInteractionListener
+{
 
     private StandingsFragment standingsFragment;
     private StatsFragment statsFragment;
@@ -54,6 +57,7 @@ public class LeagueManagerActivity extends ExportActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lg_mgr_pager);
+        Log.d("aaa", "onCreate LeagueManagerActivity");
 
         try {
             MyApp myApp = (MyApp) getApplicationContext();
@@ -130,6 +134,27 @@ public class LeagueManagerActivity extends ExportActivity
         }
     }
 
+    @Override
+    public void goToUserSettings() {
+        Intent settingsIntent = new Intent(LeagueManagerActivity.this, UserSettingsActivity.class);
+        startActivity(settingsIntent);
+    }
+
+    @Override
+    public void exportStats() {
+        startExport(leagueName);
+    }
+
+    @Override
+    public void clearGameDB() {
+        getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, null, null);
+        getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, null, null);
+        SharedPreferences savedGamePreferences = getSharedPreferences(leagueID + StatsEntry.GAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = savedGamePreferences.edit();
+        editor.clear();
+        editor.commit();
+    }
+
     private class LeagueManagerPagerAdapter extends FragmentStatePagerAdapter {
 
         LeagueManagerPagerAdapter(FragmentManager fm) {
@@ -188,10 +213,12 @@ public class LeagueManagerActivity extends ExportActivity
                     break;
                 case 2:
                     matchupFragment = (MatchupFragment) createdFragment;
+                    break;
             }
             return createdFragment;
         }
     }
+
 
     @Override
     protected void onResume() {
@@ -262,17 +289,8 @@ public class LeagueManagerActivity extends ExportActivity
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-//        if (resultCode == RESULT_OK) {
-//            SharedPreferences settingsPreferences = getSharedPreferences(leagueID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
-//            int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
-//            int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
-//            onGameSettingsChanged(innings, genderSorter);
-//
-//            if (matchupFragment != null) {
-//                matchupFragment.updateMatchup();
-//            }
-//        }
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d("aaa", "onDestroy LeagueManagerActivity");
     }
 }

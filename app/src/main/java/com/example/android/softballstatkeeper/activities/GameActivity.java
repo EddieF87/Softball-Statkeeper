@@ -79,6 +79,7 @@ public abstract class GameActivity extends AppCompatActivity
     protected TextView secondDisplay;
     protected TextView thirdDisplay;
     protected TextView homeDisplay;
+    protected ImageView outTrash;
 
     protected TextView step1View;
     protected TextView step2View;
@@ -230,7 +231,7 @@ public abstract class GameActivity extends AppCompatActivity
         thirdDisplay = findViewById(R.id.third_display);
         homeDisplay = findViewById(R.id.home_display);
         homeDisplay.bringToFront();
-        ImageView outTrash = findViewById(R.id.trash);
+        outTrash = findViewById(R.id.trash);
         batterDisplay.setOnTouchListener(new GameActivity.MyTouchListener());
         firstDisplay.setOnDragListener(new GameActivity.MyDragListener());
         secondDisplay.setOnDragListener(new GameActivity.MyDragListener());
@@ -964,6 +965,22 @@ public abstract class GameActivity extends AppCompatActivity
             }
             undoPlay();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        batterDisplay.setOnTouchListener(null);
+        firstDisplay.setOnDragListener(null);
+        secondDisplay.setOnDragListener(null);
+        thirdDisplay.setOnDragListener(null);
+        homeDisplay.setOnDragListener(null);
+        outTrash.setOnDragListener(null);
+        firstDisplay.setOnTouchListener(null);
+        secondDisplay.setOnTouchListener(null);
+        thirdDisplay.setOnTouchListener(null);
+        homeDisplay.setOnTouchListener(null);
+        outTrash.setOnTouchListener(null);
+        super.onDestroy();
     }
 
     protected abstract boolean isTopOfInning();

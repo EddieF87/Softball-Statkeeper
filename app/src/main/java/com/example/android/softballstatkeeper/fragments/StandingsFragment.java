@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -33,7 +34,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.softballstatkeeper.MyApp;
 import com.example.android.softballstatkeeper.R;
+import com.example.android.softballstatkeeper.activities.BlankFragment;
 import com.example.android.softballstatkeeper.activities.LeagueManagerActivity;
 import com.example.android.softballstatkeeper.activities.UserSettingsActivity;
 import com.example.android.softballstatkeeper.activities.TeamPagerActivity;
@@ -46,6 +49,7 @@ import com.example.android.softballstatkeeper.dialogs.ChooseOrCreateTeamDialogFr
 import com.example.android.softballstatkeeper.dialogs.GameSettingsDialogFragment;
 import com.example.android.softballstatkeeper.objects.MainPageSelection;
 import com.example.android.softballstatkeeper.objects.Team;
+import com.squareup.leakcanary.RefWatcher;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,6 +57,7 @@ import java.util.Collections;
 public class StandingsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
         View.OnClickListener {
 
+    private OnFragmentInteractionListener mListener;
     private static final int STANDINGS_LOADER = 3;
     private int level;
     private String leagueID;
@@ -81,6 +86,7 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("aaa", "onCreate StandingsFragment");
         setHasOptionsMenu(true);
         Bundle args = getArguments();
         level = args.getInt(MainPageSelection.KEY_SELECTION_LEVEL);
@@ -166,8 +172,9 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.change_user_settings:
-                Intent settingsIntent = new Intent(getActivity(), UserSettingsActivity.class);
-                startActivity(settingsIntent);
+                if(mListener != null) {
+                    mListener.goToUserSettings();
+                }
                 return true;
             case R.id.change_game_settings:
                 SharedPreferences settingsPreferences = getActivity()
@@ -180,13 +187,10 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
                 newFragment.show(fragmentTransaction, "");
                 return true;
             case R.id.action_export_stats:
-                Activity activity = getActivity();
-                if (activity instanceof LeagueManagerActivity) {
-                    LeagueManagerActivity leagueManagerActivity = (LeagueManagerActivity) activity;
-                    leagueManagerActivity.startExport(leagueName);
-                    return true;
+                if(mListener != null) {
+                    mListener.exportStats();
                 }
-                return false;
+                return true;
         }
         return false;
     }
@@ -287,5 +291,42 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
                 Toast.makeText(getActivity(), "SOMETHIGN WRONG WITH onClick", Toast.LENGTH_LONG).show();
         }
         updateStandingsRV();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d("aaa", "onDestroy StandingsFragment");
+        RefWatcher refWatcher = MyApp.getRefWatcher(getActivity());
+        refWatcher.watch(this); }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        Log.d("aaa", "onDestroyView StandingsFragment");
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof StandingsFragment.OnFragmentInteractionListener) {
+            mListener = (StandingsFragment.OnFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
+    }
+
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        Log.d("aaa", "onDetach StandingsFragment");
+        mListener = null;
+    }
+
+    public interface OnFragmentInteractionListener {
+        void goToUserSettings();
+        void exportStats();
     }
 }

@@ -46,7 +46,6 @@ import static android.support.v4.content.ContextCompat.startActivity;
 public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.PlayerStatsListViewHolder> {
 
     private List<Player> players;
-    private final NumberFormat formatter = new DecimalFormat("#.000");
     private int visibility;
     private boolean isTeam = false;
     private boolean genderSettingsOff;
@@ -91,26 +90,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             holder.linearLayout.setBackgroundColor(Color.parseColor("#dfdfdf"));
         }
         Player player = players.get(position);
-        holder.bindPlayer(player);
-    }
-
-    private void changeTeamDialog(final Player player) {
-        if(!(mContext instanceof ObjectPagerActivity)) {
-            return;
-        }
-        ArrayList<Team> teams = new ArrayList<>();
-        String sortOrder = StatsEntry.COLUMN_NAME + " COLLATE NOCASE ASC";
-        Cursor cursor = mContext.getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
-                null, null, null, sortOrder);
-        while (cursor.moveToNext()) {
-            teams.add(new Team(cursor));
-        }
-//        teams.add(new Team(mContext.getString(R.string.waivers), StatsEntry.FREE_AGENT));
-
-        FragmentManager fragmentManager = ((ObjectPagerActivity)mContext).getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = ChangeTeamDialogFragment.newInstance(teams, player.getName(), player.getFirestoreID());
-        newFragment.show(fragmentTransaction, "");
+        holder.bindPlayer(player, mContext, visibility, isTeam, colorMale, colorFemale);
     }
 
     public boolean changeColors(boolean genderSettingsOn) {
@@ -147,7 +127,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
         return players.size();
     }
 
-    class PlayerStatsListViewHolder extends RecyclerView.ViewHolder {
+    static class PlayerStatsListViewHolder extends RecyclerView.ViewHolder {
         private LinearLayout linearLayout;
         private TextView abView;
         private TextView hitView;
@@ -188,7 +168,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             gameView = linearLayout.findViewById(R.id.game);
         }
 
-        private void bindPlayer(Player player) {
+        private void bindPlayer(Player player, final Context context, int visibility, boolean isTeam, int colorMale, int colorFemale) {
             this.mPlayer = player;
             String teamfirestoreid = player.getTeamfirestoreid();
             String team = player.getTeam();
@@ -200,7 +180,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
                 String[] selectionArgs = new String[]{teamfirestoreid};
                 String[] projection = new String[]{StatsEntry.COLUMN_NAME};
 
-                Cursor cursor = mContext.getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
+                Cursor cursor = context.getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
                         projection, selection, selectionArgs, null);
                 if(cursor.moveToFirst()) {
                     team = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_NAME);
@@ -211,7 +191,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
                 values.put(StatsEntry.COLUMN_TEAM, team);
                 long id = player.getPlayerId();
                 Uri playerUri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_PLAYERS, id);
-                mContext.getContentResolver().update(playerUri, values, null, null);
+                context.getContentResolver().update(playerUri, values, null, null);
             }
             if (teamfirestoreid == null || teamfirestoreid.equals(StatsEntry.FREE_AGENT)) {
                 teamabv = "FA";
@@ -237,7 +217,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
                     public void onClick(View view) {
                         String teamfirestoreid = (String) teamView.getTag();
 
-                        Intent intent = new Intent(mContext, TeamPagerActivity.class);
+                        Intent intent = new Intent(context, TeamPagerActivity.class);
                         Log.d("xxx", "teamclick " + teamfirestoreid);
 
                         Uri currentTeamUri = null;
@@ -246,7 +226,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
                             String[] selectionArgs = new String[] {teamfirestoreid};
                             String[] projection = new String[] {StatsEntry._ID};
 
-                            Cursor cursor = mContext.getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
+                            Cursor cursor = context.getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
                                     projection, selection, selectionArgs, null);
                             if(cursor.moveToFirst()) {
                                 int teamID = StatsContract.getColumnInt(cursor, StatsEntry._ID);
@@ -254,10 +234,10 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
                             }
                         }
                         intent.setData(currentTeamUri);
-                        if (mContext instanceof LeagueManagerActivity) {
-                            ((LeagueManagerActivity) mContext).startActivityForResult(intent, REQUEST_CODE);
+                        if (context instanceof LeagueManagerActivity) {
+                            ((LeagueManagerActivity) context).startActivityForResult(intent, REQUEST_CODE);
                         } else {
-                            startActivity(mContext, intent, null);
+                            startActivity(context, intent, null);
                         }
                     }
                 });
@@ -277,6 +257,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             tplView.setText(String.valueOf(player.getTriples()));
             gameView.setText(String.valueOf(player.getGames()));
             bbView.setText(String.valueOf(bb));
+            NumberFormat formatter = new DecimalFormat("#.000");
             if (ab == 0) {
                 avgView.setText("- - -");
                 slgView.setText("- - -");
@@ -295,13 +276,14 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             if (FA && isTeam) {
                 teamView.setVisibility(View.VISIBLE);
                 teamView.setText("+");
-                int color = ContextCompat.getColor(mContext, R.color.colorPrimary);
+                teamView.setTypeface(Typeface.DEFAULT_BOLD);
+                int color = ContextCompat.getColor(context, R.color.colorPrimary);
                 teamView.setTextColor(color);
                 teamView.setTypeface(Typeface.DEFAULT_BOLD);
                 teamView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        changeTeamDialog(mPlayer);
+                        changeTeamDialog(mPlayer, context);
                     }
                 });
             }
@@ -315,19 +297,19 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
                 nameView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(mContext, PlayerPagerActivity.class);
+                        Intent intent = new Intent(context, PlayerPagerActivity.class);
                         long playerId = (long) nameView.getTag();
                         Uri playerUri = ContentUris.withAppendedId(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, playerId);
                         intent.setData(playerUri);
                         Log.d("zzz", "startActivity");
-                        if (mContext instanceof TeamPagerActivity) {
-                            ((TeamPagerActivity) mContext).startActivityForResult(intent, REQUEST_CODE);
-                        } else if (mContext instanceof TeamManagerActivity) {
-                            ((TeamManagerActivity) mContext).startActivityForResult(intent, REQUEST_CODE);
-                        } else if (mContext instanceof LeagueManagerActivity) {
-                            ((LeagueManagerActivity) mContext).startActivityForResult(intent, REQUEST_CODE);
+                        if (context instanceof TeamPagerActivity) {
+                            ((TeamPagerActivity) context).startActivityForResult(intent, REQUEST_CODE);
+                        } else if (context instanceof TeamManagerActivity) {
+                            ((TeamManagerActivity) context).startActivityForResult(intent, REQUEST_CODE);
+                        } else if (context instanceof LeagueManagerActivity) {
+                            ((LeagueManagerActivity) context).startActivityForResult(intent, REQUEST_CODE);
                         } else {
-                                startActivity(mContext, intent, null);
+                            startActivity(context, intent, null);
                         }
                     }
                 });
@@ -338,6 +320,24 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
                     nameView.setTextColor(colorFemale);
                 }
             }
+        }
+
+        private void changeTeamDialog(final Player player, Context context) {
+            if(!(context instanceof ObjectPagerActivity)) {
+                return;
+            }
+            ArrayList<Team> teams = new ArrayList<>();
+            String sortOrder = StatsEntry.COLUMN_NAME + " COLLATE NOCASE ASC";
+            Cursor cursor = context.getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
+                    null, null, null, sortOrder);
+            while (cursor.moveToNext()) {
+                teams.add(new Team(cursor));
+            }
+
+            FragmentManager fragmentManager = ((ObjectPagerActivity)context).getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            DialogFragment newFragment = ChangeTeamDialogFragment.newInstance(teams, player.getName(), player.getFirestoreID());
+            newFragment.show(fragmentTransaction, "");
         }
 
         private void setViewBold(){

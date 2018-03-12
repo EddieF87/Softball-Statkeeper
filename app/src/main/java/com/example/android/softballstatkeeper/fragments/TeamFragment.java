@@ -32,6 +32,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.softballstatkeeper.MyApp;
 import com.example.android.softballstatkeeper.R;
 import com.example.android.softballstatkeeper.activities.ExportActivity;
 import com.example.android.softballstatkeeper.activities.SetLineupActivity;
@@ -49,6 +50,7 @@ import com.example.android.softballstatkeeper.dialogs.RemoveAllPlayersDialogFrag
 import com.example.android.softballstatkeeper.objects.MainPageSelection;
 import com.example.android.softballstatkeeper.objects.Player;
 import com.example.android.softballstatkeeper.objects.Team;
+import com.squareup.leakcanary.RefWatcher;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -211,6 +213,26 @@ public class TeamFragment extends Fragment
             setNewAdapter();
         } else {
             mAdapter.notifyDataSetChanged();
+        }
+    }
+
+    public void updatePlayerGender(int gender, String playerFirestoreID) {
+        for(Player player : mPlayers) {
+            if(player.getFirestoreID().equals(playerFirestoreID)) {
+                player.setGender(gender);
+                updateTeamRV();
+                return;
+            }
+        }
+    }
+
+    public void updatePlayerName(String name, String playerFirestoreID) {
+        for(Player player : mPlayers) {
+            if(player.getFirestoreID().equals(playerFirestoreID)) {
+                player.setName(name);
+                updateTeamRV();
+                return;
+            }
         }
     }
 
@@ -393,7 +415,6 @@ public class TeamFragment extends Fragment
         }
         if (waivers) {
             menu.findItem(R.id.action_change_name).setVisible(false);
-            menu.findItem(R.id.action_edit_photo).setVisible(false);
             menu.findItem(R.id.action_delete_team).setVisible(false);
             menu.findItem(R.id.action_edit_lineup).setVisible(false);
         } else if (mSelectionType == MainPageSelection.TYPE_TEAM) {
@@ -408,11 +429,6 @@ public class TeamFragment extends Fragment
 
             case R.id.action_change_name:
                 editNameDialog();
-                return true;
-
-            case R.id.action_edit_photo:
-                Intent csv = new Intent(getActivity(), ExportActivity.class);
-                startActivity(csv);
                 return true;
 
             case R.id.action_edit_lineup:
@@ -689,6 +705,13 @@ public class TeamFragment extends Fragment
 
         mPlayers.add(total);
         updateTeamRV();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        RefWatcher refWatcher = MyApp.getRefWatcher(getActivity());
+        refWatcher.watch(this);
     }
 
     @Override
