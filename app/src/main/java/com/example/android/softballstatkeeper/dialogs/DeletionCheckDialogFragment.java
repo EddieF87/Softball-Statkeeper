@@ -25,7 +25,6 @@ import java.util.List;
 public class DeletionCheckDialogFragment extends DialogFragment {
 
     private OnListFragmentInteractionListener mListener;
-    private List<ItemMarkedForDeletion> mDeleteList;
     private static final String KEY_DELETIONS = "deletions";
     private DeletionCheckRecyclerViewAdapter mAdapter;
 
@@ -45,7 +44,7 @@ public class DeletionCheckDialogFragment extends DialogFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
-        mDeleteList = args.getParcelableArrayList(KEY_DELETIONS);
+        List<ItemMarkedForDeletion> mDeleteList = args.getParcelableArrayList(KEY_DELETIONS);
         mAdapter = new DeletionCheckRecyclerViewAdapter(mDeleteList);
     }
 
@@ -113,9 +112,14 @@ public class DeletionCheckDialogFragment extends DialogFragment {
         mListener = null;
     }
 
+    @Override
+    public void onDestroy() {
+        mAdapter = null;
+        super.onDestroy();
+    }
+
     public interface OnListFragmentInteractionListener {
         void onDeletePlayersListener(List<ItemMarkedForDeletion> items, List<ItemMarkedForDeletion> saveList);
-
         void onCancel();
     }
 }

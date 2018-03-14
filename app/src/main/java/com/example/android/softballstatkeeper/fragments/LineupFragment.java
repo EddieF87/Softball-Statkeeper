@@ -35,7 +35,7 @@ import com.example.android.softballstatkeeper.activities.BoxScoreActivity;
 import com.example.android.softballstatkeeper.activities.LeagueGameActivity;
 import com.example.android.softballstatkeeper.activities.TeamGameActivity;
 import com.example.android.softballstatkeeper.activities.TeamManagerActivity;
-import com.example.android.softballstatkeeper.activities.UserSettingsActivity;
+import com.example.android.softballstatkeeper.activities.UsersActivity;
 import com.example.android.softballstatkeeper.adapters_listeners_etc.MyLineupAdapter;
 import com.example.android.softballstatkeeper.data.StatsContract;
 import com.example.android.softballstatkeeper.data.StatsContract.StatsEntry;
@@ -127,7 +127,7 @@ public class LineupFragment extends Fragment {
         });
 
         if (inGame) {
-            lineupSubmitButton.setText("Save Edit");
+            lineupSubmitButton.setText(R.string.save_edit);
         }
 
         final TextView teamNameTextView = rootView.findViewById(R.id.team_name_display);
@@ -282,7 +282,7 @@ public class LineupFragment extends Fragment {
                 intent = new Intent(getActivity(), TeamGameActivity.class);
                 editor.putBoolean(KEY_GENDERSORT, false);
             }
-            editor.commit();
+            editor.apply();
             intent.putExtra("edited", true);
             startActivity(intent);
             getActivity().finish();
@@ -493,7 +493,7 @@ public class LineupFragment extends Fragment {
         SharedPreferences savedGamePreferences = getActivity().getSharedPreferences(mSelectionID + StatsEntry.GAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = savedGamePreferences.edit();
         editor.clear();
-        editor.commit();
+        editor.apply();
     }
 
     private List<Player> getPreviousLineup(String teamID) {
@@ -747,7 +747,7 @@ public class LineupFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.change_user_settings:
-                Intent settingsIntent = new Intent(getActivity(), UserSettingsActivity.class);
+                Intent settingsIntent = new Intent(getActivity(), UsersActivity.class);
                 startActivity(settingsIntent);
                 return true;
             case R.id.change_game_settings:

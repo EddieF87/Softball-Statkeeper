@@ -136,7 +136,7 @@ public class GameSettingsDialogFragment extends DialogFragment {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt(StatsContract.StatsEntry.INNINGS, innings);
         editor.putInt(StatsContract.StatsEntry.COLUMN_GENDER, genderSorter);
-        editor.commit();
+        editor.apply();
         if (mListener != null) {
             mListener.onGameSettingsChanged(innings, genderSorter);
         }

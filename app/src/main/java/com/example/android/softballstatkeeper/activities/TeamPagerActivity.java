@@ -16,6 +16,12 @@ public class TeamPagerActivity extends ObjectPagerActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("xyz", "onCreate TeamPagerActivity");
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
         startPager(0, StatsContract.StatsEntry.CONTENT_URI_TEAMS);
     }
 
@@ -41,8 +47,8 @@ public class TeamPagerActivity extends ObjectPagerActivity {
     }
 
     @Override
-    public void onEdit(String enteredText) {
-        super.onEdit(enteredText);
+    public void onEdit(String enteredText, int type) {
+        super.onEdit(enteredText, type);
         if (enteredText.isEmpty()) {
             return;
         }

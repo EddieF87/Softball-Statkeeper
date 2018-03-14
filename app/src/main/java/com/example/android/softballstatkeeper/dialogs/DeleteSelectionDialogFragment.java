@@ -9,15 +9,12 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 
 import com.example.android.softballstatkeeper.R;
-import com.example.android.softballstatkeeper.activities.UserSettingsActivity;
+import com.example.android.softballstatkeeper.activities.UsersActivity;
 import com.example.android.softballstatkeeper.objects.MainPageSelection;
 
-/**
- * A simple {@link Fragment} subclass.
- */
+
 public class DeleteSelectionDialogFragment extends DialogFragment {
 
     private DeleteSelectionDialogFragment.OnFragmentInteractionListener mListener;
@@ -53,7 +50,7 @@ public class DeleteSelectionDialogFragment extends DialogFragment {
         int level = mSelection.getLevel();
 
         String message;
-        if (level == UserSettingsActivity.LEVEL_CREATOR) {
+        if (level == UsersActivity.LEVEL_CREATOR) {
             message = getString(R.string.delete_warning_msg);
         } else {
             String type;

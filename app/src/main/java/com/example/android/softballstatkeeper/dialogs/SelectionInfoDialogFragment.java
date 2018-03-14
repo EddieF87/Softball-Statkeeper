@@ -9,20 +9,14 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
 import com.example.android.softballstatkeeper.R;
-import com.example.android.softballstatkeeper.activities.UserSettingsActivity;
+import com.example.android.softballstatkeeper.activities.UsersActivity;
 import com.example.android.softballstatkeeper.objects.MainPageSelection;
 
-import org.w3c.dom.Text;
-
-/**
- * A simple {@link Fragment} subclass.
- */
 public class SelectionInfoDialogFragment extends DialogFragment {
 
     private MainPageSelection mSelection;
@@ -59,33 +53,33 @@ public class SelectionInfoDialogFragment extends DialogFragment {
 
         switch (mSelection.getType()) {
             case MainPageSelection.TYPE_LEAGUE:
-                typeView.setText("League");
+                typeView.setText(R.string.league);
                 break;
 
             case MainPageSelection.TYPE_TEAM:
-                typeView.setText("Team");
+                typeView.setText(R.string.team);
                 break;
 
             case MainPageSelection.TYPE_PLAYER:
-                typeView.setText("Player");
+                typeView.setText(R.string.player);
                 break;
         }
 
         switch (mSelection.getLevel()) {
-            case UserSettingsActivity.LEVEL_VIEW_ONLY:
-                levelView.setText("View Only");
+            case UsersActivity.LEVEL_VIEW_ONLY:
+                levelView.setText(R.string.view_only);
                 break;
 
-            case UserSettingsActivity.LEVEL_VIEW_WRITE:
-                levelView.setText("View/Manage");
+            case UsersActivity.LEVEL_VIEW_WRITE:
+                levelView.setText(R.string.view_manage);
                 break;
 
-            case UserSettingsActivity.LEVEL_ADMIN:
-                levelView.setText("Admin");
+            case UsersActivity.LEVEL_ADMIN:
+                levelView.setText(R.string.admin);
                 break;
 
-            case UserSettingsActivity.LEVEL_CREATOR:
-                levelView.setText("Creator");
+            case UsersActivity.LEVEL_CREATOR:
+                levelView.setText(R.string.creator);
                 break;
         }
 

@@ -96,6 +96,7 @@
 
         <Button
             android:id="@+id/continue_game"
+            android:background="@drawable/button_accent"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -106,6 +107,7 @@
 
         <Button
             android:id="@+id/start_game"
+            android:background="@drawable/button_accent"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -135,18 +137,16 @@
 
         <com.example.android.softballstatkeeper.adapters_listeners_etc.VerticalTextView
             android:id="@+id/away_lineup_editor"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_weight="5"
-            android:background="@color/colorAccent"
             android:gravity="center"
+            android:background="@drawable/button_accent"
             android:maxLines="1"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
+            android:padding="6dp"
             android:rotation="180"
             android:text="@string/edit_lineup"
-            android:textColor="#ffffff"
+            android:textColor="@color/colorPrimaryDark"
             android:textSize="18sp" />
 
         <android.support.v7.widget.RecyclerView
@@ -173,18 +173,16 @@
 
         <com.example.android.softballstatkeeper.adapters_listeners_etc.VerticalTextView
             android:id="@+id/home_lineup_editor"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_weight="5"
-            android:background="@color/colorAccent"
             android:gravity="center"
+            android:background="@drawable/button_accent"
             android:maxLines="1"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
+            android:padding="6dp"
             android:rotation="180"
             android:text="@string/edit_lineup"
-            android:textColor="#ffffff"
+            android:textColor="@color/colorPrimaryDark"
             android:textSize="18sp" />
     </LinearLayout>
 

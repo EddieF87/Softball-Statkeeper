@@ -70,7 +70,8 @@
             android:textStyle="bold"
             android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@+id/radio_group_results"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginLeft="2dp" />
 
 
         <TextView
@@ -85,7 +86,8 @@
             android:textStyle="bold"
             android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@+id/radio_group_results"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginRight="8dp" />
 
         <TextView
             android:id="@+id/step4text"
@@ -100,7 +102,8 @@
             android:textStyle="bold"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/diamond" />
+            app:layout_constraintTop_toTopOf="@+id/diamond"
+            android:layout_marginRight="8dp" />
 
         <ImageView
             android:id="@+id/step2_arrow"
@@ -116,7 +119,8 @@
             app:layout_constraintStart_toStartOf="@+id/step2text"
             app:layout_constraintTop_toBottomOf="@+id/step2text"
             app:layout_constraintTop_toTopOf="@+id/step2text"
-            app:srcCompat="?attr/actionModeCloseDrawable" />
+            app:srcCompat="?attr/actionModeCloseDrawable"
+            android:layout_marginLeft="8dp" />
 
         <com.google.android.gms.ads.AdView
             android:id="@+id/game_ad"
@@ -137,7 +141,8 @@
             android:tint="@android:color/holo_red_dark"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/sb_table"
-            app:srcCompat="@android:drawable/ic_media_rew" />
+            app:srcCompat="@android:drawable/ic_media_rew"
+            android:layout_marginLeft="32dp" />
 
         <ImageView
             android:id="@+id/btn_redo"
@@ -148,7 +153,8 @@
             app:layout_constraintBottom_toBottomOf="@+id/btn_undo"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/btn_undo"
-            app:srcCompat="@android:drawable/ic_media_ff" />
+            app:srcCompat="@android:drawable/ic_media_ff"
+            android:layout_marginRight="32dp" />
 
 </android.support.constraint.ConstraintLayout>
 

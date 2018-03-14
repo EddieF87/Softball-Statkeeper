@@ -16,6 +16,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.android.softballstatkeeper.MyApp;
+import com.example.android.softballstatkeeper.R;
 import com.example.android.softballstatkeeper.activities.MainActivity;
 import com.example.android.softballstatkeeper.data.StatsContract.StatsEntry;
 import com.example.android.softballstatkeeper.objects.MainPageSelection;
@@ -656,7 +657,7 @@ public class StatsProvider extends ContentProvider {
         if (values.containsKey(StatsEntry.COLUMN_NAME)) {
             String name = values.getAsString(StatsEntry.COLUMN_NAME).toLowerCase();
             if (name == null || name.trim().isEmpty()) {
-                Toast.makeText(getContext(), "Please enter a name first!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.please_enter_name_first, Toast.LENGTH_LONG).show();
                 return true;
             }
             String[] projection = new String[]{StatsEntry.COLUMN_NAME};
@@ -665,10 +666,10 @@ public class StatsProvider extends ContentProvider {
                 String teamName = (StatsContract.getColumnString(cursor, StatsEntry.COLUMN_NAME)).toLowerCase();
                 if (teamName.equals(name)) {
                     if (isTeam) {
-                        Toast.makeText(getContext(), "This team already exists!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "This team already exists!", Toast.LENGTH_LONG).show();
                         Log.d(TAG, teamName + " already exists.");
                     } else {
-                        Toast.makeText(getContext(), "This player already exists!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "This player already exists!", Toast.LENGTH_LONG).show();
                     }
                     cursor.close();
                     return true;

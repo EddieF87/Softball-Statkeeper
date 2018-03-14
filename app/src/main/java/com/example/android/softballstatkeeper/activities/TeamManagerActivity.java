@@ -97,6 +97,7 @@ public class TeamManagerActivity extends ExportActivity
                 if (cursor.moveToFirst()) {
                     players.add(new Player(cursor, false));
                 }
+                cursor.close();
             }
         }
 
@@ -138,7 +139,7 @@ public class TeamManagerActivity extends ExportActivity
     }
 
     @Override
-    public void onEdit(String enteredText) {
+    public void onEdit(String enteredText, int type) {
         if (enteredText.isEmpty()) {
             return;
         }
@@ -165,7 +166,7 @@ public class TeamManagerActivity extends ExportActivity
                 case 0:
                     return TeamFragment.newInstance(mTeamID, mSelectionType, mTeamName, mLevel);
                 case 1:
-                    if (mLevel < UserSettingsActivity.LEVEL_VIEW_WRITE) {
+                    if (mLevel < UsersActivity.LEVEL_VIEW_WRITE) {
                         return null;
                     }
                     return LineupFragment.newInstance(mTeamID, mSelectionType, mTeamName, mTeamID, false);
@@ -188,7 +189,7 @@ public class TeamManagerActivity extends ExportActivity
 
         @Override
         public int getCount() {
-            if (mLevel < UserSettingsActivity.LEVEL_VIEW_WRITE) {
+            if (mLevel < UsersActivity.LEVEL_VIEW_WRITE) {
                 return 1;
             }
             return 2;
@@ -242,6 +243,19 @@ public class TeamManagerActivity extends ExportActivity
                         }
                     }
                 } else if (resultCode == 18) {
+                    if (teamFragment != null) {
+                        String id = data.getStringExtra(StatsEntry.COLUMN_FIRESTORE_ID);
+                        String name = data.getStringExtra(StatsEntry.COLUMN_NAME);
+
+                        if (teamFragment != null) {
+                            teamFragment.updatePlayerName(name, id);
+                        }
+
+                        if (lineupFragment != null) {
+                            lineupFragment.updatePlayerName(name, id);
+                        }
+                    }
+                } else if (resultCode == 19) {
                     if (teamFragment != null) {
                         String id = data.getStringExtra(StatsEntry.COLUMN_FIRESTORE_ID);
                         String name = data.getStringExtra(StatsEntry.COLUMN_NAME);

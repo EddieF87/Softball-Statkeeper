@@ -32,7 +32,8 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/textview_leagues_description"
         app:layout_constraintStart_toEndOf="@+id/btn_create_join_lg"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginLeft="8dp" />
 
     <TextView
         android:id="@+id/textview_leagues_description"
@@ -47,6 +48,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/textview_leagues_title"
-        app:layout_constraintTop_toBottomOf="@+id/textview_leagues_title" />
+        app:layout_constraintTop_toBottomOf="@+id/textview_leagues_title"
+        android:layout_marginRight="16dp" />
 
 </android.support.constraint.ConstraintLayout>

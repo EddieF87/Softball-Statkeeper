@@ -35,7 +35,7 @@ public class InviteListRecyclerViewAdapter extends RecyclerView.Adapter<InviteLi
         return new InviteViewHolder(view);    }
 
     @Override
-    public void onBindViewHolder(final InviteViewHolder holder, final int position) {
+    public void onBindViewHolder(final InviteViewHolder holder, int position) {
         MainPageSelection mainPageSelection = inviteList.get(position);
         holder.leagueTextView.setText(mainPageSelection.getName());
         final int level = mainPageSelection.getLevel();
@@ -80,7 +80,8 @@ public class InviteListRecyclerViewAdapter extends RecyclerView.Adapter<InviteLi
                         text = "Error";
                 }
                 holder.levelTextView.setText(text);
-                changes.put(position, newLevel);
+                int pos = holder.getAdapterPosition();
+                changes.put(pos, newLevel);
             }
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {}

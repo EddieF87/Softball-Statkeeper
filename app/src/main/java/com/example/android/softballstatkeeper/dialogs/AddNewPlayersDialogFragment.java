@@ -51,8 +51,12 @@ public class AddNewPlayersDialogFragment extends DialogFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mTeamName = getArguments().getString(KEY_TEAM_NAME);
-        mTeamID = getArguments().getString(KEY_TEAM_ID);
+        Bundle bundle = getArguments();
+        if(bundle == null) {
+            return;
+        }
+        mTeamName = bundle.getString(KEY_TEAM_NAME);
+        mTeamID = bundle.getString(KEY_TEAM_ID);
 
         if (savedInstanceState != null) {
             List<Integer> edits = savedInstanceState.getIntegerArrayList(KEY_EDITS);
@@ -69,14 +73,10 @@ public class AddNewPlayersDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_createteam_list, null);
 
-        if (view instanceof RecyclerView) {
-            Context context = view.getContext();
-            mRecyclerView = (RecyclerView) view;
-            mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
-            mRecyclerView.setAdapter(mAdapter);
-        } else {
-            return null;
-        }
+        Context context = view.getContext();
+        mRecyclerView = (RecyclerView) view;
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
+        mRecyclerView.setAdapter(mAdapter);
 
         AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
                 .setView(mRecyclerView)

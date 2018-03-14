@@ -25,7 +25,8 @@
         app:layout_constraintStart_toEndOf="@+id/player_image"
         app:layout_constraintStart_toStartOf="@+id/guideline_titles"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="Player  Name99999" />
+        tools:text="Player  Name99999"
+        android:layout_marginRight="8dp" />
 
     <TextView
         android:id="@+id/player_team"
@@ -55,7 +56,8 @@
         app:layout_constraintHorizontal_weight="3"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/img_batter" />
+        app:srcCompat="@drawable/img_batter"
+        android:layout_marginLeft="8dp" />
 
 
     <FrameLayout

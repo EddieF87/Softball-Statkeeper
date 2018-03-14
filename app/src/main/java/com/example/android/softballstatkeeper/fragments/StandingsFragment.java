@@ -1,7 +1,6 @@
 package com.example.android.softballstatkeeper.fragments;
 
 
-import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -36,9 +35,7 @@ import android.widget.Toast;
 
 import com.example.android.softballstatkeeper.MyApp;
 import com.example.android.softballstatkeeper.R;
-import com.example.android.softballstatkeeper.activities.BlankFragment;
-import com.example.android.softballstatkeeper.activities.LeagueManagerActivity;
-import com.example.android.softballstatkeeper.activities.UserSettingsActivity;
+import com.example.android.softballstatkeeper.activities.UsersActivity;
 import com.example.android.softballstatkeeper.activities.TeamPagerActivity;
 import com.example.android.softballstatkeeper.adapters_listeners_etc.StandingsAdapter;
 import com.example.android.softballstatkeeper.data.FirestoreHelper;
@@ -61,7 +58,6 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
     private static final int STANDINGS_LOADER = 3;
     private int level;
     private String leagueID;
-    private String leagueName;
     private StandingsAdapter mAdapter;
     private ArrayList<Team> mTeams;
     private TextView colorView;
@@ -86,12 +82,10 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("aaa", "onCreate StandingsFragment");
         setHasOptionsMenu(true);
         Bundle args = getArguments();
         level = args.getInt(MainPageSelection.KEY_SELECTION_LEVEL);
         leagueID = args.getString(MainPageSelection.KEY_SELECTION_ID);
-        leagueName = args.getString(MainPageSelection.KEY_SELECTION_NAME);
     }
 
     @Override
@@ -118,7 +112,7 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
 //        View emptyView = rootView.findViewById(R.id.empty_text);
         startAdderButton = rootView.findViewById(R.id.item_team_adder);
 
-        if(level < UserSettingsActivity.LEVEL_VIEW_WRITE) {
+        if(level < UsersActivity.LEVEL_VIEW_WRITE) {
             startAdderButton.setVisibility(View.INVISIBLE);
         } else {
             startAdderButton.setOnClickListener(new View.OnClickListener() {
@@ -157,7 +151,7 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        if (level >= UserSettingsActivity.LEVEL_VIEW_WRITE) {
+        if (level >= UsersActivity.LEVEL_VIEW_WRITE) {
             inflater.inflate(R.menu.menu_league, menu);
         }
     }
@@ -303,7 +297,6 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        Log.d("aaa", "onDestroyView StandingsFragment");
     }
 
     @Override
@@ -321,7 +314,6 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
     @Override
     public void onDetach() {
         super.onDetach();
-        Log.d("aaa", "onDetach StandingsFragment");
         mListener = null;
     }
 

@@ -623,7 +623,7 @@ public class FirestoreHelper implements Parcelable {
         SharedPreferences savedGamePreferences = mContext.getSharedPreferences(leagueID + StatsEntry.GAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = savedGamePreferences.edit();
         editor.clear();
-        editor.commit();
+        editor.apply();
     }
 
     //SETTING UPDATES

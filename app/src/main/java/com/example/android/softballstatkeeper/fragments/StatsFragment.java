@@ -36,7 +36,7 @@ import com.example.android.softballstatkeeper.MyApp;
 import com.example.android.softballstatkeeper.R;
 import com.example.android.softballstatkeeper.activities.LeagueManagerActivity;
 import com.example.android.softballstatkeeper.activities.TeamManagerActivity;
-import com.example.android.softballstatkeeper.activities.UserSettingsActivity;
+import com.example.android.softballstatkeeper.activities.UsersActivity;
 import com.example.android.softballstatkeeper.adapters_listeners_etc.PlayerStatsAdapter;
 import com.example.android.softballstatkeeper.data.StatsContract;
 import com.example.android.softballstatkeeper.data.StatsContract.StatsEntry;
@@ -62,6 +62,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
     private TextView emptyView;
     private int statSort;
     private String teamFilter;
+    private Integer genderFilter;
     private TextView colorView;
     private Cursor mCursor;
     private List<Player> mPlayers;
@@ -72,7 +73,10 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
     private static final int STATS_LOADER = 4;
     private static final String KEY_STAT_SORT = "keyStatSort";
     private static final String KEY_TEAM_FILTER = "keyTeamFilter";
-    private static final String ALL_TEAMS = "All Teams";
+    private static final String KEY_GENDER_FILTER = "keyGenderFilter";
+    private static final String KEY_ALL_TEAMS = "All Teams";
+    private static final String KEY_MALE = "Male";
+    private static final String KEY_FEMALE = "Female";
 
     private HashMap<String, Integer> teamIDs;
 
@@ -108,6 +112,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         if (savedInstanceState != null) {
             statSort = savedInstanceState.getInt(KEY_STAT_SORT, -1);
             teamFilter = savedInstanceState.getString(KEY_TEAM_FILTER);
+            genderFilter = savedInstanceState.getInt(KEY_GENDER_FILTER);
         } else {
             statSort = -1;
         }
@@ -139,7 +144,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
                 null, null, StatsEntry.COLUMN_NAME + " COLLATE NOCASE");
 
         teamsArray = new ArrayList<>();
-        teamsArray.add(ALL_TEAMS);
+        teamsArray.add(KEY_ALL_TEAMS);
         teamIDs = new HashMap<>();
         teamIDs.put(StatsEntry.FREE_AGENT, -1);
         while (mCursor.moveToNext()) {
@@ -153,6 +158,8 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
             teamsArray.add(teamName);
         }
         teamsArray.add(StatsEntry.FREE_AGENT);
+        teamsArray.add(KEY_MALE);
+        teamsArray.add(KEY_FEMALE);
 
         Spinner teamSpinner = rootView.findViewById(R.id.spinner_stats_teams);
         mSpinnerAdapter = new ArrayAdapter<>(getActivity(),
@@ -177,7 +184,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.change_user_settings:
-                Intent settingsIntent = new Intent(getActivity(), UserSettingsActivity.class);
+                Intent settingsIntent = new Intent(getActivity(), UsersActivity.class);
                 startActivity(settingsIntent);
                 return true;
             case R.id.change_game_settings:
@@ -237,7 +244,16 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         if (view != null) {
             TextView textView = (TextView) view;
             String newFilter = textView.getText().toString();
-            if (teamFilter == null || !teamFilter.equals(newFilter)) {
+            if (newFilter.equals(KEY_FEMALE) || newFilter.equals(KEY_MALE)) {
+                teamFilter = null;
+                if(newFilter.equals(KEY_MALE)) {
+                    genderFilter = 0;
+                } else {
+                    genderFilter = 1;
+                }
+                getLoaderManager().restartLoader(STATS_LOADER, null, this);
+            } else if (teamFilter == null || !teamFilter.equals(newFilter)) {
+                genderFilter = null;
                 teamFilter = newFilter;
                 getLoaderManager().restartLoader(STATS_LOADER, null, this);
             }
@@ -260,9 +276,12 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         String selection;
         String[] selectionArgs;
 
-        if (teamFilter != null && !teamFilter.equals(ALL_TEAMS)) {
+        if (teamFilter != null && !teamFilter.equals(KEY_ALL_TEAMS)) {
             selection = StatsEntry.COLUMN_TEAM + "=?";
             selectionArgs = new String[]{teamFilter};
+        } else if (genderFilter != null) {
+            selection = StatsEntry.COLUMN_GENDER + "=?";
+            selectionArgs = new String[]{String.valueOf(genderFilter)};
         } else {
             selection = null;
             selectionArgs = null;
@@ -326,10 +345,15 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(KEY_STAT_SORT, statSort);
-        outState.putString(KEY_TEAM_FILTER, teamFilter);
+        if(teamFilter != null) {
+            outState.putString(KEY_TEAM_FILTER, teamFilter);
+        }
+        if(genderFilter != null) {
+            outState.putInt(KEY_GENDER_FILTER, genderFilter);
+        }
     }
 
-    private void sortStats (int statSorter) {
+    private void sortStats(int statSorter) {
         if (colorView != null) {
             colorView.setTextColor(Color.WHITE);
         }
@@ -414,15 +438,19 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         }
         teamIDs.put(firestoreID, id);
 
-        if(mSpinnerAdapter == null || teamsArray == null) {
+        if (mSpinnerAdapter == null || teamsArray == null) {
             return;
         }
         teamsArray.add(team);
         Collections.sort(teamsArray, String.CASE_INSENSITIVE_ORDER);
         teamsArray.remove(StatsEntry.FREE_AGENT);
-        teamsArray.remove(ALL_TEAMS);
+        teamsArray.remove(KEY_ALL_TEAMS);
+        teamsArray.remove(KEY_MALE);
+        teamsArray.remove(KEY_FEMALE);
         teamsArray.add(teamsArray.size(), StatsEntry.FREE_AGENT);
-        teamsArray.add(0, ALL_TEAMS);
+        teamsArray.add(0, KEY_ALL_TEAMS);
+        teamsArray.add(KEY_MALE);
+        teamsArray.add(KEY_FEMALE);
         mSpinnerAdapter.notifyDataSetChanged();
     }
 

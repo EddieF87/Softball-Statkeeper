@@ -136,7 +136,7 @@ public class LeagueManagerActivity extends ExportActivity
 
     @Override
     public void goToUserSettings() {
-        Intent settingsIntent = new Intent(LeagueManagerActivity.this, UserSettingsActivity.class);
+        Intent settingsIntent = new Intent(LeagueManagerActivity.this, UsersActivity.class);
         startActivity(settingsIntent);
     }
 
@@ -152,7 +152,7 @@ public class LeagueManagerActivity extends ExportActivity
         SharedPreferences savedGamePreferences = getSharedPreferences(leagueID + StatsEntry.GAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = savedGamePreferences.edit();
         editor.clear();
-        editor.commit();
+        editor.apply();
     }
 
     private class LeagueManagerPagerAdapter extends FragmentStatePagerAdapter {

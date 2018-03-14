@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="colorPrimaryPrevious">#8bc34a</color>
     <color name="colorPrimary">#689F38</color>
     <color name="colorPrimaryDark">#4a7326</color>
     <color name="colorPrimaryLight">#DCEDC8</color>
     <color name="colorAccent">#eabd53</color>
+    <color name="colorAccentSelect">#d8ffe8b2</color>
     <color name="colorAccentLight">#35f9dd9b</color>
     <color name="app_color">#689F38</color>
-    <color name="list_item_background">#EEFF41</color>
     <color name="color_arrow">#FFD600</color>
     <color name="stat_title">#689F38</color>
     <color name="male">#6fa2ef</color>

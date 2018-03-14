@@ -8,15 +8,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 
 import com.example.android.softballstatkeeper.R;
 
-/**
- * A simple {@link Fragment} subclass.
- */
+
 public class FinishGameConfirmationDialogFragment extends DialogFragment {
 
     private FinishGameConfirmationDialogFragment.OnFragmentInteractionListener mListener;

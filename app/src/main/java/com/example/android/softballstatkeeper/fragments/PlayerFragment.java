@@ -31,15 +31,13 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.android.softballstatkeeper.MyApp;
 import com.example.android.softballstatkeeper.R;
 import com.example.android.softballstatkeeper.activities.LeagueManagerActivity;
 import com.example.android.softballstatkeeper.activities.PlayerManagerActivity;
 import com.example.android.softballstatkeeper.activities.PlayerPagerActivity;
 import com.example.android.softballstatkeeper.activities.TeamPagerActivity;
-import com.example.android.softballstatkeeper.activities.UserSettingsActivity;
+import com.example.android.softballstatkeeper.activities.UsersActivity;
 import com.example.android.softballstatkeeper.data.FirestoreHelper;
-import com.example.android.softballstatkeeper.data.StatsContract;
 import com.example.android.softballstatkeeper.data.StatsContract.StatsEntry;
 import com.example.android.softballstatkeeper.dialogs.ChangeTeamDialogFragment;
 import com.example.android.softballstatkeeper.dialogs.DeleteConfirmationDialogFragment;
@@ -47,7 +45,6 @@ import com.example.android.softballstatkeeper.dialogs.EditNameDialogFragment;
 import com.example.android.softballstatkeeper.objects.MainPageSelection;
 import com.example.android.softballstatkeeper.objects.Player;
 import com.example.android.softballstatkeeper.objects.Team;
-import com.squareup.leakcanary.RefWatcher;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -122,26 +119,18 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             mCurrentPlayerUri = Uri.parse(uriString);
             mSelectionID = args.getString(MainPageSelection.KEY_SELECTION_ID);
         }
-        Log.d("zzz", "PlayerFragment onCreate " + mCurrentPlayerUri.toString());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Log.d("zzz", "PlayerFragment onCreateView " + mCurrentPlayerUri.toString());
         getLoaderManager().initLoader(EXISTING_PLAYER_LOADER, null, this);
         return inflater.inflate(R.layout.fragment_player, container, false);
     }
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        Log.d("zzz", "PlayerFragment onActivityCreated " + mCurrentPlayerUri.toString());
-    }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        Log.d("zzz", "PlayerFragment onCreateLoader " + mCurrentPlayerUri.toString());
         return new CursorLoader(
                 getActivity(),
                 mCurrentPlayerUri,
@@ -193,6 +182,8 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                             String[] selectionArgs = new String[]{teamFirestoreID};
                             if (teamFirestoreID.equals(StatsEntry.FREE_AGENT)) {
                                 intent = new Intent(getActivity(), TeamPagerActivity.class);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                                getActivity().startActivityForResult(intent, 0);
                             } else {
                                 Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
                                         null, selection, selectionArgs, null);
@@ -201,14 +192,18 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                                     Uri teamUri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_TEAMS, teamId);
                                     intent = new Intent(getActivity(), TeamPagerActivity.class);
                                     intent.setData(teamUri);
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                                    Log.d("xyz", "PlayerFragment  " + teamUri.toString());
+                                    getActivity().startActivityForResult(intent, 0);
                                 } else {
                                     intent = new Intent(getActivity(), LeagueManagerActivity.class);
+                                    startActivity(intent);
+                                    getActivity().finish();
                                 }
                                 cursor.close();
                             }
-                            startActivity(intent);
                         } else {
-                            Log.d("PlayerActivity", "Error going to team page");
+                            Log.d("PlayerFragment", "Error going to team page");
                         }
                     }
                 });
@@ -239,7 +234,9 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                     public void onClick(View view) {
                         if (mListener != null) {
                             mListener.setTeamEdit();
-                            editNameDialog(teamString);
+                            String titleTString = getResources().getString(R.string.edit_player_team);
+                            String titleT = String.format(titleTString, playerName);
+                            editNameDialog(titleT);
                         }
                     }
                 });
@@ -472,7 +469,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        if (levelAuthorized(UserSettingsActivity.LEVEL_VIEW_WRITE)) {
+        if (levelAuthorized(UsersActivity.LEVEL_VIEW_WRITE)) {
             inflater.inflate(R.menu.menu_player, menu);
         }
     }
@@ -481,7 +478,9 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_change_name:
-                editNameDialog(playerName);
+                String titlePString = getResources().getString(R.string.edit_player_name);
+                String titleP = String.format(titlePString, playerName);
+                editNameDialog(titleP);
                 return true;
             case R.id.action_change_team:
                 if (mSelectionType == MainPageSelection.TYPE_LEAGUE) {
@@ -489,7 +488,9 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 } else if (mSelectionType == MainPageSelection.TYPE_PLAYER) {
                     if (mListener != null) {
                         mListener.setTeamEdit();
-                        editNameDialog(teamString);
+                        String titleTString = getResources().getString(R.string.edit_player_team);
+                        String titleT = String.format(titleTString, playerName);
+                        editNameDialog(titleT);
                     }
                 }
                 return true;
@@ -530,13 +531,13 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        if (!levelAuthorized(UserSettingsActivity.LEVEL_VIEW_WRITE)) {
+        if (!levelAuthorized(UsersActivity.LEVEL_VIEW_WRITE)) {
             return;
         }
         menu.findItem(R.id.action_change_name).setVisible(true);
         menu.findItem(R.id.action_change_gender).setVisible(true);
 
-        if (levelAuthorized(UserSettingsActivity.LEVEL_ADMIN)) {
+        if (levelAuthorized(UsersActivity.LEVEL_ADMIN)) {
             menu.findItem(R.id.action_delete_player).setVisible(true);
         }
         if (mSelectionType != MainPageSelection.TYPE_TEAM) {
@@ -557,10 +558,10 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         newFragment.show(fragmentTransaction, "");
     }
 
-    private void editNameDialog(String name) {
+    private void editNameDialog(String title) {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = EditNameDialogFragment.newInstance(name);
+        DialogFragment newFragment = EditNameDialogFragment.newInstance(title);
         newFragment.show(fragmentTransaction, "");
     }
 
@@ -574,7 +575,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         while (cursor.moveToNext()) {
             teams.add(new Team(cursor));
         }
-//        teams.add(new Team(getString(R.string.waivers), StatsEntry.FREE_AGENT));
+        cursor.close();
 
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -644,13 +645,5 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     public void onDetach() {
         super.onDetach();
         mListener = null;
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Log.d("aaa", "onDestroy() PlayerFragment");
-        RefWatcher refWatcher = MyApp.getRefWatcher(getActivity());
-        refWatcher.watch(this);
     }
 }

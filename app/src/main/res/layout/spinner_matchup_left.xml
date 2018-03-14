@@ -2,4 +2,5 @@
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/spinnerTarget"
     style="@style/SpinnerMatchup"
-    android:drawableLeft="@drawable/ic_reorder_white_500_24dp"/>
+    android:drawableLeft="@drawable/ic_reorder_white_500_24dp"
+    android:drawableStart="@drawable/ic_reorder_white_500_24dp" />

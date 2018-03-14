@@ -129,11 +129,13 @@
         android:layout_marginTop="4dp"
         app:layout_constraintBottom_toTopOf="@+id/layout_lineup_title"
         app:layout_constraintEnd_toEndOf="@+id/layout_lineup_title"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginRight="8dp" />
 
 
     <Button
         android:id="@+id/continue_game"
+        android:background="@drawable/button_accent"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
@@ -151,6 +153,7 @@
 
     <Button
         android:id="@+id/lineup_submit"
+        android:background="@drawable/button_accent"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
@@ -182,30 +185,6 @@
             android:background="@drawable/bg_accent_right"
             android:paddingBottom="8dp"
             android:paddingTop="8dp" />
-
-        <!--<android.support.v7.widget.RecyclerView-->
-        <!--android:id="@+id/rvLeft"-->
-        <!--android:layout_width="0dp"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:layout_weight="1"-->
-        <!--android:background="@drawable/bg_accent_left"-->
-        <!--android:paddingBottom="8dp"-->
-        <!--android:paddingLeft="16dp"-->
-        <!--android:paddingRight="16dp"-->
-        <!--android:paddingTop="8dp"-->
-        <!--android:scrollbars="vertical" />-->
-
-        <!--<android.support.v7.widget.RecyclerView-->
-        <!--android:id="@+id/rvRight"-->
-        <!--android:layout_width="0dp"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:layout_weight="1"-->
-        <!--android:background="@drawable/bg_accent_right"-->
-        <!--android:paddingBottom="8dp"-->
-        <!--android:paddingLeft="16dp"-->
-        <!--android:paddingRight="16dp"-->
-        <!--android:paddingTop="8dp"-->
-        <!--android:scrollbars="vertical" />-->
     </FrameLayout>
 
     <TextView

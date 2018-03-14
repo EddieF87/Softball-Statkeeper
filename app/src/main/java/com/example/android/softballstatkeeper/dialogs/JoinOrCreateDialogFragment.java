@@ -3,32 +3,33 @@ package com.example.android.softballstatkeeper.dialogs;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.support.v4.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 
 import com.example.android.softballstatkeeper.R;
+import com.example.android.softballstatkeeper.objects.MainPageSelection;
 
 
-public class DeleteConfirmationDialogFragment extends DialogFragment {
+public class JoinOrCreateDialogFragment extends DialogFragment {
 
     private OnFragmentInteractionListener mListener;
-    private String objectToDelete;
+    private int mType;
 
-    public DeleteConfirmationDialogFragment() {
+    public JoinOrCreateDialogFragment() {
         // Required empty public constructor
     }
 
-    public static DeleteConfirmationDialogFragment newInstance(String objectToDelete) {
+    public static android.support.v4.app.DialogFragment newInstance(int type) {
 
         Bundle args = new Bundle();
-        DeleteConfirmationDialogFragment fragment = new DeleteConfirmationDialogFragment();
-        args.putString("objectToDelete", objectToDelete);
+        JoinOrCreateDialogFragment fragment = new JoinOrCreateDialogFragment();
+        args.putInt("mType", type);
         fragment.setArguments(args);
         return fragment;
     }
@@ -37,27 +38,45 @@ public class DeleteConfirmationDialogFragment extends DialogFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
-        objectToDelete = args.getString("objectToDelete");
+        mType = args.getInt("mType");
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         View v = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_dialog, null);
-        String message = String.format(getString(R.string.delete_dialog_msg), objectToDelete);
+        String title;
+        switch (mType) {
+            case MainPageSelection.TYPE_PLAYER:
+                title = "Create a New Player StatKeeper";
+                break;
+
+            case MainPageSelection.TYPE_TEAM:
+                title = "Join or Create a New Team StatKeeper";
+                break;
+
+            case MainPageSelection.TYPE_LEAGUE:
+                title = "Join or Create a New League StatKeeper";
+                break;
+            default:
+                return null;
+        }
 
         AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
                 .setView(v)
-                .setTitle("Delete " + objectToDelete + "?")
-                .setMessage(message)
-                .setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
+                .setTitle(title)
+                .setPositiveButton(R.string.create, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         onButtonPressed(true);
                     }
                 })
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.join, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         onButtonPressed(false);
+                    }
+                })
+                .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
                     }
                 })
                 .create();
@@ -65,9 +84,9 @@ public class DeleteConfirmationDialogFragment extends DialogFragment {
     }
 
 
-    public void onButtonPressed(boolean delete) {
+    public void onButtonPressed(boolean create) {
         if (mListener != null) {
-            mListener.onDeletionChoice(delete);
+            mListener.onCreate(create, mType);
         }
     }
 
@@ -89,6 +108,6 @@ public class DeleteConfirmationDialogFragment extends DialogFragment {
     }
 
     public interface OnFragmentInteractionListener {
-        void onDeletionChoice(boolean delete);
+        void onCreate(boolean create, int type);
     }
 }

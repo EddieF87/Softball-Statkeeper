@@ -98,18 +98,15 @@
 
         <com.example.android.softballstatkeeper.adapters_listeners_etc.VerticalTextView
             android:id="@+id/away_lineup_editor"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_weight="5"
-            android:background="@color/colorAccent"
+            android:background="@drawable/button_accent"
             android:gravity="center"
             android:maxLines="1"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
+            android:padding="6dp"
             android:rotation="180"
             android:text="@string/edit_lineup"
-            android:textColor="#ffffff"
             android:textSize="18sp" />
 
         <android.support.v7.widget.RecyclerView
@@ -136,18 +133,15 @@
 
         <com.example.android.softballstatkeeper.adapters_listeners_etc.VerticalTextView
             android:id="@+id/home_lineup_editor"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_weight="5"
-            android:background="@color/colorAccent"
+            android:background="@drawable/button_accent"
             android:gravity="center"
             android:maxLines="1"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
+            android:padding="6dp"
             android:rotation="180"
             android:text="@string/edit_lineup"
-            android:textColor="#ffffff"
             android:textSize="18sp" />
     </LinearLayout>
 
@@ -281,9 +275,8 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
         android:layout_weight="1"
+        android:background="@drawable/button_accent"
         android:gravity="center"
         android:maxLines="1"
         android:text="@string/continue_game"
@@ -297,6 +290,7 @@
 
     <Button
         android:id="@+id/start_game"
+        android:background="@drawable/button_accent"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="2dp"

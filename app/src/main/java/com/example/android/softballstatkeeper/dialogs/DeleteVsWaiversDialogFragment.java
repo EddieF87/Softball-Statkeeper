@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -18,29 +17,11 @@ import com.example.android.softballstatkeeper.R;
 public class DeleteVsWaiversDialogFragment extends DialogFragment {
 
     private OnFragmentInteractionListener mListener;
-    private String objectToDelete;
-    public static final int CHOICE_CANCEL = 0;
     public static final int CHOICE_WAIVERS = 1;
     public static final int CHOICE_DELETE = 2;
 
     public DeleteVsWaiversDialogFragment() {
         // Required empty public constructor
-    }
-
-    public static DeleteVsWaiversDialogFragment newInstance(String objectToDelete) {
-
-        Bundle args = new Bundle();
-        DeleteVsWaiversDialogFragment fragment = new DeleteVsWaiversDialogFragment();
-        args.putString("objectToDelete", objectToDelete);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Bundle args = getArguments();
-        objectToDelete = args.getString("objectToDelete");
     }
 
     @NonNull

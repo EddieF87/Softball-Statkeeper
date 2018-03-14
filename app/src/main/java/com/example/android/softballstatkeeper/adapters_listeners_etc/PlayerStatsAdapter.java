@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
+import android.os.Build;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -230,7 +231,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
                                     projection, selection, selectionArgs, null);
                             if(cursor.moveToFirst()) {
                                 int teamID = StatsContract.getColumnInt(cursor, StatsEntry._ID);
-                                currentTeamUri = ContentUris.withAppendedId(StatsContract.StatsEntry.CONTENT_URI_TEAMS, teamID);
+                                currentTeamUri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_TEAMS, teamID);
                             }
                         }
                         intent.setData(currentTeamUri);
@@ -299,11 +300,14 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
                     public void onClick(View view) {
                         Intent intent = new Intent(context, PlayerPagerActivity.class);
                         long playerId = (long) nameView.getTag();
-                        Uri playerUri = ContentUris.withAppendedId(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, playerId);
+                        Uri playerUri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_PLAYERS, playerId);
                         intent.setData(playerUri);
-                        Log.d("zzz", "startActivity");
                         if (context instanceof TeamPagerActivity) {
+                            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                             ((TeamPagerActivity) context).startActivityForResult(intent, REQUEST_CODE);
+
+//                            ((TeamPagerActivity) context).finish();
+                            Log.d("xyz", "PlayerStatsAdapter  " + playerUri.toString());
                         } else if (context instanceof TeamManagerActivity) {
                             ((TeamManagerActivity) context).startActivityForResult(intent, REQUEST_CODE);
                         } else if (context instanceof LeagueManagerActivity) {
@@ -320,6 +324,9 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
                     nameView.setTextColor(colorFemale);
                 }
             }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                nameView.setAutoSizeTextTypeWithDefaults(TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM);
+            }
         }
 
         private void changeTeamDialog(final Player player, Context context) {
@@ -333,6 +340,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             while (cursor.moveToNext()) {
                 teams.add(new Team(cursor));
             }
+            cursor.close();
 
             FragmentManager fragmentManager = ((ObjectPagerActivity)context).getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();

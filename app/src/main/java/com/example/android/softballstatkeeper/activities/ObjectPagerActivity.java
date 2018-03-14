@@ -4,7 +4,6 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.DataSetObserver;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -22,7 +21,6 @@ import android.view.ViewGroup;
 import com.example.android.softballstatkeeper.MyApp;
 import com.example.android.softballstatkeeper.R;
 import com.example.android.softballstatkeeper.data.FirestoreHelper;
-import com.example.android.softballstatkeeper.data.StatsContract;
 import com.example.android.softballstatkeeper.data.StatsContract.StatsEntry;
 import com.example.android.softballstatkeeper.dialogs.AddNewPlayersDialogFragment;
 import com.example.android.softballstatkeeper.dialogs.ChangeTeamDialogFragment;
@@ -79,6 +77,12 @@ public class ObjectPagerActivity extends AppCompatActivity
         adView.loadAd(adRequest);
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+    }
+
     protected void startPager(int objectType,  Uri uri) {
         setLeagueInfo();
 
@@ -111,6 +115,7 @@ public class ObjectPagerActivity extends AppCompatActivity
         int objectID;
         if (objectURI != null) {
             objectID = (int) ContentUris.parseId(objectURI);
+            Log.d("xyz", "OBJECTPAGER  " + objectURI.toString());
         } else {
             objectID = -1;
         }
@@ -122,7 +127,7 @@ public class ObjectPagerActivity extends AppCompatActivity
 
         for (int pagerPosition = 0; pagerPosition < objectIDs.size(); pagerPosition++) {
             if (objectIDs.get(pagerPosition) == objectID) {
-                mViewPager.setCurrentItem(pagerPosition);;
+                mViewPager.setCurrentItem(pagerPosition);
             }
         }
     }
@@ -168,10 +173,9 @@ public class ObjectPagerActivity extends AppCompatActivity
                 Cursor cursor = getContentResolver().query(uri, null, null,
                         null, null);
                 if (cursor.moveToFirst()) {
-                    String firestoreID = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_FIRESTORE_ID);
                     players.add(new Player(cursor, false));
-//                    firestoreHelper.setUpdate(firestoreID, 1);
                 }
+                cursor.close();
             }
         }
 
@@ -257,7 +261,7 @@ public class ObjectPagerActivity extends AppCompatActivity
     }
 
     @Override
-    public void onEdit(String enteredText) {
+    public void onEdit(String enteredText, int type) {
     }
 
     public String getSelectionID() {
@@ -375,15 +379,10 @@ public class ObjectPagerActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                Intent intent;
                 if(selectionType == MainPageSelection.TYPE_LEAGUE) {
-                    intent = new Intent(ObjectPagerActivity.this, LeagueManagerActivity.class);
-                } else if (selectionType == MainPageSelection.TYPE_TEAM) {
-                    intent = new Intent(ObjectPagerActivity.this, TeamManagerActivity.class);
-                } else {
-                    return false;
+                    Intent intent = new Intent(ObjectPagerActivity.this, LeagueManagerActivity.class);
+                    startActivity(intent);
                 }
-                startActivity(intent);
                 finish();
                 return true;
         }

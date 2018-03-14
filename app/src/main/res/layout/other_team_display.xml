@@ -57,7 +57,8 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/tv_outs_title"
-        app:layout_constraintTop_toBottomOf="@+id/other_team_title" />
+        app:layout_constraintTop_toBottomOf="@+id/other_team_title"
+        android:layout_marginLeft="32dp" />
 
 
     <ImageView
@@ -69,7 +70,8 @@
         android:tint="#ffffff"
         app:layout_constraintStart_toEndOf="@+id/tv_outs_title"
         app:layout_constraintTop_toBottomOf="@+id/tv_outs_title"
-        app:srcCompat="@drawable/ic_add_circle_outline_black_18dp" />
+        app:srcCompat="@drawable/ic_add_circle_outline_black_18dp"
+        android:layout_marginLeft="8dp" />
 
     <ImageView
         android:id="@+id/btn_remove_out"
@@ -81,7 +83,8 @@
         android:tint="#ffffff"
         app:layout_constraintEnd_toStartOf="@+id/tv_outs_title"
         app:layout_constraintTop_toBottomOf="@+id/tv_outs_title"
-        app:srcCompat="@drawable/ic_remove_circle_outline_black_18dp" />
+        app:srcCompat="@drawable/ic_remove_circle_outline_black_18dp"
+        android:layout_marginRight="8dp" />
 
     <TextView
         android:id="@+id/tv_outs"

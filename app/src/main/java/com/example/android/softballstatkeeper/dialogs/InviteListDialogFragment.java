@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseIntArray;
@@ -22,14 +21,6 @@ import com.example.android.softballstatkeeper.objects.MainPageSelection;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link InviteListDialogFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link InviteListDialogFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class InviteListDialogFragment extends DialogFragment {
 
     private InviteListRecyclerViewAdapter mAdapter;

@@ -9,7 +9,6 @@ import android.util.Log;
 import com.example.android.softballstatkeeper.MyApp;
 import com.example.android.softballstatkeeper.R;
 import com.example.android.softballstatkeeper.data.FirestoreHelper;
-import com.example.android.softballstatkeeper.dialogs.DeleteConfirmationDialogFragment;
 import com.example.android.softballstatkeeper.dialogs.EditNameDialogFragment;
 import com.example.android.softballstatkeeper.fragments.PlayerFragment;
 import com.example.android.softballstatkeeper.objects.MainPageSelection;
@@ -55,7 +54,7 @@ public class PlayerManagerActivity extends ExportActivity
     }
 
     @Override
-    public void onEdit(String enteredText) {
+    public void onEdit(String enteredText, int type) {
         if (playerFragment != null && !enteredText.isEmpty()) {
             if (editTeam) {
                 playerFragment.updateTeamName(enteredText);

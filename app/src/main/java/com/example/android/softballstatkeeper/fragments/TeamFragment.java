@@ -34,9 +34,8 @@ import android.widget.Toast;
 
 import com.example.android.softballstatkeeper.MyApp;
 import com.example.android.softballstatkeeper.R;
-import com.example.android.softballstatkeeper.activities.ExportActivity;
 import com.example.android.softballstatkeeper.activities.SetLineupActivity;
-import com.example.android.softballstatkeeper.activities.UserSettingsActivity;
+import com.example.android.softballstatkeeper.activities.UsersActivity;
 import com.example.android.softballstatkeeper.adapters_listeners_etc.PlayerStatsAdapter;
 import com.example.android.softballstatkeeper.data.FirestoreHelper;
 import com.example.android.softballstatkeeper.data.StatsContract;
@@ -186,7 +185,7 @@ public class TeamFragment extends Fragment
         rootView.findViewById(R.id.game_title).setOnClickListener(this);
 
         FloatingActionButton startAdderBtn = rootView.findViewById(R.id.btn_start_adder);
-        if (levelAuthorized(UserSettingsActivity.LEVEL_VIEW_WRITE)) {
+        if (levelAuthorized(UsersActivity.LEVEL_VIEW_WRITE)) {
             startAdderBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -399,7 +398,7 @@ public class TeamFragment extends Fragment
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        if (levelAuthorized(UserSettingsActivity.LEVEL_VIEW_WRITE)) {
+        if (levelAuthorized(UsersActivity.LEVEL_VIEW_WRITE)) {
             inflater.inflate(R.menu.menu_team, menu);
         }
     }
@@ -407,10 +406,10 @@ public class TeamFragment extends Fragment
     @Override
     public void onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
-        if (!levelAuthorized(UserSettingsActivity.LEVEL_VIEW_WRITE)) {
+        if (!levelAuthorized(UsersActivity.LEVEL_VIEW_WRITE)) {
             return;
         }
-        if (levelAuthorized(UserSettingsActivity.LEVEL_ADMIN)) {
+        if (levelAuthorized(UsersActivity.LEVEL_ADMIN)) {
             menu.setGroupVisible(R.id.group_high_level_team_options, true);
         }
         if (waivers) {
@@ -455,7 +454,7 @@ public class TeamFragment extends Fragment
                 return true;
 
             case R.id.change_user_settings:
-                Intent settingsIntent = new Intent(getActivity(), UserSettingsActivity.class);
+                Intent settingsIntent = new Intent(getActivity(), UsersActivity.class);
                 startActivity(settingsIntent);
                 return true;
 
@@ -486,7 +485,7 @@ public class TeamFragment extends Fragment
         } else {
             FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            DialogFragment newFragment = DeleteVsWaiversDialogFragment.newInstance(teamName);
+            DialogFragment newFragment = new DeleteVsWaiversDialogFragment();
             newFragment.show(fragmentTransaction, "");
         }
     }

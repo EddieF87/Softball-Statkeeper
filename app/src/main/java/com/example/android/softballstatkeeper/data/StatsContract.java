@@ -1,6 +1,6 @@
 package com.example.android.softballstatkeeper.data;
 
-/**
+/*
  * Created by Eddie on 16/08/2017.
  */
 

@@ -348,11 +348,8 @@ public abstract class GameActivity extends AppCompatActivity
                 group1.clearCheck();
                 break;
             case R.id.out:
-                if (checked)
-                    result = StatsEntry.COLUMN_OUT;
-                group1.clearCheck();
-                break;
             case R.id.error:
+            case R.id.fc:
                 if (checked)
                     result = StatsEntry.COLUMN_OUT;
                 group1.clearCheck();
@@ -1230,7 +1227,7 @@ public abstract class GameActivity extends AppCompatActivity
             SharedPreferences savedGamePreferences = getSharedPreferences(selectionID + StatsEntry.GAME, Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = savedGamePreferences.edit();
             editor.clear();
-            editor.commit();
+            editor.apply();
         }
         exitToManager();
     }

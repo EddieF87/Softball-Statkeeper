@@ -126,7 +126,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialogFra
             editor.putInt(KEY_TOTALINNINGS, totalInnings);
             editor.putBoolean(KEY_GENDERSORT, sortArgument);
             editor.putInt(KEY_FEMALEORDER, genderSorter);
-            editor.commit();
+            editor.apply();
         } else {
             isHome = gamePreferences.getBoolean(KEY_ISHOME, false);
         }
@@ -309,7 +309,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialogFra
         editor.putInt(KEY_MYTEAMINDEX, myTeamIndex);
         editor.putBoolean(KEY_UNDOREDO, undoRedo);
         editor.putBoolean(KEY_REDOENDSGAME, redoEndsGame);
-        editor.commit();
+        editor.apply();
     }
 
     @Override

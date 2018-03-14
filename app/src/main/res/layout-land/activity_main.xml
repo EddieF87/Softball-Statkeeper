@@ -36,7 +36,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/team_sk_card"
         app:layout_constraintStart_toStartOf="@+id/current_statkeepers_title"
-        app:layout_constraintTop_toBottomOf="@+id/current_statkeepers_title">
+        app:layout_constraintTop_toBottomOf="@+id/current_statkeepers_title"
+        android:layout_marginRight="16dp">
 
         <TextView
             android:id="@+id/error_rv_main"
@@ -78,7 +79,8 @@
         app:layout_constraintEnd_toStartOf="@+id/textview_join_or_create"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/welcome_title" />
+        app:layout_constraintTop_toBottomOf="@+id/welcome_title"
+        android:layout_marginRight="8dp" />
 
     <TextView
         android:id="@+id/textview_join_or_create"
@@ -99,7 +101,8 @@
         app:layout_constraintBottom_toBottomOf="@+id/current_statkeepers_title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/current_statkeepers_title"
-        app:layout_constraintTop_toTopOf="@+id/current_statkeepers_title" />
+        app:layout_constraintTop_toTopOf="@+id/current_statkeepers_title"
+        android:layout_marginLeft="8dp" />
 
     <include
         android:id="@+id/player_sk_card"

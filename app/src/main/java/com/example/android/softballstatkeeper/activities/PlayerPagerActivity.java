@@ -5,19 +5,22 @@ import android.support.annotation.Nullable;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.example.android.softballstatkeeper.MyApp;
 import com.example.android.softballstatkeeper.data.FirestoreHelper;
 import com.example.android.softballstatkeeper.data.StatsContract;
 import com.example.android.softballstatkeeper.fragments.PlayerFragment;
-import com.example.android.softballstatkeeper.fragments.TeamFragment;
 import com.example.android.softballstatkeeper.objects.MainPageSelection;
-import com.squareup.leakcanary.RefWatcher;
 
 public class PlayerPagerActivity extends ObjectPagerActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("xyz", "onCreate PlayerPagerActivity");
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
         startPager(1, StatsContract.StatsEntry.CONTENT_URI_PLAYERS);
     }
 
@@ -52,8 +55,8 @@ public class PlayerPagerActivity extends ObjectPagerActivity {
     }
 
     @Override
-    public void onEdit(String enteredText) {
-        super.onEdit(enteredText);
+    public void onEdit(String enteredText, int type) {
+        super.onEdit(enteredText, type);
         if (enteredText.isEmpty()) {
             return;
         }

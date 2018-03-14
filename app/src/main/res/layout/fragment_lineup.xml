@@ -1,18 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright (C) 2015 Paul Burke
-  ~
-  ~ Licensed under the Apache License, Version 2.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
-  ~ You may obtain a copy of the License at
-  ~
-  ~      http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing, software
-  ~ distributed under the License is distributed on an "AS IS" BASIS,
-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~ See the License for the specific language governing permissions and
-  ~ limitations under the License.
-  -->
+<?xml version="1.0" encoding="utf-8"?>
+
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -97,6 +84,7 @@
 
         <Button
             android:id="@+id/continue_game"
+            android:background="@drawable/button_accent"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -107,6 +95,7 @@
 
         <Button
             android:id="@+id/lineup_submit"
+            android:background="@drawable/button_accent"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -228,7 +217,8 @@
         android:layout_marginEnd="32dp"
         app:layout_constraintBottom_toBottomOf="@+id/radiobtns_away_or_home_team"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/radiobtns_away_or_home_team" />
+        app:layout_constraintTop_toTopOf="@+id/radiobtns_away_or_home_team"
+        android:layout_marginRight="32dp" />
 
     <FrameLayout
         android:id="@+id/layout_lineup"
@@ -249,29 +239,5 @@
             android:paddingTop="8dp"
             android:paddingBottom="8dp"
             />
-
-        <!--<android.support.v7.widget.RecyclerView-->
-        <!--android:id="@+id/rvLeft"-->
-        <!--android:layout_width="0dp"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:layout_weight="1"-->
-        <!--android:background="@drawable/bg_accent_left"-->
-        <!--android:paddingBottom="8dp"-->
-        <!--android:paddingLeft="16dp"-->
-        <!--android:paddingRight="16dp"-->
-        <!--android:paddingTop="8dp"-->
-        <!--android:scrollbars="vertical" />-->
-
-        <!--<android.support.v7.widget.RecyclerView-->
-        <!--android:id="@+id/rvRight"-->
-        <!--android:layout_width="0dp"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:layout_weight="1"-->
-        <!--android:background="@drawable/bg_accent_right"-->
-        <!--android:paddingBottom="8dp"-->
-        <!--android:paddingLeft="16dp"-->
-        <!--android:paddingRight="16dp"-->
-        <!--android:paddingTop="8dp"-->
-        <!--android:scrollbars="vertical" />-->
     </FrameLayout>
 </android.support.constraint.ConstraintLayout>

@@ -337,7 +337,7 @@ public class LeagueGameActivity extends GameActivity /*implements LoaderManager.
         editor.putInt(KEY_HOMETEAMINDEX, homeTeamIndex);
         editor.putBoolean(KEY_UNDOREDO, undoRedo);
         editor.putBoolean(KEY_REDOENDSGAME, redoEndsGame);
-        editor.commit();
+        editor.apply();
     }
 
     @Override

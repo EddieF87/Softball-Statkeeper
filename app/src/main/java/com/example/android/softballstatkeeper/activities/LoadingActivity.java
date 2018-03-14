@@ -178,7 +178,7 @@ public class LoadingActivity extends AppCompatActivity
             countdown = 99;
         }
         loadProgressBar.setVisibility(View.INVISIBLE);
-        loadTitle.setText("Error");
+        loadTitle.setText(R.string.error);
         loadDescription.setText("Error with " + error);
     }
 

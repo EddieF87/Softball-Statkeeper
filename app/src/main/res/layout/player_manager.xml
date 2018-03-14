@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="12dp">
@@ -87,11 +86,12 @@
         android:autoSizeMaxTextSize="16sp"
         android:autoSizeMinTextSize="8sp"
         android:autoSizeTextType="uniform"
-        android:text="Submit"
+        android:text="@string/submit"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/group2" />
+        app:layout_constraintTop_toBottomOf="@+id/group2"
+        android:layout_marginRight="16dp" />
 
     <TextView
         android:id="@+id/textview_result_chosen"

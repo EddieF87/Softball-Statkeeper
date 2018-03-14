@@ -28,7 +28,8 @@
         android:background="@drawable/bg_white"
         android:paddingBottom="8dp"
         android:paddingStart="24dp"
-        android:paddingTop="8dp">
+        android:paddingTop="8dp"
+        android:paddingLeft="24dp">
 
         <TextView
             android:id="@+id/top_team"
@@ -60,7 +61,9 @@
             android:layout_toEndOf="@id/top_team"
             android:layout_toRightOf="@id/top_team"
             android:layout_toStartOf="@id/boxscore_total"
-            android:layout_toLeftOf="@id/boxscore_total" />
+            android:layout_toLeftOf="@id/boxscore_total"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="12dp" />
 
         <include
             android:id="@+id/boxscore_total"

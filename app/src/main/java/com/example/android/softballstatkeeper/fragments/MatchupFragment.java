@@ -1,10 +1,8 @@
 package com.example.android.softballstatkeeper.fragments;
 
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
-import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
@@ -37,14 +35,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.android.softballstatkeeper.MyApp;
 import com.example.android.softballstatkeeper.R;
-import com.example.android.softballstatkeeper.activities.BlankFragment;
 import com.example.android.softballstatkeeper.activities.BoxScoreActivity;
 import com.example.android.softballstatkeeper.activities.LeagueGameActivity;
-import com.example.android.softballstatkeeper.activities.LeagueManagerActivity;
 import com.example.android.softballstatkeeper.activities.SetLineupActivity;
-import com.example.android.softballstatkeeper.activities.UserSettingsActivity;
 import com.example.android.softballstatkeeper.adapters_listeners_etc.MatchupAdapter;
 import com.example.android.softballstatkeeper.adapters_listeners_etc.VerticalTextView;
 import com.example.android.softballstatkeeper.data.StatsContract;
@@ -52,7 +46,6 @@ import com.example.android.softballstatkeeper.data.StatsContract.StatsEntry;
 import com.example.android.softballstatkeeper.dialogs.GameSettingsDialogFragment;
 import com.example.android.softballstatkeeper.objects.MainPageSelection;
 import com.example.android.softballstatkeeper.objects.Player;
-import com.squareup.leakcanary.RefWatcher;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -97,7 +90,6 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     private static final int MATCHUP_LOADER = 5;
 
     private String leagueID;
-    private String leagueName;
     private int innings;
     private int genderSorter;
 
@@ -118,11 +110,9 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        Log.d("aaa", "onCreate MatchupFragment");
 
         Bundle args = getArguments();
         leagueID = args.getString(MainPageSelection.KEY_SELECTION_ID);
-        leagueName = args.getString(MainPageSelection.KEY_SELECTION_NAME);
     }
 
     @Override
@@ -246,7 +236,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                     return;
                 }
                 if(mListener != null) {
-                    clearGameDB();
+                    mListener.clearGameDB();
                 }
                 if (setLineupsToDB()) {
                     return;
@@ -272,7 +262,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                 editor.putInt("keyTotalInnings", innings);
                 editor.putInt("keyGenderSort", sortArgument);
                 editor.putInt("keyFemaleOrder", genderSorter);
-                editor.commit();
+                editor.apply();
 
                 startActivity(intent);
             }
@@ -309,7 +299,6 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
             gameSummaryView.setVisibility(View.GONE);
         }
         cursor.close();
-        Log.d("qqq", "onResume initRVs");
     }
 
     private void setGameSummaryView(final int awayRuns, final int homeRuns){
@@ -407,16 +396,6 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         stringBuilder.append("<font color='#f99da2'>G</font>");
         String order = stringBuilder.toString();
         orderView.setText(Html.fromHtml(order));
-    }
-
-    private void clearGameDB() {
-        getActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, null, null);
-        getActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, null, null);
-        SharedPreferences savedGamePreferences = getActivity()
-                .getSharedPreferences(leagueID + StatsEntry.GAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = savedGamePreferences.edit();
-        editor.clear();
-        editor.commit();
     }
 
     private int getGenderSorter() {
@@ -519,12 +498,9 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        Log.d("qqq", "onItemSelected");
         String teamName;
         String teamID;
         if (view == null) {
-            Log.d("qqq", "view == null");
-
             if (parent.getId() == R.id.awayteam_spinner) {
                 if (awayTeamName != null) {
                     List<Player> playerList = getLineup(awayTeamID);
@@ -550,11 +526,9 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         if (parent.getId() == R.id.awayteam_spinner) {
             awayTeamName = teamName;
             awayTeamID = teamID;
-            Log.d("qqq", "parent.getId() == R.id.awayteam_spinner" + awayTeamName + awayTeamID);
         } else if (parent.getId() == R.id.hometeam_spinner) {
             homeTeamName = teamName;
             homeTeamID = teamID;
-            Log.d("qqq", "parent.getId() == R.id.hometeam_spinner" + homeTeamName + homeTeamID);
         } else {
             Toast.makeText(getActivity(), "onItemSelected error ", Toast.LENGTH_SHORT).show();
         }
@@ -567,11 +541,9 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         if (parent.getId() == R.id.awayteam_spinner) {
             updateRVs(rvAway, playerList);
             key = KEY_AWAY_STATE;
-            Log.d("qqq", "update Away RV");
         } else {
             updateRVs(rvHome, playerList);
             key = KEY_HOME_STATE;
-            Log.d("qqq", "update Home RV");
         }
         editor = spinnerStates.edit();
         editor.putInt(key, position);
@@ -598,38 +570,31 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
 
     private void updateRVs(RecyclerView rv, List<Player> playerList) {
         if (initialization) {
-            Log.d("qqq", "initialization");
             updateAwayRV(playerList);
             updateHomeRV(playerList);
             initialization = false;
             return;
         }
         if (rv == rvAway) {
-            Log.d("qqq", "rv == rvAway");
             updateAwayRV(playerList);
         } else if (rv == rvHome) {
-            Log.d("qqq", "rv == rvHome");
             updateHomeRV(playerList);
         }
     }
 
     public void updateMatchup() {
         if (awayTeamSpinner.getSelectedItem() == null || homeTeamSpinner.getSelectedItem() == null) {
-            Log.d("qqq", "awayTeamSpinner.getSelectedItem() == null || homeTeamSpinner.getSelectedItem() == nul");
             return;
         }
 
         List<Player> awayList = getLineup(awayTeamID);
-        Log.d("qqq", "List<Player> awayList = getLineup(" + awayTeamName + "  " + awayTeamID);
         List<Player> homeList = getLineup(homeTeamID);
-        Log.d("qqq", "List<Player> homeList = getLineup(" + homeTeamName + "  " + homeTeamID);
 
         updateRVs(rvAway, awayList);
         updateRVs(rvHome, homeList);
     }
 
     public void updateAwayRV(List<Player> lineup) {
-        Log.d("qqq", "updateAwayRV");
         if (awayLineup != null) {
             awayLineup.clear();
         } else {
@@ -646,7 +611,6 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     }
 
     private void initAwayRV() {
-        Log.d("qqq", "initAwayRV");
         int genderSorter = getGenderSorter();
 
         rvAway.setLayoutManager(new LinearLayoutManager(
@@ -657,7 +621,6 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     }
 
     public void updateHomeRV(List<Player> lineup) {
-        Log.d("qqq", "updateHomeRV");
         if (homeLineup != null) {
             homeLineup.clear();
         } else {
@@ -674,7 +637,6 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     }
 
     private void initHomeRV() {
-        Log.d("qqq", "initHomeRV");
         int genderSorter = getGenderSorter();
 
         rvHome.setLayoutManager(new LinearLayoutManager(
@@ -858,19 +820,6 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         return adapter;
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        RefWatcher refWatcher = MyApp.getRefWatcher(getActivity());
-        refWatcher.watch(this);
-        Log.d("aaa", "onDestroy MatchupFragment");
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        Log.d("aaa", "onDestroyView MatchupFragment");
-    }
 
     @Override
     public void onAttach(Context context) {
@@ -887,7 +836,6 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     public void onDetach() {
         super.onDetach();
         mListener = null;
-        Log.d("aaa", "onDetach MatchupFragment");
     }
 
     public interface OnFragmentInteractionListener {

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.android.softballstatkeeper.activities.UserSettingsActivity"
+    tools:context="com.example.android.softballstatkeeper.activities.UsersActivity"
     tools:layout_editor_absoluteY="81dp">
 
     <LinearLayout

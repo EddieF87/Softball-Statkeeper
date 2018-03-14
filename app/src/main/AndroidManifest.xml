@@ -63,7 +63,7 @@
             />
 
         <activity android:name="com.example.android.softballstatkeeper.activities.PlayerPagerActivity"
-            android:launchMode="singleTask" />
+            />
 
         <activity
             android:name="com.example.android.softballstatkeeper.activities.TeamManagerActivity"
@@ -74,7 +74,7 @@
             android:name="com.example.android.softballstatkeeper.activities.PlayerManagerActivity" />
 
         <activity
-            android:name="com.example.android.softballstatkeeper.activities.UserSettingsActivity"
+            android:name="com.example.android.softballstatkeeper.activities.UsersActivity"
             android:screenOrientation="portrait" />
 
         <provider

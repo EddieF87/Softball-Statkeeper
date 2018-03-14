@@ -20,7 +20,7 @@
         android:layout_weight="1"
         android:layout_height="wrap_content"
         android:textStyle="bold"
-        android:background="@drawable/buttonselector"
+        android:background="@drawable/genderselector"
         android:textOff="M"
         android:textOn="F"
         />

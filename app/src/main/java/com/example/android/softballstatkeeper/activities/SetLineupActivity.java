@@ -93,17 +93,16 @@ public class SetLineupActivity extends SingleFragmentActivity
             if (uri != null) {
                 Cursor cursor = getContentResolver().query(uri, null, null, null, null);
                 if(cursor.moveToFirst()) {
-
                     Player player = new Player(cursor, false);
                     players.add(player);
                 }
+                cursor.close();
             }
         }
         if (!players.isEmpty()) {
             new FirestoreHelper(this, mSelectionID).updateTimeStamps();
 
-            if(lineupFragment != null)
-            {
+            if(lineupFragment != null) {
                 lineupFragment.updateBench(players);
             }
         }

@@ -41,11 +41,11 @@ import java.util.Map;
 import static com.example.android.softballstatkeeper.data.FirestoreHelper.LEAGUE_COLLECTION;
 import static com.example.android.softballstatkeeper.data.FirestoreHelper.USERS;
 
-public class UserSettingsActivity extends AppCompatActivity
+public class UsersActivity extends AppCompatActivity
         implements UserFragment.OnListFragmentInteractionListener,
         InviteUserDialogFragment.OnFragmentInteractionListener{
 
-    private static final String TAG = "UserSettingsActivity";
+    private static final String TAG = "UsersActivity";
     private static final String SAVED_MAP = "map";
     private static final String SAVED_USERLIST = "userlist";
     private static final String SAVED_REQUESTLIST = "requestlist";
@@ -84,7 +84,7 @@ public class UserSettingsActivity extends AppCompatActivity
             MainPageSelection mainPageSelection = myApp.getCurrentSelection();
             leagueID = mainPageSelection.getId();
         } catch (Exception e) {
-            Intent intent = new Intent(UserSettingsActivity.this, MainActivity.class);
+            Intent intent = new Intent(UsersActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
         }

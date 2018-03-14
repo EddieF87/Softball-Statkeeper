@@ -42,7 +42,8 @@
         app:layout_constraintEnd_toStartOf="@+id/inning_bottom_arrow"
         app:layout_constraintLeft_toLeftOf="@+id/scoreboard"
         app:layout_constraintTop_toBottomOf="@+id/scoreboard"
-        tools:text="at bat: gggggggggggggd" />
+        tools:text="at bat: gggggggggggggd"
+        android:layout_marginRight="8dp" />
 
     <ImageView
         android:id="@+id/inning_top_arrow"
@@ -52,7 +53,8 @@
         android:tint="#FFD600"
         app:layout_constraintEnd_toStartOf="@+id/num_of_outs"
         app:layout_constraintTop_toTopOf="@+id/scoreboard"
-        app:srcCompat="@android:drawable/arrow_up_float" />
+        app:srcCompat="@android:drawable/arrow_up_float"
+        android:layout_marginRight="16dp" />
 
     <ImageView
         android:id="@+id/inning_bottom_arrow"
@@ -92,7 +94,8 @@
         android:layout_marginLeft="16dp"
         app:layout_constraintLeft_toRightOf="@+id/avgdisplay"
         app:layout_constraintTop_toTopOf="@+id/avgdisplay"
-        tools:text="playerHR" />
+        tools:text="playerHR"
+        android:layout_marginStart="16dp" />
 
     <TextView
         android:id="@+id/rbidisplay"
@@ -100,7 +103,8 @@
         android:layout_marginLeft="16dp"
         app:layout_constraintLeft_toRightOf="@+id/hrdisplay"
         app:layout_constraintTop_toTopOf="@+id/hrdisplay"
-        tools:text="playerRBI" />
+        tools:text="playerRBI"
+        android:layout_marginStart="16dp" />
 
     <TextView
         android:id="@+id/rundisplay"
@@ -108,7 +112,8 @@
         android:layout_marginLeft="16dp"
         app:layout_constraintLeft_toRightOf="@+id/rbidisplay"
         app:layout_constraintTop_toTopOf="@+id/rbidisplay"
-        tools:text="playerRuns" />
+        tools:text="playerRuns"
+        android:layout_marginStart="16dp" />
 
     <TextView
         android:id="@+id/avgdisplay"

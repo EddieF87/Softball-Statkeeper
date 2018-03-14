@@ -21,7 +21,8 @@
         android:paddingBottom="2dp"
         android:paddingLeft="8dp"
         android:autoSizeTextType="uniform"
-        android:autoSizeMinTextSize="8sp"/>
+        android:autoSizeMinTextSize="8sp"
+        android:paddingStart="8dp" />
 
     <TextView
         android:id="@+id/ab_title"

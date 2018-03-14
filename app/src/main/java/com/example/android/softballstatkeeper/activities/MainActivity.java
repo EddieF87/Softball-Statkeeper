@@ -1,8 +1,6 @@
 package com.example.android.softballstatkeeper.activities;
 
-import android.app.Dialog;
 import android.content.ContentValues;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Handler;
@@ -12,18 +10,15 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.util.SparseIntArray;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,7 +30,9 @@ import com.example.android.softballstatkeeper.adapters_listeners_etc.MainPageAda
 import com.example.android.softballstatkeeper.data.StatsContract;
 import com.example.android.softballstatkeeper.data.StatsContract.StatsEntry;
 import com.example.android.softballstatkeeper.dialogs.DeleteSelectionDialogFragment;
+import com.example.android.softballstatkeeper.dialogs.EditNameDialogFragment;
 import com.example.android.softballstatkeeper.dialogs.InviteListDialogFragment;
+import com.example.android.softballstatkeeper.dialogs.JoinOrCreateDialogFragment;
 import com.example.android.softballstatkeeper.dialogs.LoadErrorDialogFragment;
 import com.example.android.softballstatkeeper.dialogs.SelectionInfoDialogFragment;
 import com.example.android.softballstatkeeper.objects.MainPageSelection;
@@ -73,26 +70,30 @@ public class MainActivity extends AppCompatActivity
         InviteListDialogFragment.OnFragmentInteractionListener,
         SelectionInfoDialogFragment.OnFragmentInteractionListener,
         DeleteSelectionDialogFragment.OnFragmentInteractionListener,
-        LoadErrorDialogFragment.OnFragmentInteractionListener
-{
+        LoadErrorDialogFragment.OnFragmentInteractionListener,
+        JoinOrCreateDialogFragment.OnFragmentInteractionListener,
+        EditNameDialogFragment.OnFragmentInteractionListener {
 
     private static final String TAG = "MainActivity";
     private static final String AUTH = "FirebaseAuth";
     private FirebaseAuth mAuth;
     private static final int RC_SIGN_IN = 0;
-    private List<MainPageSelection> mSelectionList;
+    private ArrayList<MainPageSelection> mSelectionList;
     private List<MainPageSelection> mInviteList;
     private String userID;
     private boolean visible;
     private RecyclerView mRecyclerView;
     private MainPageAdapter mainPageAdapter;
     private static final int MAIN_LOADER = 22;
-    private boolean loadFinished;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mSelectionList = getIntent().getParcelableArrayListExtra("mSelectionList");
+
         MobileAds.initialize(this, "ca-app-pub-5443559095909539~1574171209");
 
         View playerV = findViewById(R.id.player_sk_card);
@@ -165,15 +166,17 @@ public class MainActivity extends AppCompatActivity
         getSupportLoaderManager().initLoader(MAIN_LOADER, null, this);
     }
 
-    public void setViews(){
-        loadFinished = true;
+    public void setViews() {
         Log.d("aaa", "setViews() MainActivity");
         ProgressBar progressBar = findViewById(R.id.progressBarMain);
         TextView rvErrorView = findViewById(R.id.error_rv_main);
         if (mSelectionList.isEmpty()) {
-            rvErrorView.setText("Please create a StatKeeper!");
+            rvErrorView.setText(R.string.create_statkeeper);
             progressBar.setVisibility(View.GONE);
             rvErrorView.setVisibility(View.VISIBLE);
+            if (!visible) {
+                shuffleCreateStatKeeperViewsVisibility();
+            }
         } else {
             Collections.sort(mSelectionList, MainPageSelection.nameComparator());
             Collections.sort(mSelectionList, MainPageSelection.typeComparator());
@@ -184,21 +187,25 @@ public class MainActivity extends AppCompatActivity
             progressBar.setVisibility(View.GONE);
             mRecyclerView.setVisibility(View.VISIBLE);
         }
-        if (!mInviteList.isEmpty()) {
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            DialogFragment newFragment = InviteListDialogFragment.newInstance(mInviteList);
-            newFragment.show(fragmentTransaction, "");
+        try {
+            if (!mInviteList.isEmpty()) {
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                DialogFragment newFragment = InviteListDialogFragment.newInstance(mInviteList);
+                newFragment.show(fragmentTransaction, "");
+            }
+        } catch (Exception e) {
         }
+
     }
 
-    public void shuffleCreateStatKeeperViewsVisibility(){
-        TextView textView = (TextView) findViewById(R.id.textview_join_or_create);
+    public void shuffleCreateStatKeeperViewsVisibility() {
+        TextView textView = findViewById(R.id.textview_join_or_create);
         View playerV = findViewById(R.id.player_sk_card);
         View teamV = findViewById(R.id.team_sk_card);
         View leagueV = findViewById(R.id.lg_sk_card);
         int visibilitySetting;
-        if(visible) {
+        if (visible) {
             textView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_reorder_white_500_24dp, 0, 0, 0);
             visibilitySetting = View.GONE;
         } else {
@@ -235,11 +242,16 @@ public class MainActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_sign_in:
+                mSelectionList = null;
                 authenticateUser();
                 break;
             case R.id.action_sign_out:
-                RecyclerView recyclerView = findViewById(R.id.rv_main);
-                recyclerView.setAdapter(null);
+                if (mSelectionList != null) {
+                    mSelectionList.clear();
+                }
+                if (mRecyclerView != null) {
+                    mRecyclerView.setAdapter(null);
+                }
                 AuthUI.getInstance()
                         .signOut(this)
                         .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -262,144 +274,55 @@ public class MainActivity extends AppCompatActivity
         switch (view.getId()) {
             case R.id.player_sk_card:
                 type = MainPageSelection.TYPE_PLAYER;
-                selection = "Player";
                 break;
 
             case R.id.team_sk_card:
                 type = MainPageSelection.TYPE_TEAM;
-                selection = "Team";
                 break;
 
             case R.id.lg_sk_card:
                 type = MainPageSelection.TYPE_LEAGUE;
-                selection = "League";
                 break;
 
             default:
                 Log.e(TAG, "error with onclick");
                 return;
         }
-        joinCreateDialog(type, selection);
+        joinCreateDialog(type);
     }
 
-    public void joinCreateDialog(final int type, String selection) {
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        final String dialogMessage = "Create a new " + selection;
-        builder.setMessage(dialogMessage).
-                setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        if (dialogInterface != null) {
-                            dialogInterface.dismiss();
-                        }
-                    }
-                })
-                .setPositiveButton("Create", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        enterNameDialog(type);
-                        if (dialogInterface != null) {
-                            dialogInterface.dismiss();
-                        }
-                    }
-                });
-        if (type != MainPageSelection.TYPE_PLAYER) {
-            builder.setNegativeButton("Join", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    if (dialogInterface != null) {
-                        dialogInterface.dismiss();
-                    }
-                }
-            });
-        }
-
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
+    public void joinCreateDialog(int type) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        DialogFragment newFragment = JoinOrCreateDialogFragment.newInstance(type);
+        newFragment.show(fragmentTransaction, "");
     }
 
-    public void enterNameDialog(final int type) {
-        final Intent intent;
+    public void enterNameDialog(int type) {
+        String titleString = "Enter %1$s name";
+        String selection;
         switch (type) {
             case MainPageSelection.TYPE_PLAYER:
-                intent = new Intent(MainActivity.this, PlayerManagerActivity.class);
+                selection = getString(R.string.player);
                 break;
+
             case MainPageSelection.TYPE_TEAM:
-                intent = new Intent(MainActivity.this, TeamManagerActivity.class);
+                selection = getString(R.string.team);
                 break;
+
             case MainPageSelection.TYPE_LEAGUE:
-                intent = new Intent(MainActivity.this, LeagueManagerActivity.class);
+                selection = getString(R.string.league);
                 break;
+
             default:
+                Log.e(TAG, "error with onclick");
                 return;
         }
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        final LayoutInflater inflater = getLayoutInflater();
-
-        builder.setView(inflater.inflate(R.layout.dialog_edit_name, null))
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        if (dialogInterface != null) {
-                            dialogInterface.dismiss();
-                        }
-                    }
-                })
-                .setPositiveButton("Enter", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        FirebaseUser currentUser = mAuth.getCurrentUser();
-                        if (currentUser == null) {
-                            if (dialogInterface != null) {
-                                dialogInterface.dismiss();
-                            }
-                            return;
-                        }
-                        String userEmail = currentUser.getEmail();
-                        String userDisplayName = currentUser.getDisplayName();
-                        Dialog dialog1 = (Dialog) dialogInterface;
-                        EditText editText = dialog1.findViewById(R.id.username);
-                        String name = editText.getText().toString();
-                        int level = 5;
-
-                        Map<String, Object> firestoreLeagueMap = new HashMap<>();
-                        firestoreLeagueMap.put(StatsEntry.COLUMN_NAME, name);
-                        firestoreLeagueMap.put(StatsEntry.TYPE, type);
-                        firestoreLeagueMap.put(userID, level);
-                        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-                        DocumentReference documentReference = firestore.collection(LEAGUE_COLLECTION).document();
-                        documentReference.set(firestoreLeagueMap);
-                        Map<String, Object> firestoreUserMap = new HashMap<>();
-                        firestoreUserMap.put(StatsEntry.LEVEL, level);
-                        firestoreUserMap.put(StatsEntry.EMAIL, userEmail);
-                        firestoreUserMap.put(StatsEntry.COLUMN_NAME, userDisplayName);
-                        documentReference.collection(USERS).document(userID).set(firestoreUserMap);
-
-                        MyApp myApp = (MyApp) getApplicationContext();
-                        String selectionID = documentReference.getId();
-                        MainPageSelection mainPageSelection = new MainPageSelection(selectionID, name, type, level);
-                        myApp.setCurrentSelection(mainPageSelection);
-                        insertSelectionToSQL(selectionID, name, type, level);
-
-                        if (type == MainPageSelection.TYPE_TEAM) {
-                            ContentValues values = new ContentValues();
-                            values.put(StatsEntry.COLUMN_NAME, name);
-                            values.put(StatsEntry.ADD, true);
-                            getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
-                        } else if (type == MainPageSelection.TYPE_PLAYER) {
-                            ContentValues values = new ContentValues();
-                            values.put(StatsEntry.COLUMN_NAME, name);
-                            getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
-                        }
-
-
-                        startActivity(intent);
-                    }
-                });
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
+        String title = String.format(titleString, selection);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        DialogFragment newFragment = EditNameDialogFragment.newInstance(title, type);
+        newFragment.show(fragmentTransaction, "");
     }
 
     @Override
@@ -410,11 +333,13 @@ public class MainActivity extends AppCompatActivity
             userID = currentUser.getUid();
         }
 
-        for(int i = 0; i < changes.size(); i++) {
+        for (int i = 0; i < changes.size(); i++) {
             int key = changes.keyAt(i);
             int level = changes.get(key);
 
-            if(level < 0) {continue;}
+            if (level < 0) {
+                continue;
+            }
 
             MainPageSelection mainPageSelection;
             mainPageSelection = list.get(key);
@@ -425,7 +350,7 @@ public class MainActivity extends AppCompatActivity
 
             DocumentReference docRef = firestore.collection(LEAGUE_COLLECTION).document(selectionID);
 
-            Map<String,Object> updates = new HashMap<>();
+            Map<String, Object> updates = new HashMap<>();
             if (level == 0) {
                 updates.put(userID, FieldValue.delete());
             } else if (level > 0) {
@@ -436,7 +361,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void insertSelectionToSQL(String selectionID, String name, int type, int level){
+    private void insertSelectionToSQL(String selectionID, String name, int type, int level) {
         ContentValues selectionValues = new ContentValues();
         selectionValues.put(StatsEntry.COLUMN_FIRESTORE_ID, selectionID);
         selectionValues.put(StatsEntry.COLUMN_NAME, name);
@@ -475,11 +400,11 @@ public class MainActivity extends AppCompatActivity
                         .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot querySnapshot) {
-                        if(querySnapshot.size() == 0) {
+                        if (querySnapshot.size() == 0) {
                             leagueDoc.collection(PLAYERS_COLLECTION).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                                 @Override
                                 public void onSuccess(QuerySnapshot querySnapshot) {
-                                    for(DocumentSnapshot documentSnapshot : querySnapshot) {
+                                    for (DocumentSnapshot documentSnapshot : querySnapshot) {
                                         DocumentReference documentReference = documentSnapshot.getReference();
                                         documentReference.collection(PLAYER_LOGS).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                                             @Override
@@ -497,7 +422,7 @@ public class MainActivity extends AppCompatActivity
                             leagueDoc.collection(TEAMS_COLLECTION).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                                 @Override
                                 public void onSuccess(QuerySnapshot querySnapshot) {
-                                    for(DocumentSnapshot documentSnapshot : querySnapshot) {
+                                    for (DocumentSnapshot documentSnapshot : querySnapshot) {
                                         DocumentReference documentReference = documentSnapshot.getReference();
                                         documentReference.collection(TEAM_LOGS).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                                             @Override
@@ -527,17 +452,6 @@ public class MainActivity extends AppCompatActivity
                 });
             }
         });
-
-
-        if(mainPageSelection.getLevel() == UserSettingsActivity.LEVEL_CREATOR) {
-            Handler handler = new Handler();
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-
-                }
-            });
-        }
     }
 
     @Override
@@ -551,23 +465,23 @@ public class MainActivity extends AppCompatActivity
             public void run() {
                 fireTaskLoader.cancelLoadInBackground();
             }
-        }, 12000);
+        }, 15000);
         return fireTaskLoader;
     }
 
     @Override
     public void onLoadFinished(android.support.v4.content.Loader<QuerySnapshot> loader, QuerySnapshot querySnapshot) {
-        Log.d("aaa", "onLoadFinished() MainActivity");
-        if(loadFinished) {
+        if (mSelectionList != null) {
+            setViews();
+            Log.d("xyxy", "  setViews");
             return;
         }
+        Log.d("xyxy", "  mSelectionList == null");
 
-        if(querySnapshot == null) {
+        if (querySnapshot == null) {
             ProgressBar progressBar = findViewById(R.id.progressBarMain);
             progressBar.setVisibility(View.GONE);
-            TextView rvErrorView = findViewById(R.id.error_rv_main);
-            rvErrorView.setVisibility(View.VISIBLE);
-            rvErrorView.setText("Error getting documents.");
+            Log.d("xyxy", "  querySnapshot == null");
             Handler handler = new Handler();
             handler.post(new Runnable() {
                 @Override
@@ -581,17 +495,14 @@ public class MainActivity extends AppCompatActivity
             return;
         }
 
-        if(mInviteList == null) {
+        if (mInviteList == null) {
             mInviteList = new ArrayList<>();
         } else {
             mInviteList.clear();
         }
 
-        if(mSelectionList == null) {
-            mSelectionList = new ArrayList<>();
-        } else {
-            mSelectionList.clear();
-        }
+        mSelectionList = new ArrayList<>();
+        Log.d("xyxy", "mSelectionList = new ArrayList<>();");
 
         for (DocumentSnapshot documentSnapshot : querySnapshot) {
             int level = documentSnapshot.getLong(userID).intValue();
@@ -602,7 +513,7 @@ public class MainActivity extends AppCompatActivity
                     selectionID, name, type, level);
             if (level < -1) {
                 mInviteList.add(mainPageSelection);
-            } else if (level >= UserSettingsActivity.LEVEL_VIEW_ONLY) {
+            } else if (level >= UsersActivity.LEVEL_VIEW_ONLY) {
                 mSelectionList.add(mainPageSelection);
             }
         }
@@ -618,7 +529,7 @@ public class MainActivity extends AppCompatActivity
     public void loadChoice(boolean load) {
         TextView rvErrorView = findViewById(R.id.error_rv_main);
         rvErrorView.setVisibility(View.GONE);
-        if(load) {
+        if (load) {
             mInviteList = new ArrayList<>();
             mSelectionList = new ArrayList<>();
             Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_SELECTIONS,
@@ -631,34 +542,100 @@ public class MainActivity extends AppCompatActivity
                 mSelectionList.add(new MainPageSelection(id, name, type, level));
             }
             setViews();
-        }  else {
+        } else {
             getSupportLoaderManager().restartLoader(MAIN_LOADER, null, this);
         }
     }
 
     @Override
     protected void onStop() {
-        Log.d("aaa", "onStop() MainActivity");
-        if(mRecyclerView != null) {
+        super.onStop();
+        getIntent().putParcelableArrayListExtra("mSelectionList", mSelectionList);
+        if (mRecyclerView != null) {
             mRecyclerView.setAdapter(null);
             mRecyclerView.setLayoutManager(null);
         }
-        if(mainPageAdapter != null) {
+        if (mainPageAdapter != null) {
             mainPageAdapter = null;
         }
-        super.onStop();
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
-        loadFinished = false;
-        Log.d("aaa", "onRestart() MainActivity");
+        mSelectionList = getIntent().getParcelableArrayListExtra("mSelectionList");
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        Log.d("aaa", "onStart() MainActivity");
+    public void onEdit(String name, int type) {
+        if(type == -1) {
+            return;
+        }
+        if (name.isEmpty()) {
+            Toast.makeText(MainActivity.this, R.string.please_enter_name_first, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        final Intent intent;
+        switch (type) {
+            case MainPageSelection.TYPE_PLAYER:
+                intent = new Intent(MainActivity.this, PlayerManagerActivity.class);
+                break;
+            case MainPageSelection.TYPE_TEAM:
+                intent = new Intent(MainActivity.this, TeamManagerActivity.class);
+                break;
+            case MainPageSelection.TYPE_LEAGUE:
+                intent = new Intent(MainActivity.this, LeagueManagerActivity.class);
+                break;
+            default:
+                return;
+        }
+
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) {
+            return;
+        }
+        String userEmail = currentUser.getEmail();
+        String userDisplayName = currentUser.getDisplayName();
+        int level = 5;
+
+        Map<String, Object> firestoreLeagueMap = new HashMap<>();
+        firestoreLeagueMap.put(StatsEntry.COLUMN_NAME, name);
+        firestoreLeagueMap.put(StatsEntry.TYPE, type);
+        firestoreLeagueMap.put(userID, level);
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        DocumentReference documentReference = firestore.collection(LEAGUE_COLLECTION).document();
+        documentReference.set(firestoreLeagueMap);
+        Map<String, Object> firestoreUserMap = new HashMap<>();
+        firestoreUserMap.put(StatsEntry.LEVEL, level);
+        firestoreUserMap.put(StatsEntry.EMAIL, userEmail);
+        firestoreUserMap.put(StatsEntry.COLUMN_NAME, userDisplayName);
+        documentReference.collection(USERS).document(userID).set(firestoreUserMap);
+
+        MyApp myApp = (MyApp) getApplicationContext();
+        String selectionID = documentReference.getId();
+        MainPageSelection mainPageSelection = new MainPageSelection(selectionID, name, type, level);
+        myApp.setCurrentSelection(mainPageSelection);
+        insertSelectionToSQL(selectionID, name, type, level);
+        mSelectionList.add(mainPageSelection);
+
+        if (type == MainPageSelection.TYPE_TEAM) {
+            ContentValues values = new ContentValues();
+            values.put(StatsEntry.COLUMN_NAME, name);
+            values.put(StatsEntry.ADD, true);
+            getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
+        } else if (type == MainPageSelection.TYPE_PLAYER) {
+            ContentValues values = new ContentValues();
+            values.put(StatsEntry.COLUMN_NAME, name);
+            getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
+        }
+        startActivity(intent);
+    }
+
+    @Override
+    public void onCreate(boolean create, int type) {
+        if(create) {
+            enterNameDialog(type);
+        }
     }
 }
