@@ -9,7 +9,6 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -42,14 +41,13 @@ import com.example.android.softballstatkeeper.data.FirestoreHelper;
 import com.example.android.softballstatkeeper.data.StatsContract;
 import com.example.android.softballstatkeeper.data.StatsContract.StatsEntry;
 import com.example.android.softballstatkeeper.dialogs.AddNewPlayersDialogFragment;
-import com.example.android.softballstatkeeper.dialogs.ChooseOrCreateTeamDialogFragment;
-import com.example.android.softballstatkeeper.dialogs.GameSettingsDialogFragment;
 import com.example.android.softballstatkeeper.objects.MainPageSelection;
 import com.example.android.softballstatkeeper.objects.Team;
 import com.squareup.leakcanary.RefWatcher;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class StandingsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
         View.OnClickListener {
@@ -61,7 +59,7 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
     private StandingsAdapter mAdapter;
     private ArrayList<Team> mTeams;
     private TextView colorView;
-    private FloatingActionButton startAdderButton;
+    private Button startAdderButton;
     private RecyclerView standingsRV;
 
 
@@ -109,7 +107,6 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
         rootView.findViewById(R.id.runsagainst_title).setOnClickListener(this);
         rootView.findViewById(R.id.rundiff_title).setOnClickListener(this);
         standingsRV = rootView.findViewById(R.id.rv_standings);
-//        View emptyView = rootView.findViewById(R.id.empty_text);
         startAdderButton = rootView.findViewById(R.id.item_team_adder);
 
         if(level < UsersActivity.LEVEL_VIEW_WRITE) {
@@ -119,7 +116,11 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
                 @Override
                 public void onClick(View view) {
                     startAdderButton.setVisibility(View.INVISIBLE);
-                    chooseOrCreateTeamDialog();
+                    Collections.sort(mTeams, Team.nameComparator());
+                    ArrayList<Team> teamsCopy = new ArrayList<>(mTeams);
+                    if(mListener != null) {
+                        mListener.startAdder(teamsCopy);
+                    }
                 }
             });
         }
@@ -139,13 +140,15 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
         }
     }
 
-    private void chooseOrCreateTeamDialog() {
-        Collections.sort(mTeams, Team.nameComparator());
-        ArrayList<Team> teamsCopy = new ArrayList<>(mTeams);
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = ChooseOrCreateTeamDialogFragment.newInstance(teamsCopy);
-        newFragment.show(fragmentTransaction, "");
+    private void setRVVisibility(boolean visible) {
+        View emptyView = getView().findViewById(R.id.empty_text);
+        if(visible) {
+            emptyView.setVisibility(View.GONE);
+            standingsRV.setVisibility(View.VISIBLE);
+        } else {
+            emptyView.setVisibility(View.VISIBLE);
+            standingsRV.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -168,23 +171,19 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
             case R.id.change_user_settings:
                 if(mListener != null) {
                     mListener.goToUserSettings();
+                    return true;
                 }
-                return true;
             case R.id.change_game_settings:
-                SharedPreferences settingsPreferences = getActivity()
-                        .getSharedPreferences(leagueID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
-                int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
-                int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                DialogFragment newFragment = GameSettingsDialogFragment.newInstance(innings, genderSorter, leagueID);
-                newFragment.show(fragmentTransaction, "");
+                if(mListener != null) {
+                    mListener.goToGameSettings();
+                    return true;
+                }
                 return true;
             case R.id.action_export_stats:
                 if(mListener != null) {
                     mListener.exportStats();
+                    return true;
                 }
-                return true;
         }
         return false;
     }
@@ -241,7 +240,12 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
         while (data.moveToNext()) {
             mTeams.add(new Team(data));
         }
-        updateStandingsRV();
+        if(mTeams.isEmpty()) {
+            setRVVisibility(false);
+        } else {
+            setRVVisibility(true);
+            updateStandingsRV();
+        }
     }
 
     @Override
@@ -295,11 +299,6 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
         refWatcher.watch(this); }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-    }
-
-    @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof StandingsFragment.OnFragmentInteractionListener) {
@@ -320,5 +319,7 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
     public interface OnFragmentInteractionListener {
         void goToUserSettings();
         void exportStats();
+        void startAdder(ArrayList<Team> teams);
+        void goToGameSettings();
     }
 }

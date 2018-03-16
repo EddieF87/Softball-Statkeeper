@@ -23,6 +23,7 @@
         android:textAlignment="textStart"
         android:textSize="18sp"
         android:textStyle="bold"
+        android:textColor="@color/colorPrimaryDark"
         tools:text="DFFDFDFDF" />
 
     <TextView
@@ -32,6 +33,7 @@
         android:paddingEnd="4dp"
         android:paddingRight="4dp"
         android:textStyle="italic"
+        android:textColor="@color/colorPrimaryDark"
         tools:text="AAA" />
 
     <TextView

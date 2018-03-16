@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -28,6 +29,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.softballstatkeeper.R;
 import com.example.android.softballstatkeeper.data.StatsContract;
@@ -85,8 +87,6 @@ public abstract class GameActivity extends AppCompatActivity
     protected TextView step2View;
     protected TextView step3View;
     protected TextView step4View;
-    protected ImageView step1Arrow;
-    protected ImageView step2Arrow;
 
 
     protected String awayTeamName;
@@ -102,6 +102,7 @@ public abstract class GameActivity extends AppCompatActivity
     protected int tempRuns;
 
     protected Player currentBatter;
+    protected Drawable mRunner;
 
     protected NumberFormat formatter = new DecimalFormat("#.000");
     protected BaseLog currentBaseLogStart;
@@ -185,6 +186,11 @@ public abstract class GameActivity extends AppCompatActivity
         inningTopArrow = findViewById(R.id.inning_top_arrow);
         inningBottomArrow = findViewById(R.id.inning_bottom_arrow);
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            mRunner = getDrawable(R.drawable.ic_directions_run_black_18dp);
+            mRunner.setAlpha(25);
+        }
+
         group1 = findViewById(R.id.group1);
         group2 = findViewById(R.id.group2);
 
@@ -232,12 +238,12 @@ public abstract class GameActivity extends AppCompatActivity
         homeDisplay = findViewById(R.id.home_display);
         homeDisplay.bringToFront();
         outTrash = findViewById(R.id.trash);
-        batterDisplay.setOnTouchListener(new GameActivity.MyTouchListener());
-        firstDisplay.setOnDragListener(new GameActivity.MyDragListener());
-        secondDisplay.setOnDragListener(new GameActivity.MyDragListener());
-        thirdDisplay.setOnDragListener(new GameActivity.MyDragListener());
-        homeDisplay.setOnDragListener(new GameActivity.MyDragListener());
-        outTrash.setOnDragListener(new GameActivity.MyDragListener());
+        batterDisplay.setOnTouchListener(new MyTouchListener());
+        firstDisplay.setOnDragListener(new MyDragListener());
+        secondDisplay.setOnDragListener(new MyDragListener());
+        thirdDisplay.setOnDragListener(new MyDragListener());
+        homeDisplay.setOnDragListener(new MyDragListener());
+        outTrash.setOnDragListener(new MyDragListener());
     }
 
     protected abstract void loadGamePreferences();
@@ -403,14 +409,10 @@ public abstract class GameActivity extends AppCompatActivity
         step2View = findViewById(R.id.step2text);
         step3View = findViewById(R.id.step3text);
         step4View = findViewById(R.id.step4text);
-        step1Arrow = findViewById(R.id.step1_arrow);
-        step2Arrow = findViewById(R.id.step2_arrow);
         step1View.setVisibility(View.VISIBLE);
         step2View.setVisibility(View.VISIBLE);
         step3View.setVisibility(View.VISIBLE);
         step4View.setVisibility(View.VISIBLE);
-        step1Arrow.setVisibility(View.VISIBLE);
-        step2Arrow.setVisibility(View.VISIBLE);
         submitPlay.setOnClickListener(null);
 
         submitPlay.setOnClickListener(new View.OnClickListener() {
@@ -420,8 +422,6 @@ public abstract class GameActivity extends AppCompatActivity
                 step2View.setVisibility(View.GONE);
                 step3View.setVisibility(View.GONE);
                 step4View.setVisibility(View.GONE);
-                step1Arrow.setVisibility(View.GONE);
-                step2Arrow.setVisibility(View.GONE);
                 onSubmit();
                 submitPlay.setOnClickListener(null);
                 submitPlay.setOnClickListener(new View.OnClickListener() {
@@ -789,9 +789,29 @@ public abstract class GameActivity extends AppCompatActivity
 
     protected void resetBases(BaseLog baseLog) {
         String[] bases = baseLog.getBasepositions();
-        firstDisplay.setText(bases[0]);
-        secondDisplay.setText(bases[1]);
-        thirdDisplay.setText(bases[2]);
+        String first = bases[0];
+        String second = bases[1];
+        String third = bases[2];
+        firstDisplay.setText(first);
+        secondDisplay.setText(second);
+        thirdDisplay.setText(third);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if(first != null && !first.isEmpty()) {
+                firstDisplay.setForeground(mRunner);
+            } else {
+                firstDisplay.setForeground(null);
+            }
+            if(second != null && !second.isEmpty()) {
+                secondDisplay.setForeground(mRunner);
+            } else {
+                secondDisplay.setForeground(null);
+            }
+            if(third != null && !third.isEmpty()) {
+                thirdDisplay.setForeground(mRunner);
+            } else {
+                thirdDisplay.setForeground(null);
+            }
+        }
         batterDisplay.setVisibility(View.VISIBLE);
         batterMoved = false;
         if (!undoRedo) {
@@ -811,9 +831,14 @@ public abstract class GameActivity extends AppCompatActivity
     }
 
     protected void emptyBases() {
-        firstDisplay.setText("");
-        secondDisplay.setText("");
-        thirdDisplay.setText("");
+        firstDisplay.setText(null);
+        secondDisplay.setText(null);
+        thirdDisplay.setText(null);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            firstDisplay.setForeground(null);
+            secondDisplay.setForeground(null);
+            thirdDisplay.setForeground(null);
+        }
     }
 
     protected double calculateAverage(int singles, int doubles, int triples, int hrs, int outs) {
@@ -1024,7 +1049,11 @@ public abstract class GameActivity extends AppCompatActivity
                     if (v.getId() == R.id.trash) {
                         if (eventView instanceof TextView) {
                             TextView draggedView = (TextView) eventView;
-                            draggedView.setText("");
+                            draggedView.setText(null);
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                draggedView.setForeground(null);
+                            }
+
                         } else {
                             batterDisplay.setVisibility(View.INVISIBLE);
                             batterMoved = true;
@@ -1039,12 +1068,22 @@ public abstract class GameActivity extends AppCompatActivity
                         if (eventView instanceof TextView) {
                             TextView draggedView = (TextView) eventView;
                             movedPlayer = draggedView.getText().toString();
+
                             dropPoint.setText(movedPlayer);
-                            draggedView.setText("");
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                dropPoint.setForeground(mRunner);
+                            }
+                            draggedView.setText(null);
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                draggedView.setForeground(null);
+                            }
                             draggedView.setAlpha(1);
                         } else {
                             String currentBatterString = currentBatter.getName();
                             dropPoint.setText(currentBatterString);
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                dropPoint.setForeground(mRunner);
+                            }
                             batterDisplay.setVisibility(View.INVISIBLE);
                             batterMoved = true;
                             if (playEntered) {
@@ -1069,7 +1108,10 @@ public abstract class GameActivity extends AppCompatActivity
                                 currentRunsLog.add(currentBatterString);
                             }
                         }
-                        homeDisplay.setText("");
+                        homeDisplay.setText(null);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            homeDisplay.setForeground(null);
+                        }
                         tempRuns++;
                         String scoreString;
                         if (isTopOfInning()) {

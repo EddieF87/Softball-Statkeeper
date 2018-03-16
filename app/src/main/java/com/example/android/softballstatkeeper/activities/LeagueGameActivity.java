@@ -179,7 +179,7 @@ public class LeagueGameActivity extends GameActivity /*implements LoaderManager.
         currentBatter = awayTeam.get(0);
         currentRunsLog = new ArrayList<>();
         tempRunsLog = new ArrayList<>();
-        currentBaseLogStart = new BaseLog(currentTeam, currentBatter, "", "", "",
+        currentBaseLogStart = new BaseLog(currentTeam, currentBatter, null, null, null,
                 0, 0, 0);
 
         ContentValues values = new ContentValues();

@@ -11,18 +11,18 @@
         android:id="@+id/scoreboard"
         style="@style/ScoreboardStyle"
         android:layout_width="0dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginRight="24dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginStart="4dp"
         android:autoSizeMinTextSize="10sp"
         android:autoSizeTextType="uniform"
+        android:gravity="start"
         android:maxLines="1"
         android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-        android:textSize="16sp"
-        app:layout_constraintStart_toStartOf="parent"
+        android:textSize="14sp"
         app:layout_constraintEnd_toStartOf="@+id/inning_top_arrow"
         app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Juggernauts 5  Home Team 10" />
 
@@ -30,7 +30,7 @@
         android:id="@+id/nowbatting"
         style="@style/ScoreboardStyle"
         android:layout_width="0dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="4dp"
         android:layout_marginTop="8dp"
         android:autoSizeMinTextSize="12sp"
         android:autoSizeTextType="uniform"
@@ -38,12 +38,12 @@
         android:singleLine="true"
         android:text="@string/nowbatting"
         android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-        android:textSize="16sp"
+        android:textSize="14sp"
         app:layout_constraintEnd_toStartOf="@+id/inning_bottom_arrow"
         app:layout_constraintLeft_toLeftOf="@+id/scoreboard"
         app:layout_constraintTop_toBottomOf="@+id/scoreboard"
         tools:text="at bat: gggggggggggggd"
-        android:layout_marginRight="8dp" />
+        android:layout_marginRight="4dp" />
 
     <ImageView
         android:id="@+id/inning_top_arrow"

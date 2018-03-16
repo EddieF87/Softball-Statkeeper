@@ -44,8 +44,7 @@
                 android:layout_toStartOf="@id/lineup_mover"
                 android:autoSizeMinTextSize="12sp"
                 android:autoSizeTextType="uniform"
-                android:maxLines="1"
-                android:ellipsize="end"
+                android:singleLine="true"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textSize="16sp"
                 tools:text="aaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbaaaaaaaaaaaaaaaaaaaa" />

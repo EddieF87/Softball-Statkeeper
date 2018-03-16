@@ -26,6 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -56,6 +57,7 @@ public class LineupFragment extends Fragment {
 
     private boolean sortLineup;
 
+    private LinearLayout settingsLayout;
     private TextView gameSummaryView;
     private TextView inningsView;
     private TextView orderView;
@@ -317,13 +319,8 @@ public class LineupFragment extends Fragment {
         inningsView = getView().findViewById(R.id.innings_view);
         View radioButtonGroup = getView().findViewById(R.id.radiobtns_away_or_home_team);
         orderView = getView().findViewById(R.id.gender_lineup_view);
-        inningsView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openGameSettingsDialog();
-            }
-        });
-        orderView.setOnClickListener(new View.OnClickListener() {
+        settingsLayout = getView().findViewById(R.id.layout_settings);
+        settingsLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 openGameSettingsDialog();
@@ -335,6 +332,7 @@ public class LineupFragment extends Fragment {
                     .getSharedPreferences(mSelectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
             final int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
             final int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
+            settingsLayout.setVisibility(View.VISIBLE);
             inningsView.setVisibility(View.VISIBLE);
             setGameSettings(innings, genderSorter);
 
@@ -410,9 +408,9 @@ public class LineupFragment extends Fragment {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("Order: ");
         for (int index = 0; index < i; index++) {
-            stringBuilder.append("<font color='#6fa2ef'>B</font>");
+            stringBuilder.append("<font color='#6fa2ef'>M</font>");
         }
-        stringBuilder.append("<font color='#f99da2'>G</font>");
+        stringBuilder.append("<font color='#f99da2'>F</font>");
         String order = stringBuilder.toString();
         orderView.setText(Html.fromHtml(order));
     }

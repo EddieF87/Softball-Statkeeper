@@ -1,14 +1,8 @@
 package com.example.android.softballstatkeeper.fragments;
 
-
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -28,21 +22,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.softballstatkeeper.MyApp;
 import com.example.android.softballstatkeeper.R;
-import com.example.android.softballstatkeeper.activities.LeagueManagerActivity;
-import com.example.android.softballstatkeeper.activities.TeamManagerActivity;
 import com.example.android.softballstatkeeper.activities.UsersActivity;
 import com.example.android.softballstatkeeper.adapters_listeners_etc.PlayerStatsAdapter;
 import com.example.android.softballstatkeeper.data.StatsContract;
 import com.example.android.softballstatkeeper.data.StatsContract.StatsEntry;
-import com.example.android.softballstatkeeper.dialogs.GameSettingsDialogFragment;
 import com.example.android.softballstatkeeper.objects.MainPageSelection;
 import com.example.android.softballstatkeeper.objects.Player;
+import com.example.android.softballstatkeeper.objects.Team;
 import com.squareup.leakcanary.RefWatcher;
 
 import java.util.ArrayList;
@@ -55,11 +48,11 @@ import java.util.List;
  */
 public class StatsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemSelectedListener, View.OnClickListener {
 
-    private static final String TAG = "StatActivity: ";
     private RecyclerView statsRV;
     private PlayerStatsAdapter mAdapter;
     private ArrayAdapter<String> mSpinnerAdapter;
     private TextView emptyView;
+    private Button startAdderButton;
     private int statSort;
     private String teamFilter;
     private Integer genderFilter;
@@ -68,7 +61,6 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
     private List<Player> mPlayers;
     private String selectionID;
     private int level;
-    private String selectionName;
     private List<String> teamsArray;
     private static final int STATS_LOADER = 4;
     private static final String KEY_STAT_SORT = "keyStatSort";
@@ -78,7 +70,8 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
     private static final String KEY_MALE = "Male";
     private static final String KEY_FEMALE = "Female";
 
-    private HashMap<String, Integer> teamIDs;
+//    private HashMap<String, Integer> teamIDs;
+    private OnFragmentInteractionListener mListener;
 
     public StatsFragment() {
         // Required empty public constructor
@@ -102,7 +95,6 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         Bundle args = getArguments();
         level = args.getInt(MainPageSelection.KEY_SELECTION_LEVEL);
         selectionID = args.getString(MainPageSelection.KEY_SELECTION_ID);
-        selectionName = args.getString(MainPageSelection.KEY_SELECTION_NAME);
     }
 
     @Override
@@ -121,6 +113,30 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
 
         statsRV = rootView.findViewById(R.id.rv_stats);
         emptyView = rootView.findViewById(R.id.empty_stats_view);
+
+        startAdderButton = rootView.findViewById(R.id.item_team_adder);
+        if(level < UsersActivity.LEVEL_VIEW_WRITE) {
+            startAdderButton.setVisibility(View.INVISIBLE);
+        } else {
+            startAdderButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    startAdderButton.setVisibility(View.INVISIBLE);
+                    startAdderButton.setVisibility(View.INVISIBLE);
+
+                    if(mListener != null) {
+                        Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
+                                null, null, null, StatsEntry.COLUMN_NAME);
+                        ArrayList<Team> teams = new ArrayList<>();
+                        while (cursor.moveToNext()) {
+                            Team team = new Team(cursor);
+                            teams.add(team);
+                        }
+                        mListener.startAdder(teams);
+                    }
+                }
+            });
+        }
 
         rootView.findViewById(R.id.name_title).setOnClickListener(this);
         rootView.findViewById(R.id.team_abv_title).setOnClickListener(this);
@@ -145,8 +161,8 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
 
         teamsArray = new ArrayList<>();
         teamsArray.add(KEY_ALL_TEAMS);
-        teamIDs = new HashMap<>();
-        teamIDs.put(StatsEntry.FREE_AGENT, -1);
+//        teamIDs = new HashMap<>();
+//        teamIDs.put(StatsEntry.FREE_AGENT, -1);
         while (mCursor.moveToNext()) {
             int teamNameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
             String teamName = mCursor.getString(teamNameIndex);
@@ -154,7 +170,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
             String firestoreID = mCursor.getString(firestoreIDIndex);
             int idIndex = mCursor.getColumnIndex(StatsEntry._ID);
             int id = mCursor.getInt(idIndex);
-            teamIDs.put(firestoreID, id);
+//            teamIDs.put(firestoreID, id);
             teamsArray.add(teamName);
         }
         teamsArray.add(StatsEntry.FREE_AGENT);
@@ -184,31 +200,20 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.change_user_settings:
-                Intent settingsIntent = new Intent(getActivity(), UsersActivity.class);
-                startActivity(settingsIntent);
+                if(mListener != null) {
+                    mListener.goToUserSettings();
+                }
                 return true;
             case R.id.change_game_settings:
-                SharedPreferences settingsPreferences = getActivity()
-                        .getSharedPreferences(selectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
-                int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
-                int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                DialogFragment newFragment = GameSettingsDialogFragment.newInstance(innings, genderSorter, selectionID);
-                newFragment.show(fragmentTransaction, "");
-                return true;
-            case R.id.action_export_stats:
-                Activity activity = getActivity();
-                if (activity instanceof LeagueManagerActivity) {
-                    LeagueManagerActivity leagueManagerActivity = (LeagueManagerActivity) activity;
-                    leagueManagerActivity.startExport(selectionName);
-                    return true;
-                } else if (activity instanceof TeamManagerActivity) {
-                    TeamManagerActivity teamManagerActivity = (TeamManagerActivity) activity;
-                    teamManagerActivity.startExport(selectionName);
+                if(mListener != null) {
+                    mListener.goToGameSettings();
                     return true;
                 }
-                return false;
+            case R.id.action_export_stats:
+                if(mListener != null) {
+                    mListener.exportStats();
+                    return true;
+                }
         }
         return false;
     }
@@ -238,6 +243,11 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         }
     }
 
+    public void setAdderButtonVisible() {
+        if (startAdderButton != null) {
+            startAdderButton.setVisibility(View.VISIBLE);
+        }
+    }
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -432,11 +442,11 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
     }
 
     public void updateTeams(String team, int id, String firestoreID) {
-        if (teamIDs == null) {
-            teamIDs = new HashMap<>();
-            teamIDs.put(StatsEntry.FREE_AGENT, -1);
-        }
-        teamIDs.put(firestoreID, id);
+//        if (teamIDs == null) {
+//            teamIDs = new HashMap<>();
+//            teamIDs.put(StatsEntry.FREE_AGENT, -1);
+//        }
+//        teamIDs.put(firestoreID, id);
 
         if (mSpinnerAdapter == null || teamsArray == null) {
             return;
@@ -463,16 +473,27 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         refWatcher.watch(this);
     }
 
-
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        Log.d("aaa", "onDestroyView StatsFragment");
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof StandingsFragment.OnFragmentInteractionListener) {
+            mListener = (StatsFragment.OnFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        Log.d("aaa", "onDetach StatsFragment");
+        mListener = null;
+    }
+
+    public interface OnFragmentInteractionListener {
+        void goToUserSettings();
+        void exportStats();
+        void startAdder(ArrayList<Team> teams);
+        void goToGameSettings();
     }
 }

@@ -52,11 +52,14 @@
         android:layout_height="0dp"
         android:background="@drawable/img_base"
         android:gravity="center"
+        android:maxLines="2"
+        android:textStyle="bold"
+        android:textColor="@color/colorPrimaryDark"
         app:layout_constraintBottom_toTopOf="@+id/guide_h1"
         app:layout_constraintEnd_toStartOf="@+id/guide_v2"
         app:layout_constraintStart_toStartOf="@+id/guide_v1"
         app:layout_constraintTop_toTopOf="@+id/infield"
-        tools:text="2b" />
+        tools:text="Cindy Ceasars" />
 
     <TextView
         android:id="@+id/third_display"
@@ -64,11 +67,14 @@
         android:layout_height="0dp"
         android:background="@drawable/img_base"
         android:gravity="center"
+        android:maxLines="2"
+        android:textStyle="bold"
+        android:textColor="@color/colorPrimaryDark"
         app:layout_constraintBottom_toTopOf="@+id/guide_h2"
         app:layout_constraintEnd_toStartOf="@+id/guide_v1"
         app:layout_constraintStart_toStartOf="@+id/infield"
         app:layout_constraintTop_toTopOf="@+id/guide_h1"
-        tools:text="3b" />
+        tools:text="Ryne Mcmahon" />
 
     <TextView
         android:id="@+id/first_display"
@@ -76,20 +82,20 @@
         android:layout_height="0dp"
         android:background="@drawable/img_base"
         android:gravity="center"
+        android:textStyle="bold"
+        android:textColor="@color/colorPrimaryDark"
+        android:maxLines="2"
         app:layout_constraintBottom_toTopOf="@+id/guide_h2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guide_v2"
         app:layout_constraintTop_toTopOf="@+id/guide_h1"
-        tools:text="1b" />
+        tools:text="Peter Pump" />
 
     <Button
         android:id="@+id/home_display"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_above="@id/infield"
-
-        android:autoSizeMinTextSize="10sp"
-        android:autoSizeTextType="uniform"
         android:background="@drawable/img_home"
         android:scaleType="centerInside"
         app:layout_constraintBottom_toBottomOf="@id/infield"
@@ -118,48 +124,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:text="Out"
+        android:text="@string/out"
         android:textColor="#ffffff"
         app:layout_constraintBottom_toBottomOf="@+id/trash"
         app:layout_constraintLeft_toLeftOf="@+id/trash"
         app:layout_constraintRight_toRightOf="@+id/trash"
         app:layout_constraintTop_toTopOf="@+id/trash"
         app:layout_constraintVertical_bias="0.8" />
-
-    <TextView
-        android:id="@+id/step1text"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/bg_popup"
-        android:padding="8dp"
-        android:text="Step 1: Drag batter to a base!"
-        android:textSize="12sp"
-        android:textStyle="bold"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@+id/third_display"
-        app:layout_constraintEnd_toStartOf="@+id/guide_v1"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/step1_arrow"
-        android:layout_width="75dp"
-        android:layout_height="65dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:rotation="225"
-        android:tint="@color/colorAccent"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@+id/step1text"
-        app:layout_constraintEnd_toStartOf="@+id/guide_v1"
-        app:layout_constraintHorizontal_bias="0.41"
-        app:layout_constraintStart_toEndOf="@+id/step1text"
-        app:layout_constraintTop_toBottomOf="@+id/step1text"
-        app:srcCompat="?attr/actionModeCloseDrawable" />
 
     <RelativeLayout
         android:id="@+id/batter"
@@ -189,18 +160,18 @@
             android:id="@+id/batter_name_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_battername"
-            android:maxLines="1"
-            android:text="BatterName"
-            android:textSize="12sp"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
+            android:background="@drawable/bg_battername"
             android:gravity="center"
-            android:paddingTop="4dp"
+            android:maxLines="1"
             android:paddingBottom="4dp"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            />
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:paddingTop="4dp"
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="12sp"
+            tools:text="Kosta Seventikidis" />
     </RelativeLayout>
 
 

@@ -16,46 +16,62 @@
         <include
             android:id="@+id/sb_table"
             layout="@layout/scoreboard_table"
-            android:layout_height="wrap_content"
             android:layout_width="0dp"
+            android:layout_height="wrap_content"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/game_ad" />
 
         <include
             android:id="@+id/diamond"
-            layout="@layout/diamond"
             style="@style/Diamond"
-            app:layout_constraintDimensionRatio="1:1"
+            layout="@layout/diamond"
             app:layout_constraintBottom_toTopOf="@+id/radio_group_results"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@id/sb_table" />
 
-    <include
-        android:id="@+id/radio_group_results"
-        layout="@layout/item_radio_group_results"
-        style="@style/RadioGroupResults"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        />
+        <include
+            android:id="@+id/radio_group_results"
+            style="@style/RadioGroupResults"
+            layout="@layout/item_radio_group_results"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
-    <include
-        android:id="@+id/alternate_team_display"
-        layout="@layout/other_team_display"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@+id/radio_group_results"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/sb_table" />
+        <include
+            android:id="@+id/alternate_team_display"
+            layout="@layout/other_team_display"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@+id/radio_group_results"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/sb_table" />
 
+        <TextView
+            android:id="@+id/step1text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="2dp"
+            android:background="@drawable/bg_popup"
+            android:padding="8dp"
+            android:text="@string/step_1_drag_batter_to_a_base"
+            android:textSize="8sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@+id/diamond"
+            app:layout_constraintHorizontal_chainStyle="spread_inside"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/diamond"
+            app:layout_constraintVertical_bias="0.2"
+            tools:visibility="visible" />
 
         <TextView
             android:id="@+id/step2text"
@@ -65,13 +81,13 @@
             android:layout_marginStart="2dp"
             android:background="@drawable/bg_popup"
             android:padding="8dp"
-            android:text="Step 2: Choose at bat result!"
-            android:textSize="12sp"
+            android:text="@string/step_2_choose_at_bat_result"
+            android:textSize="8sp"
             android:textStyle="bold"
             android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@+id/radio_group_results"
             app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginLeft="2dp" />
+            tools:visibility="visible" />
 
 
         <TextView
@@ -81,46 +97,31 @@
             android:layout_marginEnd="8dp"
             android:background="@drawable/bg_popup"
             android:padding="8dp"
-            android:text="Step 3: Submit Play!"
-            android:textSize="12sp"
+            android:text="@string/step_3_submit_play"
+            android:textSize="8sp"
             android:textStyle="bold"
             android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@+id/radio_group_results"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginRight="8dp" />
+            tools:visibility="visible" />
 
         <TextView
             android:id="@+id/step4text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
-            android:layout_marginTop="8dp"
             android:background="@drawable/bg_popup"
             android:padding="8dp"
-            android:text="Step 4: Repeat!"
-            android:textSize="12sp"
+            android:text="@string/step_4_repeat"
+            android:textSize="8sp"
             android:textStyle="bold"
             android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@+id/diamond"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/diamond"
-            android:layout_marginRight="8dp" />
+            app:layout_constraintVertical_bias="0.2"
+            tools:visibility="visible" />
 
-        <ImageView
-            android:id="@+id/step2_arrow"
-            android:layout_width="75dp"
-            android:layout_height="65dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="18dp"
-            android:rotation="270"
-            android:tint="@color/colorAccent"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="@+id/step2text"
-            app:layout_constraintHorizontal_bias="0.88"
-            app:layout_constraintStart_toStartOf="@+id/step2text"
-            app:layout_constraintTop_toBottomOf="@+id/step2text"
-            app:layout_constraintTop_toTopOf="@+id/step2text"
-            app:srcCompat="?attr/actionModeCloseDrawable"
-            android:layout_marginLeft="8dp" />
 
         <com.google.android.gms.ads.AdView
             android:id="@+id/game_ad"
@@ -136,27 +137,27 @@
             android:id="@+id/btn_undo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="32dp"
             android:layout_marginStart="32dp"
             android:layout_marginTop="8dp"
             android:tint="@android:color/holo_red_dark"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/sb_table"
-            app:srcCompat="@android:drawable/ic_media_rew"
-            android:layout_marginLeft="32dp" />
+            app:srcCompat="@android:drawable/ic_media_rew" />
 
         <ImageView
             android:id="@+id/btn_redo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="32dp"
+            android:layout_marginRight="32dp"
             android:tint="@android:color/holo_red_dark"
             app:layout_constraintBottom_toBottomOf="@+id/btn_undo"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/btn_undo"
-            app:srcCompat="@android:drawable/ic_media_ff"
-            android:layout_marginRight="32dp" />
+            app:srcCompat="@android:drawable/ic_media_ff" />
 
-</android.support.constraint.ConstraintLayout>
+    </android.support.constraint.ConstraintLayout>
 
     <android.support.design.widget.NavigationView
         android:id="@+id/lineup_drawer"

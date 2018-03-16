@@ -182,7 +182,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialogFra
         currentBatter = myTeam.get(0);
         currentRunsLog = new ArrayList<>();
         tempRunsLog = new ArrayList<>();
-        currentBaseLogStart = new BaseLog(myTeam, currentBatter, "", "", "",
+        currentBaseLogStart = new BaseLog(myTeam, currentBatter, null, null, null,
                 0, 0, 0);
 
         ContentValues values = new ContentValues();
@@ -194,8 +194,6 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialogFra
             step2View.setVisibility(View.GONE);
             step3View.setVisibility(View.GONE);
             step4View.setVisibility(View.GONE);
-            step1Arrow.setVisibility(View.GONE);
-            step2Arrow.setVisibility(View.GONE);
         } else {
             onDeck = currentBatter.getFirestoreID();
         }

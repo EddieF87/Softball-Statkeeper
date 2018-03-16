@@ -1,24 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/colorPrimaryLight"
-    >
+    android:layout_height="match_parent">
 
     <HorizontalScrollView
         android:id="@+id/stats_scroll_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
-        android:padding="6dp"
+        android:layout_marginTop="8dp"
         android:background="@drawable/bg_white"
-        app:layout_constraintBottom_toTopOf="@+id/relativeLayout"
+        android:padding="6dp"
+        app:layout_constraintBottom_toTopOf="@+id/item_team_adder"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -26,34 +23,32 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            >
+            android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
                 android:background="@color/colorPrimary"
-                android:paddingTop="6dp"
-                android:paddingBottom="12dp">
+                android:orientation="horizontal"
+                android:paddingBottom="12dp"
+                android:paddingTop="6dp">
 
                 <TextView
                     android:id="@+id/name_title"
                     style="@style/StatsTitleStyle"
                     android:layout_width="100dp"
                     android:paddingEnd="10dp"
+                    android:paddingLeft="8dp"
                     android:paddingRight="10dp"
                     android:paddingStart="8dp"
-                    android:paddingLeft="8dp"
-                    android:text="@string/name"
-                    />
+                    android:text="@string/name" />
 
                 <TextView
                     android:id="@+id/team_abv_title"
                     style="@style/StatsTitleStyle"
                     android:layout_width="50dp"
-                    android:paddingRight="4dp"
                     android:paddingEnd="4dp"
+                    android:paddingRight="4dp"
                     android:text="@string/team" />
 
                 <TextView
@@ -136,53 +131,52 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
-            <TextView
-                android:id="@+id/empty_stats_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:paddingLeft="48dp"
-                android:text="@string/empty_view_player_text"
-                android:textSize="24sp"
-                android:visibility="gone"
-                android:paddingStart="48dp" />
+
         </LinearLayout>
     </HorizontalScrollView>
 
-    <RelativeLayout
-        android:id="@+id/relativeLayout"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/empty_stats_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:text="@string/empty_view_player_text"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/stats_scroll_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/stats_scroll_view" />
+
+    <Button
+        android:id="@+id/item_team_adder"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="24dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:orientation="horizontal"
-        android:paddingBottom="20dp"
-        android:padding="16dp"
+        android:text="@string/add_team_players"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/spinner_stats_teams"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Spinner
+        android:id="@+id/spinner_stats_teams"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_gravity="end"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/item_team_adder"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <!--<TextView-->
-        <!--android:layout_width="200dp"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:gravity="center_vertical"-->
-        <!--android:text="ISOTOPES LEAGUE"-->
-        <!--android:textSize="24sp"-->
-        <!--android:textStyle="bold"-->
-        <!--android:layout_alignParentTop="true"-->
-        <!--android:layout_alignParentStart="true"-->
-        <!--android:layout_alignParentLeft="true"-->
-        <!--/>-->
-
-        <Spinner
-            android:id="@+id/spinner_stats_teams"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:layout_gravity="end" />
-    </RelativeLayout>
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/item_team_adder"
+        app:layout_constraintTop_toTopOf="@+id/item_team_adder" />
 
 </android.support.constraint.ConstraintLayout>

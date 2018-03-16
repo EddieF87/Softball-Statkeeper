@@ -22,6 +22,7 @@
         android:textAlignment="viewStart"
         android:textSize="18sp"
         android:textStyle="bold"
+        android:textColor="@color/colorPrimaryDark"
         app:layout_goneMarginEnd="8dp"
         app:layout_goneMarginRight="8dp"
         tools:text="GoonNation"

@@ -3,7 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimaryLight"
     >
 
     <include
@@ -30,12 +29,13 @@
         android:layout_height="0dp"
         android:fontFamily="sans-serif-medium"
         android:gravity="center"
-        android:paddingTop="16dp"
         android:text="@string/empty_view_title_text"
-        android:textSize="18sp"
-        android:textStyle="bold"
         android:textAlignment="center"
         android:textAppearance="?android:textAppearanceMedium"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_line"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="@id/standings_titles" />
@@ -50,13 +50,13 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
 
-    <android.support.design.widget.FloatingActionButton
+    <Button
         android:id="@+id/item_team_adder"
-        style="@style/FloatingActionButtonStyle"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginBottom="4dp"
         android:layout_marginEnd="20dp"
+        android:text="@string/add_team_players"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginRight="20dp" />

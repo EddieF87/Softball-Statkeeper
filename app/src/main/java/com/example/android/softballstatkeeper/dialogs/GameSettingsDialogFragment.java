@@ -121,10 +121,10 @@ public class GameSettingsDialogFragment extends DialogFragment {
         mGenderDisplay.setTextColor(ContextCompat.getColor(getContext(), R.color.male));
         StringBuilder stringBuilder = new StringBuilder();
         for (int index = 0; index < i; index++) {
-            stringBuilder.append("B");
+            stringBuilder.append("M");
         }
         String boy = stringBuilder.toString();
-        String girl = "<font color='#f99da2'>G</font>";
+        String girl = "<font color='#f99da2'>F</font>";
         String order = boy + girl;
         order += order + order;
         mGenderDisplay.setText(Html.fromHtml(order));

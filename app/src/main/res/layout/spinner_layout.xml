@@ -7,5 +7,6 @@
     android:textSize="24sp"
     android:autoSizeTextType="uniform"
     android:autoSizeMinTextSize="12sp"
+    android:padding="10dp"
     android:maxLines="1"
 />

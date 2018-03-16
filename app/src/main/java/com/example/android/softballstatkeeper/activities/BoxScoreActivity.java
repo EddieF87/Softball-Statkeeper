@@ -90,7 +90,7 @@ public class BoxScoreActivity extends AppCompatActivity implements LoaderManager
         ListView awayListView = findViewById(R.id.away_players_listview);
         ListView homeListView = findViewById(R.id.home_players_listview);
 
-        String headerString = awayTeamName + "  " + awayTeamRuns + "     " + homeTeamName + "  " + homeTeamRuns;
+        String headerString = awayTeamName + " " + awayTeamRuns + "   " + homeTeamName + " " + homeTeamRuns;
         header.setText(headerString);
 
         if (selectionType == MainPageSelection.TYPE_TEAM) {

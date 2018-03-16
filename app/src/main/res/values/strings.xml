@@ -135,9 +135,12 @@
     <string name="welcome_to_statkeeper">Welcome to StatKeeper!</string>
     <string name="my_statkeepers">My StatKeepers</string>
     <string name="please_enter_name_first">Please enter a name first!</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="create">Create</string>
     <string name="join">Join</string>
+    <string name="add_team_players">Add Team/Players</string>
+    <string name="manage_amp_view_individual_player_stats"><![CDATA[Manage & view individual player stats]]></string>
+    <string name="step_2_choose_at_bat_result">Step 2: Choose at bat result</string>
+    <string name="step_3_submit_play">Step 3: Submit play</string>
+    <string name="step_4_repeat">Step 4: Repeat!</string>
+    <string name="step_1_drag_batter_to_a_base">Step 1: Drag batter to a base</string>
 </resources>

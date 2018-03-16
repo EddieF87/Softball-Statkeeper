@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@color/stat_title"
+    android:background="@color/colorPrimary"
     android:paddingTop="4dp"
     android:paddingBottom="6dp"
     >

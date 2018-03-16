@@ -42,7 +42,8 @@ public class LeagueManagerActivity extends ExportActivity
         ChooseOrCreateTeamDialogFragment.OnFragmentInteractionListener,
         ChangeTeamDialogFragment.OnFragmentInteractionListener,
         MatchupFragment.OnFragmentInteractionListener,
-        StandingsFragment.OnFragmentInteractionListener
+        StandingsFragment.OnFragmentInteractionListener,
+        StatsFragment.OnFragmentInteractionListener
 {
 
     private StandingsFragment standingsFragment;
@@ -117,6 +118,9 @@ public class LeagueManagerActivity extends ExportActivity
         if (standingsFragment != null) {
             standingsFragment.setAdderButtonVisible();
         }
+        if (statsFragment != null) {
+            statsFragment.setAdderButtonVisible();
+        }
     }
 
     @Override
@@ -125,12 +129,18 @@ public class LeagueManagerActivity extends ExportActivity
             standingsFragment.addNewPlayersDialog(teamName, teamID);
             standingsFragment.setAdderButtonVisible();
         }
+        if (statsFragment != null) {
+            statsFragment.setAdderButtonVisible();
+        }
     }
 
     @Override
     public void onTeamChoiceCancel() {
         if (standingsFragment != null) {
             standingsFragment.setAdderButtonVisible();
+        }
+        if (statsFragment != null) {
+            statsFragment.setAdderButtonVisible();
         }
     }
 
@@ -146,6 +156,14 @@ public class LeagueManagerActivity extends ExportActivity
     }
 
     @Override
+    public void startAdder(ArrayList<Team> teams) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        DialogFragment newFragment = ChooseOrCreateTeamDialogFragment.newInstance(teams);
+        newFragment.show(fragmentTransaction, "");
+    }
+
+    @Override
     public void clearGameDB() {
         getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, null, null);
         getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, null, null);
@@ -153,6 +171,17 @@ public class LeagueManagerActivity extends ExportActivity
         SharedPreferences.Editor editor = savedGamePreferences.edit();
         editor.clear();
         editor.apply();
+    }
+
+    @Override
+    public void goToGameSettings() {
+        SharedPreferences settingsPreferences = getSharedPreferences(leagueID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
+        int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
+        int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        DialogFragment newFragment = GameSettingsDialogFragment.newInstance(innings, genderSorter, leagueID);
+        newFragment.show(fragmentTransaction, "");
     }
 
     private class LeagueManagerPagerAdapter extends FragmentStatePagerAdapter {

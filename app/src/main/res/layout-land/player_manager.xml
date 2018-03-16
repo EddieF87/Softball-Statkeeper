@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:padding="12dp">
 
-
     <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/group1"
         android:layout_width="0dp"
@@ -107,6 +106,7 @@
         android:layout_marginTop="32dp"
         android:text="----"
         android:textSize="30sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/textview_result_count"
         app:layout_constraintEnd_toStartOf="@+id/btn_add_result"
         app:layout_constraintHorizontal_bias="0.5"
@@ -121,6 +121,7 @@
         android:layout_marginStart="8dp"
         android:text="0"
         android:textSize="30sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/submit"
         app:layout_constraintEnd_toStartOf="@+id/btn_add_result"
         app:layout_constraintHorizontal_bias="0.5"

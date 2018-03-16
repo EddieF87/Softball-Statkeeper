@@ -30,6 +30,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -127,29 +128,20 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
             case R.id.change_user_settings:
                 if(mListener != null) {
                     mListener.goToUserSettings();
+                    return true;
                 }
-                return true;
             case R.id.change_game_settings:
-                openGameSettingsDialog();
-                return true;
+                if(mListener != null) {
+                    mListener.goToGameSettings();
+                    return true;
+                }
             case R.id.action_export_stats:
                 if(mListener != null) {
                     mListener.exportStats();
+                    return true;
                 }
-                return true;
         }
         return false;
-    }
-
-    private void openGameSettingsDialog() {
-        SharedPreferences settingsPreferences = getActivity()
-                .getSharedPreferences(leagueID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
-        int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
-        int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = GameSettingsDialogFragment.newInstance(innings, genderSorter, leagueID);
-        newFragment.show(fragmentTransaction, "");
     }
 
     @Override
@@ -167,16 +159,14 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         inningsView = rootView.findViewById(R.id.innings_view);
         orderView = rootView.findViewById(R.id.gender_lineup_view);
 
-        inningsView.setOnClickListener(new View.OnClickListener() {
+
+        LinearLayout settingsLayout = rootView.findViewById(R.id.layout_settings);
+        settingsLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                openGameSettingsDialog();
-            }
-        });
-        orderView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openGameSettingsDialog();
+                if(mListener != null) {
+                    mListener.goToGameSettings();
+                }
             }
         });
         setGameSettings();
@@ -391,9 +381,9 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("Order: ");
         for (int index = 0; index < i; index++) {
-            stringBuilder.append("<font color='#6fa2ef'>B</font>");
+            stringBuilder.append("<font color='#6fa2ef'>M</font>");
         }
-        stringBuilder.append("<font color='#f99da2'>G</font>");
+        stringBuilder.append("<font color='#f99da2'>F</font>");
         String order = stringBuilder.toString();
         orderView.setText(Html.fromHtml(order));
     }
@@ -842,5 +832,6 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         void goToUserSettings();
         void exportStats();
         void clearGameDB();
+        void goToGameSettings();
     }
 }

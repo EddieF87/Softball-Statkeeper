@@ -548,6 +548,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        Log.d("xyxy", "onNewIntent");
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
         getIntent().putParcelableArrayListExtra("mSelectionList", mSelectionList);
