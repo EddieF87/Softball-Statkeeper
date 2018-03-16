@@ -21,32 +21,33 @@ import android.view.ViewGroup;
 import com.example.android.softballstatkeeper.MyApp;
 import com.example.android.softballstatkeeper.R;
 import com.example.android.softballstatkeeper.data.FirestoreHelper;
+import com.example.android.softballstatkeeper.data.StatsContract;
 import com.example.android.softballstatkeeper.data.StatsContract.StatsEntry;
-import com.example.android.softballstatkeeper.dialogs.AddNewPlayersDialogFragment;
-import com.example.android.softballstatkeeper.dialogs.ChangeTeamDialogFragment;
-import com.example.android.softballstatkeeper.dialogs.DeleteConfirmationDialogFragment;
-import com.example.android.softballstatkeeper.dialogs.DeleteVsWaiversDialogFragment;
-import com.example.android.softballstatkeeper.dialogs.EditNameDialogFragment;
-import com.example.android.softballstatkeeper.dialogs.GameSettingsDialogFragment;
-import com.example.android.softballstatkeeper.dialogs.RemoveAllPlayersDialogFragment;
+import com.example.android.softballstatkeeper.dialogs.AddNewPlayersDialog;
+import com.example.android.softballstatkeeper.dialogs.ChangeTeamDialog;
+import com.example.android.softballstatkeeper.dialogs.DeleteConfirmationDialog;
+import com.example.android.softballstatkeeper.dialogs.DeleteVsWaiversDialog;
+import com.example.android.softballstatkeeper.dialogs.EditNameDialog;
+import com.example.android.softballstatkeeper.dialogs.GameSettingsDialog;
+import com.example.android.softballstatkeeper.dialogs.RemoveAllPlayersDialog;
 import com.example.android.softballstatkeeper.fragments.PlayerFragment;
 import com.example.android.softballstatkeeper.fragments.TeamFragment;
-import com.example.android.softballstatkeeper.objects.MainPageSelection;
-import com.example.android.softballstatkeeper.objects.Player;
+import com.example.android.softballstatkeeper.models.MainPageSelection;
+import com.example.android.softballstatkeeper.models.Player;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ObjectPagerActivity extends AppCompatActivity
-        implements AddNewPlayersDialogFragment.OnListFragmentInteractionListener,
-        GameSettingsDialogFragment.OnFragmentInteractionListener,
-        DeleteConfirmationDialogFragment.OnFragmentInteractionListener,
-        DeleteVsWaiversDialogFragment.OnFragmentInteractionListener,
-        RemoveAllPlayersDialogFragment.OnFragmentInteractionListener,
-        EditNameDialogFragment.OnFragmentInteractionListener,
-        ChangeTeamDialogFragment.OnFragmentInteractionListener{
+public abstract class ObjectPagerActivity extends AppCompatActivity
+        implements AddNewPlayersDialog.OnListFragmentInteractionListener,
+        GameSettingsDialog.OnFragmentInteractionListener,
+        DeleteConfirmationDialog.OnFragmentInteractionListener,
+        DeleteVsWaiversDialog.OnFragmentInteractionListener,
+        RemoveAllPlayersDialog.OnFragmentInteractionListener,
+        EditNameDialog.OnFragmentInteractionListener,
+        ChangeTeamDialog.OnFragmentInteractionListener{
 
     private List<Integer> objectIDs;
     private ViewPager mViewPager;
@@ -101,7 +102,7 @@ public class ObjectPagerActivity extends AppCompatActivity
         Cursor cursor = getContentResolver().query(uri, new String[]{StatsEntry._ID},
                 null, null, sortOrder);
         while (cursor.moveToNext()) {
-            int objectID = cursor.getInt(cursor.getColumnIndex(StatsEntry._ID));
+            int objectID = StatsContract.getColumnInt(cursor, StatsEntry._ID);
             objectIDs.add(objectID);
         }
         cursor.close();
@@ -132,9 +133,7 @@ public class ObjectPagerActivity extends AppCompatActivity
         }
     }
 
-    protected void setPagerTitle(String name) {
-
-    }
+    protected abstract void setPagerTitle(String name);
 
     private void setLeagueInfo() {
         try {
@@ -233,10 +232,10 @@ public class ObjectPagerActivity extends AppCompatActivity
         int pos = mViewPager.getCurrentItem();
         TeamFragment teamFragment = (TeamFragment) mAdapter.getRegisteredFragment(pos);
 
-        if (choice == DeleteVsWaiversDialogFragment.CHOICE_WAIVERS) {
+        if (choice == DeleteVsWaiversDialog.CHOICE_WAIVERS) {
             teamFragment.updatePlayersTeam(StatsEntry.FREE_AGENT);
             teamFragment.clearPlayers();
-        } else if (choice == DeleteVsWaiversDialogFragment.CHOICE_DELETE) {
+        } else if (choice == DeleteVsWaiversDialog.CHOICE_DELETE) {
             teamFragment.deletePlayers();
         }
         teamFragment.deleteTeam();
@@ -251,10 +250,10 @@ public class ObjectPagerActivity extends AppCompatActivity
         int pos = mViewPager.getCurrentItem();
         TeamFragment teamFragment = (TeamFragment) mAdapter.getRegisteredFragment(pos);
 
-        if (choice == DeleteVsWaiversDialogFragment.CHOICE_WAIVERS) {
+        if (choice == DeleteVsWaiversDialog.CHOICE_WAIVERS) {
             teamFragment.updatePlayersTeam(StatsEntry.FREE_AGENT);
             teamFragment.clearPlayers();
-        } else if (choice == DeleteVsWaiversDialogFragment.CHOICE_DELETE) {
+        } else if (choice == DeleteVsWaiversDialog.CHOICE_DELETE) {
             teamFragment.deletePlayers();
         }
         setResult(RESULT_OK);

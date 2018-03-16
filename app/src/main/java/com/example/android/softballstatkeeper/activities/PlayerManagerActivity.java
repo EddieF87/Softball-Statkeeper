@@ -9,13 +9,13 @@ import android.util.Log;
 import com.example.android.softballstatkeeper.MyApp;
 import com.example.android.softballstatkeeper.R;
 import com.example.android.softballstatkeeper.data.FirestoreHelper;
-import com.example.android.softballstatkeeper.dialogs.EditNameDialogFragment;
+import com.example.android.softballstatkeeper.dialogs.EditNameDialog;
 import com.example.android.softballstatkeeper.fragments.PlayerFragment;
-import com.example.android.softballstatkeeper.objects.MainPageSelection;
+import com.example.android.softballstatkeeper.models.MainPageSelection;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class PlayerManagerActivity extends ExportActivity
-        implements EditNameDialogFragment.OnFragmentInteractionListener,
+        implements EditNameDialog.OnFragmentInteractionListener,
         PlayerFragment.OnFragmentInteractionListener {
 
     private PlayerFragment playerFragment;
@@ -39,12 +39,12 @@ public class PlayerManagerActivity extends ExportActivity
         }
     }
 
-    protected Fragment createFragment() {
+    private Fragment createFragment() {
         try {
             MyApp myApp = (MyApp) getApplicationContext();
             MainPageSelection mainPageSelection = myApp.getCurrentSelection();
             String playerName = mainPageSelection.getName();
-            playerFragment = PlayerFragment.newInstance(MainPageSelection.TYPE_PLAYER, playerName);
+            playerFragment = PlayerFragment.newInstance(playerName);
         } catch (Exception e) {
             Intent intent = new Intent(PlayerManagerActivity.this, MainActivity.class);
             startActivity(intent);

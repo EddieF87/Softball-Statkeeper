@@ -24,7 +24,8 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:targetApi="o" />
 
     <FrameLayout
         android:id="@+id/league_framelayout"
@@ -84,6 +85,8 @@
         android:padding="8dp"
         android:paddingLeft="16dp"
         android:paddingStart="16dp"
+        android:paddingEnd="0dp"
+        android:paddingRight="0dp"
         android:text="@string/my_statkeepers"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
         android:textColor="#ffffff"
@@ -111,7 +114,8 @@
         android:drawableStart="@drawable/ic_reorder_white_500_24dp"
         app:layout_constraintBottom_toTopOf="@+id/player_sk_card"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        tools:targetApi="o" />
 
     <include
         android:id="@+id/player_sk_card"

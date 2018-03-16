@@ -56,7 +56,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/diamond"
             app:layout_constraintVertical_bias="0.2"
-            tools:visibility="visible" />
+            tools:visibility="visible"
+            android:layout_marginLeft="2dp" />
 
         <TextView
             android:id="@+id/step2text"
@@ -72,7 +73,8 @@
             android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@+id/radio_group_results"
             app:layout_constraintStart_toStartOf="parent"
-            tools:visibility="visible" />
+            tools:visibility="visible"
+            android:layout_marginLeft="2dp" />
 
 
         <TextView
@@ -88,7 +90,8 @@
             android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@+id/radio_group_results"
             app:layout_constraintEnd_toEndOf="parent"
-            tools:visibility="visible" />
+            tools:visibility="visible"
+            android:layout_marginRight="8dp" />
 
         <TextView
             android:id="@+id/step4text"
@@ -105,7 +108,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/diamond"
             app:layout_constraintVertical_bias="0.2"
-            tools:visibility="visible" />
+            tools:visibility="visible"
+            android:layout_marginRight="8dp" />
 
         <ImageView
             android:id="@+id/btn_undo"
@@ -168,8 +172,10 @@
                 android:textColor="#FFFFFF"
                 android:drawableRight="@drawable/ic_reorder_white_500_24dp"
                 android:paddingRight="4dp"
-                android:drawableEnd="@drawable/ic_reorder_white_500_24dp"
-                android:paddingEnd="4dp" />
+                android:paddingEnd="4dp"
+                android:paddingLeft="0dp"
+                android:paddingStart="0dp"
+                android:drawableEnd="@drawable/ic_reorder_white_500_24dp" />
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/away_lineup"
@@ -192,7 +198,9 @@
                 android:drawableRight="@drawable/ic_reorder_white_500_24dp"
                 android:paddingRight="4dp"
                 android:drawableEnd="@drawable/ic_reorder_white_500_24dp"
-                android:paddingEnd="4dp" />
+                android:paddingEnd="4dp"
+                android:paddingLeft="0dp"
+                android:paddingStart="0dp" />
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/home_lineup"

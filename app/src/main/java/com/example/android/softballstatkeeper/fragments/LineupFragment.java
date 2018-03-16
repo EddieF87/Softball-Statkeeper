@@ -37,13 +37,13 @@ import com.example.android.softballstatkeeper.activities.LeagueGameActivity;
 import com.example.android.softballstatkeeper.activities.TeamGameActivity;
 import com.example.android.softballstatkeeper.activities.TeamManagerActivity;
 import com.example.android.softballstatkeeper.activities.UsersActivity;
-import com.example.android.softballstatkeeper.adapters_listeners_etc.MyLineupAdapter;
+import com.example.android.softballstatkeeper.adapters.MyLineupAdapter;
 import com.example.android.softballstatkeeper.data.StatsContract;
 import com.example.android.softballstatkeeper.data.StatsContract.StatsEntry;
-import com.example.android.softballstatkeeper.dialogs.AddNewPlayersDialogFragment;
-import com.example.android.softballstatkeeper.dialogs.GameSettingsDialogFragment;
-import com.example.android.softballstatkeeper.objects.MainPageSelection;
-import com.example.android.softballstatkeeper.objects.Player;
+import com.example.android.softballstatkeeper.dialogs.AddNewPlayersDialog;
+import com.example.android.softballstatkeeper.dialogs.GameSettingsDialog;
+import com.example.android.softballstatkeeper.models.MainPageSelection;
+import com.example.android.softballstatkeeper.models.Player;
 import com.woxthebox.draglistview.BoardView;
 
 import java.util.ArrayList;
@@ -57,7 +57,6 @@ public class LineupFragment extends Fragment {
 
     private boolean sortLineup;
 
-    private LinearLayout settingsLayout;
     private TextView gameSummaryView;
     private TextView inningsView;
     private TextView orderView;
@@ -221,14 +220,14 @@ public class LineupFragment extends Fragment {
         return rootView;
     }
 
-    public void resetBoardView(){
+    private void resetBoardView(){
         if(mBoardView == null) {return;}
         mBoardView.clearBoard();
         sCreatedItems = 0;
         startBoardView();
     }
 
-    public void startBoardView(){
+    private void startBoardView(){
         addColumnList(mLineup, false);
         addColumnList(mBench, true);
     }
@@ -239,12 +238,12 @@ public class LineupFragment extends Fragment {
             long id = sCreatedItems++;
             mItemArray.add(new Pair<>(id, player));
         }
-        final MyLineupAdapter listAdapter = new MyLineupAdapter(mItemArray, R.layout.item_lineup, R.id.lineup_mover, false, getActivity(), isBench, getGenderSorter());
+        final MyLineupAdapter listAdapter = new MyLineupAdapter(mItemArray, getActivity(), isBench, getGenderSorter());
         mBoardView.addColumnList(listAdapter, null, false);
         Log.d("xxx", "addColumnList " + mItemArray.size());
     }
 
-    public void onSubmitEdit() {
+    private void onSubmitEdit() {
         if (isLineupOK()) {
             setNewLineupToTempDB(getPreviousLineup(mTeamID));
             Intent intent;
@@ -291,7 +290,7 @@ public class LineupFragment extends Fragment {
         }
     }
 
-    public void onSubmitLineup() {
+    private void onSubmitLineup() {
         if (mType == MainPageSelection.TYPE_TEAM) {
             int genderSorter = getGenderSorter();
 
@@ -319,7 +318,7 @@ public class LineupFragment extends Fragment {
         inningsView = getView().findViewById(R.id.innings_view);
         View radioButtonGroup = getView().findViewById(R.id.radiobtns_away_or_home_team);
         orderView = getView().findViewById(R.id.gender_lineup_view);
-        settingsLayout = getView().findViewById(R.id.layout_settings);
+        LinearLayout settingsLayout = getView().findViewById(R.id.layout_settings);
         settingsLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -363,11 +362,10 @@ public class LineupFragment extends Fragment {
             }
             cursor.close();
         } else {
+            settingsLayout.setVisibility(View.GONE);
             continueGameButton.setVisibility(View.GONE);
             gameSummaryView.setVisibility(View.GONE);
-            inningsView.setVisibility(View.GONE);
             radioButtonGroup.setVisibility(View.GONE);
-            orderView.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -383,7 +381,7 @@ public class LineupFragment extends Fragment {
     private void createTeamFragment(String teamName, String teamID) {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = AddNewPlayersDialogFragment.newInstance(teamName, teamID);
+        DialogFragment newFragment = AddNewPlayersDialog.newInstance(teamName, teamID);
         newFragment.show(fragmentTransaction, "");
     }
 
@@ -506,10 +504,11 @@ public class LineupFragment extends Fragment {
         while (cursor.moveToNext()) {
             previousLineup.add(new Player(cursor, true));
         }
+        cursor.close();
         return previousLineup;
     }
 
-    private boolean setNewLineupToTempDB(List<Player> previousLineup) {
+    private void setNewLineupToTempDB(List<Player> previousLineup) {
 
         List<Player> lineup = getLineup();
 
@@ -581,7 +580,6 @@ public class LineupFragment extends Fragment {
             }
             previousLineup.clear();
         }
-        return true;
     }
 
     private Player checkIfPlayerExists(long playerID, List<Player> players) {
@@ -770,12 +768,12 @@ public class LineupFragment extends Fragment {
         int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = GameSettingsDialogFragment.newInstance(innings, genderSorter, mSelectionID);
+        DialogFragment newFragment = GameSettingsDialog.newInstance(innings, genderSorter, mSelectionID);
         newFragment.show(fragmentTransaction, "");
     }
 
     private int removePlayerFromTeam(String playerFirestoreID) {
-        Player player = new Player(null, -1, playerFirestoreID);
+        Player player = new Player(-1, playerFirestoreID);
         if (mLineup.contains(player)) {
             mLineup.remove(player);
             return LINEUP_INDEX;

@@ -20,9 +20,9 @@ import android.widget.TextView;
 import com.example.android.softballstatkeeper.MyApp;
 import com.example.android.softballstatkeeper.R;
 import com.example.android.softballstatkeeper.data.FirestoreHelper;
-import com.example.android.softballstatkeeper.dialogs.DeletionCheckDialogFragment;
-import com.example.android.softballstatkeeper.objects.ItemMarkedForDeletion;
-import com.example.android.softballstatkeeper.objects.MainPageSelection;
+import com.example.android.softballstatkeeper.dialogs.DeletionCheckDialog;
+import com.example.android.softballstatkeeper.models.ItemMarkedForDeletion;
+import com.example.android.softballstatkeeper.models.MainPageSelection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +31,7 @@ public class LoadingActivity extends AppCompatActivity
         implements
         LoaderManager.LoaderCallbacks,
         FirestoreHelper.onFirestoreSyncListener,
-        DeletionCheckDialogFragment.OnListFragmentInteractionListener {
+        DeletionCheckDialog.OnListFragmentInteractionListener {
 
     private int countdown;
     private int numberOfTeams;
@@ -84,8 +84,8 @@ public class LoadingActivity extends AppCompatActivity
     @Override
     public void onUpdateCheck(boolean update) {
         if (update) {
-            loadTitle.setText("(1/3)  Preparing Sync");
-            loadDescription.setText("Please wait while database is retrieved.");
+            loadTitle.setText(R.string.load1_prepare_sync);
+            loadDescription.setText(R.string.load1_desc);
             countdown = 2;
             firestoreHelper.syncStats();
         } else {
@@ -118,8 +118,8 @@ public class LoadingActivity extends AppCompatActivity
 
     private void onCountDownFinished() {
         loadProgressBar.setVisibility(View.INVISIBLE);
-        loadTitle.setText("(3/3)  Deletion Check");
-        loadDescription.setText("Checking if players or teams were deleted on other devices.");
+        loadTitle.setText(R.string.load3_deletion_check);
+        loadDescription.setText(R.string.load3_desc);
         firestoreHelper.deletionCheck(mLevel);
     }
 
@@ -152,8 +152,8 @@ public class LoadingActivity extends AppCompatActivity
         totalNumber = numberOfTeams + numberOfPlayers;
         loadProgressBar.setMax(totalNumber);
         loadProgressBar.setVisibility(View.VISIBLE);
-        loadTitle.setText("(2/3)  Syncing...");
-        loadDescription.setText("Updating player & team statistics.");
+        loadTitle.setText(R.string.load2_syncing);
+        loadDescription.setText(R.string.load2_desc);
     }
 
     @Override
@@ -179,7 +179,8 @@ public class LoadingActivity extends AppCompatActivity
         }
         loadProgressBar.setVisibility(View.INVISIBLE);
         loadTitle.setText(R.string.error);
-        loadDescription.setText("Error with " + error);
+        String errorMsg = "Error with " + error;
+        loadDescription.setText(errorMsg);
     }
 
     @Override
@@ -189,7 +190,7 @@ public class LoadingActivity extends AppCompatActivity
         loadDescription.setVisibility(View.INVISIBLE);
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = DeletionCheckDialogFragment.newInstance(itemMarkedForDeletionList);
+        DialogFragment newFragment = DeletionCheckDialog.newInstance(itemMarkedForDeletionList);
         newFragment.show(fragmentTransaction, "");
     }
 

@@ -3,7 +3,7 @@ package com.example.android.softballstatkeeper;
 import android.app.Application;
 import android.content.Context;
 
-import com.example.android.softballstatkeeper.objects.MainPageSelection;
+import com.example.android.softballstatkeeper.models.MainPageSelection;
 import com.squareup.leakcanary.LeakCanary;
 import com.squareup.leakcanary.RefWatcher;
 

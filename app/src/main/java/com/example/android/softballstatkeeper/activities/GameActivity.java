@@ -29,17 +29,16 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.android.softballstatkeeper.R;
 import com.example.android.softballstatkeeper.data.StatsContract;
-import com.example.android.softballstatkeeper.dialogs.EndOfGameDialogFragment;
-import com.example.android.softballstatkeeper.dialogs.FinishGameConfirmationDialogFragment;
-import com.example.android.softballstatkeeper.dialogs.SaveDeleteGameFragment;
-import com.example.android.softballstatkeeper.gamelog.BaseLog;
+import com.example.android.softballstatkeeper.dialogs.EndOfGameDialog;
+import com.example.android.softballstatkeeper.dialogs.FinishGameConfirmationDialog;
+import com.example.android.softballstatkeeper.dialogs.SaveDeleteGameDialog;
+import com.example.android.softballstatkeeper.models.BaseLog;
 
 import com.example.android.softballstatkeeper.data.StatsContract.StatsEntry;
-import com.example.android.softballstatkeeper.objects.Player;
+import com.example.android.softballstatkeeper.models.Player;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 
@@ -49,9 +48,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class GameActivity extends AppCompatActivity
-        implements EndOfGameDialogFragment.OnFragmentInteractionListener,
-        SaveDeleteGameFragment.OnFragmentInteractionListener,
-        FinishGameConfirmationDialogFragment.OnFragmentInteractionListener {
+        implements EndOfGameDialog.OnFragmentInteractionListener,
+        SaveDeleteGameDialog.OnFragmentInteractionListener,
+        FinishGameConfirmationDialog.OnFragmentInteractionListener {
 
     protected Cursor gameCursor;
 
@@ -104,7 +103,7 @@ public abstract class GameActivity extends AppCompatActivity
     protected Player currentBatter;
     protected Drawable mRunner;
 
-    protected NumberFormat formatter = new DecimalFormat("#.000");
+    protected final NumberFormat formatter = new DecimalFormat("#.000");
     protected BaseLog currentBaseLogStart;
     protected ArrayList<String> currentRunsLog;
     protected ArrayList<String> tempRunsLog;
@@ -553,7 +552,7 @@ public abstract class GameActivity extends AppCompatActivity
         }
         fragmentTransaction.addToBackStack(null);
 
-        DialogFragment newFragment = EndOfGameDialogFragment.newInstance();
+        DialogFragment newFragment = EndOfGameDialog.newInstance();
         newFragment.show(fragmentTransaction, DIALOG_FINISH);
     }
 
@@ -646,20 +645,20 @@ public abstract class GameActivity extends AppCompatActivity
         }
         inningDisplay.setText(String.valueOf(inningNumber / 2));
 
-        String indicator;
-        switch (inningNumber / 2) {
-            case 1:
-                indicator = "st";
-                break;
-            case 2:
-                indicator = "nd";
-                break;
-            case 3:
-                indicator = "rd";
-                break;
-            default:
-                indicator = "th";
-        }
+//        String indicator;
+//        switch (inningNumber / 2) {
+//            case 1:
+//                indicator = "st";
+//                break;
+//            case 2:
+//                indicator = "nd";
+//                break;
+//            case 3:
+//                indicator = "rd";
+//                break;
+//            default:
+//                indicator = "th";
+//        }
         //Toast.makeText(LeagueGameActivity.this, topOrBottom + " of the " + inningNumber / 2 + indicator, Toast.LENGTH_LONG).show();
     }
 
@@ -1257,7 +1256,7 @@ public abstract class GameActivity extends AppCompatActivity
     protected void showExitDialog() {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = SaveDeleteGameFragment.newInstance();
+        DialogFragment newFragment = SaveDeleteGameDialog.newInstance();
         newFragment.show(fragmentTransaction, "");
     }
 
@@ -1315,7 +1314,7 @@ public abstract class GameActivity extends AppCompatActivity
     protected void showFinishConfirmationDialog() {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = FinishGameConfirmationDialogFragment.newInstance();
+        DialogFragment newFragment = FinishGameConfirmationDialog.newInstance();
         newFragment.show(fragmentTransaction, "");
     }
 
@@ -1337,8 +1336,7 @@ public abstract class GameActivity extends AppCompatActivity
                 projection, selection, selectionArgs, null);
         String name = null;
         if (cursor.moveToFirst()) {
-            int nameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_NAME);
-            name = cursor.getString(nameIndex);
+            name = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_NAME);
         }
         cursor.close();
         return name;

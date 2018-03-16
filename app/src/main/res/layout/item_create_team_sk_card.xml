@@ -39,7 +39,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:maxLines="1"
-        android:text="Manage, view, &amp; share stats &amp; scores of a team"
+        android:text="@string/manage_view_amp_share_stats_amp_scores_of_a_team"
         android:textSize="12sp"
         android:textStyle="italic"
         app:layout_constraintBottom_toBottomOf="parent"

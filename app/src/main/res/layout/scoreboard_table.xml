@@ -24,7 +24,8 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="Juggernauts 5  Home Team 10" />
+        tools:text="Juggernauts 5  Home Team 10"
+        tools:targetApi="o" />
 
     <TextView
         android:id="@+id/nowbatting"
@@ -43,7 +44,8 @@
         app:layout_constraintLeft_toLeftOf="@+id/scoreboard"
         app:layout_constraintTop_toBottomOf="@+id/scoreboard"
         tools:text="at bat: gggggggggggggd"
-        android:layout_marginRight="4dp" />
+        android:layout_marginRight="4dp"
+        tools:targetApi="o" />
 
     <ImageView
         android:id="@+id/inning_top_arrow"

@@ -18,18 +18,18 @@ import android.widget.TextView;
 import com.example.android.softballstatkeeper.MyApp;
 import com.example.android.softballstatkeeper.R;
 import com.example.android.softballstatkeeper.data.FirestoreHelper;
-import com.example.android.softballstatkeeper.adapters_listeners_etc.MatchupAdapter;
+import com.example.android.softballstatkeeper.adapters.MatchupAdapter;
 import com.example.android.softballstatkeeper.data.StatsContract;
 import com.example.android.softballstatkeeper.data.StatsContract.StatsEntry;
-import com.example.android.softballstatkeeper.dialogs.EndOfGameDialogFragment;
-import com.example.android.softballstatkeeper.gamelog.BaseLog;
-import com.example.android.softballstatkeeper.objects.MainPageSelection;
-import com.example.android.softballstatkeeper.objects.Player;
+import com.example.android.softballstatkeeper.dialogs.EndOfGameDialog;
+import com.example.android.softballstatkeeper.models.BaseLog;
+import com.example.android.softballstatkeeper.models.MainPageSelection;
+import com.example.android.softballstatkeeper.models.Player;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TeamGameActivity extends GameActivity implements EndOfGameDialogFragment.OnFragmentInteractionListener {
+public class TeamGameActivity extends GameActivity implements EndOfGameDialog.OnFragmentInteractionListener {
 
     private MatchupAdapter mLineupAdapter;
     private RecyclerView mRecyclerView;
@@ -419,7 +419,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialogFra
         setScoreDisplay();
     }
 
-    public void teamAddOut() {
+    private void teamAddOut() {
         gameOuts++;
         otherTeamOutsView.setText(String.valueOf(gameOuts));
         if (gameOuts >= 3) {

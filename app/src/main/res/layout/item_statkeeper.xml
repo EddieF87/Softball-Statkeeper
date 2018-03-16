@@ -29,6 +29,8 @@
                 android:layout_height="wrap_content"
                 android:paddingLeft="@dimen/activity_horizontal_margin"
                 android:paddingStart="@dimen/activity_horizontal_margin"
+                android:paddingEnd="6dp"
+                android:paddingRight="6dp"
                 android:layout_weight="1"
                 android:autoSizeMinTextSize="12sp"
                 android:autoSizeTextType="uniform"
@@ -36,7 +38,8 @@
                 android:padding="6dp"
                 tools:text="123456789012345678901234567890"
                 android:singleLine="true"
-                android:textSize="24sp" />
+                android:textSize="24sp"
+                tools:targetApi="o" />
 
             <ImageView
                 android:id="@+id/info_img"

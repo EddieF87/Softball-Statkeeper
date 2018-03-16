@@ -14,33 +14,32 @@ import android.widget.Toast;
 
 import com.example.android.softballstatkeeper.MyApp;
 import com.example.android.softballstatkeeper.R;
-import com.example.android.softballstatkeeper.adapters_listeners_etc.CustomViewPager;
-import com.example.android.softballstatkeeper.adapters_listeners_etc.PlayerStatsAdapter;
+import com.example.android.softballstatkeeper.views.CustomViewPager;
+import com.example.android.softballstatkeeper.adapters.PlayerStatsAdapter;
 import com.example.android.softballstatkeeper.data.FirestoreHelper;
 import com.example.android.softballstatkeeper.data.StatsContract;
 import com.example.android.softballstatkeeper.data.StatsContract.StatsEntry;
-import com.example.android.softballstatkeeper.dialogs.AddNewPlayersDialogFragment;
-import com.example.android.softballstatkeeper.dialogs.DeleteVsWaiversDialogFragment;
-import com.example.android.softballstatkeeper.dialogs.EditNameDialogFragment;
-import com.example.android.softballstatkeeper.dialogs.GameSettingsDialogFragment;
-import com.example.android.softballstatkeeper.dialogs.RemoveAllPlayersDialogFragment;
+import com.example.android.softballstatkeeper.dialogs.AddNewPlayersDialog;
+import com.example.android.softballstatkeeper.dialogs.DeleteVsWaiversDialog;
+import com.example.android.softballstatkeeper.dialogs.EditNameDialog;
+import com.example.android.softballstatkeeper.dialogs.GameSettingsDialog;
+import com.example.android.softballstatkeeper.dialogs.RemoveAllPlayersDialog;
 import com.example.android.softballstatkeeper.fragments.LineupFragment;
 import com.example.android.softballstatkeeper.fragments.TeamFragment;
-import com.example.android.softballstatkeeper.objects.MainPageSelection;
-import com.example.android.softballstatkeeper.objects.Player;
+import com.example.android.softballstatkeeper.models.MainPageSelection;
+import com.example.android.softballstatkeeper.models.Player;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class TeamManagerActivity extends ExportActivity
-        implements AddNewPlayersDialogFragment.OnListFragmentInteractionListener,
-        GameSettingsDialogFragment.OnFragmentInteractionListener,
-        RemoveAllPlayersDialogFragment.OnFragmentInteractionListener,
-        EditNameDialogFragment.OnFragmentInteractionListener {
+        implements AddNewPlayersDialog.OnListFragmentInteractionListener,
+        GameSettingsDialog.OnFragmentInteractionListener,
+        RemoveAllPlayersDialog.OnFragmentInteractionListener,
+        EditNameDialog.OnFragmentInteractionListener {
 
     private LineupFragment lineupFragment;
     private TeamFragment teamFragment;
-    private CustomViewPager mViewPager;
     private String mTeamID;
     private int mLevel;
     private int mSelectionType;
@@ -65,7 +64,7 @@ public class TeamManagerActivity extends ExportActivity
             finish();
         }
 
-        mViewPager = findViewById(R.id.team_view_pager);
+        CustomViewPager mViewPager = findViewById(R.id.team_view_pager);
         FragmentManager fragmentManager = getSupportFragmentManager();
         mViewPager.setAdapter(new TeamManagerPagerAdapter(fragmentManager));
 
@@ -128,7 +127,7 @@ public class TeamManagerActivity extends ExportActivity
 
     @Override
     public void onRemoveChoice(int choice) {
-        if (choice == DeleteVsWaiversDialogFragment.CHOICE_DELETE) {
+        if (choice == DeleteVsWaiversDialog.CHOICE_DELETE) {
             if (teamFragment != null) {
                 List<String> firestoreIDsToDelete = teamFragment.deletePlayers();
                 if (lineupFragment != null && !firestoreIDsToDelete.isEmpty()) {

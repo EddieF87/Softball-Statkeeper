@@ -1,20 +1,21 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
     <TextView
-        android:layout_marginTop="8dp"
         android:id="@+id/innings_description"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="8dp"
         android:layout_weight="1"
-        android:gravity="center"
-        android:text="@string/Innings"
-        android:textSize="24sp"
         android:autoSizeMinTextSize="12sp"
         android:autoSizeTextType="uniform"
-        />
+        android:gravity="center"
+        android:text="@string/Innings"
+        android:textSize="18sp"
+        tools:targetApi="o" />
 
     <TextView
         android:layout_marginTop="8dp"
@@ -25,7 +26,8 @@
         android:gravity="center"
         android:textSize="24sp"
         android:autoSizeMinTextSize="12sp"
-        android:autoSizeTextType="uniform"/>
+        android:autoSizeTextType="uniform"
+        tools:targetApi="o" />
 
     <SeekBar
         android:id="@+id/innings_seekbar"
@@ -37,17 +39,17 @@
         android:progress="1" />
 
     <TextView
-        android:layout_marginTop="32dp"
         android:id="@+id/gender_sort_description"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="24dp"
         android:layout_weight="1"
-        android:gravity="center"
-        android:text="@string/set_gender_lineup"
-        android:textSize="24sp"
         android:autoSizeMinTextSize="12sp"
         android:autoSizeTextType="uniform"
-        />
+        android:gravity="center"
+        android:text="@string/set_gender_lineup"
+        android:textSize="18sp"
+        tools:targetApi="o" />
 
     <TextView
         android:layout_marginTop="8dp"
@@ -59,7 +61,8 @@
         android:textColor="@color/male"
         android:textSize="24sp"
         android:autoSizeMinTextSize="12sp"
-        android:autoSizeTextType="uniform"/>
+        android:autoSizeTextType="uniform"
+        tools:targetApi="o" />
 
     <SeekBar
         android:id="@+id/gender_sort_seekbar"

@@ -125,7 +125,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:text="@string/out"
-        android:textColor="#ffffff"
+        android:textColor="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="@+id/trash"
         app:layout_constraintLeft_toLeftOf="@+id/trash"
         app:layout_constraintRight_toRightOf="@+id/trash"

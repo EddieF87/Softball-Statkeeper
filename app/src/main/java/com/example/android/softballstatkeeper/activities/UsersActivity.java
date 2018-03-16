@@ -20,10 +20,10 @@ import android.widget.TextView;
 import com.example.android.softballstatkeeper.MyApp;
 import com.example.android.softballstatkeeper.R;
 import com.example.android.softballstatkeeper.data.StatsContract;
-import com.example.android.softballstatkeeper.dialogs.InviteUserDialogFragment;
+import com.example.android.softballstatkeeper.dialogs.InviteUserDialog;
 import com.example.android.softballstatkeeper.fragments.UserFragment;
-import com.example.android.softballstatkeeper.objects.MainPageSelection;
-import com.example.android.softballstatkeeper.objects.StatKeepUser;
+import com.example.android.softballstatkeeper.models.MainPageSelection;
+import com.example.android.softballstatkeeper.models.StatKeepUser;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
@@ -43,7 +43,7 @@ import static com.example.android.softballstatkeeper.data.FirestoreHelper.USERS;
 
 public class UsersActivity extends AppCompatActivity
         implements UserFragment.OnListFragmentInteractionListener,
-        InviteUserDialogFragment.OnFragmentInteractionListener{
+        InviteUserDialog.OnFragmentInteractionListener{
 
     private static final String TAG = "UsersActivity";
     private static final String SAVED_MAP = "map";
@@ -101,7 +101,7 @@ public class UsersActivity extends AppCompatActivity
                 startAdderBtn.setVisibility(View.GONE);
                 FragmentManager fragmentManager = getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                DialogFragment newFragment = new InviteUserDialogFragment();
+                DialogFragment newFragment = new InviteUserDialog();
                 newFragment.show(fragmentTransaction, "");
             }
         });
@@ -248,11 +248,6 @@ public class UsersActivity extends AppCompatActivity
             levelChanges = new HashMap<>();
         }
         levelChanges.put(name, level);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
     }
 
     @Override

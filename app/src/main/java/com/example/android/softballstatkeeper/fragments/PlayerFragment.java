@@ -38,13 +38,14 @@ import com.example.android.softballstatkeeper.activities.PlayerPagerActivity;
 import com.example.android.softballstatkeeper.activities.TeamPagerActivity;
 import com.example.android.softballstatkeeper.activities.UsersActivity;
 import com.example.android.softballstatkeeper.data.FirestoreHelper;
+import com.example.android.softballstatkeeper.data.StatsContract;
 import com.example.android.softballstatkeeper.data.StatsContract.StatsEntry;
-import com.example.android.softballstatkeeper.dialogs.ChangeTeamDialogFragment;
-import com.example.android.softballstatkeeper.dialogs.DeleteConfirmationDialogFragment;
-import com.example.android.softballstatkeeper.dialogs.EditNameDialogFragment;
-import com.example.android.softballstatkeeper.objects.MainPageSelection;
-import com.example.android.softballstatkeeper.objects.Player;
-import com.example.android.softballstatkeeper.objects.Team;
+import com.example.android.softballstatkeeper.dialogs.ChangeTeamDialog;
+import com.example.android.softballstatkeeper.dialogs.DeleteConfirmationDialog;
+import com.example.android.softballstatkeeper.dialogs.EditNameDialog;
+import com.example.android.softballstatkeeper.models.MainPageSelection;
+import com.example.android.softballstatkeeper.models.Player;
+import com.example.android.softballstatkeeper.models.Team;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -55,7 +56,7 @@ import java.util.ArrayList;
  */
 public class PlayerFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    private NumberFormat formatter = new DecimalFormat("#.000");
+    private final NumberFormat formatter = new DecimalFormat("#.000");
     private static final int EXISTING_PLAYER_LOADER = 0;
     private Uri mCurrentPlayerUri;
     private int mLevel;
@@ -94,9 +95,9 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         return fragment;
     }
 
-    public static PlayerFragment newInstance(int leagueType, String playerName) {
+    public static PlayerFragment newInstance(String playerName) {
         Bundle args = new Bundle();
-        args.putInt(MainPageSelection.KEY_SELECTION_TYPE, leagueType);
+        args.putInt(MainPageSelection.KEY_SELECTION_TYPE, MainPageSelection.TYPE_PLAYER);
         args.putInt(MainPageSelection.KEY_SELECTION_LEVEL, 5);
         args.putString(MainPageSelection.KEY_SELECTION_NAME, playerName);
         PlayerFragment fragment = new PlayerFragment();
@@ -188,7 +189,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                                 Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
                                         null, selection, selectionArgs, null);
                                 if (cursor.moveToFirst()) {
-                                    int teamId = cursor.getInt(cursor.getColumnIndex(StatsEntry._ID));
+                                    int teamId = StatsContract.getColumnInt(cursor, StatsEntry._ID);
                                     Uri teamUri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_TEAMS, teamId);
                                     intent = new Intent(getActivity(), TeamPagerActivity.class);
                                     intent.setData(teamUri);
@@ -334,7 +335,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                         default:
                             return;
                     }
-                    int currentResultCount = cursor.getInt(cursor.getColumnIndex(statEntry));
+                    int currentResultCount = StatsContract.getColumnInt(cursor, statEntry);
                     resultCount += currentResultCount;
                     ContentValues values = new ContentValues();
                     values.put(statEntry, resultCount);
@@ -349,7 +350,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         });
     }
 
-    public void setRadioButtons(View view) {
+    private void setRadioButtons(View view) {
         group1 = view.findViewById(R.id.group1);
         group2 = view.findViewById(R.id.group2);
         RadioButton single = view.findViewById(R.id.single);
@@ -554,14 +555,14 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     private void showDeleteConfirmationDialog() {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = DeleteConfirmationDialogFragment.newInstance(playerName);
+        DialogFragment newFragment = DeleteConfirmationDialog.newInstance(playerName);
         newFragment.show(fragmentTransaction, "");
     }
 
     private void editNameDialog(String title) {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = EditNameDialogFragment.newInstance(title);
+        DialogFragment newFragment = EditNameDialog.newInstance(title);
         newFragment.show(fragmentTransaction, "");
     }
 
@@ -579,7 +580,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
 
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = ChangeTeamDialogFragment.newInstance(teams, playerName, firestoreID);
+        DialogFragment newFragment = ChangeTeamDialog.newInstance(teams, playerName, firestoreID);
         newFragment.show(fragmentTransaction, "");
     }
 
@@ -597,7 +598,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             }
         }
         if (getActivity() instanceof PlayerPagerActivity) {
-            ((PlayerPagerActivity) getActivity()).returnDeleteResult(Activity.RESULT_OK, firestoreID);
+            ((PlayerPagerActivity) getActivity()).returnDeleteResult(firestoreID);
         }
     }
 

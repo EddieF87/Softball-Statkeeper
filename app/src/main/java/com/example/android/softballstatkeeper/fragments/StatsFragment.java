@@ -30,17 +30,16 @@ import android.widget.Toast;
 import com.example.android.softballstatkeeper.MyApp;
 import com.example.android.softballstatkeeper.R;
 import com.example.android.softballstatkeeper.activities.UsersActivity;
-import com.example.android.softballstatkeeper.adapters_listeners_etc.PlayerStatsAdapter;
+import com.example.android.softballstatkeeper.adapters.PlayerStatsAdapter;
 import com.example.android.softballstatkeeper.data.StatsContract;
 import com.example.android.softballstatkeeper.data.StatsContract.StatsEntry;
-import com.example.android.softballstatkeeper.objects.MainPageSelection;
-import com.example.android.softballstatkeeper.objects.Player;
-import com.example.android.softballstatkeeper.objects.Team;
+import com.example.android.softballstatkeeper.models.MainPageSelection;
+import com.example.android.softballstatkeeper.models.Player;
+import com.example.android.softballstatkeeper.models.Team;
 import com.squareup.leakcanary.RefWatcher;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -93,8 +92,10 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         setHasOptionsMenu(true);
         Log.d("aaa", "onCreate StatsFragment");
         Bundle args = getArguments();
-        level = args.getInt(MainPageSelection.KEY_SELECTION_LEVEL);
-        selectionID = args.getString(MainPageSelection.KEY_SELECTION_ID);
+        if (args != null) {
+            level = args.getInt(MainPageSelection.KEY_SELECTION_LEVEL);
+            selectionID = args.getString(MainPageSelection.KEY_SELECTION_ID);
+        }
     }
 
     @Override
@@ -132,6 +133,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
                             Team team = new Team(cursor);
                             teams.add(team);
                         }
+                        cursor.close();
                         mListener.startAdder(teams);
                     }
                 }
@@ -164,12 +166,9 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
 //        teamIDs = new HashMap<>();
 //        teamIDs.put(StatsEntry.FREE_AGENT, -1);
         while (mCursor.moveToNext()) {
-            int teamNameIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_NAME);
-            String teamName = mCursor.getString(teamNameIndex);
-            int firestoreIDIndex = mCursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
-            String firestoreID = mCursor.getString(firestoreIDIndex);
-            int idIndex = mCursor.getColumnIndex(StatsEntry._ID);
-            int id = mCursor.getInt(idIndex);
+            String teamName = StatsContract.getColumnString(mCursor, StatsEntry.COLUMN_NAME);
+//            String firestoreID = StatsContract.getColumnString(mCursor, StatsEntry.COLUMN_FIRESTORE_ID);
+//            int id = StatsContract.getColumnInt(mCursor, StatsEntry._ID);
 //            teamIDs.put(firestoreID, id);
             teamsArray.add(teamName);
         }

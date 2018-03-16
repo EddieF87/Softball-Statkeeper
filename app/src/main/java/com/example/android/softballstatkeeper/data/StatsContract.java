@@ -12,7 +12,7 @@ import android.provider.BaseColumns;
 public class StatsContract {
 
     public static final String CONTENT_AUTHORITY = "com.example.android.softballstatkeeper";
-    public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
+    private static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
     public static final String PATH_PLAYERS = "players";
     public static final String PATH_TEAMS = "teams";
     public static final String PATH_TEMP = "temps";

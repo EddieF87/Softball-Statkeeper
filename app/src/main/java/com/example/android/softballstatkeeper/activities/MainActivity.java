@@ -25,17 +25,17 @@ import android.widget.Toast;
 
 import com.example.android.softballstatkeeper.MyApp;
 import com.example.android.softballstatkeeper.R;
-import com.example.android.softballstatkeeper.adapters_listeners_etc.FireTaskLoader;
-import com.example.android.softballstatkeeper.adapters_listeners_etc.MainPageAdapter;
+import com.example.android.softballstatkeeper.data.FireTaskLoader;
+import com.example.android.softballstatkeeper.adapters.MainPageAdapter;
 import com.example.android.softballstatkeeper.data.StatsContract;
 import com.example.android.softballstatkeeper.data.StatsContract.StatsEntry;
-import com.example.android.softballstatkeeper.dialogs.DeleteSelectionDialogFragment;
-import com.example.android.softballstatkeeper.dialogs.EditNameDialogFragment;
-import com.example.android.softballstatkeeper.dialogs.InviteListDialogFragment;
-import com.example.android.softballstatkeeper.dialogs.JoinOrCreateDialogFragment;
-import com.example.android.softballstatkeeper.dialogs.LoadErrorDialogFragment;
-import com.example.android.softballstatkeeper.dialogs.SelectionInfoDialogFragment;
-import com.example.android.softballstatkeeper.objects.MainPageSelection;
+import com.example.android.softballstatkeeper.dialogs.DeleteSelectionDialog;
+import com.example.android.softballstatkeeper.dialogs.EditNameDialog;
+import com.example.android.softballstatkeeper.dialogs.InviteListDialog;
+import com.example.android.softballstatkeeper.dialogs.JoinOrCreateDialog;
+import com.example.android.softballstatkeeper.dialogs.LoadErrorDialog;
+import com.example.android.softballstatkeeper.dialogs.SelectionInfoDialog;
+import com.example.android.softballstatkeeper.models.MainPageSelection;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -67,12 +67,12 @@ import static com.example.android.softballstatkeeper.data.FirestoreHelper.USERS;
 public class MainActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<QuerySnapshot>,
         View.OnClickListener,
-        InviteListDialogFragment.OnFragmentInteractionListener,
-        SelectionInfoDialogFragment.OnFragmentInteractionListener,
-        DeleteSelectionDialogFragment.OnFragmentInteractionListener,
-        LoadErrorDialogFragment.OnFragmentInteractionListener,
-        JoinOrCreateDialogFragment.OnFragmentInteractionListener,
-        EditNameDialogFragment.OnFragmentInteractionListener {
+        InviteListDialog.OnFragmentInteractionListener,
+        SelectionInfoDialog.OnFragmentInteractionListener,
+        DeleteSelectionDialog.OnFragmentInteractionListener,
+        LoadErrorDialog.OnFragmentInteractionListener,
+        JoinOrCreateDialog.OnFragmentInteractionListener,
+        EditNameDialog.OnFragmentInteractionListener {
 
     private static final String TAG = "MainActivity";
     private static final String AUTH = "FirebaseAuth";
@@ -166,7 +166,7 @@ public class MainActivity extends AppCompatActivity
         getSupportLoaderManager().initLoader(MAIN_LOADER, null, this);
     }
 
-    public void setViews() {
+    private void setViews() {
         Log.d("aaa", "setViews() MainActivity");
         ProgressBar progressBar = findViewById(R.id.progressBarMain);
         TextView rvErrorView = findViewById(R.id.error_rv_main);
@@ -191,15 +191,15 @@ public class MainActivity extends AppCompatActivity
             if (!mInviteList.isEmpty()) {
                 FragmentManager fragmentManager = getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                DialogFragment newFragment = InviteListDialogFragment.newInstance(mInviteList);
+                DialogFragment newFragment = InviteListDialog.newInstance(mInviteList);
                 newFragment.show(fragmentTransaction, "");
             }
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
 
     }
 
-    public void shuffleCreateStatKeeperViewsVisibility() {
+    private void shuffleCreateStatKeeperViewsVisibility() {
         TextView textView = findViewById(R.id.textview_join_or_create);
         View playerV = findViewById(R.id.player_sk_card);
         View teamV = findViewById(R.id.team_sk_card);
@@ -270,7 +270,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onClick(View view) {
         int type;
-        String selection;
         switch (view.getId()) {
             case R.id.player_sk_card:
                 type = MainPageSelection.TYPE_PLAYER;
@@ -291,14 +290,14 @@ public class MainActivity extends AppCompatActivity
         joinCreateDialog(type);
     }
 
-    public void joinCreateDialog(int type) {
+    private void joinCreateDialog(int type) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = JoinOrCreateDialogFragment.newInstance(type);
+        DialogFragment newFragment = JoinOrCreateDialog.newInstance(type);
         newFragment.show(fragmentTransaction, "");
     }
 
-    public void enterNameDialog(int type) {
+    private void enterNameDialog(int type) {
         String titleString = "Enter %1$s name";
         String selection;
         switch (type) {
@@ -321,7 +320,7 @@ public class MainActivity extends AppCompatActivity
         String title = String.format(titleString, selection);
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = EditNameDialogFragment.newInstance(title, type);
+        DialogFragment newFragment = EditNameDialog.newInstance(title, type);
         newFragment.show(fragmentTransaction, "");
     }
 
@@ -374,7 +373,7 @@ public class MainActivity extends AppCompatActivity
     public void onDelete(MainPageSelection selection, int pos) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = DeleteSelectionDialogFragment.newInstance(selection, pos);
+        DialogFragment newFragment = DeleteSelectionDialog.newInstance(selection, pos);
         newFragment.show(fragmentTransaction, "");
     }
 
@@ -488,7 +487,7 @@ public class MainActivity extends AppCompatActivity
                 public void run() {
                     FragmentManager fragmentManager = getSupportFragmentManager();
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                    DialogFragment newFragment = LoadErrorDialogFragment.newInstance();
+                    DialogFragment newFragment = LoadErrorDialog.newInstance();
                     newFragment.show(fragmentTransaction, "");
                 }
             });

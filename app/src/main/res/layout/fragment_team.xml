@@ -31,7 +31,8 @@
             android:maxLines="1"
             android:textAlignment="center"
             android:textSize="48sp"
-            tools:text="teambitres" />
+            tools:text="teambitres"
+            tools:targetApi="o" />
 
         <TextView
             android:id="@+id/teamRecord"
@@ -46,7 +47,8 @@
             android:textSize="24sp"
             android:autoSizeMinTextSize="12sp"
             android:autoSizeTextType="uniform"
-            tools:text="23-54-2" />
+            tools:text="23-54-2"
+            tools:targetApi="o" />
     </LinearLayout>
 
 
@@ -93,7 +95,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:text="Add players!"
+            android:text="@string/add_players"
             android:textSize="18sp"
             android:textStyle="bold"
             android:visibility="gone" />

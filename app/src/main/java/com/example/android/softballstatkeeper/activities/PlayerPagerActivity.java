@@ -8,7 +8,7 @@ import android.util.Log;
 import com.example.android.softballstatkeeper.data.FirestoreHelper;
 import com.example.android.softballstatkeeper.data.StatsContract;
 import com.example.android.softballstatkeeper.fragments.PlayerFragment;
-import com.example.android.softballstatkeeper.objects.MainPageSelection;
+import com.example.android.softballstatkeeper.models.MainPageSelection;
 
 public class PlayerPagerActivity extends ObjectPagerActivity {
 
@@ -24,10 +24,10 @@ public class PlayerPagerActivity extends ObjectPagerActivity {
         startPager(1, StatsContract.StatsEntry.CONTENT_URI_PLAYERS);
     }
 
-    public void returnDeleteResult(int result, String deletedPlayer) {
+    public void returnDeleteResult(String deletedPlayer) {
         Intent intent = getIntent();
         intent.putExtra(StatsContract.StatsEntry.DELETE, deletedPlayer);
-        setResult(result, intent);
+        setResult(android.app.Activity.RESULT_OK, intent);
         finish();
     }
 
@@ -50,7 +50,6 @@ public class PlayerPagerActivity extends ObjectPagerActivity {
 
     @Override
     protected void setPagerTitle(String name) {
-        super.setPagerTitle(name);
         setTitle(name + ": Players");
     }
 

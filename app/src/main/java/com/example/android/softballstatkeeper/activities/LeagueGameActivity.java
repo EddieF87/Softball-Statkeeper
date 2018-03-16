@@ -22,14 +22,14 @@ import android.widget.TextView;
 
 import com.example.android.softballstatkeeper.MyApp;
 import com.example.android.softballstatkeeper.R;
-import com.example.android.softballstatkeeper.adapters_listeners_etc.MatchupAdapter;
+import com.example.android.softballstatkeeper.adapters.MatchupAdapter;
 import com.example.android.softballstatkeeper.data.FirestoreHelper;
 import com.example.android.softballstatkeeper.data.StatsContract;
-import com.example.android.softballstatkeeper.gamelog.BaseLog;
+import com.example.android.softballstatkeeper.models.BaseLog;
 
 import com.example.android.softballstatkeeper.data.StatsContract.StatsEntry;
-import com.example.android.softballstatkeeper.objects.MainPageSelection;
-import com.example.android.softballstatkeeper.objects.Player;
+import com.example.android.softballstatkeeper.models.MainPageSelection;
+import com.example.android.softballstatkeeper.models.Player;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,17 +41,17 @@ public class LeagueGameActivity extends GameActivity /*implements LoaderManager.
 
     private List<Player> awayTeam;
     private List<Player> homeTeam;
-    protected String awayTeamID;
-    protected String homeTeamID;
-    protected int awayTeamIndex;
-    protected int homeTeamIndex;
+    private String awayTeamID;
+    private String homeTeamID;
+    private int awayTeamIndex;
+    private int homeTeamIndex;
     private List<Player> currentTeam;
     private String leagueName;
 
-    protected MatchupAdapter awayLineupAdapter;
-    protected MatchupAdapter homeLineupAdapter;
-    protected RecyclerView awayLineupRV;
-    protected RecyclerView homeLineupRV;
+    private MatchupAdapter awayLineupAdapter;
+    private MatchupAdapter homeLineupAdapter;
+    private RecyclerView awayLineupRV;
+    private RecyclerView homeLineupRV;
 
     private static final String KEY_AWAYTEAM = "keyAwayTeam";
     private static final String KEY_HOMETEAM = "keyHomeTeam";
@@ -251,7 +251,7 @@ public class LeagueGameActivity extends GameActivity /*implements LoaderManager.
         setInningDisplay();
     }
 
-    protected void chooseTeamToEditDialog() {
+    private void chooseTeamToEditDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("Choose team to edit:");
         builder.setNegativeButton(awayTeamName, new DialogInterface.OnClickListener() {
@@ -540,18 +540,18 @@ public class LeagueGameActivity extends GameActivity /*implements LoaderManager.
         return 0;
     }
 
-    private void setIndex(Player player) {
-        if (currentTeam == awayTeam) {
-            awayTeamIndex = awayTeam.indexOf(player);
-            setLineupRVPosition(false);
-        } else if (currentTeam == homeTeam) {
-            homeTeamIndex = homeTeam.indexOf(player);
-            setLineupRVPosition(true);
-        } else {
-            Log.e(TAG, "",
-                    new Throwable("SOMETHING WENT WRONG WITH THE INDEXES!"));
-        }
-    }
+//    private void setIndex(Player player) {
+//        if (currentTeam == awayTeam) {
+//            awayTeamIndex = awayTeam.indexOf(player);
+//            setLineupRVPosition(false);
+//        } else if (currentTeam == homeTeam) {
+//            homeTeamIndex = homeTeam.indexOf(player);
+//            setLineupRVPosition(true);
+//        } else {
+//            Log.e(TAG, "",
+//                    new Throwable("SOMETHING WENT WRONG WITH THE INDEXES!"));
+//        }
+//    }
 
     private void setLineupRVPosition(boolean home) {
         if (home) {

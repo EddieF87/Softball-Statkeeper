@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="8dp"
-    tools:context="com.example.android.softballstatkeeper.dialogs.SelectionInfoDialogFragment">
+    tools:context="com.example.android.softballstatkeeper.dialogs.SelectionInfoDialog">
 
     <TextView
         android:id="@+id/name"
@@ -34,7 +34,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:text="lll: "
         android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@+id/level_label"
         app:layout_constraintTop_toTopOf="@+id/level_label"

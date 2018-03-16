@@ -18,7 +18,7 @@
         android:layout_gravity="center"
         android:duplicateParentState="true"
         android:foreground="@drawable/card_view_selector"
-        card_view:cardBackgroundColor="#ffffff"
+        card_view:cardBackgroundColor="@color/colorDefault"
         card_view:cardCornerRadius="4dp"
         card_view:cardElevation="1dp"
         card_view:cardPreventCornerOverlap="true"
@@ -47,7 +47,8 @@
                 android:singleLine="true"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textSize="16sp"
-                tools:text="aaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbaaaaaaaaaaaaaaaaaaaa" />
+                tools:text="aaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbaaaaaaaaaaaaaaaaaaaa"
+                tools:targetApi="o" />
 
             <ImageView
                 android:id="@+id/lineup_mover"

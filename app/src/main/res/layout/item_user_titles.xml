@@ -14,7 +14,7 @@
     <TextView
         android:id="@+id/user_level_view"
         style="@style/ItemUserStyle"
-        android:text="Level"
+        android:text="@string/level"
         />
 
 

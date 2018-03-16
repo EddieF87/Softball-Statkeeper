@@ -36,7 +36,8 @@
             android:maxLines="1"
             android:textAlignment="center"
             android:textSize="30sp"
-            tools:text="teambitres" />
+            tools:text="teambitres"
+            tools:targetApi="o" />
 
         <TextView
             android:id="@+id/teamRecord"
@@ -51,7 +52,8 @@
             android:gravity="start"
             android:maxLines="1"
             android:textSize="18sp"
-            tools:text="23-54-2" />
+            tools:text="23-54-2"
+            tools:targetApi="o" />
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/btn_start_adder"
@@ -114,7 +116,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:text="Add players!"
+            android:text="@string/add_players"
             android:textSize="18sp"
             android:textStyle="bold"
             android:visibility="gone" />

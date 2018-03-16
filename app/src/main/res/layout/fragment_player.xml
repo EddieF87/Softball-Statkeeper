@@ -25,7 +25,8 @@
         app:layout_constraintStart_toStartOf="@+id/guideline_titles"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Player  Name99999"
-        android:layout_marginRight="8dp" />
+        android:layout_marginRight="8dp"
+        tools:targetApi="o" />
 
     <TextView
         android:id="@+id/player_team"
@@ -45,7 +46,8 @@
         app:layout_constraintTop_toBottomOf="@+id/player_name"
         tools:text="Playertope"
         android:layout_marginRight="16dp"
-        android:layout_marginLeft="8dp" />
+        android:layout_marginLeft="8dp"
+        tools:targetApi="o" />
 
 
     <ImageView

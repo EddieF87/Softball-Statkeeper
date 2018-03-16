@@ -4,7 +4,6 @@ package com.example.android.softballstatkeeper.fragments;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
@@ -36,18 +35,17 @@ import com.example.android.softballstatkeeper.MyApp;
 import com.example.android.softballstatkeeper.R;
 import com.example.android.softballstatkeeper.activities.UsersActivity;
 import com.example.android.softballstatkeeper.activities.TeamPagerActivity;
-import com.example.android.softballstatkeeper.adapters_listeners_etc.StandingsAdapter;
+import com.example.android.softballstatkeeper.adapters.StandingsAdapter;
 import com.example.android.softballstatkeeper.data.FirestoreHelper;
 import com.example.android.softballstatkeeper.data.StatsContract;
 import com.example.android.softballstatkeeper.data.StatsContract.StatsEntry;
-import com.example.android.softballstatkeeper.dialogs.AddNewPlayersDialogFragment;
-import com.example.android.softballstatkeeper.objects.MainPageSelection;
-import com.example.android.softballstatkeeper.objects.Team;
+import com.example.android.softballstatkeeper.dialogs.AddNewPlayersDialog;
+import com.example.android.softballstatkeeper.models.MainPageSelection;
+import com.example.android.softballstatkeeper.models.Team;
 import com.squareup.leakcanary.RefWatcher;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 public class StandingsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
         View.OnClickListener {
@@ -82,8 +80,10 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         Bundle args = getArguments();
-        level = args.getInt(MainPageSelection.KEY_SELECTION_LEVEL);
-        leagueID = args.getString(MainPageSelection.KEY_SELECTION_ID);
+        if (args != null) {
+            level = args.getInt(MainPageSelection.KEY_SELECTION_LEVEL);
+            leagueID = args.getString(MainPageSelection.KEY_SELECTION_ID);
+        }
     }
 
     @Override
@@ -191,7 +191,7 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
     public void addNewPlayersDialog(String teamName, String teamID) {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = AddNewPlayersDialogFragment.newInstance(teamName, teamID);
+        DialogFragment newFragment = AddNewPlayersDialog.newInstance(teamName, teamID);
         newFragment.show(fragmentTransaction, "");
     }
 

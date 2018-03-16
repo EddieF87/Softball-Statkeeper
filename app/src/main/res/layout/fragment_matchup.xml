@@ -130,7 +130,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/layout_spinners">
 
-        <com.example.android.softballstatkeeper.adapters_listeners_etc.VerticalTextView
+        <com.example.android.softballstatkeeper.views.VerticalTextView
             android:id="@+id/away_lineup_editor"
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="wrap_content"
@@ -142,7 +142,8 @@
             android:padding="12dp"
             android:rotation="180"
             android:text="@string/edit_lineup"
-            android:textSize="18sp" />
+            android:textSize="18sp"
+            android:layout_marginStart="-4dp" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_left_team"
@@ -166,7 +167,7 @@
             android:paddingBottom="16dp"
             android:paddingTop="16dp" />
 
-        <com.example.android.softballstatkeeper.adapters_listeners_etc.VerticalTextView
+        <com.example.android.softballstatkeeper.views.VerticalTextView
             android:id="@+id/home_lineup_editor"
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="wrap_content"
@@ -178,7 +179,8 @@
             android:padding="12dp"
             android:rotation="180"
             android:text="@string/edit_lineup"
-            android:textSize="18sp" />
+            android:textSize="18sp"
+            android:layout_marginEnd="-4dp" />
     </LinearLayout>
 
 
@@ -191,7 +193,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent">
 
-        <com.example.android.softballstatkeeper.adapters_listeners_etc.VerticalTextView
+        <com.example.android.softballstatkeeper.views.VerticalTextView
             android:id="@+id/bench_title_away"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -215,7 +217,8 @@
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
             android:paddingTop="4dp"
-            android:textSize="12sp" />
+            android:textSize="12sp"
+            tools:targetApi="o" />
 
         <View
             android:layout_width="4dp"
@@ -233,7 +236,8 @@
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
             android:paddingTop="4dp"
-            android:textSize="12sp" />
+            android:textSize="12sp"
+            tools:targetApi="o" />
 
         <Space
             android:layout_width="0dp"
@@ -298,7 +302,8 @@
             android:gravity="center"
             android:maxLines="2"
             android:textSize="16sp"
-            tools:text="BGBG" />
+            tools:text="BGBG"
+            tools:targetApi="o" />
 
         <TextView
             android:id="@+id/innings_view"

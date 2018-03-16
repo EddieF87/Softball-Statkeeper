@@ -24,7 +24,8 @@
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="@color/colorPrimaryDark"
-        tools:text="DFFDFDFDF" />
+        tools:text="DFFDFDFDF"
+        tools:targetApi="o" />
 
     <TextView
         android:id="@+id/team_abv"
@@ -32,6 +33,8 @@
         android:layout_width="50dp"
         android:paddingEnd="4dp"
         android:paddingRight="4dp"
+        android:paddingLeft="0dp"
+        android:paddingStart="0dp"
         android:textStyle="italic"
         android:textColor="@color/colorPrimaryDark"
         tools:text="AAA" />

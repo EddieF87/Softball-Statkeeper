@@ -143,4 +143,18 @@
     <string name="step_3_submit_play">Step 3: Submit play</string>
     <string name="step_4_repeat">Step 4: Repeat!</string>
     <string name="step_1_drag_batter_to_a_base">Step 1: Drag batter to a base</string>
+    <string name="select_from_current_teams">Select from current teams</string>
+    <string name="create_new_team">Create New Team</string>
+    <string name="user_email">User Email</string>
+    <string name="manage_view_amp_share_stats_scores_amp_standings_of_a_league">league_statkeeper_desc</string>
+    <string name="manage_view_amp_share_stats_amp_scores_of_a_team">team_statkeeper_desc</string>
+    <string name="level">Level</string>
+    <string name="runs_this_inning">Runs this inning</string>
+    <string name="blank">----</string>
+    <string name="load1_prepare_sync">(1/3)  Preparing Sync</string>
+    <string name="load1_desc">Please wait while database is retrieved.</string>
+    <string name="load3_deletion_check">(3/3)  Deletion Check</string>
+    <string name="load3_desc">Checking if players or teams were deleted on other devices.</string>
+    <string name="load2_syncing">(2/3)  Syncing…</string>
+    <string name="load2_desc"><![CDATA[Updating player & team statistics.]]></string>
 </resources>

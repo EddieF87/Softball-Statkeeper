@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.example.android.softballstatkeeper.dialogs.InviteUserDialogFragment"
+    tools:context="com.example.android.softballstatkeeper.dialogs.InviteUserDialog"
     android:padding="8dp">
 
     <TextView
@@ -32,7 +32,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textPersonName"
-        android:hint="User Email"
+        android:hint="@string/user_email"
         android:layout_marginTop="32dp"
         />
 

@@ -10,8 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.android.softballstatkeeper.R;
-import com.example.android.softballstatkeeper.adapters_listeners_etc.UserListAdapter;
-import com.example.android.softballstatkeeper.objects.StatKeepUser;
+import com.example.android.softballstatkeeper.adapters.UserListAdapter;
+import com.example.android.softballstatkeeper.models.StatKeepUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +25,6 @@ import java.util.List;
 public class UserFragment extends Fragment {
 
     private static final String ARG_LIST = "list";
-    private static final String TAG = "UserFragment";
     private List<StatKeepUser> mUserList;
     private OnListFragmentInteractionListener mListener;
     private RecyclerView recyclerView;

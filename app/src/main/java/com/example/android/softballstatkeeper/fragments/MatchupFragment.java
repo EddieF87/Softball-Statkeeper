@@ -4,9 +4,6 @@ package com.example.android.softballstatkeeper.fragments;
 import android.content.Context;
 import android.graphics.Color;
 import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
@@ -40,13 +37,12 @@ import com.example.android.softballstatkeeper.R;
 import com.example.android.softballstatkeeper.activities.BoxScoreActivity;
 import com.example.android.softballstatkeeper.activities.LeagueGameActivity;
 import com.example.android.softballstatkeeper.activities.SetLineupActivity;
-import com.example.android.softballstatkeeper.adapters_listeners_etc.MatchupAdapter;
-import com.example.android.softballstatkeeper.adapters_listeners_etc.VerticalTextView;
+import com.example.android.softballstatkeeper.adapters.MatchupAdapter;
+import com.example.android.softballstatkeeper.views.VerticalTextView;
 import com.example.android.softballstatkeeper.data.StatsContract;
 import com.example.android.softballstatkeeper.data.StatsContract.StatsEntry;
-import com.example.android.softballstatkeeper.dialogs.GameSettingsDialogFragment;
-import com.example.android.softballstatkeeper.objects.MainPageSelection;
-import com.example.android.softballstatkeeper.objects.Player;
+import com.example.android.softballstatkeeper.models.MainPageSelection;
+import com.example.android.softballstatkeeper.models.Player;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -349,8 +345,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                 projection, selection, selectionArgs, null);
         String name = null;
         if (cursor.moveToFirst()) {
-            int nameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_NAME);
-            name = cursor.getString(nameIndex);
+            name = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_NAME);
         }
         cursor.close();
         return name;
@@ -584,7 +579,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         updateRVs(rvHome, homeList);
     }
 
-    public void updateAwayRV(List<Player> lineup) {
+    private void updateAwayRV(List<Player> lineup) {
         if (awayLineup != null) {
             awayLineup.clear();
         } else {
@@ -610,7 +605,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         awayPlayersCount = awayLineupAdapter.getItemCount();
     }
 
-    public void updateHomeRV(List<Player> lineup) {
+    private void updateHomeRV(List<Player> lineup) {
         if (homeLineup != null) {
             homeLineup.clear();
         } else {
@@ -690,7 +685,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
             }
             cursor.close();
             addToBench(benchList, teamID);
-        } catch (Exception e) {}
+        } catch (Exception ignored) {}
     }
 
 
@@ -770,12 +765,10 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         mTeamMap = new HashMap<>();
-        int firestoreIDIndex = cursor.getColumnIndex(StatsEntry.COLUMN_FIRESTORE_ID);
-        int nameIndex = cursor.getColumnIndex(StatsEntry.COLUMN_NAME);
 
         while (cursor.moveToNext()) {
-            String firestoreID = cursor.getString(firestoreIDIndex);
-            String name = cursor.getString(nameIndex);
+            String firestoreID = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_FIRESTORE_ID);
+            String name = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_NAME);
             mTeamMap.put(name, firestoreID);
         }
 

@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.example.android.softballstatkeeper.adapters_listeners_etc.PlayerStatsAdapter;
+import com.example.android.softballstatkeeper.adapters.PlayerStatsAdapter;
 import com.example.android.softballstatkeeper.data.FirestoreHelper;
 import com.example.android.softballstatkeeper.data.StatsContract;
 import com.example.android.softballstatkeeper.fragments.TeamFragment;
@@ -42,7 +42,6 @@ public class TeamPagerActivity extends ObjectPagerActivity {
 
     @Override
     protected void setPagerTitle(String name) {
-        super.setPagerTitle(name);
         setTitle(name + ": Teams");
     }
 

@@ -19,7 +19,7 @@ import com.example.android.softballstatkeeper.MyApp;
 import com.example.android.softballstatkeeper.R;
 import com.example.android.softballstatkeeper.activities.MainActivity;
 import com.example.android.softballstatkeeper.data.StatsContract.StatsEntry;
-import com.example.android.softballstatkeeper.objects.MainPageSelection;
+import com.example.android.softballstatkeeper.models.MainPageSelection;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
@@ -38,27 +38,27 @@ public class StatsProvider extends ContentProvider {
 
     private FirebaseFirestore mFirestore;
 
-    public static final String TAG = StatsProvider.class.getSimpleName();
+    private static final String TAG = StatsProvider.class.getSimpleName();
 
-    public static final int PLAYERS = 100;
-    public static final int PLAYERS_ID = 101;
-    public static final int TEAMS = 200;
-    public static final int TEAMS_ID = 201;
-    public static final int TEMP = 300;
-    public static final int TEMP_ID = 301;
-    public static final int GAME = 400;
-    public static final int GAME_ID = 401;
-    public static final int BACKUP_PLAYERS = 500;
-    public static final int BACKUP_PLAYERS_ID = 501;
-    public static final int BACKUP_TEAMS = 600;
-    public static final int BACKUP_TEAMS_ID = 601;
-    public static final int SELECTIONS = 700;
+    private static final int PLAYERS = 100;
+    private static final int PLAYERS_ID = 101;
+    private static final int TEAMS = 200;
+    private static final int TEAMS_ID = 201;
+    private static final int TEMP = 300;
+    private static final int TEMP_ID = 301;
+    private static final int GAME = 400;
+    private static final int GAME_ID = 401;
+    private static final int BACKUP_PLAYERS = 500;
+    private static final int BACKUP_PLAYERS_ID = 501;
+    private static final int BACKUP_TEAMS = 600;
+    private static final int BACKUP_TEAMS_ID = 601;
+    private static final int SELECTIONS = 700;
 
 
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     private StatsDbHelper mOpenHelper;
 
-    public static UriMatcher buildUriMatcher() {
+    private static UriMatcher buildUriMatcher() {
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
         final String authority = StatsContract.CONTENT_AUTHORITY;
 
@@ -91,7 +91,7 @@ public class StatsProvider extends ContentProvider {
                         @Nullable String[] selectionArgs, @Nullable String sortOrder) {
         int match = sUriMatcher.match(uri);
         if(match == SELECTIONS) {
-            return querySelection(uri, projection, selection, selectionArgs, sortOrder);
+            return querySelection(projection, selection, selectionArgs, sortOrder);
         }
 
         try {
@@ -162,7 +162,7 @@ public class StatsProvider extends ContentProvider {
         return cursor;
     }
 
-    private Cursor querySelection(Uri uri,  String[] projection,  String selection,
+    private Cursor querySelection(String[] projection,  String selection,
                                    String[] selectionArgs,  String sortOrder){
         SQLiteDatabase database = mOpenHelper.getReadableDatabase();
         return database.query(StatsEntry.SELECTIONS_TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
@@ -329,7 +329,11 @@ public class StatsProvider extends ContentProvider {
 
         String firestoreID;
         if(match == PLAYERS || match == PLAYERS_ID || match == TEAMS || match == TEAMS_ID) {
-            firestoreID = selectionArgs[0];
+            if (selectionArgs != null) {
+                firestoreID = selectionArgs[0];
+            } else {
+                return -1;
+            }
         } else {
             firestoreID = null;
         }
@@ -362,9 +366,6 @@ public class StatsProvider extends ContentProvider {
 
         switch (match) {
             case PLAYERS:
-                if (selectionArgs == null) {
-                    return -1;
-                }
                 if(inGamePlayerCheck(firestoreID)) {
                     return -1;
                 }
@@ -372,9 +373,6 @@ public class StatsProvider extends ContentProvider {
                 break;
 
             case PLAYERS_ID:
-                if (selectionArgs == null) {
-                    return -1;
-                }
                 if(inGamePlayerCheck(firestoreID)) {
                     return -1;
                 }
@@ -384,9 +382,6 @@ public class StatsProvider extends ContentProvider {
                 break;
 
             case TEAMS:
-                if (selectionArgs == null) {
-                    return -1;
-                }
                 if(inGameTeamCheck(leagueID, firestoreID)){
                     return -1;
                 }
@@ -394,9 +389,6 @@ public class StatsProvider extends ContentProvider {
                 break;
 
             case TEAMS_ID:
-                if (selectionArgs == null) {
-                    return -1;
-                }
                 if(inGameTeamCheck(leagueID, firestoreID)){
                     return -1;
                 }
@@ -479,11 +471,9 @@ public class StatsProvider extends ContentProvider {
     public int update(@NonNull Uri uri, @Nullable ContentValues values,
                       @Nullable String selection, @Nullable String[] selectionArgs) {
         String leagueID;
-        int type;
         try {
             MyApp myApp = (MyApp) getContext().getApplicationContext();
             leagueID = myApp.getCurrentSelection().getId();
-            type = myApp.getCurrentSelection().getType();
             if (selection == null || selection.isEmpty()) {
                 selection = StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
             } else {
@@ -649,14 +639,14 @@ public class StatsProvider extends ContentProvider {
         return ContentUris.withAppendedId(uri, id);
     }
 
-    public boolean containsName(Uri uri, ContentValues values, boolean isTeam) {
+    private boolean containsName(Uri uri, ContentValues values, boolean isTeam) {
         MyApp myApp = (MyApp) getContext().getApplicationContext();
         String leagueID = myApp.getCurrentSelection().getId();
         String selection = StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
 
         if (values.containsKey(StatsEntry.COLUMN_NAME)) {
             String name = values.getAsString(StatsEntry.COLUMN_NAME).toLowerCase();
-            if (name == null || name.trim().isEmpty()) {
+            if (name.trim().isEmpty()) {
                 Toast.makeText(getContext(), R.string.please_enter_name_first, Toast.LENGTH_LONG).show();
                 return true;
             }
@@ -714,7 +704,7 @@ public class StatsProvider extends ContentProvider {
         return false;
     }
 
-    public boolean sqlSafeguard(ContentValues values) {
+    private boolean sqlSafeguard(ContentValues values) {
         if (!values.containsKey(StatsEntry.COLUMN_NAME)) {
             return false;
         }

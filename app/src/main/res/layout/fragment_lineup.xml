@@ -153,7 +153,8 @@
             android:gravity="center"
             android:maxLines="2"
             android:textSize="16sp"
-            tools:text="BGBG" />
+            tools:text="BGBG"
+            tools:targetApi="o" />
 
         <TextView
             android:id="@+id/innings_view"

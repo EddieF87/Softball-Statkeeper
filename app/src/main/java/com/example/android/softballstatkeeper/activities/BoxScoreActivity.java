@@ -18,11 +18,12 @@ import android.widget.TextView;
 
 import com.example.android.softballstatkeeper.MyApp;
 import com.example.android.softballstatkeeper.R;
-import com.example.android.softballstatkeeper.adapters_listeners_etc.BoxScoreArrayAdapter;
-import com.example.android.softballstatkeeper.adapters_listeners_etc.BoxScorePlayerCursorAdapter;
+import com.example.android.softballstatkeeper.adapters.BoxScoreArrayAdapter;
+import com.example.android.softballstatkeeper.adapters.BoxScorePlayerCursorAdapter;
+import com.example.android.softballstatkeeper.data.StatsContract;
 import com.example.android.softballstatkeeper.data.StatsContract.StatsEntry;
-import com.example.android.softballstatkeeper.objects.InningScore;
-import com.example.android.softballstatkeeper.objects.MainPageSelection;
+import com.example.android.softballstatkeeper.models.InningScore;
+import com.example.android.softballstatkeeper.models.MainPageSelection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -102,7 +103,7 @@ public class BoxScoreActivity extends AppCompatActivity implements LoaderManager
 
             awayNameView.setText(selectionName);
 
-            awayAdapter = new BoxScorePlayerCursorAdapter(this, null);
+            awayAdapter = new BoxScorePlayerCursorAdapter(this);
             awayListView.setAdapter(awayAdapter);
             getLoaderManager().initLoader(AWAY_LOADER, null, this);
             return;
@@ -111,9 +112,9 @@ public class BoxScoreActivity extends AppCompatActivity implements LoaderManager
         awayNameView.setText(awayTeamName);
         homeNameView.setText(homeTeamName);
 
-        awayAdapter = new BoxScorePlayerCursorAdapter(this, null);
+        awayAdapter = new BoxScorePlayerCursorAdapter(this);
         awayListView.setAdapter(awayAdapter);
-        homeAdapter = new BoxScorePlayerCursorAdapter(this, null);
+        homeAdapter = new BoxScorePlayerCursorAdapter(this);
         homeListView.setAdapter(homeAdapter);
         getLoaderManager().initLoader(AWAY_LOADER, null, this);
         getLoaderManager().initLoader(HOME_LOADER, null, this);
@@ -172,11 +173,6 @@ public class BoxScoreActivity extends AppCompatActivity implements LoaderManager
                 break;
             case SCORE_LOADER:
                 List<InningScore> list = new ArrayList<>();
-                int runIndex1 = data.getColumnIndex(StatsEntry.COLUMN_RUN1);
-                int runIndex2 = data.getColumnIndex(StatsEntry.COLUMN_RUN2);
-                int runIndex3 = data.getColumnIndex(StatsEntry.COLUMN_RUN3);
-                int runIndex4 = data.getColumnIndex(StatsEntry.COLUMN_RUN4);
-                int inningChanged = data.getColumnIndex(StatsEntry.COLUMN_INNING_CHANGED);
                 int inningChangedCounter = 0;
                 int runs = 0;
                 int awayRuns = 0;
@@ -185,20 +181,20 @@ public class BoxScoreActivity extends AppCompatActivity implements LoaderManager
                 int totalHomeRuns = 0;
                 data.moveToPosition(-1);
                 while (data.moveToNext()) {
-                    if (data.getString(runIndex1) != null) {
+                    if (StatsContract.getColumnString(data, StatsEntry.COLUMN_RUN1) != null) {
                         runs++;
                     }
-                    if (data.getString(runIndex2) != null) {
+                    if (StatsContract.getColumnString(data, StatsEntry.COLUMN_RUN2) != null) {
                         runs++;
                     }
-                    if (data.getString(runIndex3) != null) {
+                    if (StatsContract.getColumnString(data, StatsEntry.COLUMN_RUN3) != null) {
                         runs++;
                     }
-                    if (data.getString(runIndex4) != null) {
+                    if (StatsContract.getColumnString(data, StatsEntry.COLUMN_RUN4) != null) {
                         runs++;
                     }
 
-                    if (data.getInt(inningChanged) == 1) {
+                    if (StatsContract.getColumnInt(data, StatsEntry.COLUMN_INNING_CHANGED) == 1) {
                         inningChangedCounter++;
                         if (inningChangedCounter % 2 == 0) {
                             homeRuns = runs;

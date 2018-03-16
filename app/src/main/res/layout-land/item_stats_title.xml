@@ -31,6 +31,8 @@
         android:layout_width="50dp"
         android:paddingRight="4dp"
         android:paddingEnd="4dp"
+        android:paddingLeft="0dp"
+        android:paddingStart="0dp"
         android:text="@string/team"
         android:visibility="gone"/>
 

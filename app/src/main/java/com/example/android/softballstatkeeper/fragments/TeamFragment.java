@@ -36,19 +36,19 @@ import com.example.android.softballstatkeeper.MyApp;
 import com.example.android.softballstatkeeper.R;
 import com.example.android.softballstatkeeper.activities.SetLineupActivity;
 import com.example.android.softballstatkeeper.activities.UsersActivity;
-import com.example.android.softballstatkeeper.adapters_listeners_etc.PlayerStatsAdapter;
+import com.example.android.softballstatkeeper.adapters.PlayerStatsAdapter;
 import com.example.android.softballstatkeeper.data.FirestoreHelper;
 import com.example.android.softballstatkeeper.data.StatsContract;
 import com.example.android.softballstatkeeper.data.StatsContract.StatsEntry;
-import com.example.android.softballstatkeeper.dialogs.AddNewPlayersDialogFragment;
-import com.example.android.softballstatkeeper.dialogs.DeleteConfirmationDialogFragment;
-import com.example.android.softballstatkeeper.dialogs.DeleteVsWaiversDialogFragment;
-import com.example.android.softballstatkeeper.dialogs.EditNameDialogFragment;
-import com.example.android.softballstatkeeper.dialogs.GameSettingsDialogFragment;
-import com.example.android.softballstatkeeper.dialogs.RemoveAllPlayersDialogFragment;
-import com.example.android.softballstatkeeper.objects.MainPageSelection;
-import com.example.android.softballstatkeeper.objects.Player;
-import com.example.android.softballstatkeeper.objects.Team;
+import com.example.android.softballstatkeeper.dialogs.AddNewPlayersDialog;
+import com.example.android.softballstatkeeper.dialogs.DeleteConfirmationDialog;
+import com.example.android.softballstatkeeper.dialogs.DeleteVsWaiversDialog;
+import com.example.android.softballstatkeeper.dialogs.EditNameDialog;
+import com.example.android.softballstatkeeper.dialogs.GameSettingsDialog;
+import com.example.android.softballstatkeeper.dialogs.RemoveAllPlayersDialog;
+import com.example.android.softballstatkeeper.models.MainPageSelection;
+import com.example.android.softballstatkeeper.models.Player;
+import com.example.android.softballstatkeeper.models.Team;
 import com.squareup.leakcanary.RefWatcher;
 
 import java.util.ArrayList;
@@ -85,11 +85,6 @@ public class TeamFragment extends Fragment
 
     public TeamFragment() {
         // Required empty public constructor
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
     }
 
     public static TeamFragment newInstance(String leagueID, int leagueType, String leagueName, int level) {
@@ -202,12 +197,12 @@ public class TeamFragment extends Fragment
     private void addPlayersDialog(String teamName, String teamID) {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = AddNewPlayersDialogFragment.newInstance(teamName, teamID);
+        DialogFragment newFragment = AddNewPlayersDialog.newInstance(teamName, teamID);
         newFragment.show(fragmentTransaction, "");
     }
 
 
-    public void updateTeamRV() {
+    private void updateTeamRV() {
         if (mAdapter == null) {
             setNewAdapter();
         } else {
@@ -235,7 +230,7 @@ public class TeamFragment extends Fragment
         }
     }
 
-    public void setNewAdapter() {
+    private void setNewAdapter() {
         SharedPreferences settingsPreferences = getActivity()
                 .getSharedPreferences(mSelectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
         int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
@@ -353,8 +348,8 @@ public class TeamFragment extends Fragment
         }
         cursor.close();
         if (mPlayers.size() > 0 && !waivers) {
-            mPlayers.add(new Player("Total", teamName, 2, sumSgl, sumDbl, sumTpl, sumHr, sumBb,
-                    sumRun, sumRbi, sumOut, sumSf, sumG, -1, "", ""));
+            mPlayers.add(new Player(teamName, sumSgl, sumDbl, sumTpl, sumHr, sumBb,
+                    sumRun, sumRbi, sumOut, sumSf, sumG, -1));
             setRecyclerViewVisible();
         } else if (!waivers) {
             setEmptyViewVisible();
@@ -367,12 +362,12 @@ public class TeamFragment extends Fragment
         }
     }
 
-    public void setEmptyViewVisible() {
+    private void setEmptyViewVisible() {
         getView().findViewById(R.id.team_scroll_view).setVisibility(View.GONE);
         getView().findViewById(R.id.empty_team_text).setVisibility(View.VISIBLE);
     }
 
-    public void setRecyclerViewVisible() {
+    private void setRecyclerViewVisible() {
         getView().findViewById(R.id.empty_team_text).setVisibility(View.GONE);
         getView().findViewById(R.id.team_scroll_view).setVisibility(View.VISIBLE);
     }
@@ -383,7 +378,7 @@ public class TeamFragment extends Fragment
 
     public void addPlayers(List<Player> newPlayers) {
         if (mPlayers.isEmpty()) {
-            mPlayers.add(new Player("Total", teamName, 2, -1, "", ""));
+            mPlayers.add(new Player(teamName, -1));
             setRecyclerViewVisible();
         }
         int position = mPlayers.size() - 1;
@@ -465,7 +460,7 @@ public class TeamFragment extends Fragment
                 int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                DialogFragment newFragment = GameSettingsDialogFragment.newInstance(innings, genderSorter, mSelectionID);
+                DialogFragment newFragment = GameSettingsDialog.newInstance(innings, genderSorter, mSelectionID);
                 newFragment.show(fragmentTransaction, "");
                 return true;
         }
@@ -475,7 +470,7 @@ public class TeamFragment extends Fragment
     private void showDeleteConfirmationDialog() {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = DeleteConfirmationDialogFragment.newInstance(teamName);
+        DialogFragment newFragment = DeleteConfirmationDialog.newInstance(teamName);
         newFragment.show(fragmentTransaction, "");
     }
 
@@ -485,7 +480,7 @@ public class TeamFragment extends Fragment
         } else {
             FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            DialogFragment newFragment = new DeleteVsWaiversDialogFragment();
+            DialogFragment newFragment = new DeleteVsWaiversDialog();
             newFragment.show(fragmentTransaction, "");
         }
     }
@@ -496,14 +491,14 @@ public class TeamFragment extends Fragment
 
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = RemoveAllPlayersDialogFragment.newInstance(teamName, isLeague, waivers);
+        DialogFragment newFragment = RemoveAllPlayersDialog.newInstance(teamName, isLeague, waivers);
         newFragment.show(fragmentTransaction, "");
     }
 
     private void editNameDialog() {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = EditNameDialogFragment.newInstance(teamName);
+        DialogFragment newFragment = EditNameDialog.newInstance(teamName);
         newFragment.show(fragmentTransaction, "");
     }
 
@@ -580,6 +575,7 @@ public class TeamFragment extends Fragment
                 contentValues, null, null);
         if (rowsUpdated > 0) {
             teamName = newName;
+            updatePlayersTeam(teamName);
             FirestoreHelper firestoreHelper = new FirestoreHelper(getActivity(), mSelectionID);
             firestoreHelper.setUpdate(firestoreID, 0);
             firestoreHelper.updateTimeStamps();
@@ -612,7 +608,7 @@ public class TeamFragment extends Fragment
     }
 
     public void removePlayerFromTeam(String playerFirestoreID) {
-        mPlayers.remove(new Player(null, -1, playerFirestoreID));
+        mPlayers.remove(new Player(-1, playerFirestoreID));
         updateTeamRV();
     }
 

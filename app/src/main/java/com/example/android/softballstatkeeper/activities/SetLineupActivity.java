@@ -27,19 +27,19 @@ import android.os.Bundle;
 import com.example.android.softballstatkeeper.MyApp;
 import com.example.android.softballstatkeeper.data.FirestoreHelper;
 import com.example.android.softballstatkeeper.data.StatsContract.StatsEntry;
-import com.example.android.softballstatkeeper.dialogs.AddNewPlayersDialogFragment;
-import com.example.android.softballstatkeeper.dialogs.GameSettingsDialogFragment;
+import com.example.android.softballstatkeeper.dialogs.AddNewPlayersDialog;
+import com.example.android.softballstatkeeper.dialogs.GameSettingsDialog;
 import com.example.android.softballstatkeeper.fragments.LineupFragment;
-import com.example.android.softballstatkeeper.objects.MainPageSelection;
-import com.example.android.softballstatkeeper.objects.Player;
+import com.example.android.softballstatkeeper.models.MainPageSelection;
+import com.example.android.softballstatkeeper.models.Player;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class SetLineupActivity extends SingleFragmentActivity
-        implements AddNewPlayersDialogFragment.OnListFragmentInteractionListener,
-        GameSettingsDialogFragment.OnFragmentInteractionListener {
+        implements AddNewPlayersDialog.OnListFragmentInteractionListener,
+        GameSettingsDialog.OnFragmentInteractionListener {
 
     private LineupFragment lineupFragment;
     private String mSelectionID;

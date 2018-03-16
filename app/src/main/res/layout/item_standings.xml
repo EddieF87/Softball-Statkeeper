@@ -28,7 +28,7 @@
         tools:text="GoonNation"
         android:autoSizeMinTextSize="12sp"
         android:autoSizeTextType="uniform"
-        />
+        tools:targetApi="o" />
 
     <TextView
         android:id="@+id/win"

@@ -18,8 +18,8 @@ import android.widget.Toast;
 
 import com.example.android.softballstatkeeper.data.MyFileProvider;
 import com.example.android.softballstatkeeper.data.StatsContract.StatsEntry;
-import com.example.android.softballstatkeeper.objects.Player;
-import com.example.android.softballstatkeeper.objects.Team;
+import com.example.android.softballstatkeeper.models.Player;
+import com.example.android.softballstatkeeper.models.Team;
 import com.opencsv.CSVWriter;
 
 import java.io.File;
@@ -58,7 +58,7 @@ public class ExportActivity extends AppCompatActivity {
         try {
             export();
         } catch (IOException e) {
-            Toast.makeText(ExportActivity.this, "FAILLLL", Toast.LENGTH_LONG).show();
+            Toast.makeText(ExportActivity.this, "FAILURE", Toast.LENGTH_LONG).show();
             Log.e("xxx", e.toString());
             e.printStackTrace();
         }
@@ -277,7 +277,7 @@ public class ExportActivity extends AppCompatActivity {
                 AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
                 alertBuilder.setCancelable(true);
                 alertBuilder.setTitle("permission_necessary");
-                alertBuilder.setMessage("storage_permission_is_encessary_to_wrote_event");
+                alertBuilder.setMessage("storage_permission_is_necessary_to_write_event");
                 alertBuilder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
                     public void onClick(DialogInterface dialog, int which) {

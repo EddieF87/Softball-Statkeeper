@@ -23,24 +23,24 @@ import com.example.android.softballstatkeeper.R;
 import com.example.android.softballstatkeeper.data.FirestoreHelper;
 import com.example.android.softballstatkeeper.data.StatsContract;
 import com.example.android.softballstatkeeper.data.StatsContract.StatsEntry;
-import com.example.android.softballstatkeeper.dialogs.AddNewPlayersDialogFragment;
-import com.example.android.softballstatkeeper.dialogs.ChangeTeamDialogFragment;
-import com.example.android.softballstatkeeper.dialogs.ChooseOrCreateTeamDialogFragment;
-import com.example.android.softballstatkeeper.dialogs.GameSettingsDialogFragment;
+import com.example.android.softballstatkeeper.dialogs.AddNewPlayersDialog;
+import com.example.android.softballstatkeeper.dialogs.ChangeTeamDialog;
+import com.example.android.softballstatkeeper.dialogs.ChooseOrCreateTeamDialog;
+import com.example.android.softballstatkeeper.dialogs.GameSettingsDialog;
 import com.example.android.softballstatkeeper.fragments.MatchupFragment;
 import com.example.android.softballstatkeeper.fragments.StandingsFragment;
 import com.example.android.softballstatkeeper.fragments.StatsFragment;
-import com.example.android.softballstatkeeper.objects.MainPageSelection;
-import com.example.android.softballstatkeeper.objects.Team;
+import com.example.android.softballstatkeeper.models.MainPageSelection;
+import com.example.android.softballstatkeeper.models.Team;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class LeagueManagerActivity extends ExportActivity
-        implements AddNewPlayersDialogFragment.OnListFragmentInteractionListener,
-        GameSettingsDialogFragment.OnFragmentInteractionListener,
-        ChooseOrCreateTeamDialogFragment.OnFragmentInteractionListener,
-        ChangeTeamDialogFragment.OnFragmentInteractionListener,
+        implements AddNewPlayersDialog.OnListFragmentInteractionListener,
+        GameSettingsDialog.OnFragmentInteractionListener,
+        ChooseOrCreateTeamDialog.OnFragmentInteractionListener,
+        ChangeTeamDialog.OnFragmentInteractionListener,
         MatchupFragment.OnFragmentInteractionListener,
         StandingsFragment.OnFragmentInteractionListener,
         StatsFragment.OnFragmentInteractionListener
@@ -86,7 +86,7 @@ public class LeagueManagerActivity extends ExportActivity
     public void chooseTeamDialog(ArrayList<Team> teams) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = ChangeTeamDialogFragment.newInstance(teams, null, null);
+        DialogFragment newFragment = ChangeTeamDialog.newInstance(teams, null, null);
         newFragment.show(fragmentTransaction, "");
     }
 
@@ -159,7 +159,7 @@ public class LeagueManagerActivity extends ExportActivity
     public void startAdder(ArrayList<Team> teams) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = ChooseOrCreateTeamDialogFragment.newInstance(teams);
+        DialogFragment newFragment = ChooseOrCreateTeamDialog.newInstance(teams);
         newFragment.show(fragmentTransaction, "");
     }
 
@@ -180,7 +180,7 @@ public class LeagueManagerActivity extends ExportActivity
         int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = GameSettingsDialogFragment.newInstance(innings, genderSorter, leagueID);
+        DialogFragment newFragment = GameSettingsDialog.newInstance(innings, genderSorter, leagueID);
         newFragment.show(fragmentTransaction, "");
     }
 

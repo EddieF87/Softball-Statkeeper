@@ -49,6 +49,8 @@
                     android:layout_width="50dp"
                     android:paddingEnd="4dp"
                     android:paddingRight="4dp"
+                    android:paddingLeft="0dp"
+                    android:paddingStart="0dp"
                     android:text="@string/team" />
 
                 <TextView
@@ -170,6 +172,7 @@
         android:layout_marginEnd="24dp"
         app:layout_constraintBottom_toBottomOf="@+id/item_team_adder"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/item_team_adder" />
+        app:layout_constraintTop_toTopOf="@+id/item_team_adder"
+        android:layout_marginRight="24dp" />
 
 </android.support.constraint.ConstraintLayout>
