@@ -53,14 +53,15 @@ public class DeletionCheckDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        View view = LayoutInflater.from(getActivity()).inflate(R.layout.rv_deletion_check, null);
-        RecyclerView recyclerView = view.findViewById(R.id.recycler);
-        recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
+
+        View view = LayoutInflater.from(getActivity()).inflate(R.layout.rv_list, null);
+        Context context = view.getContext();
+        RecyclerView recyclerView = (RecyclerView) view;
+        recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.setAdapter(mAdapter);
 
-
-        AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
-                .setView(view)
+        AlertDialog alertDialog = new AlertDialog.Builder(context)
+                .setView(recyclerView)
                 .setTitle("Permanently delete?")
                 .setMessage("The following players/teams have been deleted elsewhere." +
                         " Keep checked to also delete from your device (game in progress may also be deleted).")

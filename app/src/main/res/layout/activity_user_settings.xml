@@ -173,7 +173,7 @@
         android:drawablePadding="0dp"
         android:drawableStart="@drawable/fui_ic_mail_white_24dp"
         android:text="@string/email_users"
-        android:onClick="sendEmails"
+        android:onClick="sendEmailUpdate"
         app:layout_constraintBottom_toBottomOf="@+id/btn_start_adder"
         app:layout_constraintEnd_toStartOf="@+id/btn_start_adder"
         app:layout_constraintStart_toStartOf="parent"

@@ -54,6 +54,8 @@ public class AddPlayersRecyclerViewAdapter extends RecyclerView.Adapter<AddPlaye
     @Override
     public void onBindViewHolder(EditViewHolder holder, int position) {
         holder.mEditText.setTag(position);
+        holder.mToggle.setTag(position);
+
         int gender = mGenderEntries.get(position);
         holder.mToggle.setChecked(gender == 1);
         if (mNameEntries.size() <= position + 1) {
@@ -120,7 +122,7 @@ public class AddPlayersRecyclerViewAdapter extends RecyclerView.Adapter<AddPlaye
                 public void afterTextChanged(Editable editable) {
                     int position = (int) mEditText.getTag();
 
-                    String string = mEditText.getText().toString();
+                    String string = mEditText.getText().toString().trim();
                     mNameEntries.set(position, string);
                     if (!previouslyEdited(position)) {
                         Handler handler = new Handler();
@@ -140,7 +142,7 @@ public class AddPlayersRecyclerViewAdapter extends RecyclerView.Adapter<AddPlaye
             mToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                    int position = (int) mEditText.getTag();
+                    int position = (int) mToggle.getTag();
                     int gender;
                     if (isChecked) {
                         gender = 1;

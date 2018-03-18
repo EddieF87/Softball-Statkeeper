@@ -1,12 +1,14 @@
 package com.example.android.softballstatkeeper.dialogs;
 
-import android.app.AlertDialog;
+
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -14,74 +16,58 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
-
 import com.example.android.softballstatkeeper.R;
-import com.example.android.softballstatkeeper.adapters.AddPlayersRecyclerViewAdapter;
+import com.example.android.softballstatkeeper.adapters.EmailInviteRecyclerViewAdapter;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-public class AddNewPlayersDialog extends DialogFragment {
+/**
+ * A simple {@link Fragment} subclass.
+ */
+public class EmailInviteDialog extends DialogFragment {
 
-    private AddPlayersRecyclerViewAdapter mAdapter;
+
+    private EmailInviteRecyclerViewAdapter mAdapter;
     private RecyclerView mRecyclerView;
     private OnListFragmentInteractionListener mListener;
-    private static final String KEY_NAMES = "names";
-    private static final String KEY_GENDERS = "genders";
+    private static final String KEY_EMAILS = "emails";
+    private static final String KEY_LEVELS = "levels";
     private static final String KEY_EDITS = "edits";
-    private static final String KEY_TEAM_NAME = "team_name";
-    private static final String KEY_TEAM_ID = "team_id";
-    private String mTeamName;
-    private String mTeamID;
 
-    public AddNewPlayersDialog() {
-    }
+    public EmailInviteDialog() {
 
-    public static AddNewPlayersDialog newInstance(String teamName, String teamID) {
-        AddNewPlayersDialog fragment = new AddNewPlayersDialog();
-        Bundle args = new Bundle();
-        args.putString(KEY_TEAM_NAME, teamName);
-        args.putString(KEY_TEAM_ID, teamID);
-        fragment.setArguments(args);
-        return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Bundle bundle = getArguments();
-        if(bundle == null) {
-            return;
-        }
-        mTeamName = bundle.getString(KEY_TEAM_NAME);
-        mTeamID = bundle.getString(KEY_TEAM_ID);
-
         if (savedInstanceState != null) {
             List<Integer> edits = savedInstanceState.getIntegerArrayList(KEY_EDITS);
-            List<Integer> genderEntries = savedInstanceState.getIntegerArrayList(KEY_GENDERS);
-            List<String> nameEntries = savedInstanceState.getStringArrayList(KEY_NAMES);
-            mAdapter = new AddPlayersRecyclerViewAdapter(nameEntries, genderEntries, edits);
+            List<Integer> accessLevels = savedInstanceState.getIntegerArrayList(KEY_LEVELS);
+            List<String> emails = savedInstanceState.getStringArrayList(KEY_EMAILS);
+            mAdapter = new EmailInviteRecyclerViewAdapter(emails, accessLevels, edits);
         } else {
-            mAdapter = new AddPlayersRecyclerViewAdapter();
+            mAdapter = new EmailInviteRecyclerViewAdapter();
         }
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        View view = LayoutInflater.from(getActivity()).inflate(R.layout.rv_list, null);
 
+        View view = LayoutInflater.from(getActivity()).inflate(R.layout.rv_list, null);
         Context context = view.getContext();
         mRecyclerView = (RecyclerView) view;
         mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
         mRecyclerView.setAdapter(mAdapter);
 
-        AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
+        AlertDialog alertDialog = new AlertDialog.Builder(context)
                 .setView(mRecyclerView)
-                .setTitle("Add new players to " + mTeamName)
-                .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
+                .setTitle("Add user emails to invite")
+                .setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         View view = getActivity().getCurrentFocus();
                         if (view != null) {
@@ -97,6 +83,9 @@ public class AddNewPlayersDialog extends DialogFragment {
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
+                        if (mListener != null) {
+                            mListener.onCancel();
+                        }
                         if (dialog != null) {
                             disableViewHolderEditTexts();
                             dialog.dismiss();
@@ -115,25 +104,28 @@ public class AddNewPlayersDialog extends DialogFragment {
     @Override
     public void onCancel(DialogInterface dialog) {
         super.onCancel(dialog);
+        if (mListener != null) {
+            mListener.onCancel();
+        }
         disableViewHolderEditTexts();
     }
 
     private void onButtonPressed() {
         if (mListener != null) {
-            ArrayList<String> names = new ArrayList<>(mAdapter.getNameEntries());
-            ArrayList<Integer> genders = new ArrayList<>(mAdapter.getGenderEntries());
-            mListener.onSubmitPlayersListener(names, genders, mTeamName, mTeamID);
+            ArrayList<String> emails = new ArrayList<>(mAdapter.getEmails());
+            ArrayList<Integer> levels = new ArrayList<>(mAdapter.getAccessLevels());
+            mListener.onSubmitEmails(emails, levels);
         }
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        ArrayList<String> names = new ArrayList<>(mAdapter.getNameEntries());
-        ArrayList<Integer> genders = new ArrayList<>(mAdapter.getGenderEntries());
+        ArrayList<String> emails = new ArrayList<>(mAdapter.getEmails());
+        ArrayList<Integer> levels = new ArrayList<>(mAdapter.getAccessLevels());
         HashSet<Integer> edits = mAdapter.getEdits();
-        outState.putStringArrayList(KEY_NAMES, names);
-        outState.putIntegerArrayList(KEY_GENDERS, new ArrayList<>(genders));
+        outState.putStringArrayList(KEY_EMAILS, emails);
+        outState.putIntegerArrayList(KEY_LEVELS, new ArrayList<>(levels));
         outState.putIntegerArrayList(KEY_EDITS, new ArrayList<>(edits));
     }
 
@@ -165,6 +157,8 @@ public class AddNewPlayersDialog extends DialogFragment {
     }
 
     public interface OnListFragmentInteractionListener {
-        void onSubmitPlayersListener(List<String> names, List<Integer> genders, String team, String teamID);
+        void onSubmitEmails(List<String> emails, List<Integer> levels);
+        void onCancel();
     }
+
 }

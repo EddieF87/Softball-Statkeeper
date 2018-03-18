@@ -30,6 +30,7 @@ import android.widget.Toast;
 import com.example.android.softballstatkeeper.MyApp;
 import com.example.android.softballstatkeeper.R;
 import com.example.android.softballstatkeeper.data.StatsContract;
+import com.example.android.softballstatkeeper.dialogs.EmailInviteDialog;
 import com.example.android.softballstatkeeper.dialogs.InviteUserDialog;
 import com.example.android.softballstatkeeper.fragments.UserFragment;
 import com.example.android.softballstatkeeper.models.MainPageSelection;
@@ -54,7 +55,8 @@ import static com.example.android.softballstatkeeper.data.FirestoreHelper.USERS;
 
 public class UsersActivity extends AppCompatActivity
         implements UserFragment.OnListFragmentInteractionListener,
-        InviteUserDialog.OnFragmentInteractionListener {
+        InviteUserDialog.OnFragmentInteractionListener,
+EmailInviteDialog.OnListFragmentInteractionListener{
 
     private static final String TAG = "UsersActivity";
     private static final String SAVED_MAP = "map";
@@ -73,7 +75,6 @@ public class UsersActivity extends AppCompatActivity
     private ArrayList<StatKeepUser> mRequestList;
     private HashMap<String, Integer> levelChanges;
     private StatKeepUser creator;
-    private String creatorEmail;
 
     private UserFragment userFragment;
     private UserFragment requestFragment;
@@ -172,7 +173,7 @@ public class UsersActivity extends AppCompatActivity
     }
 
     private void setCreator(StatKeepUser statKeepUser) {
-        creatorEmail = statKeepUser.getEmail();
+        String creatorEmail = statKeepUser.getEmail();
 
         TextView nameView = findViewById(R.id.admin_name_view);
         TextView emailView = findViewById(R.id.admin_email_view);
@@ -184,6 +185,13 @@ public class UsersActivity extends AppCompatActivity
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         DialogFragment newFragment = new InviteUserDialog();
+        newFragment.show(fragmentTransaction, "");
+    }
+
+    private void openEmailInvitesDialog() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        DialogFragment newFragment = new EmailInviteDialog();
         newFragment.show(fragmentTransaction, "");
     }
 
@@ -294,7 +302,7 @@ public class UsersActivity extends AppCompatActivity
         requestFragment.swapList(mRequestList);
     }
 
-    public void sendEmails(View view) {
+    public void sendEmailUpdate(View view) {
         int userSize = mUserList.size();
         List<String> users = new ArrayList<>();
         for (int i = 0; i < userSize; i++) {
@@ -307,7 +315,7 @@ public class UsersActivity extends AppCompatActivity
         emailList = users.toArray(emailList);
 
         Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
-                "mailto", creatorEmail, null));
+                "mailto", "", null));
         emailIntent.putExtra(Intent.EXTRA_SUBJECT, mSelectionName + " Update");
         emailIntent.putExtra(Intent.EXTRA_BCC, emailList);
         startActivity(Intent.createChooser(emailIntent, "Send email..."));
@@ -351,44 +359,17 @@ public class UsersActivity extends AppCompatActivity
     }
 
     @Override
-    public void onAddUser(final String email, final int level) {
-        firestore.collection(USERS).whereEqualTo(StatsContract.StatsEntry.EMAIL, email)
-                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    List<DocumentSnapshot> documentSnapshots = task.getResult().getDocuments();
-                    if (!documentSnapshots.isEmpty()) {
-                        DocumentSnapshot documentSnapshot = documentSnapshots.get(0);
-                        String userID = documentSnapshot.getId();
-
-                        Map<String, Object> data = new HashMap<>();
-                        data.put(StatsContract.StatsEntry.EMAIL, email);
-                        data.put(StatsContract.StatsEntry.COLUMN_NAME, null);
-                        data.put(StatsContract.StatsEntry.LEVEL, level);
-                        firestore.collection(LEAGUE_COLLECTION).document(mSelectionID)
-                                .collection(USERS).document(userID).set(data, SetOptions.merge());
-
-                        Map<String, Integer> data2 = new HashMap<>();
-                        data2.put(userID, -level);
-                        firestore.collection(LEAGUE_COLLECTION).document(mSelectionID)
-                                .set(data2, SetOptions.merge());
-                    }
-                } else {
-                    Log.d(TAG, "Error getting documents: ", task.getException());
-                }
-            }
-        });
-        startAdderBtn.setVisibility(View.VISIBLE);
+    public void onEmailInvites() {
+        openEmailInvitesDialog();
     }
 
     @Override
-    public void onInviteUser(String email, int level) {
+    public void onInviteUsers() {
+
         DocumentReference documentReference = firestore.collection(LEAGUE_COLLECTION)
                 .document(mSelectionID).collection(REQUESTS).document();
 
-        StatKeepUser statKeepUser = new StatKeepUser(REQUESTS, mSelectionName, String.valueOf(mSelectionType), level - 100);
-
+        StatKeepUser statKeepUser = new StatKeepUser(REQUESTS, mSelectionName, String.valueOf(mSelectionType), UsersActivity.LEVEL_VIEW_ONLY - 100);
         documentReference.set(statKeepUser, SetOptions.merge());
 
         String selectionType;
@@ -398,24 +379,22 @@ public class UsersActivity extends AppCompatActivity
             selectionType = "Team";
         }
 
-        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
-                "mailto", email, null));
-        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "You have been invited to " + mSelectionName + "!");
-        emailIntent.putExtra(Intent.EXTRA_TEXT, "You have been invited to be a StatKeeper for "
-                + mSelectionName + "!\n\n ID: " + mSelectionID +
-                "\n Code: " + documentReference.getId() +
-                "\n\n Click on \"Join " + selectionType + "\" and enter the StatKeeper ID and Code. " +
-                "This code can only be used once.");
-        startActivity(Intent.createChooser(emailIntent, "Send email..."));
+        Intent msgIntent = new Intent(Intent.ACTION_SEND);
+        msgIntent.setType("text/plain");
+        msgIntent.putExtra(Intent.EXTRA_TEXT, "You have been granted access to view the stats & standings for "
+                + mSelectionName + "!n\n Click on \"Join " + selectionType
+                + "\" and enter the following code: " + mSelectionID + "-" + documentReference.getId());
+        startActivity(Intent.createChooser(msgIntent, "Message invite code to friends!"));
 
+        startAdderBtn.setVisibility(View.VISIBLE);
 
-
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, "You have been invited to be a StatKeeper for "
-                + mSelectionName + "!\n Click on \"Join " + selectionType + "\" and enter the " +
-                "StatKeeper ID and Code. This code can only be used once.");
-        startActivity(Intent.createChooser(shareIntent, "Share link using"));
+//
+//        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+//        shareIntent.setType("text/plain");
+//        shareIntent.putExtra(Intent.EXTRA_TEXT, "You have been invited to be a StatKeeper for "
+//                + mSelectionName + "!\n Click on \"Join " + selectionType + "\" and enter the " +
+//                "StatKeeper ID and Code. This code can only be used once.");
+//        startActivity(Intent.createChooser(shareIntent, "Share link using"));
     }
 
 
@@ -424,4 +403,57 @@ public class UsersActivity extends AppCompatActivity
         startAdderBtn.setVisibility(View.VISIBLE);
     }
 
+    @Override
+    public void onSubmitEmails(List<String> emails, List<Integer> levels) {
+        int emailSize = emails.size();
+        if(emailSize < 1) {
+            return;
+        }
+
+        for(int i = 0; i < emailSize; i++) {
+            final String email = emails.get(i);
+            final int level = levels.get(i);
+
+            firestore.collection(USERS).whereEqualTo(StatsContract.StatsEntry.EMAIL, email)
+                    .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {
+                        List<DocumentSnapshot> documentSnapshots = task.getResult().getDocuments();
+                        if (!documentSnapshots.isEmpty()) {
+                            DocumentSnapshot documentSnapshot = documentSnapshots.get(0);
+                            String userID = documentSnapshot.getId();
+
+                            Map<String, Object> data = new HashMap<>();
+                            data.put(StatsContract.StatsEntry.EMAIL, email);
+                            data.put(StatsContract.StatsEntry.COLUMN_NAME, null);
+                            data.put(StatsContract.StatsEntry.LEVEL, level);
+                            firestore.collection(LEAGUE_COLLECTION).document(mSelectionID)
+                                    .collection(USERS).document(userID).set(data, SetOptions.merge());
+
+                            Map<String, Integer> data2 = new HashMap<>();
+                            data2.put(userID, -level);
+                            firestore.collection(LEAGUE_COLLECTION).document(mSelectionID)
+                                    .set(data2, SetOptions.merge());
+                        }
+                    } else {
+                        Log.d(TAG, "Error getting documents: ", task.getException());
+                    }
+                }
+            });
+        }
+
+        String[] emailList = new String[emailSize];
+        emailList = emails.toArray(emailList);
+
+        //todo add link
+        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", "", null));
+        emailIntent.putExtra(Intent.EXTRA_BCC, emailList);
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT,"You have been invited to be a StatKeeper for " + mSelectionName + "!");
+        emailIntent.putExtra(Intent.EXTRA_TEXT,"You have been invited to view, manage, and share stats and standings for " + mSelectionName + "." +
+                "\n\nFollow this link to begin: ");
+        startActivity(Intent.createChooser(emailIntent, "Email friends about their invitation!"));
+
+        startAdderBtn.setVisibility(View.VISIBLE);
+    }
 }

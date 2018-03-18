@@ -540,6 +540,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         if (mSelectionType != MainPageSelection.TYPE_TEAM) {
             menu.findItem(R.id.action_change_team).setVisible(true);
         }
+
         if (mSelectionType == MainPageSelection.TYPE_PLAYER) {
             menu.findItem(R.id.action_export_stats).setVisible(true);
             menu.findItem(R.id.action_delete_player).setVisible(false);

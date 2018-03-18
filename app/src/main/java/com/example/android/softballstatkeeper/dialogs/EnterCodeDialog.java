@@ -25,7 +25,6 @@ public class EnterCodeDialog extends DialogFragment {
 
     private EnterCodeDialog.OnFragmentInteractionListener mListener;
     private MyEditText mCodeText;
-    private MyEditText mIDText;
     private int mType;
 
     public EnterCodeDialog() {
@@ -54,7 +53,6 @@ public class EnterCodeDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_enter_code, null);
-        mIDText = view.findViewById(R.id.edit_id);
         mCodeText = view.findViewById(R.id.edit_code);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -64,20 +62,17 @@ public class EnterCodeDialog extends DialogFragment {
                 .setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        String idText = mIDText.getText().toString();
-                        String codeText = mCodeText.getText().toString();
-                        mIDText.setCursorVisible(false);
+                        String codeText = mCodeText.getText().toString().trim();
                         mCodeText.setCursorVisible(false);
                         dialog.dismiss();
                         if (mListener != null) {
-                            mListener.onSubmitCode(idText, codeText, mType);
+                            mListener.onSubmitCode(codeText, mType);
                         }
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         mCodeText.setCursorVisible(false);
-                        mIDText.setCursorVisible(false);
                         dialog.dismiss();
                     }
                 });
@@ -98,7 +93,6 @@ public class EnterCodeDialog extends DialogFragment {
 
     @Override
     public void onCancel(DialogInterface dialog) {
-        mIDText.setCursorVisible(false);
         mCodeText.setCursorVisible(false);
         dialog.dismiss();
         super.onCancel(dialog);
@@ -112,12 +106,11 @@ public class EnterCodeDialog extends DialogFragment {
     }
 
     public interface OnFragmentInteractionListener {
-        void onSubmitCode(String idText, String codeText, int type);
+        void onSubmitCode(String codeText, int type);
     }
 
     @Override
     public void onDestroy() {
-        mIDText = null;
         mCodeText = null;
         Log.d("aaa", "onDestroy dialog");
         super.onDestroy();

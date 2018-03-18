@@ -470,7 +470,7 @@ public class MainActivity extends AppCompatActivity
             public void run() {
                 fireTaskLoader.cancelLoadInBackground();
             }
-        }, 15000);
+        }, 20000);
         return fireTaskLoader;
     }
 
@@ -592,18 +592,22 @@ public class MainActivity extends AppCompatActivity
 
     private void addSelection(String name, int type, int level, String statKeeperID) {
         final Intent intent;
-        switch (type) {
-            case MainPageSelection.TYPE_PLAYER:
-                intent = new Intent(MainActivity.this, PlayerManagerActivity.class);
-                break;
-            case MainPageSelection.TYPE_TEAM:
-                intent = new Intent(MainActivity.this, TeamManagerActivity.class);
-                break;
-            case MainPageSelection.TYPE_LEAGUE:
-                intent = new Intent(MainActivity.this, LeagueManagerActivity.class);
-                break;
-            default:
-                return;
+        if (statKeeperID == null) {
+            switch (type) {
+                case MainPageSelection.TYPE_PLAYER:
+                    intent = new Intent(MainActivity.this, PlayerManagerActivity.class);
+                    break;
+                case MainPageSelection.TYPE_TEAM:
+                    intent = new Intent(MainActivity.this, TeamManagerActivity.class);
+                    break;
+                case MainPageSelection.TYPE_LEAGUE:
+                    intent = new Intent(MainActivity.this, LeagueManagerActivity.class);
+                    break;
+                default:
+                    return;
+            }
+        } else {
+            intent = new Intent(MainActivity.this, LoadingActivity.class);
         }
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -615,32 +619,40 @@ public class MainActivity extends AppCompatActivity
 
         Map<String, Object> firestoreLeagueMap = new HashMap<>();
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-        DocumentReference documentReference;
+        DocumentReference statKeeperDocument;
 
         if (statKeeperID == null) {
-            documentReference = firestore.collection(LEAGUE_COLLECTION).document();
+            statKeeperDocument = firestore.collection(LEAGUE_COLLECTION).document();
             firestoreLeagueMap.put(StatsEntry.COLUMN_NAME, name);
             firestoreLeagueMap.put(StatsEntry.TYPE, type);
         } else {
-            documentReference = firestore.collection(LEAGUE_COLLECTION).document(statKeeperID);
+            statKeeperDocument = firestore.collection(LEAGUE_COLLECTION).document(statKeeperID);
         }
 
         firestoreLeagueMap.put(userID, level);
-        documentReference.set(firestoreLeagueMap, SetOptions.merge());
+        statKeeperDocument.set(firestoreLeagueMap, SetOptions.merge());
+
 
 
         Map<String, Object> firestoreUserMap = new HashMap<>();
         firestoreUserMap.put(StatsEntry.LEVEL, level);
         firestoreUserMap.put(StatsEntry.EMAIL, userEmail);
         firestoreUserMap.put(StatsEntry.COLUMN_NAME, userDisplayName);
-        documentReference.collection(USERS).document(userID).set(firestoreUserMap);
+        statKeeperDocument.collection(USERS).document(userID).set(firestoreUserMap);
 
         MyApp myApp = (MyApp) getApplicationContext();
-        String selectionID = documentReference.getId();
+        String selectionID = statKeeperDocument.getId();
         MainPageSelection mainPageSelection = new MainPageSelection(selectionID, name, type, level);
         myApp.setCurrentSelection(mainPageSelection);
         insertSelectionToSQL(selectionID, name, type, level);
         mSelectionList.add(mainPageSelection);
+
+        if (statKeeperID == null) {
+            DocumentReference requestDocument = firestore.collection(LEAGUE_COLLECTION)
+                    .document(selectionID).collection(REQUESTS).document();
+            StatKeepUser statKeepUser = new StatKeepUser(REQUESTS, name, String.valueOf(type), UsersActivity.LEVEL_VIEW_ONLY - 100);
+            requestDocument.set(statKeepUser, SetOptions.merge());
+        }
 
         if (type == MainPageSelection.TYPE_TEAM) {
             ContentValues values = new ContentValues();
@@ -693,6 +705,11 @@ public class MainActivity extends AppCompatActivity
             case 4:
                 text = "You are attempting to join a League with a Team Code!";
                 break;
+
+            case 5:
+                text = "You already have access to this StatKeeper!";
+                break;
+
             default:
                 text = getString(R.string.error);
                 break;
@@ -700,18 +717,24 @@ public class MainActivity extends AppCompatActivity
         Toast.makeText(MainActivity.this, text, Toast.LENGTH_LONG).show();
     }
 
-    private void deleteSelection(String idText, String codeText) {
-        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-        firestore.collection(LEAGUE_COLLECTION)
-                .document(idText).collection(REQUESTS).document(codeText).get();
-    }
 
     @Override
-    public void onSubmitCode(final String idText, final String codeText, final int type) {
-        if (idText.isEmpty() || codeText.isEmpty()) {
+    public void onSubmitCode(final String fullText, final int type) {
+        if (fullText.isEmpty()) {
             postMessage(2);
             return;
         }
+        String[] splitCode = fullText.split("-");
+        final String idText = splitCode[0];
+        final String codeText = splitCode[1];
+
+        for(MainPageSelection mainPageSelection : mSelectionList) {
+            if(idText.equals(mainPageSelection.getId())){
+                postMessage(5);
+                return;
+            }
+        }
+
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         firestore.collection(LEAGUE_COLLECTION)
                 .document(idText).collection(REQUESTS).document(codeText).get()
@@ -727,11 +750,12 @@ public class MainActivity extends AppCompatActivity
                             int level = statKeepUser.getLevel() + 100;
 
                             if (!id.equals(REQUESTS)) {
-                                postMessage(5);
+                                postMessage(99);
                                 return;
                             }
                             if (!codeText.equals(code)) {
                                 postMessage(1);
+                                return;
                             }
 
                             if (!String.valueOf(type).equals(requestType)) {
@@ -740,23 +764,23 @@ public class MainActivity extends AppCompatActivity
                                 } else {
                                     postMessage(4);
                                 }
+                                return;
                             }
 
                             if (level >= UsersActivity.LEVEL_VIEW_ONLY && level <= UsersActivity.LEVEL_ADMIN) {
                                 postMessage(0);
-                                deleteSelection(idText, codeText);
                                 addSelection(name, type, level, idText);
                             }
 
                         } catch (Exception e) {
-                            postMessage(5);
+                            postMessage(99);
                         }
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        postMessage(5);
+                        postMessage(99);
                     }
                 });
 

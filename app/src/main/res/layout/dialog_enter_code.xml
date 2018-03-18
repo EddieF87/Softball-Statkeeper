@@ -1,38 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="16dp"
+    android:id="@+id/league_code_layout"
+    android:orientation="horizontal"
     >
-    <LinearLayout
-        android:id="@+id/league_id_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_alignParentTop="true"
-        >
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="StatKeeper ID: "
-            />
-
-        <com.example.android.softballstatkeeper.views.MyEditText
-            android:id="@+id/edit_id"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/league_code_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_below="@id/league_id_layout"
-        android:layout_marginTop="24dp"
-        >
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -45,6 +19,4 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             />
-    </LinearLayout>
-
-</RelativeLayout>
+</LinearLayout>
