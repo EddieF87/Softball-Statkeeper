@@ -617,7 +617,7 @@ public class MainActivity extends AppCompatActivity
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         DocumentReference documentReference;
 
-        if(statKeeperID == null) {
+        if (statKeeperID == null) {
             documentReference = firestore.collection(LEAGUE_COLLECTION).document();
             firestoreLeagueMap.put(StatsEntry.COLUMN_NAME, name);
             firestoreLeagueMap.put(StatsEntry.TYPE, type);
@@ -671,12 +671,33 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void postError() {
-        Toast.makeText(MainActivity.this, "Error", Toast.LENGTH_SHORT).show();
-    }
+    private void postMessage(int msg) {
+        String text;
+        switch (msg) {
+            case 0:
+                text = "SUCCESS";
+                break;
 
-    private void postSuccess() {
-        Toast.makeText(MainActivity.this, "SUCCESS", Toast.LENGTH_SHORT).show();
+            case 1:
+                text = "Incorrect code entered.";
+                break;
+
+            case 2:
+                text = "You have not filled in the details.";
+                break;
+
+            case 3:
+                text = "You are attempting to join a Team with a League Code!";
+                break;
+
+            case 4:
+                text = "You are attempting to join a League with a Team Code!";
+                break;
+            default:
+                text = getString(R.string.error);
+                break;
+        }
+        Toast.makeText(MainActivity.this, text, Toast.LENGTH_LONG).show();
     }
 
     private void deleteSelection(String idText, String codeText) {
@@ -688,7 +709,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onSubmitCode(final String idText, final String codeText, final int type) {
         if (idText.isEmpty() || codeText.isEmpty()) {
-            postError();
+            postMessage(2);
             return;
         }
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
@@ -702,27 +723,40 @@ public class MainActivity extends AppCompatActivity
                             String code = documentSnapshot.getId();
                             String id = statKeepUser.getId();
                             String name = statKeepUser.getName();
+                            String requestType = statKeepUser.getEmail();
                             int level = statKeepUser.getLevel() + 100;
 
-                            if (id.equals(REQUESTS) && codeText.equals(code)) {
-                                if (level >= UsersActivity.LEVEL_VIEW_ONLY
-                                        && level <= UsersActivity.LEVEL_ADMIN) {
-                                    postSuccess();
-                                    deleteSelection(idText, codeText);
-                                    addSelection(name, type, level, idText);
-                                    return;
+                            if (!id.equals(REQUESTS)) {
+                                postMessage(5);
+                                return;
+                            }
+                            if (!codeText.equals(code)) {
+                                postMessage(1);
+                            }
+
+                            if (!String.valueOf(type).equals(requestType)) {
+                                if (type == MainPageSelection.TYPE_TEAM) {
+                                    postMessage(3);
+                                } else {
+                                    postMessage(4);
                                 }
                             }
-                            postError();
+
+                            if (level >= UsersActivity.LEVEL_VIEW_ONLY && level <= UsersActivity.LEVEL_ADMIN) {
+                                postMessage(0);
+                                deleteSelection(idText, codeText);
+                                addSelection(name, type, level, idText);
+                            }
+
                         } catch (Exception e) {
-                            postError();
+                            postMessage(5);
                         }
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        postError();
+                        postMessage(5);
                     }
                 });
 
