@@ -52,7 +52,7 @@ public class InviteListDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        View view = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_invite_list_dialog, null);
+        View view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_invite_list, null);
         RecyclerView recyclerView = view.findViewById(R.id.invite_list_rv);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mAdapter = new InviteListRecyclerViewAdapter(inviteList);

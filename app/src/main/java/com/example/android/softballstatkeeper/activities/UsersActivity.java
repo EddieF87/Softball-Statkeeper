@@ -1,8 +1,15 @@
 package com.example.android.softballstatkeeper.activities;
 
+import android.content.ContentResolver;
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.Build;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -13,9 +20,12 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.softballstatkeeper.MyApp;
 import com.example.android.softballstatkeeper.R;
@@ -43,7 +53,7 @@ import static com.example.android.softballstatkeeper.data.FirestoreHelper.USERS;
 
 public class UsersActivity extends AppCompatActivity
         implements UserFragment.OnListFragmentInteractionListener,
-        InviteUserDialog.OnFragmentInteractionListener{
+        InviteUserDialog.OnFragmentInteractionListener {
 
     private static final String TAG = "UsersActivity";
     private static final String SAVED_MAP = "map";
@@ -62,14 +72,21 @@ public class UsersActivity extends AppCompatActivity
     private ArrayList<StatKeepUser> mRequestList;
     private HashMap<String, Integer> levelChanges;
     private StatKeepUser creator;
+    private String creatorEmail;
 
     private UserFragment userFragment;
     private UserFragment requestFragment;
     private ViewPager mViewPager;
-    private ProgressBar mProgressBar;
-    private FloatingActionButton startAdderBtn;
 
-    private String leagueID;
+    private ProgressBar mProgressBar;
+    private Button startAdderBtn;
+    private Button saveBtn;
+    private Button resetBtn;
+
+    private String mSelectionID;
+    private String mSelectionName;
+
+    private int mLevel;
     private FirebaseFirestore firestore;
 
     @Override
@@ -77,12 +94,16 @@ public class UsersActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_settings);
 
-        Log.d(TAG, "hoppy start!");
-
         try {
             MyApp myApp = (MyApp) getApplicationContext();
             MainPageSelection mainPageSelection = myApp.getCurrentSelection();
-            leagueID = mainPageSelection.getId();
+            mSelectionID = mainPageSelection.getId();
+            mSelectionName = mainPageSelection.getName();
+            mLevel = mainPageSelection.getLevel();
+            setTitle(mSelectionName);
+            TextView leagueNameTextView = findViewById(R.id.league_name_display);
+            String leagueNameDisplay = mSelectionName + " Users";
+            leagueNameTextView.setText(leagueNameDisplay);
         } catch (Exception e) {
             Intent intent = new Intent(UsersActivity.this, MainActivity.class);
             startActivity(intent);
@@ -94,17 +115,7 @@ public class UsersActivity extends AppCompatActivity
         mViewPager = findViewById(R.id.user_view_pager);
         mProgressBar = findViewById(R.id.progressBar2);
 
-        startAdderBtn = findViewById(R.id.btn_start_adder);
-        startAdderBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startAdderBtn.setVisibility(View.GONE);
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                DialogFragment newFragment = new InviteUserDialog();
-                newFragment.show(fragmentTransaction, "");
-            }
-        });
+        setButtons();
 
         if (savedInstanceState != null) {
             FragmentManager fragmentManager = getSupportFragmentManager();
@@ -119,17 +130,15 @@ public class UsersActivity extends AppCompatActivity
             return;
         }
 
-        mViewPager.setVisibility(View.GONE);
+        mViewPager.setVisibility(View.INVISIBLE);
         mProgressBar.setVisibility(View.VISIBLE);
 
-        Log.d(TAG, "hoppy begin firestore creator retrieval!");
-        firestore.collection(LEAGUE_COLLECTION).document(leagueID).collection(USERS)
+        firestore.collection(LEAGUE_COLLECTION).document(mSelectionID).collection(USERS)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            Log.d(TAG, "hoppy creator retrieval completed");
                             mUserList = new ArrayList<>();
                             mRequestList = new ArrayList<>();
 
@@ -160,10 +169,38 @@ public class UsersActivity extends AppCompatActivity
     }
 
     private void setCreator(StatKeepUser statKeepUser) {
+        creatorEmail = statKeepUser.getEmail();
+
         TextView nameView = findViewById(R.id.admin_name_view);
         TextView emailView = findViewById(R.id.admin_email_view);
         nameView.setText(statKeepUser.getName());
-        emailView.setText(statKeepUser.getEmail());
+        emailView.setText(creatorEmail);
+    }
+
+    private void openInviteUserDialog() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        DialogFragment newFragment = new InviteUserDialog();
+        newFragment.show(fragmentTransaction, "");
+    }
+
+    private void setButtons() {
+        if (mLevel >= LEVEL_ADMIN) {
+            startAdderBtn = findViewById(R.id.btn_start_adder);
+            startAdderBtn.setVisibility(View.VISIBLE);
+            startAdderBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    startAdderBtn.setVisibility(View.INVISIBLE);
+                    openInviteUserDialog();
+                }
+            });
+
+            saveBtn = findViewById(R.id.btn_save_changes);
+            resetBtn = findViewById(R.id.btn_reset);
+            saveBtn.setVisibility(View.INVISIBLE);
+            resetBtn.setVisibility(View.INVISIBLE);
+        }
     }
 
     private void createPager() {
@@ -174,10 +211,10 @@ public class UsersActivity extends AppCompatActivity
             public Fragment getItem(int position) {
                 switch (position) {
                     case 0:
-                        userFragment = UserFragment.newInstance(mUserList);
+                        userFragment = UserFragment.newInstance(mUserList, mLevel);
                         return userFragment;
                     case 1:
-                        requestFragment = UserFragment.newInstance(mRequestList);
+                        requestFragment = UserFragment.newInstance(mRequestList, mLevel);
                         return requestFragment;
                     default:
                         return null;
@@ -206,8 +243,20 @@ public class UsersActivity extends AppCompatActivity
         mViewPager.setVisibility(View.VISIBLE);
         TabLayout tabLayout = findViewById(R.id.league_tab_layout);
         tabLayout.setupWithViewPager(mViewPager);
-    }
 
+        if (!mRequestList.isEmpty()) {
+            TextView textView = new TextView(this);
+            String requests = "REQUESTS (" + mRequestList.size() + ")";
+            textView.setText(requests);
+            textView.setTextColor(Color.RED);
+            textView.setGravity(Gravity.CENTER);
+            textView.setTypeface(Typeface.DEFAULT_BOLD);
+
+            tabLayout = findViewById(R.id.league_tab_layout);
+            TabLayout.Tab tab = tabLayout.getTabAt(1);
+            tab.setCustomView(textView);
+        }
+    }
 
     public void saveChanges(View v) {
         if (levelChanges == null) {
@@ -217,8 +266,8 @@ public class UsersActivity extends AppCompatActivity
         for (Map.Entry<String, Integer> entry : levelChanges.entrySet()) {
             String id = entry.getKey();
             int level = entry.getValue();
-            DocumentReference league = firestore.collection(LEAGUE_COLLECTION).document(leagueID);
-            DocumentReference leagueUser = firestore.collection(LEAGUE_COLLECTION).document(leagueID)
+            DocumentReference league = firestore.collection(LEAGUE_COLLECTION).document(mSelectionID);
+            DocumentReference leagueUser = firestore.collection(LEAGUE_COLLECTION).document(mSelectionID)
                     .collection(USERS).document(id);
             if (level == 0) {
                 batch.update(league, id, 0);
@@ -242,12 +291,61 @@ public class UsersActivity extends AppCompatActivity
         requestFragment.swapList(mRequestList);
     }
 
+    public void sendEmails(View view) {
+        getNameEmailDetails();
+//        int userSize = mUserList.size();
+//        List<String> users = new ArrayList<>();
+//        for (int i = 0; i < userSize; i++) {
+//            StatKeepUser statKeepUser = mUserList.get(i);
+//            String user = statKeepUser.getEmail();
+//            users.add(user);
+//        }
+//
+//        String[] emailList = new String[userSize];
+//        emailList = users.toArray(emailList);
+//
+//        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+//                "mailto", creatorEmail, null));
+//        emailIntent.putExtra(Intent.EXTRA_SUBJECT, mSelectionName + " Update");
+//        emailIntent.putExtra(Intent.EXTRA_BCC, emailList);
+//        startActivity(Intent.createChooser(emailIntent, "Send email..."));
+    }
+
+    public void getNameEmailDetails(){
+        ArrayList<String> names = new ArrayList<String>();
+        ContentResolver cr = getContentResolver();
+        Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,null, null, null, null);
+        if (cur.getCount() > 0) {
+            while (cur.moveToNext()) {
+                String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
+                Cursor cur1 = cr.query(
+                        ContactsContract.CommonDataKinds.Email.CONTENT_URI, null,
+                        ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?",
+                        new String[]{id}, null);
+                while (cur1.moveToNext()) {
+                    //to get the contact names
+                    String name=cur1.getString(cur1.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+                    Log.e("Name :", name);
+                    String email = cur1.getString(cur1.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
+                    Log.e("Email", email);
+                    if(email!=null){
+                        names.add(name);
+                        Log.d("zizi", name + " - " + email);
+                    }
+                }
+                cur1.close();
+            }
+        }
+    }
+
     @Override
     public void onUserLevelChanged(String name, int level) {
         if (levelChanges == null) {
             levelChanges = new HashMap<>();
         }
         levelChanges.put(name, level);
+        saveBtn.setVisibility(View.VISIBLE);
+        resetBtn.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -269,7 +367,7 @@ public class UsersActivity extends AppCompatActivity
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     List<DocumentSnapshot> documentSnapshots = task.getResult().getDocuments();
-                    if (!documentSnapshots.isEmpty()){
+                    if (!documentSnapshots.isEmpty()) {
                         DocumentSnapshot documentSnapshot = documentSnapshots.get(0);
                         String userID = documentSnapshot.getId();
 
@@ -277,12 +375,12 @@ public class UsersActivity extends AppCompatActivity
                         data.put(StatsContract.StatsEntry.EMAIL, email);
                         data.put(StatsContract.StatsEntry.COLUMN_NAME, null);
                         data.put(StatsContract.StatsEntry.LEVEL, level);
-                        firestore.collection(LEAGUE_COLLECTION).document(leagueID)
+                        firestore.collection(LEAGUE_COLLECTION).document(mSelectionID)
                                 .collection(USERS).document(userID).set(data, SetOptions.merge());
 
                         Map<String, Integer> data2 = new HashMap<>();
                         data2.put(userID, -level);
-                        firestore.collection(LEAGUE_COLLECTION).document(leagueID)
+                        firestore.collection(LEAGUE_COLLECTION).document(mSelectionID)
                                 .set(data2, SetOptions.merge());
                     }
                 } else {
@@ -292,4 +390,10 @@ public class UsersActivity extends AppCompatActivity
         });
         startAdderBtn.setVisibility(View.VISIBLE);
     }
+
+    @Override
+    public void onCancel() {
+        startAdderBtn.setVisibility(View.VISIBLE);
+    }
+
 }

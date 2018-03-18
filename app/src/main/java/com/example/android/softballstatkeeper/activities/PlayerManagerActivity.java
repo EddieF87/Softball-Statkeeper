@@ -91,4 +91,9 @@ public class PlayerManagerActivity extends ExportActivity
     public void setTeamEdit() {
         editTeam = true;
     }
+
+    @Override
+    public void onExport(String name) {
+        startExport(name);
+    }
 }

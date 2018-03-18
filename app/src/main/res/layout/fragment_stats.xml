@@ -153,11 +153,14 @@
 
     <Button
         android:id="@+id/item_team_adder"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
+        android:drawableLeft="@drawable/ic_group_add_white_18dp"
+        android:drawablePadding="4dp"
+        android:drawableStart="@drawable/ic_group_add_white_18dp"
         android:text="@string/add_team_players"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/spinner_stats_teams"

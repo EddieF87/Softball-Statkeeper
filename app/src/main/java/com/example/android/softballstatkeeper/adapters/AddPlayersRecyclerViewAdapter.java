@@ -68,6 +68,11 @@ public class AddPlayersRecyclerViewAdapter extends RecyclerView.Adapter<AddPlaye
         }
     }
 
+    public void disableEditTextCursor(RecyclerView.ViewHolder viewHolder){
+        EditViewHolder holder = (EditViewHolder) viewHolder;
+        holder.mEditText.setCursorVisible(false);
+    }
+
     @Override
     public int getItemCount() {
         return mNameEntries.size();

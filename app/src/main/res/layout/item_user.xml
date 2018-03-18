@@ -4,15 +4,14 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:paddingTop="8dp"
-    android:paddingBottom="8dp">
+    android:padding="8dp">
 
     <TextView
         android:id="@+id/user_email_view"
         style="@style/ItemUserStyle"
-        android:layout_height="match_parent"
-        android:paddingBottom="8dp"
-        android:paddingTop="8dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:textSize="12sp"
         tools:text="Test9999@email.com" />
 
 
@@ -28,7 +27,9 @@
             style="@style/ItemUserStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="top"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="12sp"
             tools:text="access requested" />
 
         <SeekBar
@@ -38,7 +39,6 @@
             android:layout_height="wrap_content"
             android:max="4"
             android:progress="1"
-            android:layout_gravity="bottom"
             />
     </LinearLayout>
 

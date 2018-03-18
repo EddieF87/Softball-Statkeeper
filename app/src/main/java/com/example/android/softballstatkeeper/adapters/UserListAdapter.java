@@ -12,6 +12,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.example.android.softballstatkeeper.R;
+import com.example.android.softballstatkeeper.activities.UsersActivity;
 import com.example.android.softballstatkeeper.models.StatKeepUser;
 import com.example.android.softballstatkeeper.fragments.UserFragment.OnListFragmentInteractionListener;
 
@@ -25,14 +26,16 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserLi
 
     private List<StatKeepUser> mUserList;
     private Context mContext;
+    private int mLevel;
     private final OnListFragmentInteractionListener mListener;
     private static final String TAG = "UserListAdapter";
 
-    public UserListAdapter(List<StatKeepUser> list, Context context, OnListFragmentInteractionListener listener) {
+    public UserListAdapter(List<StatKeepUser> list, Context context, OnListFragmentInteractionListener listener, int level) {
         super();
         this.mUserList = list;
         this.mContext = context;
         this.mListener = listener;
+        this.mLevel = level;
         Log.d(TAG, "hoppy UserListAdapter created");
     }
 
@@ -40,46 +43,50 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserLi
     public UserListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LinearLayout linearLayout = (LinearLayout) LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_user, parent, false);
-        return new UserListViewHolder(linearLayout);
+        return new UserListViewHolder(linearLayout, mLevel);
     }
 
     @Override
     public void onBindViewHolder(final UserListViewHolder holder, int position) {
         final StatKeepUser statKeepUser = mUserList.get(position);
+
         String email = statKeepUser.getEmail();
         int level = statKeepUser.getLevel();
         String levelString = getUserLevel(level);
 
-        holder.seekBar.setProgress(level);
         holder.emailView.setText(email);
         holder.levelView.setText(levelString);
-        holder.seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                String levelString = getUserLevel(i);
-                String id = statKeepUser.getId();
 
-                statKeepUser.setLevel(i);
+        if(mLevel >= UsersActivity.LEVEL_ADMIN) {
+            holder.seekBar.setProgress(level);
+            holder.seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                    String levelString = getUserLevel(i);
+                    String id = statKeepUser.getId();
 
-                holder.levelView.setText(levelString);
-                if (i == 0) {
-                    holder.levelView.setTextColor(Color.RED);
-                } else {
-                    holder.levelView.setTextColor(Color.BLUE);
+                    statKeepUser.setLevel(i);
+
+                    holder.levelView.setText(levelString);
+                    if (i == 0) {
+                        holder.levelView.setTextColor(Color.RED);
+                    } else {
+                        holder.levelView.setTextColor(Color.BLUE);
+                    }
+                    if (null != mListener) {
+                        mListener.onUserLevelChanged(id, i);
+                    }
                 }
-                if (null != mListener) {
-                    mListener.onUserLevelChanged(id, i);
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
                 }
-            }
 
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-            }
-        });
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+                }
+            });
+        }
     }
 
     @Override
@@ -128,13 +135,15 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserLi
         TextView levelView;
         SeekBar seekBar;
 
-        UserListViewHolder(View itemView) {
+        UserListViewHolder(View itemView, int level) {
             super(itemView);
             mLinearLayout = (LinearLayout) itemView;
             emailView = mLinearLayout.findViewById(R.id.user_email_view);
             levelView = mLinearLayout.findViewById(R.id.user_level_view);
             seekBar = mLinearLayout.findViewById(R.id.user_level_seekbar);
+            if (level < UsersActivity.LEVEL_ADMIN) {
+                seekBar.setVisibility(View.GONE);
+            }
         }
-
     }
 }

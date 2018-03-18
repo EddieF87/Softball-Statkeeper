@@ -54,10 +54,8 @@ public class EndOfGameDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        View v = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_dialog, null);
-
         AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
-                .setView(v)
+                //TODO better finish message
                 .setTitle(R.string.end_game_msg)
                 .setPositiveButton(R.string.end_msg, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {

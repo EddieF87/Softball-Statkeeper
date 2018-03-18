@@ -102,6 +102,10 @@
         <item name="android:src">@android:drawable/ic_input_add</item>
     </style>
 
+    <style name="AddPlayersFABStyle" parent="FloatingActionButtonStyle">
+        <item name="android:src">@drawable/ic_group_add_white_18dp</item>
+    </style>
+
     <style name="PlayerBoardStyle">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>

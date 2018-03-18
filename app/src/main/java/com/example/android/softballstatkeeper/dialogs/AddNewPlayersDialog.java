@@ -71,7 +71,7 @@ public class AddNewPlayersDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        View view = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_createteam_list, null);
+        View view = LayoutInflater.from(getActivity()).inflate(R.layout.rv_createteam_list, null);
 
         Context context = view.getContext();
         mRecyclerView = (RecyclerView) view;
@@ -91,11 +91,13 @@ public class AddNewPlayersDialog extends DialogFragment {
                             }
                         }
                         onButtonPressed();
+                        disableViewHolderEditTexts();
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         if (dialog != null) {
+                            disableViewHolderEditTexts();
                             dialog.dismiss();
                         }
                     }
@@ -107,6 +109,12 @@ public class AddNewPlayersDialog extends DialogFragment {
         alertDialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE|WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
         alertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         return alertDialog;
+    }
+
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        super.onCancel(dialog);
+        disableViewHolderEditTexts();
     }
 
     private void onButtonPressed() {
@@ -146,6 +154,13 @@ public class AddNewPlayersDialog extends DialogFragment {
         mRecyclerView.setAdapter(null);
         mAdapter = null;
         mRecyclerView = null;
+    }
+
+    private void disableViewHolderEditTexts(){
+        for (int childCount = mRecyclerView.getChildCount(), i = 0; i < childCount; ++i) {
+            final RecyclerView.ViewHolder holder = mRecyclerView.getChildViewHolder(mRecyclerView.getChildAt(i));
+            mAdapter.disableEditTextCursor(holder);
+        }
     }
 
     public interface OnListFragmentInteractionListener {

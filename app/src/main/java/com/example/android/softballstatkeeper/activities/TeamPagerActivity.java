@@ -16,7 +16,7 @@ public class TeamPagerActivity extends ObjectPagerActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("xyz", "onCreate TeamPagerActivity");
+        Log.d("xyz", "onJoinOrCreate TeamPagerActivity");
     }
 
     @Override

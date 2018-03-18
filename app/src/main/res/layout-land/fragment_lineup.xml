@@ -121,17 +121,17 @@
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/btn_start_adder"
-        style="@style/FloatingActionButtonStyle"
+        style="@style/AddPlayersFABStyle"
         android:layout_height="0dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_marginBottom="4dp"
         android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
         android:layout_marginTop="4dp"
         app:layout_constraintBottom_toTopOf="@+id/layout_lineup_title"
         app:layout_constraintEnd_toEndOf="@+id/layout_lineup_title"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginRight="8dp" />
+        app:layout_constraintTop_toTopOf="parent" />
 
 
     <Button

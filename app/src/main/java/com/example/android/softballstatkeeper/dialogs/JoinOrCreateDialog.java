@@ -9,8 +9,6 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.view.LayoutInflater;
-import android.view.View;
 
 import com.example.android.softballstatkeeper.R;
 import com.example.android.softballstatkeeper.models.MainPageSelection;
@@ -44,7 +42,21 @@ public class JoinOrCreateDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        View v = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_dialog, null);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+                .setPositiveButton(R.string.create, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        onButtonPressed(true);
+                    }
+                })
+                .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        if(dialog != null) {
+                            dialog.dismiss();
+                        }
+                    }
+                });
+
         String title;
         switch (mType) {
             case MainPageSelection.TYPE_PLAYER:
@@ -53,39 +65,33 @@ public class JoinOrCreateDialog extends DialogFragment {
 
             case MainPageSelection.TYPE_TEAM:
                 title = "Join or Create a New Team StatKeeper";
+                builder.setNegativeButton(R.string.join, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        onButtonPressed(false);
+                    }
+                });
                 break;
 
             case MainPageSelection.TYPE_LEAGUE:
                 title = "Join or Create a New League StatKeeper";
+                builder.setNegativeButton(R.string.join, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        onButtonPressed(false);
+                    }
+                });
                 break;
             default:
                 return null;
         }
+        builder.setTitle(title);
 
-        return new AlertDialog.Builder(getActivity())
-                .setView(v)
-                .setTitle(title)
-                .setPositiveButton(R.string.create, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        onButtonPressed(true);
-                    }
-                })
-                .setNegativeButton(R.string.join, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        onButtonPressed(false);
-                    }
-                })
-                .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                    }
-                })
-                .create();
+        return builder.create();
     }
 
 
     private void onButtonPressed(boolean create) {
         if (mListener != null) {
-            mListener.onCreate(create, mType);
+            mListener.onJoinOrCreate(create, mType);
         }
     }
 
@@ -107,6 +113,6 @@ public class JoinOrCreateDialog extends DialogFragment {
     }
 
     public interface OnFragmentInteractionListener {
-        void onCreate(boolean create, int type);
+        void onJoinOrCreate(boolean create, int type);
     }
 }

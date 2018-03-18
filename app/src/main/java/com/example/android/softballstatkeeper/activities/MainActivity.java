@@ -31,14 +31,17 @@ import com.example.android.softballstatkeeper.data.StatsContract;
 import com.example.android.softballstatkeeper.data.StatsContract.StatsEntry;
 import com.example.android.softballstatkeeper.dialogs.DeleteSelectionDialog;
 import com.example.android.softballstatkeeper.dialogs.EditNameDialog;
+import com.example.android.softballstatkeeper.dialogs.EnterCodeDialog;
 import com.example.android.softballstatkeeper.dialogs.InviteListDialog;
 import com.example.android.softballstatkeeper.dialogs.JoinOrCreateDialog;
 import com.example.android.softballstatkeeper.dialogs.LoadErrorDialog;
 import com.example.android.softballstatkeeper.dialogs.SelectionInfoDialog;
 import com.example.android.softballstatkeeper.models.MainPageSelection;
+import com.example.android.softballstatkeeper.models.StatKeepUser;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -72,7 +75,8 @@ public class MainActivity extends AppCompatActivity
         DeleteSelectionDialog.OnFragmentInteractionListener,
         LoadErrorDialog.OnFragmentInteractionListener,
         JoinOrCreateDialog.OnFragmentInteractionListener,
-        EditNameDialog.OnFragmentInteractionListener {
+        EditNameDialog.OnFragmentInteractionListener,
+        EnterCodeDialog.OnFragmentInteractionListener {
 
     private static final String TAG = "MainActivity";
     private static final String AUTH = "FirebaseAuth";
@@ -573,7 +577,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onEdit(String name, int type) {
-        if(type == -1) {
+        if (type == -1) {
             return;
         }
         if (name.isEmpty()) {
@@ -581,6 +585,10 @@ public class MainActivity extends AppCompatActivity
             return;
         }
 
+        addSelection(name, type, UsersActivity.LEVEL_CREATOR, null);
+    }
+
+    private void addSelection(String name, int type, int level, String statKeeperID) {
         final Intent intent;
         switch (type) {
             case MainPageSelection.TYPE_PLAYER:
@@ -602,15 +610,23 @@ public class MainActivity extends AppCompatActivity
         }
         String userEmail = currentUser.getEmail();
         String userDisplayName = currentUser.getDisplayName();
-        int level = 5;
 
         Map<String, Object> firestoreLeagueMap = new HashMap<>();
-        firestoreLeagueMap.put(StatsEntry.COLUMN_NAME, name);
-        firestoreLeagueMap.put(StatsEntry.TYPE, type);
-        firestoreLeagueMap.put(userID, level);
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-        DocumentReference documentReference = firestore.collection(LEAGUE_COLLECTION).document();
+        DocumentReference documentReference;
+
+        if(statKeeperID == null) {
+            documentReference = firestore.collection(LEAGUE_COLLECTION).document();
+            firestoreLeagueMap.put(StatsEntry.COLUMN_NAME, name);
+            firestoreLeagueMap.put(StatsEntry.TYPE, type);
+        } else {
+            documentReference = firestore.collection(LEAGUE_COLLECTION).document(statKeeperID);
+        }
+
+        firestoreLeagueMap.put(userID, level);
         documentReference.set(firestoreLeagueMap);
+
+
         Map<String, Object> firestoreUserMap = new HashMap<>();
         firestoreUserMap.put(StatsEntry.LEVEL, level);
         firestoreUserMap.put(StatsEntry.EMAIL, userEmail);
@@ -637,10 +653,76 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
     }
 
+    private void enterCodeDialog(int type) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        DialogFragment newFragment = EnterCodeDialog.newInstance(type);
+        newFragment.show(fragmentTransaction, "");
+    }
+
     @Override
-    public void onCreate(boolean create, int type) {
-        if(create) {
+    public void onJoinOrCreate(boolean create, int type) {
+        if (create) {
             enterNameDialog(type);
+        } else {
+            enterCodeDialog(type);
         }
+    }
+
+    private void postError() {
+        Toast.makeText(MainActivity.this, "Error", Toast.LENGTH_SHORT).show();
+    }
+
+    private void postSuccess() {
+        Toast.makeText(MainActivity.this, "SUCCESS", Toast.LENGTH_SHORT).show();
+    }
+
+    private void deleteSelection(String idText, String codeText) {
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        firestore.collection(LEAGUE_COLLECTION)
+                .document(idText).collection(USERS).document(codeText).get();
+    }
+
+    @Override
+    public void onSubmitCode(final String idText, final String codeText, final int type) {
+        if (idText.isEmpty() || codeText.isEmpty()) {
+            postError();
+            return;
+        }
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        firestore.collection(LEAGUE_COLLECTION)
+                .document(idText).collection(USERS).document(codeText).get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        try {
+                            StatKeepUser statKeepUser = documentSnapshot.toObject(StatKeepUser.class);
+                            String id = documentSnapshot.getId();
+                            String name = statKeepUser.getName();
+                            String temp = statKeepUser.getEmail();
+                            int level = statKeepUser.getLevel() + 100;
+
+                            if (temp.equals("temp") && codeText.equals(id)) {
+                                if (level >= UsersActivity.LEVEL_VIEW_ONLY
+                                        && level <= UsersActivity.LEVEL_ADMIN) {
+                                    postSuccess();
+                                    deleteSelection(idText, codeText);
+                                    addSelection(name, type, level, idText);
+                                    return;
+                                }
+                            }
+                            postError();
+                        } catch (Exception e) {
+                            postError();
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        postError();
+                    }
+                });
+
     }
 }

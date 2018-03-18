@@ -771,6 +771,11 @@ public abstract class GameActivity extends AppCompatActivity
         submitPlay.getBackground().setAlpha(255);
     }
 
+    protected void enableResetButton() {
+        resetBases.setEnabled(true);
+        resetBases.getBackground().setAlpha(255);
+    }
+
     protected void disableSubmitButton() {
         submitPlay.setEnabled(false);
         submitPlay.getBackground().setAlpha(64);
@@ -779,11 +784,6 @@ public abstract class GameActivity extends AppCompatActivity
     protected void disableResetButton() {
         resetBases.setEnabled(false);
         resetBases.getBackground().setAlpha(64);
-    }
-
-    protected void enableResetButton() {
-        resetBases.setEnabled(true);
-        resetBases.getBackground().setAlpha(255);
     }
 
     protected void resetBases(BaseLog baseLog) {

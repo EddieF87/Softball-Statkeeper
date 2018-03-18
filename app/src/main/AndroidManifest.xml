@@ -95,8 +95,6 @@
             android:screenOrientation="portrait"
             />
 
-        <activity android:name="com.example.android.softballstatkeeper.activities.ExportActivity" />
-
     </application>
 
 </manifest>

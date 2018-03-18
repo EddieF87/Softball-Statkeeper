@@ -181,40 +181,11 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
                 return true;
             case R.id.action_export_stats:
                 if(mListener != null) {
-                    mListener.exportStats();
+                    mListener.onExport();
                     return true;
                 }
         }
         return false;
-    }
-
-    public void addNewPlayersDialog(String teamName, String teamID) {
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = AddNewPlayersDialog.newInstance(teamName, teamID);
-        newFragment.show(fragmentTransaction, "");
-    }
-
-
-
-    public void addTeam(String team) {
-        setAdderButtonVisible();
-
-        ContentValues values = new ContentValues();
-        values.put(StatsEntry.COLUMN_NAME, team);
-        values.put(StatsEntry.ADD, true);
-        Uri teamUri = getActivity().getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
-
-        if (teamUri == null) {
-            return;
-        }
-        new FirestoreHelper(getActivity(), leagueID).updateTimeStamps();
-
-        Cursor cursor = getActivity().getContentResolver().query(teamUri, new String[]{StatsEntry.COLUMN_FIRESTORE_ID}, null, null, null);
-        if (cursor.moveToFirst()) {
-            String firestoreID = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_FIRESTORE_ID);
-            addNewPlayersDialog(team, firestoreID);
-        }
     }
 
     @Override
@@ -318,7 +289,7 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
 
     public interface OnFragmentInteractionListener {
         void goToUserSettings();
-        void exportStats();
+        void onExport();
         void startAdder(ArrayList<Team> teams);
         void goToGameSettings();
     }

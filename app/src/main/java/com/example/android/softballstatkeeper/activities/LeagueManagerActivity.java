@@ -43,8 +43,7 @@ public class LeagueManagerActivity extends ExportActivity
         ChangeTeamDialog.OnFragmentInteractionListener,
         MatchupFragment.OnFragmentInteractionListener,
         StandingsFragment.OnFragmentInteractionListener,
-        StatsFragment.OnFragmentInteractionListener
-{
+        StatsFragment.OnFragmentInteractionListener {
 
     private StandingsFragment standingsFragment;
     private StatsFragment statsFragment;
@@ -58,7 +57,7 @@ public class LeagueManagerActivity extends ExportActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lg_mgr_pager);
-        Log.d("aaa", "onCreate LeagueManagerActivity");
+        Log.d("aaa", "onJoinOrCreate LeagueManagerActivity");
 
         try {
             MyApp myApp = (MyApp) getApplicationContext();
@@ -95,22 +94,38 @@ public class LeagueManagerActivity extends ExportActivity
         if (teamName.isEmpty()) {
             Toast.makeText(LeagueManagerActivity.this, "Please type a team name", Toast.LENGTH_SHORT).show();
         } else {
-            if (standingsFragment != null) {
-                standingsFragment.addTeam(teamName);
-            }
+            ContentValues values = new ContentValues();
+            values.put(StatsEntry.COLUMN_NAME, teamName);
+            values.put(StatsEntry.ADD, true);
+            Uri teamUri = getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
 
-            if (statsFragment != null) {
-                String selection = StatsEntry.COLUMN_NAME + "=?";
-                String[] selectionArgs = new String[]{teamName};
-                Cursor cursor = getContentResolver().query(StatsContract.StatsEntry.CONTENT_URI_TEAMS,
-                        null, selection, selectionArgs, null);
-                if (cursor.moveToFirst()) {
-                    int id = StatsContract.getColumnInt(cursor, StatsEntry._ID);
-                    String firestoreID = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_FIRESTORE_ID);
+            if (teamUri == null) {
+                return;
+            }
+            new FirestoreHelper(LeagueManagerActivity.this, leagueID).updateTimeStamps();
+
+            Cursor cursor = getContentResolver().query(teamUri, new String[]{StatsEntry._ID, StatsEntry.COLUMN_FIRESTORE_ID}, null, null, null);
+            if (cursor.moveToFirst()) {
+                int id = StatsContract.getColumnInt(cursor, StatsEntry._ID);
+                String firestoreID = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_FIRESTORE_ID);
+                addNewPlayersDialog(teamName, firestoreID);
+
+                if (standingsFragment != null) {
+                    standingsFragment.setAdderButtonVisible();
+                }
+                if (statsFragment != null) {
+                    statsFragment.setAdderButtonVisible();
                     statsFragment.updateTeams(teamName, id, firestoreID);
                 }
             }
         }
+    }
+
+    private void addNewPlayersDialog(String teamName, String teamID) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        DialogFragment newFragment = AddNewPlayersDialog.newInstance(teamName, teamID);
+        newFragment.show(fragmentTransaction, "");
     }
 
     @Override
@@ -124,9 +139,10 @@ public class LeagueManagerActivity extends ExportActivity
     }
 
     @Override
-    public void onTeamChosen(String playerID, String teamName, String teamID) {
+    public void onTeamChosen(String playerFirestoreID, String teamName, String teamFirestoreID) {
+        addNewPlayersDialog(teamName, teamFirestoreID);
+
         if (standingsFragment != null) {
-            standingsFragment.addNewPlayersDialog(teamName, teamID);
             standingsFragment.setAdderButtonVisible();
         }
         if (statsFragment != null) {
@@ -151,7 +167,7 @@ public class LeagueManagerActivity extends ExportActivity
     }
 
     @Override
-    public void exportStats() {
+    public void onExport() {
         startExport(leagueName);
     }
 
@@ -288,16 +304,16 @@ public class LeagueManagerActivity extends ExportActivity
             values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, teamID);
             values.put(StatsEntry.ADD, true);
             Uri uri = getContentResolver().insert(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, values);
-            if(uri != null) {
+            if (uri != null) {
                 update = true;
             }
         }
-        if(update) {
+        if (update) {
             new FirestoreHelper(this, leagueID).updateTimeStamps();
             Log.d("hhh", "updatetimestamps");
         }
 
-        if(matchupFragment != null) {
+        if (matchupFragment != null) {
             matchupFragment.updateMatchup();
         }
     }

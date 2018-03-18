@@ -7,64 +7,85 @@
     tools:context="com.example.android.softballstatkeeper.activities.UsersActivity"
     tools:layout_editor_absoluteY="81dp">
 
-    <LinearLayout
-        android:id="@+id/admin_details"
-        android:layout_width="match_parent"
+
+    <RelativeLayout
+        android:id="@+id/admin_layout"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:orientation="horizontal"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/border"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/admin_title_view">
+        app:layout_constraintTop_toBottomOf="@+id/league_name_display">
+
+        <TextView
+            android:id="@+id/admin_title_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="2dp"
+            android:text="@string/created_by"
+            android:textSize="14sp"
+            android:textStyle="italic" />
 
         <TextView
             android:id="@+id/admin_name_view"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_alignLeft="@id/admin_title_view"
+            android:layout_alignStart="@id/admin_title_view"
+            android:layout_below="@id/admin_title_view"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="2dp"
+            android:autoSizeMinTextSize="12sp"
+            android:autoSizeTextType="uniform"
             android:gravity="center"
+            android:maxLines="1"
             android:textSize="18sp"
-            tools:text="Edward John" />
+            android:textStyle="bold"
+            tools:text="Edward Foy III" />
 
         <TextView
             android:id="@+id/admin_email_view"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_alignBottom="@id/admin_name_view"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignTop="@id/admin_name_view"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_toEndOf="@id/admin_name_view"
+            android:layout_toRightOf="@id/admin_name_view"
+            android:autoSizeMinTextSize="12sp"
+            android:autoSizeTextType="uniform"
             android:gravity="center"
-            android:textSize="18sp"
-            tools:text="edsxcrtyghrt@gmail.cooom" />
+            android:maxLines="1"
+            android:textColor="@android:color/holo_blue_dark"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            tools:text="edsxcrtyghrt@gmail.cooom"
+            tools:textColor="@android:color/holo_blue_dark" />
 
-    </LinearLayout>
 
-    <TextView
-        android:id="@+id/admin_title_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="24dp"
-        android:text="@string/creator"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="@+id/admin_details"
-        app:layout_constraintTop_toTopOf="parent" />
+    </RelativeLayout>
 
     <include
         android:id="@+id/user_view_pager"
         layout="@layout/activity_lg_mgr_pager"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="16dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        app:layout_constraintBottom_toTopOf="@id/user_adder"
+        app:layout_constraintBottom_toTopOf="@id/btn_save_changes"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/admin_details" />
+        app:layout_constraintTop_toBottomOf="@+id/admin_layout" />
 
     <ProgressBar
         android:id="@+id/progressBar2"
@@ -76,51 +97,87 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@+id/user_adder"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/admin_details" />
+        app:layout_constraintBottom_toBottomOf="@id/user_view_pager"
+        app:layout_constraintEnd_toEndOf="@id/user_view_pager"
+        app:layout_constraintStart_toStartOf="@id/user_view_pager"
+        app:layout_constraintTop_toTopOf="@id/user_view_pager" />
 
 
-    <LinearLayout
-        android:id="@+id/user_adder"
+    <Button
+        android:id="@+id/btn_reset"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_weight="2"
+        android:onClick="resetChanges"
+        android:text="@string/reset"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/btn_save_changes"
+        app:layout_constraintEnd_toStartOf="@+id/btn_save_changes"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/btn_save_changes" />
+
+    <Button
+        android:id="@+id/btn_save_changes"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_weight="2"
+        android:onClick="saveChanges"
+        android:text="@string/save"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/btn_start_adder"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btn_reset" />
+
+    <Button
+        android:id="@+id/btn_start_adder"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:drawableLeft="@drawable/ic_group_add_white_18dp"
+        android:drawablePadding="4dp"
+        android:drawableStart="@drawable/ic_group_add_white_18dp"
+        android:text="Invite Friends!"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/btn_email" />
 
-        <Button
-            android:id="@+id/btn_reset"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
-            android:onClick="resetChanges"
-            android:text="@string/reset" />
+    <TextView
+        android:id="@+id/league_name_display"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:gravity="center"
+        android:textSize="24sp"
+        android:textStyle="bold|italic"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="TextView Users" />
 
-        <Button
-            android:id="@+id/btn_save_changes"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
-            android:onClick="saveChanges"
-            android:text="@string/save" />
+    <Button
+        android:id="@+id/btn_email"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
+        android:drawableLeft="@drawable/fui_ic_mail_white_24dp"
+        android:drawablePadding="0dp"
+        android:drawableStart="@drawable/fui_ic_mail_white_24dp"
+        android:text="@string/email_users"
+        android:onClick="sendEmails"
+        app:layout_constraintBottom_toBottomOf="@+id/btn_start_adder"
+        app:layout_constraintEnd_toStartOf="@+id/btn_start_adder"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/btn_start_adder" />
 
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/btn_start_adder"
-            style="@style/FloatingActionButtonStyle"
-            android:layout_width="0dp"
-            android:layout_margin="8dp"
-            android:layout_weight="1"
-            android:layout_gravity="end"/>
-
-    </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

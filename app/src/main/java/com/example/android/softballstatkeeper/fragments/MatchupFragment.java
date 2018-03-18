@@ -133,7 +133,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                 }
             case R.id.action_export_stats:
                 if(mListener != null) {
-                    mListener.exportStats();
+                    mListener.onExport();
                     return true;
                 }
         }
@@ -823,7 +823,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
 
     public interface OnFragmentInteractionListener {
         void goToUserSettings();
-        void exportStats();
+        void onExport();
         void clearGameDB();
         void goToGameSettings();
     }

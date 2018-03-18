@@ -50,10 +50,7 @@ public class FinishGameConfirmationDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        View v = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_dialog, null);
-
         AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
-                .setView(v)
                 .setTitle("Complete game and update stats?")
                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {

@@ -55,10 +55,8 @@ public class LoadErrorDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        View v = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_dialog, null);
 
         AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
-                .setView(v)
                 .setTitle(R.string.load_from_cache)
                 .setMessage("Some stats may not be up to date.")
                 .setPositiveButton(R.string.load, new DialogInterface.OnClickListener() {

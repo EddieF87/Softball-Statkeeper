@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 
 import com.example.android.softballstatkeeper.R;
 import com.example.android.softballstatkeeper.adapters.UserListAdapter;
+import com.example.android.softballstatkeeper.data.StatsContract;
 import com.example.android.softballstatkeeper.models.StatKeepUser;
 
 import java.util.ArrayList;
@@ -27,15 +28,17 @@ public class UserFragment extends Fragment {
     private static final String ARG_LIST = "list";
     private List<StatKeepUser> mUserList;
     private OnListFragmentInteractionListener mListener;
-    private RecyclerView recyclerView;
+    private RecyclerView mRecyclerView;
+    private int mLevel;
 
     public UserFragment() {
     }
 
-    public static UserFragment newInstance(List<StatKeepUser> users) {
+    public static UserFragment newInstance(List<StatKeepUser> users, int level) {
         UserFragment fragment = new UserFragment();
         Bundle args = new Bundle();
         args.putParcelableArrayList(ARG_LIST, (ArrayList<? extends Parcelable>) users);
+        args.putInt(StatsContract.StatsEntry.LEVEL, level);
         fragment.setArguments(args);
         return fragment;
     }
@@ -43,10 +46,12 @@ public class UserFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setRetainInstance(true);
-        if (getArguments() != null) {
-            List<StatKeepUser> users = getArguments().getParcelableArrayList(ARG_LIST);
+
+        Bundle args = getArguments();
+        if (args != null) {
+            mLevel = args.getInt(StatsContract.StatsEntry.LEVEL);
+            List<StatKeepUser> users = args.getParcelableArrayList(ARG_LIST);
             mUserList = cloneList(users);
         }
     }
@@ -57,15 +62,15 @@ public class UserFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_user_list, container, false);
 
-        recyclerView = view.findViewById(R.id.list);
-        recyclerView.setAdapter(new UserListAdapter(mUserList, getActivity(), mListener));
+        mRecyclerView = view.findViewById(R.id.list);
+        mRecyclerView.setAdapter(new UserListAdapter(mUserList, getActivity(), mListener, mLevel));
 
         return view;
     }
 
     public void swapList(List<StatKeepUser> list) {
         mUserList = cloneList(list);
-        recyclerView.setAdapter(new UserListAdapter(mUserList, getActivity(), mListener));
+        mRecyclerView.setAdapter(new UserListAdapter(mUserList, getActivity(), mListener, mLevel));
     }
 
     @Override

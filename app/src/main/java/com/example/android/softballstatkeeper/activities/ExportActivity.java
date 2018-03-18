@@ -33,7 +33,7 @@ import java.util.List;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
-public class ExportActivity extends AppCompatActivity {
+public abstract class ExportActivity extends AppCompatActivity {
 
     private String leagueName;
     private static final int PERMISSION_REQUEST_CODE = 200;

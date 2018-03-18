@@ -1,7 +1,6 @@
 package com.example.android.softballstatkeeper.fragments;
 
 
-import android.app.Activity;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -33,7 +32,6 @@ import android.widget.Toast;
 
 import com.example.android.softballstatkeeper.R;
 import com.example.android.softballstatkeeper.activities.LeagueManagerActivity;
-import com.example.android.softballstatkeeper.activities.PlayerManagerActivity;
 import com.example.android.softballstatkeeper.activities.PlayerPagerActivity;
 import com.example.android.softballstatkeeper.activities.TeamPagerActivity;
 import com.example.android.softballstatkeeper.activities.UsersActivity;
@@ -515,10 +513,8 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 showDeleteConfirmationDialog();
                 return true;
             case R.id.action_export_stats:
-                Activity activity = getActivity();
-                if (activity instanceof PlayerManagerActivity) {
-                    PlayerManagerActivity playerManagerActivity = (PlayerManagerActivity) activity;
-                    playerManagerActivity.startExport(playerName);
+                if (mListener != null) {
+                    mListener.onExport(playerName);
                     return true;
                 }
                 return false;
@@ -631,7 +627,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
 
     public interface OnFragmentInteractionListener {
         void setTeamEdit();
-
+        void onExport(String name);
     }
 
     @Override

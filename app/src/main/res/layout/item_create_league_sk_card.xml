@@ -42,7 +42,7 @@
         android:layout_marginEnd="16dp"
         android:maxLines="1"
         android:singleLine="true"
-        android:text="@string/manage_view_amp_share_stats_scores_amp_standings_of_a_league"
+        android:text="@string/league_statkeeper_desc"
         android:textSize="12sp"
         android:textStyle="italic"
         app:layout_constraintBottom_toBottomOf="parent"

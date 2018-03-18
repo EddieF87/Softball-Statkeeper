@@ -90,7 +90,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-        Log.d("aaa", "onCreate StatsFragment");
+        Log.d("aaa", "onJoinOrCreate StatsFragment");
         Bundle args = getArguments();
         if (args != null) {
             level = args.getInt(MainPageSelection.KEY_SELECTION_LEVEL);
@@ -210,7 +210,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
                 }
             case R.id.action_export_stats:
                 if(mListener != null) {
-                    mListener.exportStats();
+                    mListener.onExport();
                     return true;
                 }
         }
@@ -491,7 +491,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
 
     public interface OnFragmentInteractionListener {
         void goToUserSettings();
-        void exportStats();
+        void onExport();
         void startAdder(ArrayList<Team> teams);
         void goToGameSettings();
     }

@@ -57,7 +57,7 @@
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/btn_start_adder"
-            style="@style/FloatingActionButtonStyle"
+            style="@style/AddPlayersFABStyle"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_gravity="center_vertical"

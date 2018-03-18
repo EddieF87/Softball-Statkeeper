@@ -85,11 +85,11 @@ public class ChangeTeamDialog extends DialogFragment {
                 .setItems(teams_array, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int item) {
                         String teamName = teams_array[item].toString();
-                        String teamID = teamMap.get(teamName);
+                        String teamFirestoreID = teamMap.get(teamName);
                         if (teamName.equals(getString(R.string.waivers))) {
                             teamName = StatsContract.StatsEntry.FREE_AGENT;
                         }
-                        onButtonPressed(teamName, teamID);
+                        onButtonPressed(teamName, teamFirestoreID);
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -104,9 +104,9 @@ public class ChangeTeamDialog extends DialogFragment {
         return alertDialog;
     }
 
-    private void onButtonPressed(String teamName, String teamID) {
+    private void onButtonPressed(String teamName, String teamFirestoreID) {
         if (mListener != null) {
-            mListener.onTeamChosen(playerFirestoreID, teamName, teamID);
+            mListener.onTeamChosen(playerFirestoreID, teamName, teamFirestoreID);
         }
     }
 
@@ -134,7 +134,7 @@ public class ChangeTeamDialog extends DialogFragment {
     }
 
     public interface OnFragmentInteractionListener {
-        void onTeamChosen(String playerID, String teamName, String teamID);
+        void onTeamChosen(String playerID, String teamName, String teamFirestoreID);
         void onTeamChoiceCancel();
     }
 }

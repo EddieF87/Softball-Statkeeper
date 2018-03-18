@@ -276,5 +276,4 @@ public class TeamManagerActivity extends ExportActivity
                     Toast.LENGTH_SHORT).show();
         }
     }
-
 }

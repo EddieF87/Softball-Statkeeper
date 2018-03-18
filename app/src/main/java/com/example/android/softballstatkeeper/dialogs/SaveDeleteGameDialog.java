@@ -56,10 +56,8 @@ public class SaveDeleteGameDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        View v = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_dialog, null);
 
         AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
-                .setView(v)
                 .setTitle(R.string.exit_game)
                 .setMessage("Save the game or delete it?")
                 .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {

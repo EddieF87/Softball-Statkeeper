@@ -43,11 +43,9 @@ public class DeleteConfirmationDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        View v = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_dialog, null);
         String message = String.format(getString(R.string.delete_dialog_msg), objectToDelete);
 
         return new AlertDialog.Builder(getActivity())
-                .setView(v)
                 .setTitle("Delete " + objectToDelete + "?")
                 .setMessage(message)
                 .setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {

@@ -57,6 +57,9 @@
         android:layout_marginBottom="4dp"
         android:layout_marginEnd="20dp"
         android:text="@string/add_team_players"
+        android:drawableLeft="@drawable/ic_group_add_white_18dp"
+        android:drawablePadding="4dp"
+        android:drawableStart="@drawable/ic_group_add_white_18dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginRight="20dp" />

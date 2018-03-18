@@ -53,7 +53,7 @@ public class DeletionCheckDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        View view = LayoutInflater.from(getActivity()).inflate(R.layout.simple_recycler_view, null);
+        View view = LayoutInflater.from(getActivity()).inflate(R.layout.rv_deletion_check, null);
         RecyclerView recyclerView = view.findViewById(R.id.recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
         recyclerView.setAdapter(mAdapter);

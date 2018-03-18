@@ -39,7 +39,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:maxLines="1"
-        android:text="@string/manage_amp_view_individual_player_stats"
+        android:text="@string/player_statkeeper_desc"
         android:textSize="12sp"
         android:textStyle="italic"
         app:layout_constraintBottom_toBottomOf="parent"
