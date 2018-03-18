@@ -89,6 +89,7 @@ public class StatsProvider extends ContentProvider {
     @Override
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection,
                         @Nullable String[] selectionArgs, @Nullable String sortOrder) {
+        Log.d("zizi", "query");
         int match = sUriMatcher.match(uri);
         if(match == SELECTIONS) {
             return querySelection(projection, selection, selectionArgs, sortOrder);

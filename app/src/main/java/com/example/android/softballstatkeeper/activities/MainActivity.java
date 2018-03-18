@@ -51,6 +51,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,6 +64,7 @@ import static com.example.android.softballstatkeeper.data.FirestoreHelper.DELETI
 import static com.example.android.softballstatkeeper.data.FirestoreHelper.LEAGUE_COLLECTION;
 import static com.example.android.softballstatkeeper.data.FirestoreHelper.PLAYERS_COLLECTION;
 import static com.example.android.softballstatkeeper.data.FirestoreHelper.PLAYER_LOGS;
+import static com.example.android.softballstatkeeper.data.FirestoreHelper.REQUESTS;
 import static com.example.android.softballstatkeeper.data.FirestoreHelper.TEAMS_COLLECTION;
 import static com.example.android.softballstatkeeper.data.FirestoreHelper.TEAM_LOGS;
 import static com.example.android.softballstatkeeper.data.FirestoreHelper.USERS;
@@ -624,7 +626,7 @@ public class MainActivity extends AppCompatActivity
         }
 
         firestoreLeagueMap.put(userID, level);
-        documentReference.set(firestoreLeagueMap);
+        documentReference.set(firestoreLeagueMap, SetOptions.merge());
 
 
         Map<String, Object> firestoreUserMap = new HashMap<>();
@@ -680,7 +682,7 @@ public class MainActivity extends AppCompatActivity
     private void deleteSelection(String idText, String codeText) {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         firestore.collection(LEAGUE_COLLECTION)
-                .document(idText).collection(USERS).document(codeText).get();
+                .document(idText).collection(REQUESTS).document(codeText).get();
     }
 
     @Override
@@ -691,18 +693,18 @@ public class MainActivity extends AppCompatActivity
         }
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         firestore.collection(LEAGUE_COLLECTION)
-                .document(idText).collection(USERS).document(codeText).get()
+                .document(idText).collection(REQUESTS).document(codeText).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         try {
                             StatKeepUser statKeepUser = documentSnapshot.toObject(StatKeepUser.class);
-                            String id = documentSnapshot.getId();
+                            String code = documentSnapshot.getId();
+                            String id = statKeepUser.getId();
                             String name = statKeepUser.getName();
-                            String temp = statKeepUser.getEmail();
                             int level = statKeepUser.getLevel() + 100;
 
-                            if (temp.equals("temp") && codeText.equals(id)) {
+                            if (id.equals(REQUESTS) && codeText.equals(code)) {
                                 if (level >= UsersActivity.LEVEL_VIEW_ONLY
                                         && level <= UsersActivity.LEVEL_ADMIN) {
                                     postSuccess();

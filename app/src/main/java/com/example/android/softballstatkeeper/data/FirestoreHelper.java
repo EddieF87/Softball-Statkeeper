@@ -53,6 +53,7 @@ public class FirestoreHelper implements Parcelable {
     private static final String LAST_UPDATE = "last_update";
     private static final String UPDATE_SETTINGS = "_updateSettings";
     public static final String USERS = "users";
+    public static final String REQUESTS = "requests";
     private int playersofar;
     private int teamssofar;
     private String leagueID;
@@ -605,7 +606,7 @@ public class FirestoreHelper implements Parcelable {
             data.put(StatsEntry.COLUMN_NAME, name);
             DocumentReference itemDoc = mFirestore.collection(LEAGUE_COLLECTION)
                     .document(leagueID).collection(collection).document(firestoreID);
-            itemDoc.set(data).addOnSuccessListener(new OnSuccessListener<Void>() {
+            itemDoc.set(data, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
                     mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION)
@@ -694,7 +695,7 @@ public class FirestoreHelper implements Parcelable {
             deletion.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, team);
         }
 
-        deletionDoc.set(deletion);
+        deletionDoc.set(deletion, SetOptions.merge());
         updateTimeStamps();
     }
 

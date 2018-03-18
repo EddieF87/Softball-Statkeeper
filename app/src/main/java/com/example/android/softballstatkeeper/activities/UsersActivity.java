@@ -49,6 +49,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.example.android.softballstatkeeper.data.FirestoreHelper.LEAGUE_COLLECTION;
+import static com.example.android.softballstatkeeper.data.FirestoreHelper.REQUESTS;
 import static com.example.android.softballstatkeeper.data.FirestoreHelper.USERS;
 
 public class UsersActivity extends AppCompatActivity
@@ -85,6 +86,7 @@ public class UsersActivity extends AppCompatActivity
 
     private String mSelectionID;
     private String mSelectionName;
+    private int mSelectionType;
 
     private int mLevel;
     private FirebaseFirestore firestore;
@@ -99,6 +101,7 @@ public class UsersActivity extends AppCompatActivity
             MainPageSelection mainPageSelection = myApp.getCurrentSelection();
             mSelectionID = mainPageSelection.getId();
             mSelectionName = mainPageSelection.getName();
+            mSelectionType = mainPageSelection.getType();
             mLevel = mainPageSelection.getLevel();
             setTitle(mSelectionName);
             TextView leagueNameTextView = findViewById(R.id.league_name_display);
@@ -292,48 +295,36 @@ public class UsersActivity extends AppCompatActivity
     }
 
     public void sendEmails(View view) {
-        getNameEmailDetails();
-//        int userSize = mUserList.size();
-//        List<String> users = new ArrayList<>();
-//        for (int i = 0; i < userSize; i++) {
-//            StatKeepUser statKeepUser = mUserList.get(i);
-//            String user = statKeepUser.getEmail();
-//            users.add(user);
-//        }
-//
-//        String[] emailList = new String[userSize];
-//        emailList = users.toArray(emailList);
-//
-//        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
-//                "mailto", creatorEmail, null));
-//        emailIntent.putExtra(Intent.EXTRA_SUBJECT, mSelectionName + " Update");
-//        emailIntent.putExtra(Intent.EXTRA_BCC, emailList);
-//        startActivity(Intent.createChooser(emailIntent, "Send email..."));
+        int userSize = mUserList.size();
+        List<String> users = new ArrayList<>();
+        for (int i = 0; i < userSize; i++) {
+            StatKeepUser statKeepUser = mUserList.get(i);
+            String user = statKeepUser.getEmail();
+            users.add(user);
+        }
+
+        String[] emailList = new String[userSize];
+        emailList = users.toArray(emailList);
+
+        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+                "mailto", creatorEmail, null));
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, mSelectionName + " Update");
+        emailIntent.putExtra(Intent.EXTRA_BCC, emailList);
+        startActivity(Intent.createChooser(emailIntent, "Send email..."));
     }
 
-    public void getNameEmailDetails(){
-        ArrayList<String> names = new ArrayList<String>();
-        ContentResolver cr = getContentResolver();
-        Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,null, null, null, null);
-        if (cur.getCount() > 0) {
-            while (cur.moveToNext()) {
-                String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
-                Cursor cur1 = cr.query(
-                        ContactsContract.CommonDataKinds.Email.CONTENT_URI, null,
-                        ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?",
-                        new String[]{id}, null);
-                while (cur1.moveToNext()) {
-                    //to get the contact names
-                    String name=cur1.getString(cur1.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-                    Log.e("Name :", name);
-                    String email = cur1.getString(cur1.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
-                    Log.e("Email", email);
-                    if(email!=null){
-                        names.add(name);
-                        Log.d("zizi", name + " - " + email);
-                    }
-                }
-                cur1.close();
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1 && data != null) {
+            Uri contact = data.getData();
+            Log.d("zizi", contact.toString() + " - ");
+
+            String[] projection = new String[]{ContactsContract.Contacts.DISPLAY_NAME};
+            Cursor cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, projection, null, null, null);
+            while (cursor.moveToNext()) {
+                String name = StatsContract.getColumnString(cursor, ContactsContract.Contacts.DISPLAY_NAME);
+                Log.d("zizi", name + " - ");
             }
         }
     }
@@ -360,7 +351,7 @@ public class UsersActivity extends AppCompatActivity
     }
 
     @Override
-    public void onInviteUser(final String email, final int level) {
+    public void onAddUser(final String email, final int level) {
         firestore.collection(USERS).whereEqualTo(StatsContract.StatsEntry.EMAIL, email)
                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -390,6 +381,43 @@ public class UsersActivity extends AppCompatActivity
         });
         startAdderBtn.setVisibility(View.VISIBLE);
     }
+
+    @Override
+    public void onInviteUser(String email, int level) {
+        DocumentReference documentReference = firestore.collection(LEAGUE_COLLECTION)
+                .document(mSelectionID).collection(REQUESTS).document();
+
+        StatKeepUser statKeepUser = new StatKeepUser(REQUESTS, mSelectionName, String.valueOf(mSelectionType), level - 100);
+
+        documentReference.set(statKeepUser, SetOptions.merge());
+
+        String selectionType;
+        if(mSelectionType == MainPageSelection.TYPE_LEAGUE) {
+            selectionType = "League";
+        } else {
+            selectionType = "Team";
+        }
+
+        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+                "mailto", email, null));
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "You have been invited to " + mSelectionName + "!");
+        emailIntent.putExtra(Intent.EXTRA_TEXT, "You have been invited to be a StatKeeper for "
+                + mSelectionName + "!\n\n ID: " + mSelectionID +
+                "\n Code: " + documentReference.getId() +
+                "\n\n Click on \"Join " + selectionType + "\" and enter the StatKeeper ID and Code. " +
+                "This code can only be used once.");
+        startActivity(Intent.createChooser(emailIntent, "Send email..."));
+
+
+
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, "You have been invited to be a StatKeeper for "
+                + mSelectionName + "!\n Click on \"Join " + selectionType + "\" and enter the " +
+                "StatKeeper ID and Code. This code can only be used once.");
+        startActivity(Intent.createChooser(shareIntent, "Share link using"));
+    }
+
 
     @Override
     public void onCancel() {

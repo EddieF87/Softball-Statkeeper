@@ -1,39 +1,73 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="com.example.android.softballstatkeeper.dialogs.InviteUserDialog"
-    android:padding="8dp">
+    android:layout_height="wrap_content"
+    android:padding="8dp"
+    tools:context="com.example.android.softballstatkeeper.dialogs.InviteUserDialog">
 
     <TextView
         android:id="@+id/new_user_level_view"
         style="@style/ItemUserStyle"
-        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/view_manage"
         android:textSize="18sp"
-        android:layout_marginTop="16dp"
-        />
+        app:layout_constraintEnd_toEndOf="@+id/new_user_level_seekbar"
+        app:layout_constraintStart_toStartOf="@+id/new_user_level_seekbar"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <SeekBar
         android:id="@+id/new_user_level_seekbar"
         style="@style/Widget.AppCompat.SeekBar.Discrete"
-        android:layout_width="240dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
         android:max="2"
         android:progress="1"
-        android:layout_marginTop="16dp"
-        />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/level_label"
+        app:layout_constraintTop_toBottomOf="@+id/new_user_level_view" />
 
     <com.example.android.softballstatkeeper.views.MyEditText
         android:id="@+id/new_user_textview"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:inputType="textPersonName"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
         android:hint="@string/user_email"
-        android:layout_marginTop="32dp"
-        />
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/textView2"
+        app:layout_constraintTop_toBottomOf="@+id/new_user_level_seekbar" />
 
-</LinearLayout>
+    <TextView
+        android:id="@+id/level_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="Access \nLevel"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="@+id/new_user_level_seekbar"
+        app:layout_constraintEnd_toStartOf="@+id/new_user_level_seekbar"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/new_user_level_view" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Email"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="@+id/new_user_textview"
+        app:layout_constraintEnd_toEndOf="@+id/level_label"
+        app:layout_constraintStart_toStartOf="@+id/level_label"
+        app:layout_constraintTop_toTopOf="@+id/new_user_textview" />
+
+</android.support.constraint.ConstraintLayout>
