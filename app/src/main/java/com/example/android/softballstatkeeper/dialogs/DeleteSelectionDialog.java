@@ -19,18 +19,16 @@ public class DeleteSelectionDialog extends DialogFragment {
 
     private DeleteSelectionDialog.OnFragmentInteractionListener mListener;
     private MainPageSelection mSelection;
-    private int mPosition;
 
     public DeleteSelectionDialog() {
         // Required empty public constructor
     }
 
-    public static DeleteSelectionDialog newInstance(MainPageSelection selection, int pos) {
+    public static DeleteSelectionDialog newInstance(MainPageSelection selection) {
 
         Bundle args = new Bundle();
         DeleteSelectionDialog fragment = new DeleteSelectionDialog();
         args.putParcelable("mSelection", selection);
-        args.putInt("mPosition", pos);
         fragment.setArguments(args);
         return fragment;
     }
@@ -41,7 +39,6 @@ public class DeleteSelectionDialog extends DialogFragment {
         Bundle args = getArguments();
         if (args != null) {
             mSelection = args.getParcelable("mSelection");
-            mPosition = args.getInt("mPosition");
         }
     }
 
@@ -78,7 +75,7 @@ public class DeleteSelectionDialog extends DialogFragment {
                 .setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         if (mListener != null) {
-                            mListener.onDeleteConfirmed(mSelection, mPosition);
+                            mListener.onDeleteConfirmed(mSelection);
                         }
                     }
                 })
@@ -107,6 +104,6 @@ public class DeleteSelectionDialog extends DialogFragment {
     }
 
     public interface OnFragmentInteractionListener {
-        void onDeleteConfirmed(MainPageSelection selection, int pos);
+        void onDeleteConfirmed(MainPageSelection selection);
     }
 }

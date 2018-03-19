@@ -50,7 +50,8 @@
                 android:paddingLeft="@dimen/activity_horizontal_margin"
                 android:paddingRight="@dimen/activity_horizontal_margin"
                 android:background="?android:attr/selectableItemBackground"
-                card_view:srcCompat="@android:drawable/ic_dialog_info" />
+                card_view:srcCompat="@android:drawable/ic_dialog_info"
+                android:contentDescription="@string/info" />
 
         </LinearLayout>
 

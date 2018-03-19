@@ -77,10 +77,10 @@ public class MyLineupAdapter extends DragItemAdapter<Pair<Long, Player>, MyLineu
         return mItemList.get(position).first;
     }
 
-    public void removePlayers() {
-        mItemList.clear();
-        notifyDataSetChanged();
-    }
+//    public void removePlayers() {
+//        mItemList.clear();
+//        notifyDataSetChanged();
+//    }
 
     public boolean changeColors(boolean genderSettingsOn){
         if (genderSettingsOn) {

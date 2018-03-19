@@ -84,7 +84,7 @@ public abstract class ObjectPagerActivity extends AppCompatActivity
         setIntent(intent);
     }
 
-    protected void startPager(int objectType,  Uri uri) {
+    void startPager(int objectType, Uri uri) {
         setLeagueInfo();
 
         mObjectType = objectType;
@@ -263,20 +263,20 @@ public abstract class ObjectPagerActivity extends AppCompatActivity
     public void onEdit(String enteredText, int type) {
     }
 
-    public String getSelectionID() {
+    String getSelectionID() {
         return selectionID;
     }
 
-    public int getSelectionType() {
+    int getSelectionType() {
         return selectionType;
     }
 
-    public PlayerFragment getCurrentPlayerFragment(){
+    PlayerFragment getCurrentPlayerFragment(){
         int pos = mViewPager.getCurrentItem();
         return (PlayerFragment) mAdapter.getRegisteredFragment(pos);
     }
 
-    public TeamFragment getCurrentTeamFragment() {
+    TeamFragment getCurrentTeamFragment() {
         int pos = mViewPager.getCurrentItem();
         return (TeamFragment) mAdapter.getRegisteredFragment(pos);
     }

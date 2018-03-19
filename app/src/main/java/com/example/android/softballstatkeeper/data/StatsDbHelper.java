@@ -12,7 +12,7 @@ import com.example.android.softballstatkeeper.data.StatsContract.StatsEntry;
 
 public class StatsDbHelper extends SQLiteOpenHelper {
 
-    public static final String DATABASE_NAME = "playerstats.db";
+    private static final String DATABASE_NAME = "playerstats.db";
     private static final int DATABASE_VERSION = 1;
 
 

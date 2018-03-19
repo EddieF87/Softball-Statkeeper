@@ -53,15 +53,15 @@ public class DeletionCheckDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-
-        View view = LayoutInflater.from(getActivity()).inflate(R.layout.rv_list, null);
+//todo fix
+        View view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_deletion_check, null);
         Context context = view.getContext();
-        RecyclerView recyclerView = (RecyclerView) view;
-        recyclerView.setLayoutManager(new LinearLayoutManager(context));
+        RecyclerView recyclerView = view.findViewById(R.id.rv_delete);
+        recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
         recyclerView.setAdapter(mAdapter);
 
         AlertDialog alertDialog = new AlertDialog.Builder(context)
-                .setView(recyclerView)
+                .setView(view)
                 .setTitle("Permanently delete?")
                 .setMessage("The following players/teams have been deleted elsewhere." +
                         " Keep checked to also delete from your device (game in progress may also be deleted).")
@@ -101,6 +101,14 @@ public class DeletionCheckDialog extends DialogFragment {
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnListFragmentInteractionListener");
+        }
+    }
+
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        super.onCancel(dialog);
+        if (mListener != null) {
+            mListener.onCancel();
         }
     }
 

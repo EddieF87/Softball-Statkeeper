@@ -1,21 +1,16 @@
 package com.example.android.softballstatkeeper.fragments;
 
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -36,10 +31,7 @@ import com.example.android.softballstatkeeper.R;
 import com.example.android.softballstatkeeper.activities.UsersActivity;
 import com.example.android.softballstatkeeper.activities.TeamPagerActivity;
 import com.example.android.softballstatkeeper.adapters.StandingsAdapter;
-import com.example.android.softballstatkeeper.data.FirestoreHelper;
-import com.example.android.softballstatkeeper.data.StatsContract;
 import com.example.android.softballstatkeeper.data.StatsContract.StatsEntry;
-import com.example.android.softballstatkeeper.dialogs.AddNewPlayersDialog;
 import com.example.android.softballstatkeeper.models.MainPageSelection;
 import com.example.android.softballstatkeeper.models.Team;
 import com.squareup.leakcanary.RefWatcher;
@@ -53,7 +45,6 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
     private OnFragmentInteractionListener mListener;
     private static final int STANDINGS_LOADER = 3;
     private int level;
-    private String leagueID;
     private StandingsAdapter mAdapter;
     private ArrayList<Team> mTeams;
     private TextView colorView;
@@ -65,11 +56,10 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
         // Required empty public constructor
     }
 
-    public static StandingsFragment newInstance(String leagueID, int level, String name) {
+    public static StandingsFragment newInstance(int level, String name) {
         Bundle args = new Bundle();
         StandingsFragment fragment = new StandingsFragment();
         args.putInt(MainPageSelection.KEY_SELECTION_LEVEL, level);
-        args.putString(MainPageSelection.KEY_SELECTION_ID, leagueID);
         args.putString(MainPageSelection.KEY_SELECTION_NAME, name);
         fragment.setArguments(args);
         return fragment;
@@ -82,7 +72,6 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
         Bundle args = getArguments();
         if (args != null) {
             level = args.getInt(MainPageSelection.KEY_SELECTION_LEVEL);
-            leagueID = args.getString(MainPageSelection.KEY_SELECTION_ID);
         }
     }
 

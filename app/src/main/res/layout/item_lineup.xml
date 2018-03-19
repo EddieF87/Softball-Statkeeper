@@ -61,7 +61,8 @@
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
                 card_view:srcCompat="@drawable/ic_reorder_white_500_24dp"
-                android:background="@color/colorPrimary" />
+                android:background="@color/colorPrimary"
+                android:contentDescription="@string/lineup" />
 
         </RelativeLayout>
     </android.support.v7.widget.CardView>

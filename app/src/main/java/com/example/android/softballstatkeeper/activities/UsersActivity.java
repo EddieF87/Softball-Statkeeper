@@ -1,38 +1,28 @@
 package com.example.android.softballstatkeeper.activities;
 
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Color;
-import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.android.softballstatkeeper.MyApp;
 import com.example.android.softballstatkeeper.R;
+import com.example.android.softballstatkeeper.adapters.UserListAdapter;
 import com.example.android.softballstatkeeper.data.StatsContract;
 import com.example.android.softballstatkeeper.dialogs.EmailInviteDialog;
 import com.example.android.softballstatkeeper.dialogs.InviteUserDialog;
-import com.example.android.softballstatkeeper.fragments.UserFragment;
 import com.example.android.softballstatkeeper.models.MainPageSelection;
 import com.example.android.softballstatkeeper.models.StatKeepUser;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -45,6 +35,7 @@ import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,33 +45,29 @@ import static com.example.android.softballstatkeeper.data.FirestoreHelper.REQUES
 import static com.example.android.softballstatkeeper.data.FirestoreHelper.USERS;
 
 public class UsersActivity extends AppCompatActivity
-        implements UserFragment.OnListFragmentInteractionListener,
-        InviteUserDialog.OnFragmentInteractionListener,
-EmailInviteDialog.OnListFragmentInteractionListener{
+        implements InviteUserDialog.OnFragmentInteractionListener,
+        EmailInviteDialog.OnListFragmentInteractionListener,
+        UserListAdapter.AdapterListener {
 
     private static final String TAG = "UsersActivity";
     private static final String SAVED_MAP = "map";
-    private static final String SAVED_USERLIST = "userlist";
-    private static final String SAVED_REQUESTLIST = "requestlist";
+    private static final String SAVED_USER_LEVELS = "userlevels";
     private static final String SAVED_CREATOR = "creator";
 
     public static final int LEVEL_REMOVE_USER = 0;
-    public static final int LEVEL_ACCESS_REQUEST = 1;
-    public static final int LEVEL_VIEW_ONLY = 2;
-    public static final int LEVEL_VIEW_WRITE = 3;
-    public static final int LEVEL_ADMIN = 4;
-    public static final int LEVEL_CREATOR = 5;
+    public static final int LEVEL_VIEW_ONLY = 1;
+    public static final int LEVEL_VIEW_WRITE = 2;
+    public static final int LEVEL_ADMIN = 3;
+    public static final int LEVEL_CREATOR = 4;
 
-    private ArrayList<StatKeepUser> mUserList;
-    private ArrayList<StatKeepUser> mRequestList;
+    private List<StatKeepUser> mUserList;
+    private HashMap<String, Integer> mOriginalLevelsMap;
     private HashMap<String, Integer> levelChanges;
     private StatKeepUser creator;
 
-    private UserFragment userFragment;
-    private UserFragment requestFragment;
-    private ViewPager mViewPager;
+    private RecyclerView mRecyclerView;
+    private UserListAdapter mAdapter;
 
-    private ProgressBar mProgressBar;
     private Button startAdderBtn;
     private Button saveBtn;
     private Button resetBtn;
@@ -88,8 +75,8 @@ EmailInviteDialog.OnListFragmentInteractionListener{
     private String mSelectionID;
     private String mSelectionName;
     private int mSelectionType;
-
     private int mLevel;
+
     private FirebaseFirestore firestore;
 
     @Override
@@ -114,28 +101,18 @@ EmailInviteDialog.OnListFragmentInteractionListener{
             finish();
         }
 
+        mRecyclerView = findViewById(R.id.rv_users);
         firestore = FirebaseFirestore.getInstance();
-
-        mViewPager = findViewById(R.id.user_view_pager);
-        mProgressBar = findViewById(R.id.progressBar2);
 
         setButtons();
 
         if (savedInstanceState != null) {
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            userFragment = (UserFragment) fragmentManager.getFragments().get(0);
-            requestFragment = (UserFragment) fragmentManager.getFragments().get(1);
             levelChanges = (HashMap<String, Integer>) savedInstanceState.getSerializable(SAVED_MAP);
-            mUserList = savedInstanceState.getParcelableArrayList(SAVED_USERLIST);
-            mRequestList = savedInstanceState.getParcelableArrayList(SAVED_REQUESTLIST);
+            mOriginalLevelsMap = (HashMap<String, Integer>) savedInstanceState.getSerializable(SAVED_USER_LEVELS);
             creator = savedInstanceState.getParcelable(SAVED_CREATOR);
             setCreator(creator);
-            createPager();
             return;
         }
-
-        mViewPager.setVisibility(View.INVISIBLE);
-        mProgressBar.setVisibility(View.VISIBLE);
 
         firestore.collection(LEAGUE_COLLECTION).document(mSelectionID).collection(USERS)
                 .get()
@@ -143,33 +120,43 @@ EmailInviteDialog.OnListFragmentInteractionListener{
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
+                            mOriginalLevelsMap = new HashMap<>();
                             mUserList = new ArrayList<>();
-                            mRequestList = new ArrayList<>();
 
                             for (DocumentSnapshot document : task.getResult()) {
 
                                 StatKeepUser statKeepUser = document.toObject(StatKeepUser.class);
                                 statKeepUser.setId(document.getId());
-
                                 int level = statKeepUser.getLevel();
-                                switch (level) {
-                                    case LEVEL_CREATOR:
-                                        creator = statKeepUser;
-                                        setCreator(statKeepUser);
-                                        break;
-                                    case LEVEL_ACCESS_REQUEST:
-                                        mRequestList.add(statKeepUser);
-                                        break;
-                                    default:
-                                        mUserList.add(statKeepUser);
+
+                                if (level == LEVEL_CREATOR) {
+                                    creator = statKeepUser;
+                                    setCreator(statKeepUser);
+                                } else if (level > 0 && level < LEVEL_CREATOR) {
+                                    mOriginalLevelsMap.put(statKeepUser.getEmail(), statKeepUser.getLevel());
+                                    mUserList.add(statKeepUser);
                                 }
                             }
-                            createPager();
+                            Collections.sort(mUserList, StatKeepUser.levelComparator());
+                            updateRV();
+
                         } else {
                             Log.d(TAG, "Error getting documents: ", task.getException());
                         }
                     }
                 });
+    }
+
+    private void updateRV() {
+//        if (mAdapter == null) {
+            mRecyclerView.setLayoutManager(new LinearLayoutManager(
+                    this, LinearLayoutManager.VERTICAL, false));
+            mAdapter = new UserListAdapter(mUserList, this, mLevel);
+            mRecyclerView.setAdapter(mAdapter);
+//        }
+//        else {
+//            mAdapter.notifyDataSetChanged();
+//        }
     }
 
     private void setCreator(StatKeepUser statKeepUser) {
@@ -214,61 +201,6 @@ EmailInviteDialog.OnListFragmentInteractionListener{
         }
     }
 
-    private void createPager() {
-
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        mViewPager.setAdapter(new FragmentPagerAdapter(fragmentManager) {
-            @Override
-            public Fragment getItem(int position) {
-                switch (position) {
-                    case 0:
-                        userFragment = UserFragment.newInstance(mUserList, mLevel);
-                        return userFragment;
-                    case 1:
-                        requestFragment = UserFragment.newInstance(mRequestList, mLevel);
-                        return requestFragment;
-                    default:
-                        return null;
-                }
-            }
-
-            @Override
-            public CharSequence getPageTitle(int position) {
-                switch (position) {
-                    case 0:
-                        return "Users";
-                    case 1:
-                        return "Requests";
-                    default:
-                        return null;
-                }
-            }
-
-            @Override
-            public int getCount() {
-                return 2;
-            }
-        });
-
-        mProgressBar.setVisibility(View.GONE);
-        mViewPager.setVisibility(View.VISIBLE);
-        TabLayout tabLayout = findViewById(R.id.league_tab_layout);
-        tabLayout.setupWithViewPager(mViewPager);
-
-        if (!mRequestList.isEmpty()) {
-            TextView textView = new TextView(this);
-            String requests = "REQUESTS (" + mRequestList.size() + ")";
-            textView.setText(requests);
-            textView.setTextColor(Color.RED);
-            textView.setGravity(Gravity.CENTER);
-            textView.setTypeface(Typeface.DEFAULT_BOLD);
-
-            tabLayout = findViewById(R.id.league_tab_layout);
-            TabLayout.Tab tab = tabLayout.getTabAt(1);
-            tab.setCustomView(textView);
-        }
-    }
-
     public void saveChanges(View v) {
         if (levelChanges == null) {
             return;
@@ -280,7 +212,7 @@ EmailInviteDialog.OnListFragmentInteractionListener{
             DocumentReference league = firestore.collection(LEAGUE_COLLECTION).document(mSelectionID);
             DocumentReference leagueUser = firestore.collection(LEAGUE_COLLECTION).document(mSelectionID)
                     .collection(USERS).document(id);
-            if (level == 0) {
+            if (level == LEVEL_REMOVE_USER) {
                 batch.update(league, id, 0);
                 batch.delete(leagueUser);
             } else {
@@ -294,12 +226,23 @@ EmailInviteDialog.OnListFragmentInteractionListener{
 
     public void resetChanges(View v) {
 
+        saveBtn.setVisibility(View.INVISIBLE);
+        resetBtn.setVisibility(View.INVISIBLE);
         if (levelChanges == null) {
             return;
         }
         levelChanges.clear();
-        userFragment.swapList(mUserList);
-        requestFragment.swapList(mRequestList);
+        revertUserList();
+        updateRV();
+    }
+
+    private void revertUserList() {
+        for (StatKeepUser user : mUserList) {
+            String email = user.getEmail();
+
+            int oldLevel = mOriginalLevelsMap.get(email);
+            user.setLevel(oldLevel);
+        }
     }
 
     public void sendEmailUpdate(View view) {
@@ -337,7 +280,6 @@ EmailInviteDialog.OnListFragmentInteractionListener{
         }
     }
 
-    @Override
     public void onUserLevelChanged(String name, int level) {
         if (levelChanges == null) {
             levelChanges = new HashMap<>();
@@ -353,8 +295,7 @@ EmailInviteDialog.OnListFragmentInteractionListener{
         if (levelChanges != null) {
             outState.putSerializable(SAVED_MAP, levelChanges);
         }
-        outState.putParcelableArrayList(SAVED_USERLIST, mUserList);
-        outState.putParcelableArrayList(SAVED_REQUESTLIST, mRequestList);
+        outState.putSerializable(SAVED_USER_LEVELS, mOriginalLevelsMap);
         outState.putParcelable(SAVED_CREATOR, creator);
     }
 
@@ -373,7 +314,7 @@ EmailInviteDialog.OnListFragmentInteractionListener{
         documentReference.set(statKeepUser, SetOptions.merge());
 
         String selectionType;
-        if(mSelectionType == MainPageSelection.TYPE_LEAGUE) {
+        if (mSelectionType == MainPageSelection.TYPE_LEAGUE) {
             selectionType = "League";
         } else {
             selectionType = "Team";
@@ -406,11 +347,11 @@ EmailInviteDialog.OnListFragmentInteractionListener{
     @Override
     public void onSubmitEmails(List<String> emails, List<Integer> levels) {
         int emailSize = emails.size();
-        if(emailSize < 1) {
+        if (emailSize < 1) {
             return;
         }
 
-        for(int i = 0; i < emailSize; i++) {
+        for (int i = 0; i < emailSize; i++) {
             final String email = emails.get(i);
             final int level = levels.get(i);
 
@@ -449,11 +390,12 @@ EmailInviteDialog.OnListFragmentInteractionListener{
         //todo add link
         Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", "", null));
         emailIntent.putExtra(Intent.EXTRA_BCC, emailList);
-        emailIntent.putExtra(Intent.EXTRA_SUBJECT,"You have been invited to be a StatKeeper for " + mSelectionName + "!");
-        emailIntent.putExtra(Intent.EXTRA_TEXT,"You have been invited to view, manage, and share stats and standings for " + mSelectionName + "." +
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "You have been invited to be a StatKeeper for " + mSelectionName + "!");
+        emailIntent.putExtra(Intent.EXTRA_TEXT, "You have been invited to view, manage, and share stats and standings for " + mSelectionName + "." +
                 "\n\nFollow this link to begin: ");
         startActivity(Intent.createChooser(emailIntent, "Email friends about their invitation!"));
 
         startAdderBtn.setVisibility(View.VISIBLE);
     }
+
 }

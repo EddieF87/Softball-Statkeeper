@@ -152,6 +152,7 @@ public class MainActivity extends AppCompatActivity
                 if (currentUser != null) {
                     String email = currentUser.getEmail();
                     String id = currentUser.getUid();
+                    Log.d("ffffire", id);
 
                     Map<String, Object> userInfo = new HashMap<>();
                     userInfo.put(StatsEntry.EMAIL, email);
@@ -356,9 +357,9 @@ public class MainActivity extends AppCompatActivity
             DocumentReference docRef = firestore.collection(LEAGUE_COLLECTION).document(selectionID);
 
             Map<String, Object> updates = new HashMap<>();
-            if (level == 0) {
+            if (level == UsersActivity.LEVEL_REMOVE_USER) {
                 updates.put(userID, FieldValue.delete());
-            } else if (level > 0) {
+            } else if (level > UsersActivity.LEVEL_REMOVE_USER) {
                 updates.put(userID, level);
                 insertSelectionToSQL(selectionID, name, type, level);
             }
@@ -376,15 +377,15 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onDelete(MainPageSelection selection, int pos) {
+    public void onDelete(MainPageSelection selection) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = DeleteSelectionDialog.newInstance(selection, pos);
+        DialogFragment newFragment = DeleteSelectionDialog.newInstance(selection);
         newFragment.show(fragmentTransaction, "");
     }
 
     @Override
-    public void onDeleteConfirmed(MainPageSelection mainPageSelection, int pos) {
+    public void onDeleteConfirmed(MainPageSelection mainPageSelection) {
         mSelectionList.remove(mainPageSelection);
         mainPageAdapter.notifyDataSetChanged();
         final String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
@@ -516,7 +517,7 @@ public class MainActivity extends AppCompatActivity
             int type = documentSnapshot.getLong(StatsEntry.TYPE).intValue();
             MainPageSelection mainPageSelection = new MainPageSelection(
                     selectionID, name, type, level);
-            if (level < -1) {
+            if (level < 0) {
                 mInviteList.add(mainPageSelection);
             } else if (level >= UsersActivity.LEVEL_VIEW_ONLY) {
                 mSelectionList.add(mainPageSelection);
@@ -550,12 +551,6 @@ public class MainActivity extends AppCompatActivity
         } else {
             getSupportLoaderManager().restartLoader(MAIN_LOADER, null, this);
         }
-    }
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        Log.d("xyxy", "onNewIntent");
     }
 
     @Override

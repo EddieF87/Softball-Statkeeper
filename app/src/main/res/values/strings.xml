@@ -159,7 +159,19 @@
     <string name="load2_desc"><![CDATA[Updating player & team statistics.]]></string>
     <string name="email_users">Email Users</string>
     <string name="created_by">Created By</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="invite_friends">Invite Friends!</string>
+    <string name="statkeeper_code">StatKeeper Code:</string>
+    <string name="undo_button">Undo Button</string>
+    <string name="redo_button">Redo Button</string>
+    <string name="infield">Infield</string>
+    <string name="batter">Batter</string>
+    <string name="info">info</string>
+    <string name="add_run_button">add run button</string>
+    <string name="remove_run_button">remove run button</string>
+    <string name="add_out_button">add out button</string>
+    <string name="remove_out_button">remove out button</string>
+    <string name="subtract_result_button">subtract result button</string>
+    <string name="add_result_button">add result button</string>
+    <string name="top_of_inning">top of inning</string>
+    <string name="bottom_of_inning">bottom of inning</string>
 </resources>

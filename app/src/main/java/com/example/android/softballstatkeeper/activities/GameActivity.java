@@ -52,88 +52,88 @@ public abstract class GameActivity extends AppCompatActivity
         SaveDeleteGameDialog.OnFragmentInteractionListener,
         FinishGameConfirmationDialog.OnFragmentInteractionListener {
 
-    protected Cursor gameCursor;
+    Cursor gameCursor;
 
-    protected TextView scoreboard;
-    protected TextView nowBatting;
-    protected TextView outsDisplay;
-    protected TextView avgDisplay;
-    protected TextView rbiDisplay;
-    protected TextView runDisplay;
-    protected TextView hrDisplay;
-    protected TextView inningDisplay;
-    protected ImageView inningTopArrow;
-    protected ImageView inningBottomArrow;
-    protected ImageView undoButton;
-    protected ImageView redoButton;
+    private TextView scoreboard;
+    TextView nowBatting;
+    TextView outsDisplay;
+    TextView avgDisplay;
+    TextView rbiDisplay;
+    TextView runDisplay;
+    TextView hrDisplay;
+    private TextView inningDisplay;
+    private ImageView inningTopArrow;
+    private ImageView inningBottomArrow;
+    private ImageView undoButton;
+    private ImageView redoButton;
 
-    protected Button submitPlay;
-    protected Button resetBases;
+    private Button submitPlay;
+    private Button resetBases;
 
-    protected RadioGroup group1;
-    protected RadioGroup group2;
-    protected String result;
+    private RadioGroup group1;
+    private RadioGroup group2;
+    private String result;
 
-    protected RelativeLayout batterDisplay;
-    protected TextView batterText;
-    protected TextView firstDisplay;
-    protected TextView secondDisplay;
-    protected TextView thirdDisplay;
-    protected TextView homeDisplay;
-    protected ImageView outTrash;
+    private RelativeLayout batterDisplay;
+    private TextView batterText;
+    TextView firstDisplay;
+    TextView secondDisplay;
+    TextView thirdDisplay;
+    private TextView homeDisplay;
+    private ImageView outTrash;
 
-    protected TextView step1View;
-    protected TextView step2View;
-    protected TextView step3View;
-    protected TextView step4View;
+    TextView step1View;
+    TextView step2View;
+    TextView step3View;
+    TextView step4View;
 
 
-    protected String awayTeamName;
-    protected String homeTeamName;
-    protected int awayTeamRuns;
-    protected int homeTeamRuns;
+    String awayTeamName;
+    String homeTeamName;
+    int awayTeamRuns;
+    int homeTeamRuns;
 
-    protected String tempBatter;
-    protected int inningChanged = 0;
-    protected int inningNumber = 2;
-    protected int gameOuts = 0;
-    protected int tempOuts;
-    protected int tempRuns;
+    String tempBatter;
+    int inningChanged = 0;
+    int inningNumber = 2;
+    int gameOuts = 0;
+    private int tempOuts;
+    private int tempRuns;
 
-    protected Player currentBatter;
-    protected Drawable mRunner;
+    Player currentBatter;
+    private Drawable mRunner;
 
-    protected final NumberFormat formatter = new DecimalFormat("#.000");
-    protected BaseLog currentBaseLogStart;
-    protected ArrayList<String> currentRunsLog;
-    protected ArrayList<String> tempRunsLog;
+    private final NumberFormat formatter = new DecimalFormat("#.000");
+    BaseLog currentBaseLogStart;
+    ArrayList<String> currentRunsLog;
+    ArrayList<String> tempRunsLog;
 
-    protected int gameLogIndex = 0;
-    protected int highestIndex = 0;
-    protected boolean undoRedo = false;
+    int gameLogIndex = 0;
+    int highestIndex = 0;
+    boolean undoRedo = false;
 
-    protected boolean finalInning;
-    protected boolean redoEndsGame = false;
+    boolean finalInning;
+    boolean redoEndsGame = false;
 
-    protected boolean playEntered = false;
-    protected boolean batterMoved = false;
-    protected boolean firstOccupied = false;
-    protected boolean secondOccupied = false;
-    protected boolean thirdOccupied = false;
-    protected int totalInnings;
+    private boolean playEntered = false;
+    private boolean batterMoved = false;
+    private boolean firstOccupied = false;
+    private boolean secondOccupied = false;
+    private boolean thirdOccupied = false;
+    int totalInnings;
 
-    protected static final String KEY_GAMELOGINDEX = "keyGameLogIndex";
-    protected static final String KEY_HIGHESTINDEX = "keyHighestIndex";
-    protected static final String KEY_GENDERSORT = "keyGenderSort";
-    protected static final String KEY_FEMALEORDER = "keyFemaleOrder";
-    protected static final String KEY_INNINGNUMBER = "keyInningNumber";
-    protected static final String KEY_TOTALINNINGS = "keyTotalInnings";
-    protected static final String KEY_UNDOREDO = "keyUndoRedo";
-    protected static final String KEY_REDOENDSGAME = "redoEndsGame";
-    protected static final String TAG = "GameActivity: ";
-    protected static final String DIALOG_FINISH = "DialogFinish";
+    static final String KEY_GAMELOGINDEX = "keyGameLogIndex";
+    static final String KEY_HIGHESTINDEX = "keyHighestIndex";
+    static final String KEY_GENDERSORT = "keyGenderSort";
+    static final String KEY_FEMALEORDER = "keyFemaleOrder";
+    static final String KEY_INNINGNUMBER = "keyInningNumber";
+    static final String KEY_TOTALINNINGS = "keyTotalInnings";
+    static final String KEY_UNDOREDO = "keyUndoRedo";
+    static final String KEY_REDOENDSGAME = "redoEndsGame";
+    private static final String TAG = "GameActivity: ";
+    private static final String DIALOG_FINISH = "DialogFinish";
 
-    protected String selectionID;
+    String selectionID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -166,7 +166,7 @@ public abstract class GameActivity extends AppCompatActivity
 
     protected abstract void getSelectionData();
 
-    protected void setViews() {
+    private void setViews() {
         AdView adView = findViewById(R.id.game_ad);
         AdRequest adRequest = new AdRequest.Builder()
                 .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
@@ -249,7 +249,7 @@ public abstract class GameActivity extends AppCompatActivity
 
     protected abstract void setCustomViews();
 
-    protected ArrayList<Player> setTeam(String teamID) {
+    ArrayList<Player> setTeam(String teamID) {
         String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=?";
         String[] selectionArgs = new String[]{teamID};
         String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
@@ -269,7 +269,7 @@ public abstract class GameActivity extends AppCompatActivity
         return team;
     }
 
-    protected List<Player> genderSort(List<Player> team, int femaleRequired) {
+    List<Player> genderSort(List<Player> team, int femaleRequired) {
         if (femaleRequired < 1) {
             return team;
         }
@@ -370,7 +370,7 @@ public abstract class GameActivity extends AppCompatActivity
         }
     }
 
-    public void setBaseListeners() {
+    private void setBaseListeners() {
         if (firstDisplay.getText().toString().isEmpty()) {
             firstDisplay.setOnTouchListener(null);
             firstDisplay.setOnDragListener(new GameActivity.MyDragListener());
@@ -403,7 +403,7 @@ public abstract class GameActivity extends AppCompatActivity
         homeDisplay.setOnDragListener(new GameActivity.MyDragListener());
     }
 
-    protected void startGame() {
+    void startGame() {
         step1View = findViewById(R.id.step1text);
         step2View = findViewById(R.id.step2text);
         step3View = findViewById(R.id.step3text);
@@ -435,7 +435,7 @@ public abstract class GameActivity extends AppCompatActivity
 
     protected abstract void resumeGame();
 
-    protected void nextBatter() {
+    void nextBatter() {
         if (!isTopOfInning() && finalInning && homeTeamRuns > awayTeamRuns) {
             if (isLeagueGameOrHomeTeam()) {
                 increaseLineupIndex();
@@ -464,7 +464,7 @@ public abstract class GameActivity extends AppCompatActivity
 
     protected abstract void updateGameLogs();
 
-    protected void clearTempState() {
+    void clearTempState() {
         group1.clearCheck();
         group2.clearCheck();
         tempRunsLog.clear();
@@ -478,8 +478,8 @@ public abstract class GameActivity extends AppCompatActivity
         inningChanged = 0;
     }
 
-    protected void enterGameValues(BaseLog currentBaseLogEnd, int team,
-                                   String previousBatterID, String onDeckID) {
+    void enterGameValues(BaseLog currentBaseLogEnd, int team,
+                         String previousBatterID, String onDeckID) {
 
         String first = currentBaseLogEnd.getBasepositions()[0];
         String second = currentBaseLogEnd.getBasepositions()[1];
@@ -532,7 +532,7 @@ public abstract class GameActivity extends AppCompatActivity
     protected abstract void nextInning();
 
 
-    protected void endGame() {
+    private void endGame() {
         firestoreUpdate();
 
         getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, null, null);
@@ -543,7 +543,7 @@ public abstract class GameActivity extends AppCompatActivity
 
     protected abstract void firestoreUpdate();
 
-    protected void showFinishGameDialog() {
+    void showFinishGameDialog() {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         Fragment prev = fragmentManager.findFragmentByTag(DIALOG_FINISH);
@@ -556,7 +556,7 @@ public abstract class GameActivity extends AppCompatActivity
         newFragment.show(fragmentTransaction, DIALOG_FINISH);
     }
 
-    protected Player getPlayerFromCursor(Uri uri, String playerFirestoreID) {
+    private Player getPlayerFromCursor(Uri uri, String playerFirestoreID) {
         String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
         String[] selectionArgs = {playerFirestoreID};
         Cursor cursor = getContentResolver().query(uri, null,
@@ -569,7 +569,7 @@ public abstract class GameActivity extends AppCompatActivity
     }
 
     //sets the textview displays with updated player/game data
-    protected void setDisplays() {
+    void setDisplays() {
 
         String playerFirestoreID = currentBatter.getFirestoreID();
 
@@ -627,12 +627,12 @@ public abstract class GameActivity extends AppCompatActivity
     }
 
 
-    protected void setScoreDisplay() {
+    void setScoreDisplay() {
         String scoreString = awayTeamName + " " + awayTeamRuns + "    " + homeTeamName + " " + homeTeamRuns;
         scoreboard.setText(scoreString);
     }
 
-    protected void setInningDisplay() {
+    void setInningDisplay() {
         String topOrBottom;
         if (inningNumber % 2 == 0) {
             inningTopArrow.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.color_arrow));
@@ -662,7 +662,7 @@ public abstract class GameActivity extends AppCompatActivity
         //Toast.makeText(LeagueGameActivity.this, topOrBottom + " of the " + inningNumber / 2 + indicator, Toast.LENGTH_LONG).show();
     }
 
-    protected void updatePlayerStats(String action, int n) {
+    void updatePlayerStats(String action, int n) {
         String playerFirestoreID;
         if (undoRedo) {
             if (tempBatter == null) {
@@ -743,7 +743,7 @@ public abstract class GameActivity extends AppCompatActivity
     protected abstract boolean isTeamAlternate();
 
 
-    protected void updatePlayerRuns(String player, int n) {
+    private void updatePlayerRuns(String player, int n) {
         String selection = StatsEntry.COLUMN_NAME + "=?";
         String[] selectionArgs = {player};
         Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEMP, null,
@@ -766,27 +766,27 @@ public abstract class GameActivity extends AppCompatActivity
         }
     }
 
-    protected void enableSubmitButton() {
+    private void enableSubmitButton() {
         submitPlay.setEnabled(true);
         submitPlay.getBackground().setAlpha(255);
     }
 
-    protected void enableResetButton() {
+    private void enableResetButton() {
         resetBases.setEnabled(true);
         resetBases.getBackground().setAlpha(255);
     }
 
-    protected void disableSubmitButton() {
+    private void disableSubmitButton() {
         submitPlay.setEnabled(false);
         submitPlay.getBackground().setAlpha(64);
     }
 
-    protected void disableResetButton() {
+    private void disableResetButton() {
         resetBases.setEnabled(false);
         resetBases.getBackground().setAlpha(64);
     }
 
-    protected void resetBases(BaseLog baseLog) {
+    void resetBases(BaseLog baseLog) {
         String[] bases = baseLog.getBasepositions();
         String first = bases[0];
         String second = bases[1];
@@ -829,7 +829,7 @@ public abstract class GameActivity extends AppCompatActivity
         setScoreDisplay();
     }
 
-    protected void emptyBases() {
+    void emptyBases() {
         firstDisplay.setText(null);
         secondDisplay.setText(null);
         thirdDisplay.setText(null);
@@ -840,12 +840,12 @@ public abstract class GameActivity extends AppCompatActivity
         }
     }
 
-    protected double calculateAverage(int singles, int doubles, int triples, int hrs, int outs) {
+    private double calculateAverage(int singles, int doubles, int triples, int hrs, int outs) {
         double hits = (double) (singles + doubles + triples + hrs);
         return (hits / (outs + hits));
     }
 
-    protected void onSubmit() {
+    private void onSubmit() {
         disableSubmitButton();
         if (undoRedo) {
             deleteGameLogs();
@@ -859,7 +859,7 @@ public abstract class GameActivity extends AppCompatActivity
         outsDisplay.setText(outs);
     }
 
-    protected void deleteGameLogs() {
+    void deleteGameLogs() {
         gameCursor = getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG, null,
                 null, null, null);
         gameCursor.moveToPosition(gameLogIndex);
@@ -872,7 +872,7 @@ public abstract class GameActivity extends AppCompatActivity
 
     protected abstract void undoPlay();
 
-    protected String getUndoPlayResult() {
+    String getUndoPlayResult() {
         gameCursor = getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG, null,
                 null, null, null);
         gameCursor.moveToPosition(gameLogIndex);
@@ -882,7 +882,7 @@ public abstract class GameActivity extends AppCompatActivity
         return StatsContract.getColumnString(gameCursor, StatsEntry.COLUMN_PLAY);
     }
 
-    protected void undoLogs() {
+    void undoLogs() {
         reloadRunsLog();
         gameCursor.moveToPrevious();
         reloadBaseLog();
@@ -897,7 +897,7 @@ public abstract class GameActivity extends AppCompatActivity
 
     protected abstract void redoPlay();
 
-    protected String getRedoResult() {
+    String getRedoResult() {
         gameCursor = getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG, null,
                 null, null, null);
 
@@ -923,7 +923,7 @@ public abstract class GameActivity extends AppCompatActivity
         return StatsContract.getColumnString(gameCursor, StatsEntry.COLUMN_PLAY);
     }
 
-    protected void reloadBaseLog() {
+    void reloadBaseLog() {
         String batterID = StatsContract.getColumnString(gameCursor, StatsEntry.COLUMN_ONDECK);
         List<Player> teamLineup = getTeamLineup();
         Player batter = findBatterByID(batterID, teamLineup);
@@ -932,7 +932,7 @@ public abstract class GameActivity extends AppCompatActivity
 
     protected abstract List<Player> getTeamLineup();
 
-    protected Player findBatterByID(String batterID, List<Player> teamLineup) {
+    private Player findBatterByID(String batterID, List<Player> teamLineup) {
         Log.e(TAG, "findBatterByIDStart " + batterID);
         for (Player player : teamLineup) {
             if (player.getFirestoreID().equals(batterID)) {
@@ -944,7 +944,7 @@ public abstract class GameActivity extends AppCompatActivity
         return null;
     }
 
-    protected void reloadRunsLog() {
+    void reloadRunsLog() {
         if (currentRunsLog == null) {
             currentRunsLog = new ArrayList<>();
         }
@@ -1006,7 +1006,7 @@ public abstract class GameActivity extends AppCompatActivity
 
     protected abstract boolean isTopOfInning();
 
-    protected class MyDragListener implements View.OnDragListener {
+    class MyDragListener implements View.OnDragListener {
         @Override
         public boolean onDrag(View v, final DragEvent event) {
             int action = event.getAction();
@@ -1146,7 +1146,7 @@ public abstract class GameActivity extends AppCompatActivity
         }
     }
 
-    protected final class MyTouchListener implements View.OnTouchListener {
+    final class MyTouchListener implements View.OnTouchListener {
         @Override
         public boolean onTouch(View view, MotionEvent event) {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -1210,7 +1210,7 @@ public abstract class GameActivity extends AppCompatActivity
         return true;
     }
 
-    public void gotoLineupEditor(String teamName, String teamID) {
+    void gotoLineupEditor(String teamName, String teamID) {
         Intent editorIntent = new Intent(GameActivity.this, SetLineupActivity.class);
         editorIntent.putExtra("ingame", true);
         editorIntent.putExtra("team_name", teamName);
@@ -1244,7 +1244,7 @@ public abstract class GameActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    protected void actionViewBoxScore() {
+    private void actionViewBoxScore() {
         Intent statsIntent = new Intent(GameActivity.this, BoxScoreActivity.class);
         Bundle b = getBoxScoreBundle();
         statsIntent.putExtras(b);
@@ -1253,7 +1253,7 @@ public abstract class GameActivity extends AppCompatActivity
 
     protected abstract Bundle getBoxScoreBundle();
 
-    protected void showExitDialog() {
+    private void showExitDialog() {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         DialogFragment newFragment = SaveDeleteGameDialog.newInstance();
@@ -1277,7 +1277,7 @@ public abstract class GameActivity extends AppCompatActivity
 
     protected abstract void actionEditLineup();
 
-    protected void setUndoButton() {
+    void setUndoButton() {
         boolean undo = gameLogIndex > 0;
         undoButton.setClickable(undo);
         if (undo) {
@@ -1287,7 +1287,7 @@ public abstract class GameActivity extends AppCompatActivity
         }
     }
 
-    protected void setRedoButton() {
+    void setRedoButton() {
         boolean redo = gameLogIndex < highestIndex;
         redoButton.setClickable(redo);
         if (redo) {
@@ -1311,7 +1311,7 @@ public abstract class GameActivity extends AppCompatActivity
         return true;
     }
 
-    protected void showFinishConfirmationDialog() {
+    private void showFinishConfirmationDialog() {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         DialogFragment newFragment = FinishGameConfirmationDialog.newInstance();
@@ -1327,7 +1327,7 @@ public abstract class GameActivity extends AppCompatActivity
     }
 
 
-    protected String getTeamNameFromFirestoreID(String firestoreID) {
+    String getTeamNameFromFirestoreID(String firestoreID) {
         String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
         String[] selectionArgs = new String[]{firestoreID};
         String[] projection = new String[]{StatsEntry.COLUMN_NAME};

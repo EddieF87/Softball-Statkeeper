@@ -190,7 +190,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        if (level >= 3) {
+        if (level >= UsersActivity.LEVEL_VIEW_WRITE) {
             inflater.inflate(R.menu.menu_league, menu);
         }
     }

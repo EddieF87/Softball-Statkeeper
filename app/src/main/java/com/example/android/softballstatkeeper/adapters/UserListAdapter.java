@@ -14,7 +14,6 @@ import android.widget.TextView;
 import com.example.android.softballstatkeeper.R;
 import com.example.android.softballstatkeeper.activities.UsersActivity;
 import com.example.android.softballstatkeeper.models.StatKeepUser;
-import com.example.android.softballstatkeeper.fragments.UserFragment.OnListFragmentInteractionListener;
 
 import java.util.List;
 
@@ -27,14 +26,14 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserLi
     private List<StatKeepUser> mUserList;
     private Context mContext;
     private int mLevel;
-    private final OnListFragmentInteractionListener mListener;
+    private final AdapterListener mListener;
     private static final String TAG = "UserListAdapter";
 
-    public UserListAdapter(List<StatKeepUser> list, Context context, OnListFragmentInteractionListener listener, int level) {
+    public UserListAdapter(List<StatKeepUser> list, Context context, int level) {
         super();
         this.mUserList = list;
         this.mContext = context;
-        this.mListener = listener;
+        this.mListener = (AdapterListener) mContext;
         this.mLevel = level;
         Log.d(TAG, "hoppy UserListAdapter created");
     }
@@ -49,7 +48,7 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserLi
     @Override
     public void onBindViewHolder(final UserListViewHolder holder, int position) {
         final StatKeepUser statKeepUser = mUserList.get(position);
-
+        holder.seekBar.setOnSeekBarChangeListener(null);
         String email = statKeepUser.getEmail();
         int level = statKeepUser.getLevel();
         String levelString = getUserLevel(level);
@@ -73,7 +72,7 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserLi
                     } else {
                         holder.levelView.setTextColor(Color.BLUE);
                     }
-                    if (null != mListener) {
+                    if (mListener != null) {
                         mListener.onUserLevelChanged(id, i);
                     }
                 }
@@ -88,6 +87,7 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserLi
             });
         }
     }
+
 
     @Override
     public long getItemId(int position) {
@@ -106,15 +106,12 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserLi
                 level = mContext.getString(R.string.remove_user);
                 break;
             case 1:
-                level = mContext.getString(R.string.access_requested);
-                break;
-            case 2:
                 level = mContext.getString(R.string.view_only);
                 break;
-            case 3:
+            case 2:
                 level = mContext.getString(R.string.view_manage);
                 break;
-            case 4:
+            case 3:
                 level = mContext.getString(R.string.admin);
                 break;
             default:
@@ -145,5 +142,9 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserLi
                 seekBar.setVisibility(View.GONE);
             }
         }
+    }
+
+    public interface AdapterListener {
+        void onUserLevelChanged(String name, int level);
     }
 }

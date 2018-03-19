@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -88,7 +89,8 @@
         android:textSize="12sp"
         app:layout_constraintBottom_toTopOf="@+id/group1"
         app:layout_constraintEnd_toStartOf="@+id/submit"
-        app:layout_constraintStart_toStartOf="@+id/group1" />
+        app:layout_constraintStart_toStartOf="@+id/group1"
+        tools:targetApi="m" />
 
     <Button
         android:id="@+id/submit"
@@ -101,6 +103,7 @@
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="@+id/group1"
         app:layout_constraintLeft_toRightOf="@+id/reset"
-        app:layout_constraintTop_toTopOf="@+id/reset" />
+        app:layout_constraintTop_toTopOf="@+id/reset"
+        tools:targetApi="m" />
 
 </android.support.constraint.ConstraintLayout>

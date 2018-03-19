@@ -4,7 +4,6 @@ import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,14 +11,11 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.example.android.softballstatkeeper.R;
-import com.example.android.softballstatkeeper.models.MainPageSelection;
 import com.example.android.softballstatkeeper.views.MyEditText;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by Eddie on 3/18/2018.

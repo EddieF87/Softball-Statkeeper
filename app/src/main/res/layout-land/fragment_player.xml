@@ -60,7 +60,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/img_batter"
-        android:layout_marginLeft="8dp" />
+        android:layout_marginLeft="8dp"
+        android:contentDescription="@string/player" />
 
 
     <FrameLayout

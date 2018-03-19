@@ -8,8 +8,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.view.LayoutInflater;
-import android.view.View;
 
 import com.example.android.softballstatkeeper.R;
 

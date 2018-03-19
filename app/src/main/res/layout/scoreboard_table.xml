@@ -56,7 +56,8 @@
         app:layout_constraintEnd_toStartOf="@+id/num_of_outs"
         app:layout_constraintTop_toTopOf="@+id/scoreboard"
         app:srcCompat="@android:drawable/arrow_up_float"
-        android:layout_marginRight="16dp" />
+        android:layout_marginRight="16dp"
+        android:contentDescription="@string/top_of_inning" />
 
     <ImageView
         android:id="@+id/inning_bottom_arrow"
@@ -68,7 +69,8 @@
         app:layout_constraintLeft_toLeftOf="@+id/inning"
         app:layout_constraintRight_toRightOf="@+id/inning"
         app:layout_constraintTop_toBottomOf="@+id/inning"
-        app:srcCompat="@android:drawable/arrow_down_float" />
+        app:srcCompat="@android:drawable/arrow_down_float"
+        android:contentDescription="@string/bottom_of_inning" />
 
     <TextView
         android:id="@+id/inning"

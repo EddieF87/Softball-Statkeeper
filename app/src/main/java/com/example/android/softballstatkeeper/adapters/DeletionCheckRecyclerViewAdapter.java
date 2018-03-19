@@ -71,6 +71,17 @@ public class DeletionCheckRecyclerViewAdapter  extends RecyclerView.Adapter<Dele
         return mItems.size();
     }
 
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
+
+
     class DeletionViewHolder extends RecyclerView.ViewHolder {
         private TextView nameView;
         private CheckBox deleteCheck;

@@ -121,7 +121,8 @@
             android:tint="@android:color/holo_red_dark"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/sb_table"
-            app:srcCompat="@android:drawable/ic_media_rew" />
+            app:srcCompat="@android:drawable/ic_media_rew"
+            android:contentDescription="@string/undo_button" />
         <ImageView
             android:id="@+id/btn_redo"
             android:layout_width="wrap_content"
@@ -132,7 +133,8 @@
             app:layout_constraintBottom_toBottomOf="@+id/btn_undo"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/btn_undo"
-            app:srcCompat="@android:drawable/ic_media_ff" />
+            app:srcCompat="@android:drawable/ic_media_ff"
+            android:contentDescription="@string/redo_button" />
 
         <com.google.android.gms.ads.AdView
             android:id="@+id/game_ad"

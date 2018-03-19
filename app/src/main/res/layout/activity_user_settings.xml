@@ -47,7 +47,8 @@
             android:maxLines="1"
             android:textSize="18sp"
             android:textStyle="bold"
-            tools:text="Edward Foy III" />
+            tools:text="Edward Foy III"
+            tools:targetApi="o" />
 
         <TextView
             android:id="@+id/admin_email_view"
@@ -69,38 +70,20 @@
             android:textSize="14sp"
             android:textStyle="bold"
             tools:text="edsxcrtyghrt@gmail.cooom"
-            tools:textColor="@android:color/holo_blue_dark" />
-
-
+            tools:textColor="@android:color/holo_blue_dark"
+            tools:targetApi="o" />
     </RelativeLayout>
 
-    <include
-        android:id="@+id/user_view_pager"
-        layout="@layout/activity_lg_mgr_pager"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_users"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginBottom="16dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        app:layout_constraintBottom_toTopOf="@id/btn_save_changes"
+        app:layout_constraintBottom_toTopOf="@+id/btn_save_changes"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/admin_layout" />
-
-    <ProgressBar
-        android:id="@+id/progressBar2"
-        style="?android:attr/progressBarStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@id/user_view_pager"
-        app:layout_constraintEnd_toEndOf="@id/user_view_pager"
-        app:layout_constraintStart_toStartOf="@id/user_view_pager"
-        app:layout_constraintTop_toTopOf="@id/user_view_pager" />
+        app:layout_constraintTop_toBottomOf="@id/admin_layout"
+        tools:listitem="@layout/item_user" />
 
 
     <Button
@@ -143,7 +126,7 @@
         android:drawableLeft="@drawable/ic_group_add_white_18dp"
         android:drawablePadding="4dp"
         android:drawableStart="@drawable/ic_group_add_white_18dp"
-        android:text="Invite Friends!"
+        android:text="@string/invite_friends"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

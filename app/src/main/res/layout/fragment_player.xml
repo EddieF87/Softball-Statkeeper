@@ -67,7 +67,8 @@
         app:layout_constraintVertical_bias="0.0"
         app:srcCompat="@drawable/img_batter"
         android:layout_marginRight="8dp"
-        android:layout_marginLeft="16dp" />
+        android:layout_marginLeft="16dp"
+        android:contentDescription="@string/player" />
 
 
 

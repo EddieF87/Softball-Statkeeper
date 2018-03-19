@@ -21,7 +21,8 @@
         android:roundIcon="@mipmap/ic_statkeep_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:windowSoftInputMode="stateHidden|adjustResize">
+        android:windowSoftInputMode="stateHidden|adjustResize"
+        android:fullBackupContent="@xml/backup_descriptor">
 
         <activity
             android:name="com.example.android.softballstatkeeper.activities.MainActivity">

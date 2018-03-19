@@ -44,7 +44,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0"
-        app:srcCompat="@drawable/img_infield" />
+        app:srcCompat="@drawable/img_infield"
+        android:contentDescription="@string/infield" />
 
     <TextView
         android:id="@+id/second_display"
@@ -117,7 +118,8 @@
         app:layout_constraintStart_toEndOf="@+id/guide_v2"
         app:layout_constraintTop_toBottomOf="@+id/guide_h2"
         app:srcCompat="@drawable/trash"
-        tools:visibility="invisible" />
+        tools:visibility="invisible"
+        android:contentDescription="@string/out" />
 
     <TextView
         android:id="@+id/outText"
@@ -154,7 +156,7 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentRight="true"
             android:layout_above="@id/batter_name_view"
-            />
+            android:contentDescription="@string/batter" />
 
         <TextView
             android:id="@+id/batter_name_view"

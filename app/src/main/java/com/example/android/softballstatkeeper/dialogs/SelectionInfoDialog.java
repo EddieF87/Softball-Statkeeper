@@ -20,15 +20,13 @@ import com.example.android.softballstatkeeper.models.MainPageSelection;
 public class SelectionInfoDialog extends DialogFragment {
 
     private MainPageSelection mSelection;
-    private int position;
     private SelectionInfoDialog.OnFragmentInteractionListener mListener;
 
-    public static SelectionInfoDialog newInstance(MainPageSelection selection, int pos) {
+    public static SelectionInfoDialog newInstance(MainPageSelection selection) {
 
         Bundle args = new Bundle();
         SelectionInfoDialog fragment = new SelectionInfoDialog();
         args.putParcelable("mSelection", selection);
-        args.putInt("position", pos);
         fragment.setArguments(args);
         return fragment;
     }
@@ -38,7 +36,6 @@ public class SelectionInfoDialog extends DialogFragment {
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
         if (args != null) {
-            position = args.getInt("position");
             mSelection = args.getParcelable("mSelection");
         }
     }
@@ -91,7 +88,7 @@ public class SelectionInfoDialog extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         if (mListener != null) {
-                            mListener.onDelete(mSelection, position);
+                            mListener.onDelete(mSelection);
                         }
                     }
                 })
@@ -120,6 +117,6 @@ public class SelectionInfoDialog extends DialogFragment {
     }
 
     public interface OnFragmentInteractionListener {
-        void onDelete(MainPageSelection selection, int pos);
+        void onDelete(MainPageSelection selection);
     }
 }

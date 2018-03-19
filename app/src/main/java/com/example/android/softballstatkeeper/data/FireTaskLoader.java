@@ -3,7 +3,10 @@ package com.example.android.softballstatkeeper.data;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -38,7 +41,17 @@ public class FireTaskLoader extends android.support.v4.content.AsyncTaskLoader<Q
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         Task<QuerySnapshot> task = firestore.collection(LEAGUE_COLLECTION)
                 .whereLessThan(userID, 99)
-                .get();
+                .get().addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e("ffffire", e.toString());
+                    }
+                }).addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot querySnapshot) {
+                        Log.e("ffffire", "SUCCESS!!!");
+                    }
+                });
 
 
         while (!task.isComplete()) {

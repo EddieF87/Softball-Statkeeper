@@ -3,6 +3,8 @@ package com.example.android.softballstatkeeper.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Comparator;
+
 /**
  * Created by Eddie on 12/3/2017.
  */
@@ -54,6 +56,15 @@ public class StatKeepUser implements Parcelable {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public static Comparator<StatKeepUser> levelComparator () {
+        return new Comparator<StatKeepUser>() {
+            @Override
+            public int compare(StatKeepUser statKeepUser1, StatKeepUser statKeepUser2) {
+                return statKeepUser2.getLevel() - statKeepUser1.getLevel();
+            }
+        };
     }
 
     protected StatKeepUser(Parcel in) {

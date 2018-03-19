@@ -14,6 +14,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.android.softballstatkeeper.MyApp;
+import com.example.android.softballstatkeeper.activities.UsersActivity;
 import com.example.android.softballstatkeeper.models.ItemMarkedForDeletion;
 import com.example.android.softballstatkeeper.models.Player;
 import com.example.android.softballstatkeeper.models.Team;
@@ -535,7 +536,7 @@ public class FirestoreHelper implements Parcelable {
                             mListener.proceedToNext();
                         }
                     } else {
-                        if (level > 3) {
+                        if (level > UsersActivity.LEVEL_VIEW_WRITE) {
                             Collections.sort(itemMarkedForDeletionList, ItemMarkedForDeletion.nameComparator());
                             Collections.sort(itemMarkedForDeletionList, ItemMarkedForDeletion.typeComparator());
                             if(mListener != null) {

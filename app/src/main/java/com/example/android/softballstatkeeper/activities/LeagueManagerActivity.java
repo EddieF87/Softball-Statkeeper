@@ -210,11 +210,11 @@ public class LeagueManagerActivity extends ExportActivity
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return StandingsFragment.newInstance(leagueID, level, leagueName);
+                    return StandingsFragment.newInstance(level, leagueName);
                 case 1:
                     return StatsFragment.newInstance(leagueID, level, leagueName);
                 case 2:
-                    if (level < 3) {
+                    if (level < UsersActivity.LEVEL_VIEW_WRITE) {
                         return null;
                     }
                     return MatchupFragment.newInstance(leagueID, leagueName);
@@ -239,7 +239,7 @@ public class LeagueManagerActivity extends ExportActivity
 
         @Override
         public int getCount() {
-            if (level < 3) {
+            if (level < UsersActivity.LEVEL_VIEW_WRITE) {
                 return 2;
             }
             return 3;
