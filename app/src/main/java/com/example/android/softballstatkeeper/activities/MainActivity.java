@@ -52,6 +52,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -61,6 +62,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.example.android.softballstatkeeper.data.FirestoreHelper.DELETION_COLLECTION;
+import static com.example.android.softballstatkeeper.data.FirestoreHelper.FIREDEBUG;
 import static com.example.android.softballstatkeeper.data.FirestoreHelper.LEAGUE_COLLECTION;
 import static com.example.android.softballstatkeeper.data.FirestoreHelper.PLAYERS_COLLECTION;
 import static com.example.android.softballstatkeeper.data.FirestoreHelper.PLAYER_LOGS;
@@ -398,64 +400,79 @@ public class MainActivity extends AppCompatActivity
         }
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         final DocumentReference leagueDoc = firestore.collection(LEAGUE_COLLECTION).document(selectionID);
-        leagueDoc.collection(USERS).document(userID)
-                .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+        final WriteBatch batch = firestore.batch();
+
+        batch.delete(leagueDoc.collection(USERS).document(userID));
+
+        Map<String, Object> updates = new HashMap<>();
+        updates.put(userID, FieldValue.delete());
+        batch.update(leagueDoc, updates);
+
+        leagueDoc.collection(USERS)
+                .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
-            public void onSuccess(Void aVoid) {
-                leagueDoc.collection(USERS)
-                        .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot querySnapshot) {
-                        if (querySnapshot.size() == 0) {
-                            leagueDoc.collection(PLAYERS_COLLECTION).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            public void onSuccess(QuerySnapshot querySnapshot) {
+                if (querySnapshot.size() <= 1) {
+                    batch.delete(leagueDoc);
+                    leagueDoc.collection(PLAYERS_COLLECTION).get()
+                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                 @Override
-                                public void onSuccess(QuerySnapshot querySnapshot) {
-                                    for (DocumentSnapshot documentSnapshot : querySnapshot) {
-                                        DocumentReference documentReference = documentSnapshot.getReference();
-                                        documentReference.collection(PLAYER_LOGS).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                                            @Override
-                                            public void onSuccess(QuerySnapshot querySnapshot) {
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        QuerySnapshot querySnapshot = task.getResult();
+                                        for (DocumentSnapshot documentSnapshot : querySnapshot) {
+                                            DocumentReference documentReference = documentSnapshot.getReference();
+                                            documentReference.collection(PLAYER_LOGS).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                                                @Override
+                                                public void onSuccess(QuerySnapshot querySnapshot) {
+                                                    for (DocumentSnapshot documentSnapshot : querySnapshot) {
+                                                        DocumentReference documentReference = documentSnapshot.getReference();
+                                                        batch.delete(documentReference);
+                                                    }
+                                                }
+                                            });
+                                            batch.delete(documentReference);
+                                        }
+                                    }
+                                    leagueDoc.collection(TEAMS_COLLECTION).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                            if (task.isSuccessful()) {
+                                                QuerySnapshot querySnapshot = task.getResult();
                                                 for (DocumentSnapshot documentSnapshot : querySnapshot) {
                                                     DocumentReference documentReference = documentSnapshot.getReference();
-                                                    documentReference.delete();
+                                                    documentReference.collection(TEAM_LOGS).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                                                        @Override
+                                                        public void onSuccess(QuerySnapshot querySnapshot) {
+                                                            for (DocumentSnapshot documentSnapshot : querySnapshot) {
+                                                                DocumentReference documentReference = documentSnapshot.getReference();
+                                                                batch.delete(documentReference);
+                                                            }
+                                                        }
+                                                    });
+                                                    batch.delete(documentReference);
                                                 }
                                             }
-                                        });
-                                        documentReference.delete();
-                                    }
-                                }
-                            });
-                            leagueDoc.collection(TEAMS_COLLECTION).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                                @Override
-                                public void onSuccess(QuerySnapshot querySnapshot) {
-                                    for (DocumentSnapshot documentSnapshot : querySnapshot) {
-                                        DocumentReference documentReference = documentSnapshot.getReference();
-                                        documentReference.collection(TEAM_LOGS).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                                            @Override
-                                            public void onSuccess(QuerySnapshot querySnapshot) {
-                                                for (DocumentSnapshot documentSnapshot : querySnapshot) {
-                                                    DocumentReference documentReference = documentSnapshot.getReference();
-                                                    documentReference.delete();
+                                            leagueDoc.collection(DELETION_COLLECTION).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                    if (task.isSuccessful()) {
+                                                        QuerySnapshot querySnapshot = task.getResult();
+                                                        for (DocumentSnapshot documentSnapshot : querySnapshot) {
+                                                            DocumentReference documentReference = documentSnapshot.getReference();
+                                                            batch.delete(documentReference);
+                                                        }
+                                                    }
+                                                    batch.commit();
                                                 }
-                                            }
-                                        });
-                                        documentReference.delete();
-                                    }
+                                            });
+                                        }
+                                    });
                                 }
                             });
-                            leagueDoc.collection(DELETION_COLLECTION).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                                @Override
-                                public void onSuccess(QuerySnapshot querySnapshot) {
-                                    for (DocumentSnapshot documentSnapshot : querySnapshot) {
-                                        DocumentReference documentReference = documentSnapshot.getReference();
-                                        documentReference.delete();
-                                    }
-                                }
-                            });
-                            leagueDoc.delete();
-                        }
-                    }
-                });
+                } else {
+                    batch.commit();
+                }
             }
         });
     }
@@ -585,7 +602,7 @@ public class MainActivity extends AppCompatActivity
         addSelection(name, type, UsersActivity.LEVEL_CREATOR, null);
     }
 
-    private void addSelection(String name, int type, int level, String statKeeperID) {
+    private void addSelection(final String name, final int type, final int level, final String statKeeperID) {
         final Intent intent;
         if (statKeeperID == null) {
             switch (type) {
@@ -609,57 +626,98 @@ public class MainActivity extends AppCompatActivity
         if (currentUser == null) {
             return;
         }
-        String userEmail = currentUser.getEmail();
-        String userDisplayName = currentUser.getDisplayName();
+        final String userEmail = currentUser.getEmail();
+        final String userDisplayName = currentUser.getDisplayName();
 
-        Map<String, Object> firestoreLeagueMap = new HashMap<>();
-        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-        DocumentReference statKeeperDocument;
+        final Map<String, Object> firestoreLeagueMap = new HashMap<>();
+        final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        final DocumentReference statKeeperDocument;
 
         if (statKeeperID == null) {
             statKeeperDocument = firestore.collection(LEAGUE_COLLECTION).document();
             firestoreLeagueMap.put(StatsEntry.COLUMN_NAME, name);
             firestoreLeagueMap.put(StatsEntry.TYPE, type);
+            firestoreLeagueMap.put("creator", null);
         } else {
             statKeeperDocument = firestore.collection(LEAGUE_COLLECTION).document(statKeeperID);
         }
 
         firestoreLeagueMap.put(userID, level);
-        statKeeperDocument.set(firestoreLeagueMap, SetOptions.merge());
+        statKeeperDocument.set(firestoreLeagueMap, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Map<String, Object> firestoreUserMap = new HashMap<>();
+                firestoreUserMap.put(StatsEntry.LEVEL, level);
+                firestoreUserMap.put(StatsEntry.EMAIL, userEmail);
+                firestoreUserMap.put(StatsEntry.COLUMN_NAME, userDisplayName);
+                statKeeperDocument.collection(USERS).document(userID).set(firestoreUserMap)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+
+                                MyApp myApp = (MyApp) getApplicationContext();
+                                String selectionID = statKeeperDocument.getId();
+                                MainPageSelection mainPageSelection = new MainPageSelection(selectionID, name, type, level);
+                                myApp.setCurrentSelection(mainPageSelection);
+                                insertSelectionToSQL(selectionID, name, type, level);
+                                mSelectionList.add(mainPageSelection);
+
+                                if (statKeeperID == null) {
+                                    Map<String, Object> creator = new HashMap<>();
+                                    creator.put("creator", userID);
+                                    statKeeperDocument.update(creator);
+
+                                    if (type == MainPageSelection.TYPE_TEAM) {
+                                        ContentValues values = new ContentValues();
+                                        values.put(StatsEntry.COLUMN_NAME, name);
+                                        values.put(StatsEntry.ADD, true);
+                                        getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
+                                    } else if (type == MainPageSelection.TYPE_PLAYER) {
+                                        ContentValues values = new ContentValues();
+                                        values.put(StatsEntry.COLUMN_NAME, name);
+                                        getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
+                                    }
+
+                                    DocumentReference requestDocument = firestore.collection(LEAGUE_COLLECTION)
+                                            .document(selectionID).collection(REQUESTS).document();
+                                    StatKeepUser statKeepUser = new StatKeepUser(REQUESTS, name, String.valueOf(type), UsersActivity.LEVEL_VIEW_ONLY - 100);
+                                    requestDocument.set(statKeepUser, SetOptions.merge()).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.e(FIREDEBUG, "Add initial request failed");
+                                        }
+                                    });
+                                }
+                                startActivity(intent);
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.e(FIREDEBUG, "Add user failed   " + e.toString());
+                            }
+                        });
+            }
+        });
+
+
+//        if (type == MainPageSelection.TYPE_TEAM) {
+//            ContentValues values = new ContentValues();
+//            values.put(StatsEntry.COLUMN_NAME, name);
+//            values.put(StatsEntry.ADD, true);
+//            getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
+//        } else if (type == MainPageSelection.TYPE_PLAYER) {
+//            ContentValues values = new ContentValues();
+//            values.put(StatsEntry.COLUMN_NAME, name);
+//            getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
+//        }
+//        startActivity(intent);
+    }
+
+    private void loadStatKeeper(int type, Intent intent) {
 
 
 
-        Map<String, Object> firestoreUserMap = new HashMap<>();
-        firestoreUserMap.put(StatsEntry.LEVEL, level);
-        firestoreUserMap.put(StatsEntry.EMAIL, userEmail);
-        firestoreUserMap.put(StatsEntry.COLUMN_NAME, userDisplayName);
-        statKeeperDocument.collection(USERS).document(userID).set(firestoreUserMap);
-
-        MyApp myApp = (MyApp) getApplicationContext();
-        String selectionID = statKeeperDocument.getId();
-        MainPageSelection mainPageSelection = new MainPageSelection(selectionID, name, type, level);
-        myApp.setCurrentSelection(mainPageSelection);
-        insertSelectionToSQL(selectionID, name, type, level);
-        mSelectionList.add(mainPageSelection);
-
-        if (statKeeperID == null) {
-            DocumentReference requestDocument = firestore.collection(LEAGUE_COLLECTION)
-                    .document(selectionID).collection(REQUESTS).document();
-            StatKeepUser statKeepUser = new StatKeepUser(REQUESTS, name, String.valueOf(type), UsersActivity.LEVEL_VIEW_ONLY - 100);
-            requestDocument.set(statKeepUser, SetOptions.merge());
-        }
-
-        if (type == MainPageSelection.TYPE_TEAM) {
-            ContentValues values = new ContentValues();
-            values.put(StatsEntry.COLUMN_NAME, name);
-            values.put(StatsEntry.ADD, true);
-            getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
-        } else if (type == MainPageSelection.TYPE_PLAYER) {
-            ContentValues values = new ContentValues();
-            values.put(StatsEntry.COLUMN_NAME, name);
-            getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
-        }
-        startActivity(intent);
     }
 
     private void enterCodeDialog(int type) {
@@ -723,8 +781,8 @@ public class MainActivity extends AppCompatActivity
         final String idText = splitCode[0];
         final String codeText = splitCode[1];
 
-        for(MainPageSelection mainPageSelection : mSelectionList) {
-            if(idText.equals(mainPageSelection.getId())){
+        for (MainPageSelection mainPageSelection : mSelectionList) {
+            if (idText.equals(mainPageSelection.getId())) {
                 postMessage(5);
                 return;
             }

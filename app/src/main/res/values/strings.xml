@@ -174,4 +174,5 @@
     <string name="add_result_button">add result button</string>
     <string name="top_of_inning">top of inning</string>
     <string name="bottom_of_inning">bottom of inning</string>
+    <string name="enter_statkeeper_code">Enter StatKeeper Code</string>
 </resources>

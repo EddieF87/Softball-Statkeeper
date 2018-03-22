@@ -2,6 +2,7 @@ package com.example.android.softballstatkeeper.adapters;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,6 +32,7 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserLi
 
     public UserListAdapter(List<StatKeepUser> list, Context context, int level) {
         super();
+        this.setHasStableIds(true);
         this.mUserList = list;
         this.mContext = context;
         this.mListener = (AdapterListener) mContext;
@@ -48,7 +50,6 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserLi
     @Override
     public void onBindViewHolder(final UserListViewHolder holder, int position) {
         final StatKeepUser statKeepUser = mUserList.get(position);
-        holder.seekBar.setOnSeekBarChangeListener(null);
         String email = statKeepUser.getEmail();
         int level = statKeepUser.getLevel();
         String levelString = getUserLevel(level);
@@ -57,6 +58,11 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserLi
         holder.levelView.setText(levelString);
 
         if(mLevel >= UsersActivity.LEVEL_ADMIN) {
+            if(mLevel == level) {
+                holder.seekBar.setVisibility(View.GONE);
+                holder.levelView.setTypeface(Typeface.DEFAULT_BOLD);
+                return;
+            }
             holder.seekBar.setProgress(level);
             holder.seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
@@ -140,6 +146,7 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserLi
             seekBar = mLinearLayout.findViewById(R.id.user_level_seekbar);
             if (level < UsersActivity.LEVEL_ADMIN) {
                 seekBar.setVisibility(View.GONE);
+                levelView.setTypeface(Typeface.DEFAULT_BOLD);
             }
         }
     }

@@ -15,7 +15,9 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.softballstatkeeper.MyApp;
 import com.example.android.softballstatkeeper.R;
@@ -26,20 +28,26 @@ import com.example.android.softballstatkeeper.dialogs.InviteUserDialog;
 import com.example.android.softballstatkeeper.models.MainPageSelection;
 import com.example.android.softballstatkeeper.models.StatKeepUser;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
 
+import static com.example.android.softballstatkeeper.data.FirestoreHelper.FIREDEBUG;
 import static com.example.android.softballstatkeeper.data.FirestoreHelper.LEAGUE_COLLECTION;
 import static com.example.android.softballstatkeeper.data.FirestoreHelper.REQUESTS;
 import static com.example.android.softballstatkeeper.data.FirestoreHelper.USERS;
@@ -71,6 +79,7 @@ public class UsersActivity extends AppCompatActivity
     private Button startAdderBtn;
     private Button saveBtn;
     private Button resetBtn;
+    private ProgressBar mProgressBar;
 
     private String mSelectionID;
     private String mSelectionName;
@@ -83,6 +92,11 @@ public class UsersActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_settings);
+
+        mRecyclerView = findViewById(R.id.rv_users);
+        mProgressBar = findViewById(R.id.progress_users);
+        mRecyclerView.setVisibility(View.INVISIBLE);
+        mProgressBar.setVisibility(View.VISIBLE);
 
         try {
             MyApp myApp = (MyApp) getApplicationContext();
@@ -101,7 +115,8 @@ public class UsersActivity extends AppCompatActivity
             finish();
         }
 
-        mRecyclerView = findViewById(R.id.rv_users);
+
+
         firestore = FirebaseFirestore.getInstance();
 
         setButtons();
@@ -119,7 +134,9 @@ public class UsersActivity extends AppCompatActivity
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        mProgressBar.setVisibility(View.GONE);
                         if (task.isSuccessful()) {
+                            mRecyclerView.setVisibility(View.VISIBLE);
                             mOriginalLevelsMap = new HashMap<>();
                             mUserList = new ArrayList<>();
 
@@ -149,10 +166,10 @@ public class UsersActivity extends AppCompatActivity
 
     private void updateRV() {
 //        if (mAdapter == null) {
-            mRecyclerView.setLayoutManager(new LinearLayoutManager(
-                    this, LinearLayoutManager.VERTICAL, false));
-            mAdapter = new UserListAdapter(mUserList, this, mLevel);
-            mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(
+                this, LinearLayoutManager.VERTICAL, false));
+        mAdapter = new UserListAdapter(mUserList, this, mLevel);
+        mRecyclerView.setAdapter(mAdapter);
 //        }
 //        else {
 //            mAdapter.notifyDataSetChanged();
@@ -205,6 +222,10 @@ public class UsersActivity extends AppCompatActivity
         if (levelChanges == null) {
             return;
         }
+
+        mRecyclerView.setVisibility(View.INVISIBLE);
+        mProgressBar.setVisibility(View.VISIBLE);
+
         WriteBatch batch = firestore.batch();
         for (Map.Entry<String, Integer> entry : levelChanges.entrySet()) {
             String id = entry.getKey();
@@ -213,15 +234,33 @@ public class UsersActivity extends AppCompatActivity
             DocumentReference leagueUser = firestore.collection(LEAGUE_COLLECTION).document(mSelectionID)
                     .collection(USERS).document(id);
             if (level == LEVEL_REMOVE_USER) {
-                batch.update(league, id, 0);
+                batch.update(league, id, FieldValue.delete());
                 batch.delete(leagueUser);
             } else {
                 batch.update(league, id, level);
                 batch.update(leagueUser, StatsContract.StatsEntry.LEVEL, level);
             }
         }
-        batch.commit();
-        onBackPressed();
+
+        batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d(FIREDEBUG, "batch success");
+                Toast.makeText(getApplicationContext(), "Changes saved!", Toast.LENGTH_SHORT).show();
+                onSaveSuccess();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(FIREDEBUG, "batch failure");
+                Toast.makeText(getApplicationContext(), "Changes failed!", Toast.LENGTH_SHORT).show();
+            }
+        });
+        resetChanges(null);
+    }
+
+    private void onSaveSuccess() {
+        finish();
     }
 
     public void resetChanges(View v) {
@@ -353,9 +392,10 @@ public class UsersActivity extends AppCompatActivity
 
         for (int i = 0; i < emailSize; i++) {
             final String email = emails.get(i);
-            final int level = levels.get(i);
+            final int level = levels.get(i) + 1;
 
-            firestore.collection(USERS).whereEqualTo(StatsContract.StatsEntry.EMAIL, email)
+            firestore.collection(USERS).
+                    whereEqualTo(StatsContract.StatsEntry.EMAIL, email)
                     .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -380,6 +420,11 @@ public class UsersActivity extends AppCompatActivity
                     } else {
                         Log.d(TAG, "Error getting documents: ", task.getException());
                     }
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.e("firebug", "USERFAILLLLL");
                 }
             });
         }

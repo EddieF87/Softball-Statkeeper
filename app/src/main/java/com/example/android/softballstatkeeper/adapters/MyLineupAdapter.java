@@ -30,6 +30,7 @@ public class MyLineupAdapter extends DragItemAdapter<Pair<Long, Player>, MyLineu
     private Context mContext;
 
     public MyLineupAdapter(ArrayList<Pair<Long, Player>> list, Context context, boolean isBench, int genderSorter) {
+        this.setHasStableIds(true);
         mLayoutId = R.layout.item_lineup;
         mGrabHandleId = R.id.lineup_mover;
         mDragOnLongPress = false;

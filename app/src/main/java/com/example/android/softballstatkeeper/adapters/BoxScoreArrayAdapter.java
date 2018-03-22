@@ -22,6 +22,7 @@ public class BoxScoreArrayAdapter extends
     private final List<InningScore> data;
 
     public BoxScoreArrayAdapter(List<InningScore> list) {
+        this.setHasStableIds(true);
         this.data = list;
     }
 
@@ -59,6 +60,16 @@ public class BoxScoreArrayAdapter extends
     @Override
     public int getItemCount() {
         return data.size();
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
     }
 
     static class BoxScoreListViewHolder extends RecyclerView.ViewHolder{

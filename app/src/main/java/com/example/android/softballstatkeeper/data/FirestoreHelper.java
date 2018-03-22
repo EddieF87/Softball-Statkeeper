@@ -21,10 +21,12 @@ import com.example.android.softballstatkeeper.models.Team;
 import com.example.android.softballstatkeeper.data.StatsContract.StatsEntry;
 import com.example.android.softballstatkeeper.models.PlayerLog;
 import com.example.android.softballstatkeeper.models.TeamLog;
+import com.google.android.gms.common.api.Batch;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -45,6 +47,7 @@ import java.util.Map;
 
 public class FirestoreHelper implements Parcelable {
     private static final String TAG = "FirestoreHelper: ";
+    public static final String FIREDEBUG = "firedebug";
     public static final String LEAGUE_COLLECTION = "leagues";
     public static final String PLAYERS_COLLECTION = "players";
     public static final String TEAMS_COLLECTION = "teams";
@@ -657,7 +660,7 @@ public class FirestoreHelper implements Parcelable {
         updateTimeStamps();
     }
 
-    public void addDeletion(final String firestoreID, final int type, final String name, final int gender, final String team) {
+    public void addDeletion(final String firestoreID, final int type, final String name, final int gender, final String teamFireID) {
         if (mFirestore == null) {
             mFirestore = FirebaseFirestore.getInstance();
         }
@@ -666,7 +669,7 @@ public class FirestoreHelper implements Parcelable {
                 .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                setDeletionDoc(leagueID, firestoreID, type, name, gender, team);
+                setDeletionDoc(leagueID, firestoreID, type, name, gender, teamFireID);
                 Log.d("xxx", "DocumentSnapshot successfully deleted!");
             }
         })
@@ -676,6 +679,44 @@ public class FirestoreHelper implements Parcelable {
                         Log.w(TAG, "Error deleting document", e);
                     }
                 });
+    }
+
+    public void addDeletionList(List<Player> playersToDelete) {
+        if(playersToDelete.isEmpty()) {
+            return;
+        }
+        if (mFirestore == null) {
+            mFirestore = FirebaseFirestore.getInstance();
+        }
+        CollectionReference playersCollection = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION).document(leagueID)
+                .collection(FirestoreHelper.PLAYERS_COLLECTION);
+        CollectionReference deletionCollection = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION).document(leagueID)
+                .collection(FirestoreHelper.DELETION_COLLECTION);
+
+        WriteBatch batch = mFirestore.batch();
+
+        for (Player player : playersToDelete) {
+            String fireID = player.getFirestoreID();
+            String teamFireID = player.getTeamfirestoreid();
+            String name = player.getName();
+            int gender = player.getGender();
+            batch.delete(playersCollection.document(fireID));
+
+            Map<String, Object> deletion = new HashMap<>();
+            deletion.put(StatsEntry.TIME, System.currentTimeMillis());
+            deletion.put(StatsEntry.TYPE, 1);
+            deletion.put(StatsEntry.COLUMN_NAME, name);
+            deletion.put(StatsEntry.COLUMN_GENDER, gender);
+            deletion.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, teamFireID);
+
+            batch.set(deletionCollection.document(fireID), deletion, SetOptions.merge());
+        }
+        batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                updateTimeStamps();
+            }
+        });
     }
 
     private void setDeletionDoc(String leagueID, String firestoreID, int type, String name, int gender, String team) {

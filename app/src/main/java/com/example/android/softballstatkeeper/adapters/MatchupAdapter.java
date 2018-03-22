@@ -30,6 +30,7 @@ public class MatchupAdapter extends RecyclerView.Adapter<MatchupAdapter.ListView
     private int currentLineupPosition = -1;
 
     public MatchupAdapter(List<Player> list, Context context, int genderSorter) {
+        this.setHasStableIds(true);
         this.list = list;
         this.mContext = context;
         this.genderSettingsOff = genderSorter == 0;

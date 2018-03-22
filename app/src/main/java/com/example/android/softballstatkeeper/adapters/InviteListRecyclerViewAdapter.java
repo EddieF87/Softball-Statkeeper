@@ -24,6 +24,7 @@ public class InviteListRecyclerViewAdapter extends RecyclerView.Adapter<InviteLi
 
     public InviteListRecyclerViewAdapter(List<MainPageSelection> list) {
         super();
+        this.setHasStableIds(true);
         this.inviteList = list;
         this.changes = new SparseIntArray();
     }

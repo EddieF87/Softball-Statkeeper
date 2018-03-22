@@ -8,9 +8,11 @@ import android.util.Log;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import static com.example.android.softballstatkeeper.data.FirestoreHelper.FIREDEBUG;
 import static com.example.android.softballstatkeeper.data.FirestoreHelper.LEAGUE_COLLECTION;
 
 /**
@@ -37,19 +39,23 @@ public class FireTaskLoader extends android.support.v4.content.AsyncTaskLoader<Q
     @Nullable
     @Override
     public QuerySnapshot loadInBackground() {
-
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        String userId = mAuth.getCurrentUser().getUid();
+        Log.d(FIREDEBUG, "ID = " + userId);
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+
         Task<QuerySnapshot> task = firestore.collection(LEAGUE_COLLECTION)
-                .whereLessThan(userID, 99)
-                .get().addOnFailureListener(new OnFailureListener() {
+                .whereLessThan(userId, 99)
+                .get()
+                .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.e("ffffire", e.toString());
+                        Log.e(FIREDEBUG, e.toString());
                     }
                 }).addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot querySnapshot) {
-                        Log.e("ffffire", "SUCCESS!!!");
+                        Log.d(FIREDEBUG, "SUCCESS!");
                     }
                 });
 

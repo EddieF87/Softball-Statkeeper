@@ -57,7 +57,7 @@ public class EnterCodeDialog extends DialogFragment {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-        builder.setTitle("Enter StatKeeper ID and Code");
+        builder.setTitle(R.string.enter_statkeeper_code);
         builder.setView(view)
                 .setPositiveButton(R.string.submit, new DialogInterface.OnClickListener() {
                     @Override

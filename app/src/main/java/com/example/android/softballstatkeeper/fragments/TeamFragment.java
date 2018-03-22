@@ -521,6 +521,7 @@ public class TeamFragment extends Fragment
 
     public List<String> deletePlayers() {
         List<String> firestoreIDsToDelete = new ArrayList<>();
+        List<Player> firestorePlayersToDelete = new ArrayList<>();
         String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
         int total = 1;
         if (waivers) {
@@ -536,13 +537,14 @@ public class TeamFragment extends Fragment
             String[] selectionArgs = new String[]{firestoreID};
             int deleted = getActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_PLAYERS, selection, selectionArgs);
             if(deleted > 0) {
-                firestoreHelper.addDeletion(firestoreID, 1, name, gender, teamFirestoreID);
                 mPlayers.remove(i);
                 i--;
                 amountDeleted++;
                 firestoreIDsToDelete.add(firestoreID);
+                firestorePlayersToDelete.add(new Player(firestoreID, name, teamFirestoreID, gender));
             }
         }
+        firestoreHelper.addDeletionList(firestorePlayersToDelete);
         if (amountDeleted > 0) {
             updateTeamRV();
         }

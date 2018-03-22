@@ -34,6 +34,7 @@ public class StandingsAdapter extends RecyclerView.Adapter<StandingsAdapter.Stan
     private final NumberFormat formatter = new DecimalFormat("#.000");
 
     public StandingsAdapter(List<Team> teams, Context context){
+        this.setHasStableIds(true);
         this.mTeams = teams;
         this.mContext = context;
     }
@@ -67,7 +68,15 @@ public class StandingsAdapter extends RecyclerView.Adapter<StandingsAdapter.Stan
         });
     }
 
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
 
+    @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
 
     @Override
     public int getItemCount() {

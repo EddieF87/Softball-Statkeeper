@@ -26,6 +26,7 @@ public class DeletionCheckRecyclerViewAdapter  extends RecyclerView.Adapter<Dele
 
     public DeletionCheckRecyclerViewAdapter(List<ItemMarkedForDeletion> items) {
         super();
+        this.setHasStableIds(true);
         mItems = items;
         mDeleteList = new ArrayList<>();
         mDeleteList.addAll(mItems);

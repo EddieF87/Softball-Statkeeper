@@ -58,6 +58,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
 
     public PlayerStatsAdapter(List<Player> players, Context context, int genderSorter) {
         super();
+        this.setHasStableIds(true);
         this.players = players;
         this.mContext = context;
         if (context instanceof TeamManagerActivity || context instanceof TeamPagerActivity) {
