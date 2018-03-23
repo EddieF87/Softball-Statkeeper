@@ -39,13 +39,11 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
 
 import static com.example.android.softballstatkeeper.data.FirestoreHelper.FIREDEBUG;
 import static com.example.android.softballstatkeeper.data.FirestoreHelper.LEAGUE_COLLECTION;
@@ -60,7 +58,7 @@ public class UsersActivity extends AppCompatActivity
     private static final String TAG = "UsersActivity";
     private static final String SAVED_MAP = "map";
     private static final String SAVED_USER_LEVELS = "userlevels";
-    private static final String SAVED_CREATOR = "creator";
+    private static final String SAVED_CREATOR = "mCreator";
 
     public static final int LEVEL_REMOVE_USER = 0;
     public static final int LEVEL_VIEW_ONLY = 1;
@@ -71,7 +69,7 @@ public class UsersActivity extends AppCompatActivity
     private List<StatKeepUser> mUserList;
     private HashMap<String, Integer> mOriginalLevelsMap;
     private HashMap<String, Integer> levelChanges;
-    private StatKeepUser creator;
+    private StatKeepUser mCreator;
 
     private RecyclerView mRecyclerView;
     private UserListAdapter mAdapter;
@@ -124,8 +122,8 @@ public class UsersActivity extends AppCompatActivity
         if (savedInstanceState != null) {
             levelChanges = (HashMap<String, Integer>) savedInstanceState.getSerializable(SAVED_MAP);
             mOriginalLevelsMap = (HashMap<String, Integer>) savedInstanceState.getSerializable(SAVED_USER_LEVELS);
-            creator = savedInstanceState.getParcelable(SAVED_CREATOR);
-            setCreator(creator);
+            mCreator = savedInstanceState.getParcelable(SAVED_CREATOR);
+            setCreator(mCreator);
             return;
         }
 
@@ -147,7 +145,7 @@ public class UsersActivity extends AppCompatActivity
                                 int level = statKeepUser.getLevel();
 
                                 if (level == LEVEL_CREATOR) {
-                                    creator = statKeepUser;
+                                    mCreator = statKeepUser;
                                     setCreator(statKeepUser);
                                 } else if (level > 0 && level < LEVEL_CREATOR) {
                                     mOriginalLevelsMap.put(statKeepUser.getEmail(), statKeepUser.getLevel());
@@ -335,7 +333,7 @@ public class UsersActivity extends AppCompatActivity
             outState.putSerializable(SAVED_MAP, levelChanges);
         }
         outState.putSerializable(SAVED_USER_LEVELS, mOriginalLevelsMap);
-        outState.putParcelable(SAVED_CREATOR, creator);
+        outState.putParcelable(SAVED_CREATOR, mCreator);
     }
 
     @Override
@@ -346,12 +344,19 @@ public class UsersActivity extends AppCompatActivity
     @Override
     public void onInviteUsers() {
 
-        DocumentReference documentReference = firestore.collection(LEAGUE_COLLECTION)
-                .document(mSelectionID).collection(REQUESTS).document();
+        firestore.collection(LEAGUE_COLLECTION)
+                .document(mSelectionID).collection(REQUESTS).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot querySnapshot) {
+                        DocumentSnapshot documentSnapshot = querySnapshot.getDocuments().get(0);
+                        String codeText = documentSnapshot.getId();
+                        sendInvite(codeText);
+                    }
+                });
 
-        StatKeepUser statKeepUser = new StatKeepUser(REQUESTS, mSelectionName, String.valueOf(mSelectionType), UsersActivity.LEVEL_VIEW_ONLY - 100);
-        documentReference.set(statKeepUser, SetOptions.merge());
+    }
 
+    private void sendInvite(String codeText) {
         String selectionType;
         if (mSelectionType == MainPageSelection.TYPE_LEAGUE) {
             selectionType = "League";
@@ -362,19 +367,11 @@ public class UsersActivity extends AppCompatActivity
         Intent msgIntent = new Intent(Intent.ACTION_SEND);
         msgIntent.setType("text/plain");
         msgIntent.putExtra(Intent.EXTRA_TEXT, "You have been granted access to view the stats & standings for "
-                + mSelectionName + "!n\n Click on \"Join " + selectionType
-                + "\" and enter the following code: " + mSelectionID + "-" + documentReference.getId());
+                + mSelectionName + "!\n\n Click on \"Join " + selectionType
+                + "\" and enter the following code: " + mSelectionID + "-" + codeText);
         startActivity(Intent.createChooser(msgIntent, "Message invite code to friends!"));
 
         startAdderBtn.setVisibility(View.VISIBLE);
-
-//
-//        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-//        shareIntent.setType("text/plain");
-//        shareIntent.putExtra(Intent.EXTRA_TEXT, "You have been invited to be a StatKeeper for "
-//                + mSelectionName + "!\n Click on \"Join " + selectionType + "\" and enter the " +
-//                "StatKeeper ID and Code. This code can only be used once.");
-//        startActivity(Intent.createChooser(shareIntent, "Share link using"));
     }
 
 
@@ -405,17 +402,28 @@ public class UsersActivity extends AppCompatActivity
                             DocumentSnapshot documentSnapshot = documentSnapshots.get(0);
                             String userID = documentSnapshot.getId();
 
+                            StatKeepUser compareUser = new StatKeepUser(userID, null, null, 0);
+                            if(mUserList.contains(compareUser) || mCreator.equals(compareUser)){
+                                return;
+                            }
+
+                            //todo fix email/user in users collection find a solution
+
+                            WriteBatch writeBatch = firestore.batch();
+
                             Map<String, Object> data = new HashMap<>();
                             data.put(StatsContract.StatsEntry.EMAIL, email);
                             data.put(StatsContract.StatsEntry.COLUMN_NAME, null);
-                            data.put(StatsContract.StatsEntry.LEVEL, level);
-                            firestore.collection(LEAGUE_COLLECTION).document(mSelectionID)
-                                    .collection(USERS).document(userID).set(data, SetOptions.merge());
+                            data.put(StatsContract.StatsEntry.LEVEL, -level);
+                            writeBatch.set(firestore.collection(LEAGUE_COLLECTION).document(mSelectionID)
+                                    .collection(USERS).document(userID), data, SetOptions.merge());
 
                             Map<String, Integer> data2 = new HashMap<>();
                             data2.put(userID, -level);
-                            firestore.collection(LEAGUE_COLLECTION).document(mSelectionID)
-                                    .set(data2, SetOptions.merge());
+                            writeBatch.set(firestore.collection(LEAGUE_COLLECTION).document(mSelectionID),
+                                    data2, SetOptions.merge());
+
+                            writeBatch.commit();
                         }
                     } else {
                         Log.d(TAG, "Error getting documents: ", task.getException());

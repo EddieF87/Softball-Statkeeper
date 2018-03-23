@@ -58,6 +58,17 @@ public class StatKeepUser implements Parcelable {
         this.id = id;
     }
 
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        StatKeepUser statKeepUser = (StatKeepUser) obj;
+        return this.id.equals(statKeepUser.getId());
+    }
+
     public static Comparator<StatKeepUser> levelComparator () {
         return new Comparator<StatKeepUser>() {
             @Override

@@ -370,7 +370,12 @@ public class FirestoreHelper implements Parcelable {
                                                     }
                                                 }
                                             }
-                                        });
+                                        }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.e(FIREDEBUG, "Error playerlogs: " + e.toString());
+                                    }
+                                });
                             }
                         } else {
                             if(mListener != null) {
@@ -491,13 +496,18 @@ public class FirestoreHelper implements Parcelable {
                                                     }
                                                 }
                                             }
-                                        });
+                                        }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.e(FIREDEBUG, "Error teamlogs: " + e.toString());
+                                    }
+                                });
                             }
                         } else {
                             if(mListener != null) {
                                 mListener.onSyncError("updating teams");
                             }
-                            Log.d(TAG, "Error getting documents: ", task.getException());
+                            Log.e(FIREDEBUG, "Error getting documents: ", task.getException());
                         }
                     }
                 });

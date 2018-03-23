@@ -87,12 +87,15 @@ public class MainActivity extends AppCompatActivity
     private FirebaseAuth mAuth;
     private static final int RC_SIGN_IN = 0;
     private ArrayList<MainPageSelection> mSelectionList;
-    private List<MainPageSelection> mInviteList;
+    private ArrayList<MainPageSelection> mInviteList;
     private String userID;
     private boolean visible;
     private RecyclerView mRecyclerView;
     private MainPageAdapter mainPageAdapter;
     private static final int MAIN_LOADER = 22;
+    private FireTaskLoader mFireTaskLoader;
+    private LoadErrorDialog mLoadErrorDialogFragment;
+    private boolean loadingFinished;
 
 
     @Override
@@ -169,14 +172,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void loadSelections() {
-        Log.d(AUTH, "loadSelections");
         FirebaseUser currentUser = mAuth.getCurrentUser();
         userID = currentUser.getUid();
         getSupportLoaderManager().initLoader(MAIN_LOADER, null, this);
     }
 
     private void setViews() {
-        Log.d("aaa", "setViews() MainActivity");
         ProgressBar progressBar = findViewById(R.id.progressBarMain);
         TextView rvErrorView = findViewById(R.id.error_rv_main);
         if (mSelectionList.isEmpty()) {
@@ -198,14 +199,23 @@ public class MainActivity extends AppCompatActivity
         }
         try {
             if (!mInviteList.isEmpty()) {
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                DialogFragment newFragment = InviteListDialog.newInstance(mInviteList);
-                newFragment.show(fragmentTransaction, "");
+                Handler handler = new Handler();
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        openInviteDialog();
+                    }
+                });
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            Log.e(FIREDEBUG, e.toString());
         }
+    }
 
+    private void openInviteDialog() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        DialogFragment newFragment = InviteListDialog.newInstance(mInviteList);
+        fragmentManager.beginTransaction().add(newFragment, null).commitAllowingStateLoss();
     }
 
     private void shuffleCreateStatKeeperViewsVisibility() {
@@ -341,40 +351,81 @@ public class MainActivity extends AppCompatActivity
             userID = currentUser.getUid();
         }
 
+        final List<MainPageSelection> insertList = new ArrayList<>();
+        WriteBatch writeBatch = firestore.batch();
+
         for (int i = 0; i < changes.size(); i++) {
             int key = changes.keyAt(i);
-            int level = changes.get(key);
+            final int level = changes.get(key);
 
             if (level < 0) {
                 continue;
             }
 
-            MainPageSelection mainPageSelection;
-            mainPageSelection = list.get(key);
+            MainPageSelection mainPageSelection = list.get(key);
             mainPageSelection.setLevel(level);
             String selectionID = mainPageSelection.getId();
-            String name = mainPageSelection.getName();
-            int type = mainPageSelection.getType();
+            insertList.add(mainPageSelection);
 
-            DocumentReference docRef = firestore.collection(LEAGUE_COLLECTION).document(selectionID);
+            DocumentReference leagueRef = firestore.collection(LEAGUE_COLLECTION).document(selectionID);
+            DocumentReference userRef = firestore.collection(LEAGUE_COLLECTION).document(selectionID)
+                    .collection(USERS).document(userID);
 
-            Map<String, Object> updates = new HashMap<>();
+            Map<String, Object> leagueUpdate = new HashMap<>();
             if (level == UsersActivity.LEVEL_REMOVE_USER) {
-                updates.put(userID, FieldValue.delete());
+                leagueUpdate.put(userID, FieldValue.delete());
+                writeBatch.delete(userRef);
             } else if (level > UsersActivity.LEVEL_REMOVE_USER) {
-                updates.put(userID, level);
-                insertSelectionToSQL(selectionID, name, type, level);
+                leagueUpdate.put(userID, level);
+                Map<String, Object> userUpdate = new HashMap<>();
+                userUpdate.put(StatsEntry.LEVEL, level);
+                writeBatch.update(userRef, userUpdate);
             }
-            docRef.update(updates);
+            writeBatch.update(leagueRef, leagueUpdate);
+        }
+        writeBatch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                insertSelectionListToSQL(insertList);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e(FIREDEBUG, "inviteFAILL " + e.toString());
+            }
+        });
+    }
+
+    private void insertSelectionListToSQL(List<MainPageSelection> list) {
+        for (MainPageSelection mainPageSelection : list) {
+            insertSelectionToSQL(mainPageSelection);
+        }
+        updateRV();
+    }
+
+    private void updateRV() {
+        if(mainPageAdapter == null) {
+            mainPageAdapter = new MainPageAdapter(mSelectionList, this);
+            if(mRecyclerView == null) {
+                mRecyclerView = findViewById(R.id.rv_main);
+                mRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this, LinearLayoutManager.VERTICAL, false));
+                mRecyclerView.setVisibility(View.VISIBLE);
+                TextView rvErrorView = findViewById(R.id.error_rv_main);
+                rvErrorView.setVisibility(View.INVISIBLE);
+            }
+            mRecyclerView.setAdapter(mainPageAdapter);
+        } else {
+            mainPageAdapter.notifyDataSetChanged();
         }
     }
 
-    private void insertSelectionToSQL(String selectionID, String name, int type, int level) {
+    private void insertSelectionToSQL(MainPageSelection mainPageSelection) {
+        mSelectionList.add(mainPageSelection);
         ContentValues selectionValues = new ContentValues();
-        selectionValues.put(StatsEntry.COLUMN_FIRESTORE_ID, selectionID);
-        selectionValues.put(StatsEntry.COLUMN_NAME, name);
-        selectionValues.put(StatsEntry.TYPE, type);
-        selectionValues.put(StatsEntry.LEVEL, level);
+        selectionValues.put(StatsEntry.COLUMN_FIRESTORE_ID, mainPageSelection.getId());
+        selectionValues.put(StatsEntry.COLUMN_NAME, mainPageSelection.getName());
+        selectionValues.put(StatsEntry.TYPE, mainPageSelection.getType());
+        selectionValues.put(StatsEntry.LEVEL, mainPageSelection.getLevel());
         getContentResolver().insert(StatsEntry.CONTENT_URI_SELECTIONS, selectionValues);
     }
 
@@ -387,9 +438,9 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onDeleteConfirmed(MainPageSelection mainPageSelection) {
+    public void onDeleteConfirmed(final MainPageSelection mainPageSelection) {
         mSelectionList.remove(mainPageSelection);
-        mainPageAdapter.notifyDataSetChanged();
+        updateRV();
         final String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
         final String selectionID = mainPageSelection.getId();
         String[] selectionArgs = new String[]{selectionID};
@@ -471,6 +522,25 @@ public class MainActivity extends AppCompatActivity
                                 }
                             });
                 } else {
+                    if(mainPageSelection.getLevel() == UsersActivity.LEVEL_CREATOR) {
+                        List<StatKeepUser> userList = new ArrayList<>();
+                        for (DocumentSnapshot userDoc : querySnapshot) {
+                            StatKeepUser statKeepUser = userDoc.toObject(StatKeepUser.class);
+                            statKeepUser.setId(userDoc.getId());
+                            userList.add(statKeepUser);
+                        }
+                        StatKeepUser newCreator = Collections.max(userList, StatKeepUser.levelComparator());
+                        String creatorID = newCreator.getId();
+
+                        Map<String, Object> userCreatorUpdate = new HashMap<>();
+                        userCreatorUpdate.put(StatsEntry.LEVEL, UsersActivity.LEVEL_CREATOR);
+                        Map<String, Object> leagueCreatorUpdate = new HashMap<>();
+                        leagueCreatorUpdate.put(creatorID, UsersActivity.LEVEL_CREATOR);
+
+                        DocumentReference userDoc = leagueDoc.collection(USERS).document(creatorID);
+                        batch.update(userDoc, userCreatorUpdate);
+                        batch.update(leagueDoc, leagueCreatorUpdate);
+                    }
                     batch.commit();
                 }
             }
@@ -479,21 +549,42 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public Loader<QuerySnapshot> onCreateLoader(int id, Bundle args) {
-        ProgressBar progressBar = findViewById(R.id.progressBarMain);
-        progressBar.setVisibility(View.VISIBLE);
-        final FireTaskLoader fireTaskLoader = new FireTaskLoader(this, userID);
+        mFireTaskLoader = new FireTaskLoader(this, userID);
+        setProgressBar();
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                fireTaskLoader.cancelLoadInBackground();
+                continueLoadDialog();
             }
         }, 20000);
-        return fireTaskLoader;
+        return mFireTaskLoader;
+    }
+
+    private void continueLoadDialog() {
+        if (loadingFinished) {
+            return;
+        }
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        mLoadErrorDialogFragment = new LoadErrorDialog();
+        fragmentManager.beginTransaction().add(mLoadErrorDialogFragment, null).commitAllowingStateLoss();
     }
 
     @Override
     public void onLoadFinished(android.support.v4.content.Loader<QuerySnapshot> loader, QuerySnapshot querySnapshot) {
+        loadingFinished = true;
+        if (mLoadErrorDialogFragment != null) {
+            Handler handler = new Handler();
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    if (mLoadErrorDialogFragment != null) {
+                        mLoadErrorDialogFragment.dismiss();
+                    }
+                }
+            });
+        }
+
         if (mSelectionList != null) {
             setViews();
             Log.d("xyxy", "  setViews");
@@ -504,17 +595,8 @@ public class MainActivity extends AppCompatActivity
         if (querySnapshot == null) {
             ProgressBar progressBar = findViewById(R.id.progressBarMain);
             progressBar.setVisibility(View.GONE);
-            Log.d("xyxy", "  querySnapshot == null");
-            Handler handler = new Handler();
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    FragmentManager fragmentManager = getSupportFragmentManager();
-                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                    DialogFragment newFragment = LoadErrorDialog.newInstance();
-                    newFragment.show(fragmentTransaction, "");
-                }
-            });
+            TextView rvErrorView = findViewById(R.id.error_rv_main);
+            rvErrorView.setVisibility(View.VISIBLE);
             return;
         }
 
@@ -553,6 +635,7 @@ public class MainActivity extends AppCompatActivity
         TextView rvErrorView = findViewById(R.id.error_rv_main);
         rvErrorView.setVisibility(View.GONE);
         if (load) {
+            mFireTaskLoader.cancelLoadInBackground();
             mInviteList = new ArrayList<>();
             mSelectionList = new ArrayList<>();
             Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_SELECTIONS,
@@ -565,8 +648,6 @@ public class MainActivity extends AppCompatActivity
                 mSelectionList.add(new MainPageSelection(id, name, type, level));
             }
             setViews();
-        } else {
-            getSupportLoaderManager().restartLoader(MAIN_LOADER, null, this);
         }
     }
 
@@ -587,6 +668,7 @@ public class MainActivity extends AppCompatActivity
     protected void onRestart() {
         super.onRestart();
         mSelectionList = getIntent().getParcelableArrayListExtra("mSelectionList");
+        loadingFinished = true;
     }
 
     @Override
@@ -598,8 +680,15 @@ public class MainActivity extends AppCompatActivity
             Toast.makeText(MainActivity.this, R.string.please_enter_name_first, Toast.LENGTH_LONG).show();
             return;
         }
+        mRecyclerView.setVisibility(View.INVISIBLE);
+        setProgressBar();
 
         addSelection(name, type, UsersActivity.LEVEL_CREATOR, null);
+    }
+
+    private void setProgressBar() {
+        ProgressBar progressBar = findViewById(R.id.progressBarMain);
+        progressBar.setVisibility(View.VISIBLE);
     }
 
     private void addSelection(final String name, final int type, final int level, final String statKeeperID) {
@@ -659,8 +748,7 @@ public class MainActivity extends AppCompatActivity
                                 String selectionID = statKeeperDocument.getId();
                                 MainPageSelection mainPageSelection = new MainPageSelection(selectionID, name, type, level);
                                 myApp.setCurrentSelection(mainPageSelection);
-                                insertSelectionToSQL(selectionID, name, type, level);
-                                mSelectionList.add(mainPageSelection);
+                                insertSelectionToSQL(mainPageSelection);
 
                                 if (statKeeperID == null) {
                                     Map<String, Object> creator = new HashMap<>();
@@ -699,26 +787,8 @@ public class MainActivity extends AppCompatActivity
                         });
             }
         });
-
-
-//        if (type == MainPageSelection.TYPE_TEAM) {
-//            ContentValues values = new ContentValues();
-//            values.put(StatsEntry.COLUMN_NAME, name);
-//            values.put(StatsEntry.ADD, true);
-//            getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
-//        } else if (type == MainPageSelection.TYPE_PLAYER) {
-//            ContentValues values = new ContentValues();
-//            values.put(StatsEntry.COLUMN_NAME, name);
-//            getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
-//        }
-//        startActivity(intent);
     }
 
-    private void loadStatKeeper(int type, Intent intent) {
-
-
-
-    }
 
     private void enterCodeDialog(int type) {
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -836,6 +906,5 @@ public class MainActivity extends AppCompatActivity
                         postMessage(99);
                     }
                 });
-
     }
 }

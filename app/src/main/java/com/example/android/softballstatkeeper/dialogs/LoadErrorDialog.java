@@ -13,15 +13,11 @@ import com.example.android.softballstatkeeper.R;
 
 
 public class LoadErrorDialog extends DialogFragment {
-    
+
     private LoadErrorDialog.OnFragmentInteractionListener mListener;
 
     public LoadErrorDialog() {
         // Required empty public constructor
-    }
-
-    public static LoadErrorDialog newInstance() {
-        return new LoadErrorDialog();
     }
 
     private void onButtonPressed(boolean choice) {

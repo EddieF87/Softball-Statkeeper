@@ -33,10 +33,10 @@ public class InviteListDialog extends DialogFragment {
         // Required empty public constructor
     }
 
-    public static InviteListDialog newInstance(List<MainPageSelection> list) {
+    public static InviteListDialog newInstance(ArrayList<MainPageSelection> list) {
         InviteListDialog fragment = new InviteListDialog();
         Bundle args = new Bundle();
-        args.putParcelableArrayList(ARG_LIST, (ArrayList<? extends Parcelable>) list);
+        args.putParcelableArrayList(ARG_LIST, list);
         fragment.setArguments(args);
         return fragment;
     }

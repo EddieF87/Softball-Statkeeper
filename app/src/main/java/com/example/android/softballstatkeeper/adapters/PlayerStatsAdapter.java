@@ -91,7 +91,10 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
 
         if (position % 2 == 1) {
             holder.linearLayout.setBackgroundColor(Color.parseColor("#dfdfdf"));
+        } else {
+            holder.linearLayout.setBackground(null);
         }
+
         Player player = players.get(position);
         holder.bindPlayer(player, mContext, visibility, isTeam, colorMale, colorFemale);
     }
@@ -277,11 +280,13 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
                 opsView.setText(String.valueOf(formatter.format(player.getOPS())));
             }
             teamView.setVisibility(visibility);
+
+            int color = ContextCompat.getColor(context, R.color.colorPrimary);
+
             if (FA && isTeam) {
                 teamView.setVisibility(View.VISIBLE);
                 teamView.setText("+");
                 teamView.setTypeface(Typeface.DEFAULT_BOLD);
-                int color = ContextCompat.getColor(context, R.color.colorPrimary);
                 teamView.setTextColor(color);
                 teamView.setTypeface(Typeface.DEFAULT_BOLD);
                 teamView.setOnClickListener(new View.OnClickListener() {
@@ -293,10 +298,10 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             }
 
             if (isTeam && player.getName().equals("Total")) {
-                setViewBold();
+                setViewTotal(color);
             } else {
                 if (abView.getTypeface() == Typeface.DEFAULT_BOLD) {
-                    setViewDefault();
+                    setViewDefault(color);
                 }
                 nameView.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -351,7 +356,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             newFragment.show(fragmentTransaction, "");
         }
 
-        private void setViewBold(){
+        private void setViewTotal(int color){
             abView.setTypeface(Typeface.DEFAULT_BOLD);
             hitView.setTypeface(Typeface.DEFAULT_BOLD);
             hrView.setTypeface(Typeface.DEFAULT_BOLD);
@@ -366,9 +371,28 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             obpView.setTypeface(Typeface.DEFAULT_BOLD);
             slgView.setTypeface(Typeface.DEFAULT_BOLD);
             opsView.setTypeface(Typeface.DEFAULT_BOLD);
+
+            linearLayout.setBackgroundColor(color);
+
+            nameView.setTextColor(Color.WHITE);
+            teamView.setTextColor(Color.WHITE);
+            abView.setTextColor(Color.WHITE);
+            hitView.setTextColor(Color.WHITE);
+            hrView.setTextColor(Color.WHITE);
+            rbiView.setTextColor(Color.WHITE);
+            runView.setTextColor(Color.WHITE);
+            sglView.setTextColor(Color.WHITE);
+            dblView.setTextColor(Color.WHITE);
+            tplView.setTextColor(Color.WHITE);
+            gameView.setTextColor(Color.WHITE);
+            bbView.setTextColor(Color.WHITE);
+            avgView.setTextColor(Color.WHITE);
+            obpView.setTextColor(Color.WHITE);
+            slgView.setTextColor(Color.WHITE);
+            opsView.setTextColor(Color.WHITE);
         }
 
-        private void setViewDefault(){
+        private void setViewDefault(int color){
             abView.setTypeface(Typeface.DEFAULT);
             hitView.setTypeface(Typeface.DEFAULT);
             hrView.setTypeface(Typeface.DEFAULT);
@@ -383,6 +407,22 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             obpView.setTypeface(Typeface.DEFAULT);
             slgView.setTypeface(Typeface.DEFAULT);
             opsView.setTypeface(Typeface.DEFAULT);
+
+            teamView.setTextColor(color);
+            abView.setTextColor(color);
+            hitView.setTextColor(color);
+            hrView.setTextColor(color);
+            rbiView.setTextColor(color);
+            runView.setTextColor(color);
+            sglView.setTextColor(color);
+            dblView.setTextColor(color);
+            tplView.setTextColor(color);
+            gameView.setTextColor(color);
+            bbView.setTextColor(color);
+            avgView.setTextColor(color);
+            obpView.setTextColor(color);
+            slgView.setTextColor(color);
+            opsView.setTextColor(color);
         }
     }
 }
