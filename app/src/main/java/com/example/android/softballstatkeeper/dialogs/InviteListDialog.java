@@ -81,8 +81,10 @@ public class InviteListDialog extends DialogFragment {
         return myDialog;
     }
 
-    public boolean isShowing(){
-        return myDialog != null && myDialog.isShowing();
+    public void isShowing(){
+        if (myDialog != null && myDialog.isShowing()){
+            myDialog.dismiss();
+        }
     }
 
     private void onButtonPressed(SparseIntArray changes) {

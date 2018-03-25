@@ -305,9 +305,7 @@ public class MainActivity extends AppCompatActivity
 
     private void openInviteDialog() {
         if(mInviteDialogFragment != null) {
-            if(mInviteDialogFragment.isShowing()) {
-                return;
-            }
+            mInviteDialogFragment.isShowing();
         }
         FragmentManager fragmentManager = getSupportFragmentManager();
         mInviteDialogFragment = InviteListDialog.newInstance(mInviteList);
