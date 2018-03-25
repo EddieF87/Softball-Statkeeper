@@ -30,7 +30,7 @@
         android:fontFamily="sans-serif-medium"
         android:gravity="center"
         android:paddingTop="16dp"
-        android:text="@string/empty_view_title_text"
+        android:text="@string/add_teams_text"
         android:textAlignment="center"
         android:textAppearance="?android:textAppearanceMedium"
         android:textSize="18sp"

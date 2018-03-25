@@ -31,6 +31,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
@@ -112,7 +113,6 @@ public class UsersActivity extends AppCompatActivity
             startActivity(intent);
             finish();
         }
-
 
 
         firestore = FirebaseFirestore.getInstance();
@@ -346,13 +346,13 @@ public class UsersActivity extends AppCompatActivity
 
         firestore.collection(LEAGUE_COLLECTION)
                 .document(mSelectionID).collection(REQUESTS).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot querySnapshot) {
-                        DocumentSnapshot documentSnapshot = querySnapshot.getDocuments().get(0);
-                        String codeText = documentSnapshot.getId();
-                        sendInvite(codeText);
-                    }
-                });
+            @Override
+            public void onSuccess(QuerySnapshot querySnapshot) {
+                DocumentSnapshot documentSnapshot = querySnapshot.getDocuments().get(0);
+                String codeText = documentSnapshot.getId();
+                sendInvite(codeText);
+            }
+        });
 
     }
 
@@ -366,9 +366,11 @@ public class UsersActivity extends AppCompatActivity
 
         Intent msgIntent = new Intent(Intent.ACTION_SEND);
         msgIntent.setType("text/plain");
-        msgIntent.putExtra(Intent.EXTRA_TEXT, "You have been granted access to view the stats & standings for "
-                + mSelectionName + "!\n\n Click on \"Join " + selectionType
-                + "\" and enter the following code: " + mSelectionID + "-" + codeText);
+        msgIntent.putExtra(Intent.EXTRA_TEXT, "You're invited to view the stats & standings for "
+                + mSelectionName + "!\n\nTo join follow these simple steps:" +
+                "\n\n    1. Log on to the StatKeeper app: " + //todo add link!
+                "\n\n    2. Click on \"Join " + selectionType + "\"" +
+                "\n\n    3. Enter the following code: " + mSelectionID + "-" + codeText);
         startActivity(Intent.createChooser(msgIntent, "Message invite code to friends!"));
 
         startAdderBtn.setVisibility(View.VISIBLE);
@@ -388,43 +390,63 @@ public class UsersActivity extends AppCompatActivity
         }
 
         for (int i = 0; i < emailSize; i++) {
-            final String email = emails.get(i);
+            String emailText = emails.get(i);
+            if(emailText == null || emailText.isEmpty()) {
+                Log.d(FIREDEBUG, "email == null || email.isEmpty()");
+                continue;
+            }
+            final String email = emailText.toLowerCase();
+            Log.d(FIREDEBUG, "email ==  " + email);
             final int level = levels.get(i) + 1;
-
-            firestore.collection(USERS).
+            final DocumentReference statKeeperRef = firestore.collection(LEAGUE_COLLECTION).document(mSelectionID);
+            final CollectionReference usersCollection = firestore.collection(USERS);
+            usersCollection.
                     whereEqualTo(StatsContract.StatsEntry.EMAIL, email)
                     .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                     if (task.isSuccessful()) {
                         List<DocumentSnapshot> documentSnapshots = task.getResult().getDocuments();
+
+                        Map<String, Object> userData = new HashMap<>();
+                        userData.put(StatsContract.StatsEntry.LEVEL, -level);
+
+                        WriteBatch writeBatch = firestore.batch();
+
                         if (!documentSnapshots.isEmpty()) {
                             DocumentSnapshot documentSnapshot = documentSnapshots.get(0);
                             String userID = documentSnapshot.getId();
 
                             StatKeepUser compareUser = new StatKeepUser(userID, null, null, 0);
-                            if(mUserList.contains(compareUser) || mCreator.equals(compareUser)){
+                            if (mUserList.contains(compareUser) || mCreator.equals(compareUser)) {
                                 return;
                             }
 
-                            //todo fix email/user in users collection find a solution
+                            userData.put(StatsContract.StatsEntry.EMAIL, email);
+                            userData.put(StatsContract.StatsEntry.COLUMN_NAME, null);
+                            writeBatch.set(statKeeperRef.collection(USERS)
+                                    .document(userID), userData, SetOptions.merge());
 
-                            WriteBatch writeBatch = firestore.batch();
-
-                            Map<String, Object> data = new HashMap<>();
-                            data.put(StatsContract.StatsEntry.EMAIL, email);
-                            data.put(StatsContract.StatsEntry.COLUMN_NAME, null);
-                            data.put(StatsContract.StatsEntry.LEVEL, -level);
-                            writeBatch.set(firestore.collection(LEAGUE_COLLECTION).document(mSelectionID)
-                                    .collection(USERS).document(userID), data, SetOptions.merge());
-
-                            Map<String, Integer> data2 = new HashMap<>();
-                            data2.put(userID, -level);
+                            Map<String, Integer> statKeeperData = new HashMap<>();
+                            statKeeperData.put(userID, -level);
                             writeBatch.set(firestore.collection(LEAGUE_COLLECTION).document(mSelectionID),
-                                    data2, SetOptions.merge());
+                                    statKeeperData, SetOptions.merge());
 
-                            writeBatch.commit();
+                        } else {
+                            writeBatch.set(usersCollection.document(email).collection(REQUESTS).document(mSelectionID), userData, SetOptions.merge());
+                            writeBatch.set(statKeeperRef.collection(REQUESTS).document(email),
+                                    userData, SetOptions.merge());
                         }
+                        writeBatch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                               if(task.isSuccessful()){
+                                   Log.d(FIREDEBUG, "success  " + email);
+                               } else {
+                                   Log.d(FIREDEBUG, "fail  " + email);
+                               }
+                            }
+                        });
                     } else {
                         Log.d(TAG, "Error getting documents: ", task.getException());
                     }
@@ -440,12 +462,12 @@ public class UsersActivity extends AppCompatActivity
         String[] emailList = new String[emailSize];
         emailList = emails.toArray(emailList);
 
-        //todo add link
         Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", "", null));
         emailIntent.putExtra(Intent.EXTRA_BCC, emailList);
-        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "You have been invited to be a StatKeeper for " + mSelectionName + "!");
-        emailIntent.putExtra(Intent.EXTRA_TEXT, "You have been invited to view, manage, and share stats and standings for " + mSelectionName + "." +
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "StatKeeper Invitation for " + mSelectionName + "!");
+        emailIntent.putExtra(Intent.EXTRA_TEXT, "You're invited to view, manage, and share stats and standings for " + mSelectionName + "." +
                 "\n\nFollow this link to begin: ");
+        //todo add link
         startActivity(Intent.createChooser(emailIntent, "Email friends about their invitation!"));
 
         startAdderBtn.setVisibility(View.VISIBLE);

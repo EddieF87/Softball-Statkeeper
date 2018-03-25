@@ -90,7 +90,11 @@ public class MainActivity extends AppCompatActivity
     private ArrayList<MainPageSelection> mInviteList;
     private String userID;
     private boolean visible;
+
     private RecyclerView mRecyclerView;
+    private TextView mErrorView;
+    private ProgressBar mProgressBar;
+
     private MainPageAdapter mainPageAdapter;
     private static final int MAIN_LOADER = 22;
     private FireTaskLoader mFireTaskLoader;
@@ -104,8 +108,13 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         mSelectionList = getIntent().getParcelableArrayListExtra("mSelectionList");
+        mInviteList = new ArrayList<>();
 
         MobileAds.initialize(this, "ca-app-pub-5443559095909539~1574171209");
+
+        mRecyclerView = findViewById(R.id.rv_main);
+        mErrorView = findViewById(R.id.error_rv_main);
+        mProgressBar = findViewById(R.id.progressBarMain);
 
         View playerV = findViewById(R.id.player_sk_card);
         View teamV = findViewById(R.id.team_sk_card);
@@ -126,6 +135,7 @@ public class MainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         authenticateUser();
+        mErrorView.setVisibility(View.GONE);
     }
 
     protected void authenticateUser() {
@@ -155,16 +165,90 @@ public class MainActivity extends AppCompatActivity
 
                 FirebaseUser currentUser = mAuth.getCurrentUser();
                 if (currentUser != null) {
-                    String email = currentUser.getEmail();
-                    String id = currentUser.getUid();
-                    Log.d("ffffire", id);
+                    final String email = currentUser.getEmail();
+                    final String id = currentUser.getUid();
+                    Log.d(FIREDEBUG, id + "   " + email);
 
                     Map<String, Object> userInfo = new HashMap<>();
                     userInfo.put(StatsEntry.EMAIL, email);
 
-                    FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-                    firestore.collection(USERS).document(id).set(userInfo);
-                    loadSelections();
+                    final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+
+                    firestore.collection(USERS).document(id).set(userInfo).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d(FIREDEBUG, "success: " + id + "  " + email + "  set(userInfo)");
+                            if(email == null){return;}
+                            firestore.collection(USERS).document(email).collection(REQUESTS).get()
+                                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if(task.isSuccessful()) {
+                                        Log.d(FIREDEBUG, "get users email requests collection    task.isSuccessful()");
+                                        QuerySnapshot querySnapshot = task.getResult();
+                                        for (final DocumentSnapshot emailReqSnapshot : querySnapshot) {
+
+                                            final String statKeeper = emailReqSnapshot.getId();
+                                            final long level = emailReqSnapshot.getLong(StatsEntry.LEVEL);
+                                            Log.d(FIREDEBUG, "emailReqSnapshot  id = " + statKeeper + "  level = " + level);
+
+                                            final DocumentReference requestRef = firestore.collection(LEAGUE_COLLECTION).document(statKeeper).collection(REQUESTS).document(email);
+                                            requestRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                    if(task.isSuccessful()) {
+                                                        Log.d(FIREDEBUG, "get leaguerequests email doc   task.isSuccessful()");
+
+
+                                                        DocumentReference statKeeperRef = firestore.collection(LEAGUE_COLLECTION).document(statKeeper);
+                                                        DocumentReference userRef = statKeeperRef.collection(USERS).document(id);
+                                                        DocumentReference emailRequestRef = emailReqSnapshot.getReference();
+
+                                                        Map<String, Object> updateUser = new HashMap<>();
+                                                        updateUser.put(StatsEntry.LEVEL, level);
+                                                        updateUser.put(StatsEntry.EMAIL, email);
+
+                                                        Map<String, Object> updateStatKeeper = new HashMap<>();
+                                                        updateStatKeeper.put(id, level);
+
+
+                                                        WriteBatch writeBatch = firestore.batch();
+                                                        writeBatch.set(userRef, updateUser, SetOptions.merge());
+                                                        writeBatch.set(statKeeperRef, updateStatKeeper, SetOptions.merge());
+                                                        writeBatch.delete(requestRef);
+                                                        writeBatch.delete(emailRequestRef);
+
+                                                        writeBatch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                            @Override
+                                                            public void onSuccess(Void aVoid) {
+                                                                Log.d(FIREDEBUG, "commit succeeded");
+                                                                reloadSelections();
+                                                            }
+                                                        }).addOnFailureListener(new OnFailureListener() {
+                                                            @Override
+                                                            public void onFailure(@NonNull Exception e) {
+                                                                Log.d(FIREDEBUG, "commit failed");
+                                                            }
+                                                        });
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    } else {
+                                        Log.d(FIREDEBUG, "ERRRORRR   " + id + "  " + email);
+                                    }
+
+                                }
+                            });
+                            reloadSelections();
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d(FIREDEBUG, "FAILURE: " + id + "  " + email + "  set(userInfo)");
+                            reloadSelections();
+                        }
+                    });
                 }
             }
         }
@@ -177,13 +261,18 @@ public class MainActivity extends AppCompatActivity
         getSupportLoaderManager().initLoader(MAIN_LOADER, null, this);
     }
 
+    private void reloadSelections() {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        userID = currentUser.getUid();
+        getSupportLoaderManager().restartLoader(MAIN_LOADER, null, this);
+    }
+
     private void setViews() {
-        ProgressBar progressBar = findViewById(R.id.progressBarMain);
-        TextView rvErrorView = findViewById(R.id.error_rv_main);
         if (mSelectionList.isEmpty()) {
-            rvErrorView.setText(R.string.create_statkeeper);
-            progressBar.setVisibility(View.GONE);
-            rvErrorView.setVisibility(View.VISIBLE);
+            mErrorView.setText(R.string.create_statkeeper);
+            mProgressBar.setVisibility(View.GONE);
+            mErrorView.setVisibility(View.VISIBLE);
+            mainPageAdapter = null;
             if (!visible) {
                 shuffleCreateStatKeeperViewsVisibility();
             }
@@ -194,7 +283,7 @@ public class MainActivity extends AppCompatActivity
             mRecyclerView = findViewById(R.id.rv_main);
             mRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this, LinearLayoutManager.VERTICAL, false));
             mRecyclerView.setAdapter(mainPageAdapter);
-            progressBar.setVisibility(View.GONE);
+            mProgressBar.setVisibility(View.GONE);
             mRecyclerView.setVisibility(View.VISIBLE);
         }
         try {
@@ -261,10 +350,15 @@ public class MainActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_sign_in:
+                mErrorView.setText(R.string.error_with_loading);
+                mErrorView.setVisibility(View.GONE);
                 mSelectionList = null;
                 authenticateUser();
                 break;
             case R.id.action_sign_out:
+                mErrorView.setText(R.string.sign_in_to_start_text);
+                mErrorView.setVisibility(View.VISIBLE);
+                getSupportLoaderManager().destroyLoader(MAIN_LOADER);
                 if (mSelectionList != null) {
                     mSelectionList.clear();
                 }
@@ -399,19 +493,22 @@ public class MainActivity extends AppCompatActivity
     private void insertSelectionListToSQL(List<MainPageSelection> list) {
         for (MainPageSelection mainPageSelection : list) {
             insertSelectionToSQL(mainPageSelection);
+            mInviteList.remove(mainPageSelection);
         }
         updateRV();
     }
 
     private void updateRV() {
-        if(mainPageAdapter == null) {
+        if (mSelectionList != null && !mSelectionList.isEmpty()) {
+            mErrorView.setVisibility(View.GONE);
+        }
+        if (mainPageAdapter == null) {
             mainPageAdapter = new MainPageAdapter(mSelectionList, this);
-            if(mRecyclerView == null) {
+            if (mRecyclerView == null) {
                 mRecyclerView = findViewById(R.id.rv_main);
                 mRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this, LinearLayoutManager.VERTICAL, false));
                 mRecyclerView.setVisibility(View.VISIBLE);
-                TextView rvErrorView = findViewById(R.id.error_rv_main);
-                rvErrorView.setVisibility(View.INVISIBLE);
+                mErrorView.setVisibility(View.INVISIBLE);
             }
             mRecyclerView.setAdapter(mainPageAdapter);
         } else {
@@ -522,7 +619,7 @@ public class MainActivity extends AppCompatActivity
                                 }
                             });
                 } else {
-                    if(mainPageSelection.getLevel() == UsersActivity.LEVEL_CREATOR) {
+                    if (mainPageSelection.getLevel() == UsersActivity.LEVEL_CREATOR) {
                         List<StatKeepUser> userList = new ArrayList<>();
                         for (DocumentSnapshot userDoc : querySnapshot) {
                             StatKeepUser statKeepUser = userDoc.toObject(StatKeepUser.class);
@@ -550,7 +647,8 @@ public class MainActivity extends AppCompatActivity
     @Override
     public Loader<QuerySnapshot> onCreateLoader(int id, Bundle args) {
         mFireTaskLoader = new FireTaskLoader(this, userID);
-        setProgressBar();
+        mProgressBar.setVisibility(View.VISIBLE);
+        mErrorView.setVisibility(View.GONE);
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
@@ -585,19 +683,10 @@ public class MainActivity extends AppCompatActivity
             });
         }
 
-        if (mSelectionList != null) {
-            setViews();
-            Log.d("xyxy", "  setViews");
-            return;
-        }
-        Log.d("xyxy", "  mSelectionList == null");
-
-        if (querySnapshot == null) {
-            ProgressBar progressBar = findViewById(R.id.progressBarMain);
-            progressBar.setVisibility(View.GONE);
-            TextView rvErrorView = findViewById(R.id.error_rv_main);
-            rvErrorView.setVisibility(View.VISIBLE);
-            return;
+        if (mSelectionList == null) {
+            mSelectionList = new ArrayList<>();
+        } else {
+            mSelectionList.clear();
         }
 
         if (mInviteList == null) {
@@ -606,8 +695,11 @@ public class MainActivity extends AppCompatActivity
             mInviteList.clear();
         }
 
-        mSelectionList = new ArrayList<>();
-        Log.d("xyxy", "mSelectionList = new ArrayList<>();");
+        if (querySnapshot == null) {
+            mProgressBar.setVisibility(View.GONE);
+            mErrorView.setVisibility(View.VISIBLE);
+            return;
+        }
 
         for (DocumentSnapshot documentSnapshot : querySnapshot) {
             int level = documentSnapshot.getLong(userID).intValue();
@@ -627,13 +719,13 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onLoaderReset(android.support.v4.content.Loader<QuerySnapshot> loader) {
+        mRecyclerView.setAdapter(null);
 
     }
 
     @Override
     public void loadChoice(boolean load) {
-        TextView rvErrorView = findViewById(R.id.error_rv_main);
-        rvErrorView.setVisibility(View.GONE);
+        mErrorView.setVisibility(View.GONE);
         if (load) {
             mFireTaskLoader.cancelLoadInBackground();
             mInviteList = new ArrayList<>();
@@ -680,15 +772,13 @@ public class MainActivity extends AppCompatActivity
             Toast.makeText(MainActivity.this, R.string.please_enter_name_first, Toast.LENGTH_LONG).show();
             return;
         }
-        mRecyclerView.setVisibility(View.INVISIBLE);
-        setProgressBar();
+        if(mRecyclerView != null) {
+            mRecyclerView.setVisibility(View.INVISIBLE);
+        }
+        mProgressBar.setVisibility(View.VISIBLE);
+        mErrorView.setVisibility(View.GONE);
 
         addSelection(name, type, UsersActivity.LEVEL_CREATOR, null);
-    }
-
-    private void setProgressBar() {
-        ProgressBar progressBar = findViewById(R.id.progressBarMain);
-        progressBar.setVisibility(View.VISIBLE);
     }
 
     private void addSelection(final String name, final int type, final int level, final String statKeeperID) {

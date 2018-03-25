@@ -205,12 +205,12 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
             @Override
             public void onClick(View v) {
                 if (awayTeamName == null || homeTeamName == null) {
-                    Toast.makeText(getActivity(), "No teams currently in this league.",
+                    Toast.makeText(getActivity(), R.string.add_teams_text,
                             Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if (awayTeamName.equals(homeTeamName)) {
-                    Toast.makeText(getActivity(), "Please choose different teams.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), R.string.choose_diff_teams_text, Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if (awayPlayersCount < 4) {

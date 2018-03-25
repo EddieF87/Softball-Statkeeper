@@ -21,7 +21,6 @@ import com.example.android.softballstatkeeper.models.Team;
 import com.example.android.softballstatkeeper.data.StatsContract.StatsEntry;
 import com.example.android.softballstatkeeper.models.PlayerLog;
 import com.example.android.softballstatkeeper.models.TeamLog;
-import com.google.android.gms.common.api.Batch;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;

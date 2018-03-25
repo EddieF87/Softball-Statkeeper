@@ -26,8 +26,8 @@
     <string name="editor_delete_team_failed">There was an error deleting the team!</string>
     <string name="delete_or_freeagency_msg">Delete players permanently or make players free agents?</string>
     <string name="waivers">Waivers</string>
-    <string name="empty_view_title_text">No teams currently in the league.</string>
-    <string name="empty_view_player_text">No players.</string>
+    <string name="add_teams_text">PLEASE ADD TEAMS!</string>
+    <string name="add_players_text">PLEASE ADD PLAYERS!</string>
     <string name="edit_player_name">Edit %1$s\'s name:</string>
     <string name="edit_player_team">Edit %1$s\'s team</string>
     <string name="ab">AB</string>
@@ -175,4 +175,6 @@
     <string name="top_of_inning">top of inning</string>
     <string name="bottom_of_inning">bottom of inning</string>
     <string name="enter_statkeeper_code">Enter StatKeeper Code</string>
+    <string name="choose_diff_teams_text">Please choose different teams.</string>
+    <string name="sign_in_to_start_text">PLEASE SIGN IN TO START!</string>
 </resources>
