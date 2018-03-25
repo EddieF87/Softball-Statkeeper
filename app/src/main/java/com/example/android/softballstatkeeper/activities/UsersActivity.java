@@ -232,7 +232,8 @@ public class UsersActivity extends AppCompatActivity
             DocumentReference leagueUser = firestore.collection(LEAGUE_COLLECTION).document(mSelectionID)
                     .collection(USERS).document(id);
             if (level == LEVEL_REMOVE_USER) {
-                batch.update(league, id, FieldValue.delete());
+                //todo FieldValue.delete()
+                batch.update(league, id, 0);
                 batch.delete(leagueUser);
             } else {
                 batch.update(league, id, level);

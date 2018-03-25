@@ -12,11 +12,11 @@ import android.support.v4.app.DialogFragment;
 import com.example.android.softballstatkeeper.R;
 
 
-public class LoadErrorDialog extends DialogFragment {
+public class ContinueLoadDialog extends DialogFragment {
 
-    private LoadErrorDialog.OnFragmentInteractionListener mListener;
+    private ContinueLoadDialog.OnFragmentInteractionListener mListener;
 
-    public LoadErrorDialog() {
+    public ContinueLoadDialog() {
         // Required empty public constructor
     }
 
@@ -29,8 +29,8 @@ public class LoadErrorDialog extends DialogFragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof LoadErrorDialog.OnFragmentInteractionListener) {
-            mListener = (LoadErrorDialog.OnFragmentInteractionListener) context;
+        if (context instanceof ContinueLoadDialog.OnFragmentInteractionListener) {
+            mListener = (ContinueLoadDialog.OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -52,9 +52,9 @@ public class LoadErrorDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
         AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
-                .setTitle(R.string.load_from_cache)
-                .setMessage("Some stats may not be up to date.")
-                .setPositiveButton(R.string.load, new DialogInterface.OnClickListener() {
+                .setTitle("Taking a while to access database")
+                .setMessage(R.string.load_from_cache)
+                .setPositiveButton(R.string.wait, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         onButtonPressed(true);
                     }

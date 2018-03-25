@@ -27,7 +27,7 @@ public class InviteListDialog extends DialogFragment {
     private List<MainPageSelection> inviteList;
     private OnFragmentInteractionListener mListener;
     private static final String ARG_LIST = "list";
-
+    private AlertDialog myDialog;
 
     public InviteListDialog() {
         // Required empty public constructor
@@ -58,7 +58,7 @@ public class InviteListDialog extends DialogFragment {
         mAdapter = new InviteListRecyclerViewAdapter(inviteList);
         recyclerView.setAdapter(mAdapter);
 
-        AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
+        myDialog = new AlertDialog.Builder(getActivity())
                 .setView(view)
                 .setTitle("Your Invites")
                 .setMessage("You've been invited to StatKeepers:")
@@ -76,12 +76,13 @@ public class InviteListDialog extends DialogFragment {
                 })
                 .setCancelable(false)
                 .create();
-        alertDialog.setCanceledOnTouchOutside(false);
-        alertDialog.show();
-        return alertDialog;
+        myDialog.setCanceledOnTouchOutside(false);
+        myDialog.show();
+        return myDialog;
+    }
 
-
-
+    public boolean isShowing(){
+        return myDialog != null && myDialog.isShowing();
     }
 
     private void onButtonPressed(SparseIntArray changes) {

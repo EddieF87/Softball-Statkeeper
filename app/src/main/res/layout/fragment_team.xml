@@ -71,6 +71,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
             android:background="@drawable/bg_white"
+            android:scrollbarFadeDuration="500"
             android:padding="6dp">
 
             <LinearLayout
@@ -85,7 +86,12 @@
                 <android.support.v7.widget.RecyclerView
                     android:id="@+id/rv_players"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="0dp"
+                    android:layout_weight="1"/>
+
+                <include
+                    android:id="@+id/team_stats_totals"
+                    layout="@layout/item_stats_title" />
 
             </LinearLayout>
         </HorizontalScrollView>

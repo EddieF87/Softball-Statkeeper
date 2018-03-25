@@ -46,6 +46,7 @@
     </style>
 
     <style name="StatsStyle">
+        <item name="android:textColor">@color/colorPrimaryDark</item>
         <item name="android:layout_width">40dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:maxLines">1</item>
@@ -78,6 +79,7 @@
         <item name="android:textAlignment" tools:targetApi="jelly_bean_mr1">center</item>
         <item name="android:gravity">center</item>
         <item name="android:maxLines">1</item>
+        <item name="android:textColor">@color/colorPrimaryDark</item>
     </style>
 
     <style name="StandingsTitleStyle" parent="StandingsStyle">

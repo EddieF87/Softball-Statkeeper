@@ -34,7 +34,7 @@ import com.example.android.softballstatkeeper.dialogs.EditNameDialog;
 import com.example.android.softballstatkeeper.dialogs.EnterCodeDialog;
 import com.example.android.softballstatkeeper.dialogs.InviteListDialog;
 import com.example.android.softballstatkeeper.dialogs.JoinOrCreateDialog;
-import com.example.android.softballstatkeeper.dialogs.LoadErrorDialog;
+import com.example.android.softballstatkeeper.dialogs.ContinueLoadDialog;
 import com.example.android.softballstatkeeper.dialogs.SelectionInfoDialog;
 import com.example.android.softballstatkeeper.models.MainPageSelection;
 import com.example.android.softballstatkeeper.models.StatKeepUser;
@@ -48,7 +48,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
@@ -77,7 +76,7 @@ public class MainActivity extends AppCompatActivity
         InviteListDialog.OnFragmentInteractionListener,
         SelectionInfoDialog.OnFragmentInteractionListener,
         DeleteSelectionDialog.OnFragmentInteractionListener,
-        LoadErrorDialog.OnFragmentInteractionListener,
+        ContinueLoadDialog.OnFragmentInteractionListener,
         JoinOrCreateDialog.OnFragmentInteractionListener,
         EditNameDialog.OnFragmentInteractionListener,
         EnterCodeDialog.OnFragmentInteractionListener {
@@ -98,7 +97,8 @@ public class MainActivity extends AppCompatActivity
     private MainPageAdapter mainPageAdapter;
     private static final int MAIN_LOADER = 22;
     private FireTaskLoader mFireTaskLoader;
-    private LoadErrorDialog mLoadErrorDialogFragment;
+    private ContinueLoadDialog mContinueLoadDialogFragment;
+    private InviteListDialog mInviteDialogFragment;
     private boolean loadingFinished;
 
 
@@ -107,10 +107,10 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mSelectionList = getIntent().getParcelableArrayListExtra("mSelectionList");
-        mInviteList = new ArrayList<>();
-
         MobileAds.initialize(this, "ca-app-pub-5443559095909539~1574171209");
+
+        mSelectionList = getIntent().getParcelableArrayListExtra("mSelectionList");
+        mInviteList = getIntent().getParcelableArrayListExtra("mInviteList");
 
         mRecyclerView = findViewById(R.id.rv_main);
         mErrorView = findViewById(R.id.error_rv_main);
@@ -148,7 +148,7 @@ public class MainActivity extends AppCompatActivity
             Log.d(AUTH, "else");
             startActivityForResult(AuthUI.getInstance()
                     .createSignInIntentBuilder()
-//                    .setIsSmartLockEnabled(!BuildConfig.DEBUG)
+                    .setIsSmartLockEnabled(true)
                     .setAvailableProviders(
                             Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
                                     new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()
@@ -264,6 +264,8 @@ public class MainActivity extends AppCompatActivity
     private void reloadSelections() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         userID = currentUser.getUid();
+        mSelectionList = null;
+        mInviteList = null;
         getSupportLoaderManager().restartLoader(MAIN_LOADER, null, this);
     }
 
@@ -302,9 +304,14 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void openInviteDialog() {
+        if(mInviteDialogFragment != null) {
+            if(mInviteDialogFragment.isShowing()) {
+                return;
+            }
+        }
         FragmentManager fragmentManager = getSupportFragmentManager();
-        DialogFragment newFragment = InviteListDialog.newInstance(mInviteList);
-        fragmentManager.beginTransaction().add(newFragment, null).commitAllowingStateLoss();
+        mInviteDialogFragment = InviteListDialog.newInstance(mInviteList);
+        fragmentManager.beginTransaction().add(mInviteDialogFragment, null).commitAllowingStateLoss();
     }
 
     private void shuffleCreateStatKeeperViewsVisibility() {
@@ -353,15 +360,15 @@ public class MainActivity extends AppCompatActivity
                 mErrorView.setText(R.string.error_with_loading);
                 mErrorView.setVisibility(View.GONE);
                 mSelectionList = null;
+                mInviteList = null;
                 authenticateUser();
                 break;
             case R.id.action_sign_out:
                 mErrorView.setText(R.string.sign_in_to_start_text);
                 mErrorView.setVisibility(View.VISIBLE);
                 getSupportLoaderManager().destroyLoader(MAIN_LOADER);
-                if (mSelectionList != null) {
-                    mSelectionList.clear();
-                }
+                mSelectionList = null;
+                mInviteList = null;
                 if (mRecyclerView != null) {
                     mRecyclerView.setAdapter(null);
                 }
@@ -467,7 +474,9 @@ public class MainActivity extends AppCompatActivity
 
             Map<String, Object> leagueUpdate = new HashMap<>();
             if (level == UsersActivity.LEVEL_REMOVE_USER) {
-                leagueUpdate.put(userID, FieldValue.delete());
+                Log.d(FIREDEBUG, "DELEETE ATEMPT");
+                //todo FieldValue.delete()
+                leagueUpdate.put(userID, 0);
                 writeBatch.delete(userRef);
             } else if (level > UsersActivity.LEVEL_REMOVE_USER) {
                 leagueUpdate.put(userID, level);
@@ -553,7 +562,8 @@ public class MainActivity extends AppCompatActivity
         batch.delete(leagueDoc.collection(USERS).document(userID));
 
         Map<String, Object> updates = new HashMap<>();
-        updates.put(userID, FieldValue.delete());
+        //todo FieldValue.delete()
+        updates.put(userID, 0);
         batch.update(leagueDoc, updates);
 
         leagueDoc.collection(USERS)
@@ -659,28 +669,37 @@ public class MainActivity extends AppCompatActivity
         return mFireTaskLoader;
     }
 
+
+
     private void continueLoadDialog() {
         if (loadingFinished) {
             return;
         }
         FragmentManager fragmentManager = getSupportFragmentManager();
-        mLoadErrorDialogFragment = new LoadErrorDialog();
-        fragmentManager.beginTransaction().add(mLoadErrorDialogFragment, null).commitAllowingStateLoss();
+        mContinueLoadDialogFragment = new ContinueLoadDialog();
+        fragmentManager.beginTransaction().add(mContinueLoadDialogFragment, null).commitAllowingStateLoss();
     }
+
 
     @Override
     public void onLoadFinished(android.support.v4.content.Loader<QuerySnapshot> loader, QuerySnapshot querySnapshot) {
         loadingFinished = true;
-        if (mLoadErrorDialogFragment != null) {
+
+        if (mContinueLoadDialogFragment != null) {
             Handler handler = new Handler();
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    if (mLoadErrorDialogFragment != null) {
-                        mLoadErrorDialogFragment.dismiss();
+                    if (mContinueLoadDialogFragment != null) {
+                        mContinueLoadDialogFragment.dismiss();
                     }
                 }
             });
+        }
+
+        if(mInviteList != null && mSelectionList != null) {
+            setViews();
+            return;
         }
 
         if (mSelectionList == null) {
@@ -747,6 +766,7 @@ public class MainActivity extends AppCompatActivity
     protected void onStop() {
         super.onStop();
         getIntent().putParcelableArrayListExtra("mSelectionList", mSelectionList);
+        getIntent().putParcelableArrayListExtra("mInviteList", mInviteList);
         if (mRecyclerView != null) {
             mRecyclerView.setAdapter(null);
             mRecyclerView.setLayoutManager(null);
@@ -760,6 +780,7 @@ public class MainActivity extends AppCompatActivity
     protected void onRestart() {
         super.onRestart();
         mSelectionList = getIntent().getParcelableArrayListExtra("mSelectionList");
+        mInviteList = getIntent().getParcelableArrayListExtra("mInviteList");
         loadingFinished = true;
     }
 

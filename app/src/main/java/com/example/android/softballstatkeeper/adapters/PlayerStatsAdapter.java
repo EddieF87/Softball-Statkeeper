@@ -182,14 +182,14 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             String teamabv;
             boolean FA = false;
 
-            if(team == null) {
+            if (team == null) {
                 String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
                 String[] selectionArgs = new String[]{teamfirestoreid};
                 String[] projection = new String[]{StatsEntry.COLUMN_NAME};
 
                 Cursor cursor = context.getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
                         projection, selection, selectionArgs, null);
-                if(cursor.moveToFirst()) {
+                if (cursor.moveToFirst()) {
                     team = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_NAME);
                 }
                 cursor.close();
@@ -223,19 +223,17 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
                     @Override
                     public void onClick(View view) {
                         String teamfirestoreid = (String) teamView.getTag();
-
                         Intent intent = new Intent(context, TeamPagerActivity.class);
-                        Log.d("xxx", "teamclick " + teamfirestoreid);
-
                         Uri currentTeamUri = null;
+
                         if (!teamfirestoreid.equals(StatsEntry.FREE_AGENT)) {
                             String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
-                            String[] selectionArgs = new String[] {teamfirestoreid};
-                            String[] projection = new String[] {StatsEntry._ID};
+                            String[] selectionArgs = new String[]{teamfirestoreid};
+                            String[] projection = new String[]{StatsEntry._ID};
 
                             Cursor cursor = context.getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
                                     projection, selection, selectionArgs, null);
-                            if(cursor.moveToFirst()) {
+                            if (cursor.moveToFirst()) {
                                 int teamID = StatsContract.getColumnInt(cursor, StatsEntry._ID);
                                 currentTeamUri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_TEAMS, teamID);
                             }
@@ -297,48 +295,40 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
                 });
             }
 
-            if (isTeam && player.getName().equals("Total")) {
-                setViewTotal(color);
-            } else {
-                if (abView.getTypeface() == Typeface.DEFAULT_BOLD) {
-                    setViewDefault(color);
-                }
-                nameView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Intent intent = new Intent(context, PlayerPagerActivity.class);
-                        long playerId = (long) nameView.getTag();
-                        Uri playerUri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_PLAYERS, playerId);
-                        intent.setData(playerUri);
-                        if (context instanceof TeamPagerActivity) {
-                            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                            ((TeamPagerActivity) context).startActivityForResult(intent, REQUEST_CODE);
 
-//                            ((TeamPagerActivity) context).finish();
-                            Log.d("xyz", "PlayerStatsAdapter  " + playerUri.toString());
-                        } else if (context instanceof TeamManagerActivity) {
-                            ((TeamManagerActivity) context).startActivityForResult(intent, REQUEST_CODE);
-                        } else if (context instanceof LeagueManagerActivity) {
-                            ((LeagueManagerActivity) context).startActivityForResult(intent, REQUEST_CODE);
-                        } else {
-                            startActivity(context, intent, null);
-                        }
+            nameView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(context, PlayerPagerActivity.class);
+                    long playerId = (long) nameView.getTag();
+                    Uri playerUri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_PLAYERS, playerId);
+                    intent.setData(playerUri);
+                    if (context instanceof TeamPagerActivity) {
+                        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        ((TeamPagerActivity) context).startActivityForResult(intent, REQUEST_CODE);
+                    } else if (context instanceof TeamManagerActivity) {
+                        ((TeamManagerActivity) context).startActivityForResult(intent, REQUEST_CODE);
+                    } else if (context instanceof LeagueManagerActivity) {
+                        ((LeagueManagerActivity) context).startActivityForResult(intent, REQUEST_CODE);
+                    } else {
+                        startActivity(context, intent, null);
                     }
-                });
-                int gender = player.getGender();
-                if (gender == 0) {
-                    nameView.setTextColor(colorMale);
-                } else {
-                    nameView.setTextColor(colorFemale);
                 }
+            });
+            int gender = player.getGender();
+            if (gender == 0) {
+                nameView.setTextColor(colorMale);
+            } else {
+                nameView.setTextColor(colorFemale);
             }
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 nameView.setAutoSizeTextTypeWithDefaults(TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM);
             }
         }
 
         private void changeTeamDialog(final Player player, Context context) {
-            if(!(context instanceof ObjectPagerActivity)) {
+            if (!(context instanceof ObjectPagerActivity)) {
                 return;
             }
             ArrayList<Team> teams = new ArrayList<>();
@@ -350,79 +340,10 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             }
             cursor.close();
 
-            FragmentManager fragmentManager = ((ObjectPagerActivity)context).getSupportFragmentManager();
+            FragmentManager fragmentManager = ((ObjectPagerActivity) context).getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             DialogFragment newFragment = ChangeTeamDialog.newInstance(teams, player.getName(), player.getFirestoreID());
             newFragment.show(fragmentTransaction, "");
-        }
-
-        private void setViewTotal(int color){
-            abView.setTypeface(Typeface.DEFAULT_BOLD);
-            hitView.setTypeface(Typeface.DEFAULT_BOLD);
-            hrView.setTypeface(Typeface.DEFAULT_BOLD);
-            rbiView.setTypeface(Typeface.DEFAULT_BOLD);
-            runView.setTypeface(Typeface.DEFAULT_BOLD);
-            sglView.setTypeface(Typeface.DEFAULT_BOLD);
-            dblView.setTypeface(Typeface.DEFAULT_BOLD);
-            tplView.setTypeface(Typeface.DEFAULT_BOLD);
-            gameView.setTypeface(Typeface.DEFAULT_BOLD);
-            bbView.setTypeface(Typeface.DEFAULT_BOLD);
-            avgView.setTypeface(Typeface.DEFAULT_BOLD);
-            obpView.setTypeface(Typeface.DEFAULT_BOLD);
-            slgView.setTypeface(Typeface.DEFAULT_BOLD);
-            opsView.setTypeface(Typeface.DEFAULT_BOLD);
-
-            linearLayout.setBackgroundColor(color);
-
-            nameView.setTextColor(Color.WHITE);
-            teamView.setTextColor(Color.WHITE);
-            abView.setTextColor(Color.WHITE);
-            hitView.setTextColor(Color.WHITE);
-            hrView.setTextColor(Color.WHITE);
-            rbiView.setTextColor(Color.WHITE);
-            runView.setTextColor(Color.WHITE);
-            sglView.setTextColor(Color.WHITE);
-            dblView.setTextColor(Color.WHITE);
-            tplView.setTextColor(Color.WHITE);
-            gameView.setTextColor(Color.WHITE);
-            bbView.setTextColor(Color.WHITE);
-            avgView.setTextColor(Color.WHITE);
-            obpView.setTextColor(Color.WHITE);
-            slgView.setTextColor(Color.WHITE);
-            opsView.setTextColor(Color.WHITE);
-        }
-
-        private void setViewDefault(int color){
-            abView.setTypeface(Typeface.DEFAULT);
-            hitView.setTypeface(Typeface.DEFAULT);
-            hrView.setTypeface(Typeface.DEFAULT);
-            rbiView.setTypeface(Typeface.DEFAULT);
-            runView.setTypeface(Typeface.DEFAULT);
-            sglView.setTypeface(Typeface.DEFAULT);
-            dblView.setTypeface(Typeface.DEFAULT);
-            tplView.setTypeface(Typeface.DEFAULT);
-            gameView.setTypeface(Typeface.DEFAULT);
-            bbView.setTypeface(Typeface.DEFAULT);
-            avgView.setTypeface(Typeface.DEFAULT);
-            obpView.setTypeface(Typeface.DEFAULT);
-            slgView.setTypeface(Typeface.DEFAULT);
-            opsView.setTypeface(Typeface.DEFAULT);
-
-            teamView.setTextColor(color);
-            abView.setTextColor(color);
-            hitView.setTextColor(color);
-            hrView.setTextColor(color);
-            rbiView.setTextColor(color);
-            runView.setTextColor(color);
-            sglView.setTextColor(color);
-            dblView.setTextColor(color);
-            tplView.setTextColor(color);
-            gameView.setTextColor(color);
-            bbView.setTextColor(color);
-            avgView.setTextColor(color);
-            obpView.setTextColor(color);
-            slgView.setTextColor(color);
-            opsView.setTextColor(color);
         }
     }
 }

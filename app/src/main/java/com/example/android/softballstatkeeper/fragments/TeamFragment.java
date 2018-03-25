@@ -29,6 +29,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -51,6 +52,8 @@ import com.example.android.softballstatkeeper.models.Player;
 import com.example.android.softballstatkeeper.models.Team;
 import com.squareup.leakcanary.RefWatcher;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -62,6 +65,7 @@ public class TeamFragment extends Fragment
     private Uri mCurrentTeamUri;
     private static final int EXISTING_TEAM_LOADER = 3;
 
+    private LinearLayout totalLayout;
     private TextView teamNameView;
     private TextView teamRecordView;
     private RecyclerView rv;
@@ -156,6 +160,7 @@ public class TeamFragment extends Fragment
             }
             teamName = StatsEntry.FREE_AGENT;
         }
+        totalLayout = rootView.findViewById(R.id.team_stats_totals);
 
 
         teamNameView = rootView.findViewById(R.id.teamName);
@@ -348,8 +353,6 @@ public class TeamFragment extends Fragment
         }
         cursor.close();
         if (mPlayers.size() > 0 && !waivers) {
-            mPlayers.add(new Player(teamName, sumSgl, sumDbl, sumTpl, sumHr, sumBb,
-                    sumRun, sumRbi, sumOut, sumSf, sumG, -1));
             setRecyclerViewVisible();
         } else if (!waivers) {
             setEmptyViewVisible();
@@ -360,8 +363,99 @@ public class TeamFragment extends Fragment
         } else {
             updateTeamRV();
         }
+
+        if(teamFirestoreID.equals(StatsEntry.FREE_AGENT)){
+            totalLayout.setVisibility(View.GONE);
+            return;
+        }
+
+        TextView totalNameView = totalLayout.findViewById(R.id.name_title);
+        TextView abView = totalLayout.findViewById(R.id.ab_title);
+        TextView hitView = totalLayout.findViewById(R.id.hit_title);
+        TextView hrView = totalLayout.findViewById(R.id.hr_title);
+        TextView rbiView = totalLayout.findViewById(R.id.rbi_title);
+        TextView runView = totalLayout.findViewById(R.id.run_title);
+        TextView avgView = totalLayout.findViewById(R.id.avg_title);
+        TextView obpView = totalLayout.findViewById(R.id.obp_title);
+        TextView slgView = totalLayout.findViewById(R.id.slg_title);
+        TextView opsView = totalLayout.findViewById(R.id.ops_title);
+        TextView sglView = totalLayout.findViewById(R.id.sgl_title);
+        TextView dblView = totalLayout.findViewById(R.id.dbl_title);
+        TextView tplView = totalLayout.findViewById(R.id.tpl_title);
+        TextView bbView = totalLayout.findViewById(R.id.bb_title);
+        TextView gameView = totalLayout.findViewById(R.id.game_title);
+
+        totalNameView.setText(R.string.total);
+        hrView.setText(String.valueOf(sumHr));
+        tplView.setText(String.valueOf(sumTpl));
+        dblView.setText(String.valueOf(sumDbl));
+        sglView.setText(String.valueOf(sumSgl));
+        bbView.setText(String.valueOf(sumBb));
+        rbiView.setText(String.valueOf(sumRbi));
+        runView.setText(String.valueOf(sumRun));
+        gameView.setText(String.valueOf(sumG));
+
+        int sumHits = sumSgl + sumDbl + sumTpl + sumHr;
+        int sumAB = sumOut + sumHits;
+        hitView.setText(String.valueOf(sumHits));
+        abView.setText(String.valueOf(sumAB));
+
+        double sumAvg = convertAVG(sumHits, sumAB);
+        double sumOBP = convertOBP(sumHits, sumAB, sumBb, sumSf);
+        double sumSLG = convertSLG(sumAB, sumSgl, sumDbl, sumTpl, sumHr);
+        double sumOPS = sumOBP + sumSLG;
+
+        NumberFormat formatter = new DecimalFormat("#.000");
+        String avgString;
+        String obpString;
+        String slgString;
+        String opsString;
+
+        if (sumAB <= 0) {
+            avgString = "---";
+            slgString = "---";
+            if (sumBb + sumSf <= 0) {
+                obpString = "---";
+                opsString = "---";
+            } else {
+                obpString = String.valueOf(formatter.format(sumOBP));
+                opsString = String.valueOf(formatter.format(sumOPS));
+            }
+        } else {
+            avgString = String.valueOf(formatter.format(sumAvg));
+            obpString = String.valueOf(formatter.format(sumOBP));
+            slgString = String.valueOf(formatter.format(sumSLG));
+            opsString = String.valueOf(formatter.format(sumOPS));
+        }
+
+        avgView.setText(avgString);
+        obpView.setText(obpString);
+        slgView.setText(slgString);
+        opsView.setText(opsString);
     }
 
+    private double convertAVG(int hits, int atbats) {
+        if (atbats == 0) {
+            return .000;
+        }
+        return ((double) hits) / atbats;
+    }
+
+    private double convertOBP(int hits, int atbats, int walks, int sacFlies) {
+        if (atbats + walks + sacFlies == 0) {
+            return .000;
+        }
+        return ((double) (hits + walks))
+                / (atbats + walks + sacFlies);
+    }
+
+    private double convertSLG(int atbats, int singles, int doubles, int triples, int hrs) {
+        if (atbats == 0) {
+            return .000;
+        }
+        return (singles + doubles * 2 + triples * 3 + hrs * 4)
+                / ((double) atbats);
+    }
     private void setEmptyViewVisible() {
         getView().findViewById(R.id.team_scroll_view).setVisibility(View.GONE);
         getView().findViewById(R.id.empty_team_text).setVisibility(View.VISIBLE);
@@ -378,11 +472,9 @@ public class TeamFragment extends Fragment
 
     public void addPlayers(List<Player> newPlayers) {
         if (mPlayers.isEmpty()) {
-            mPlayers.add(new Player(teamName, -1));
             setRecyclerViewVisible();
         }
-        int position = mPlayers.size() - 1;
-        mPlayers.addAll(position, newPlayers);
+        mPlayers.addAll(newPlayers);
         updateTeamRV();
     }
 
@@ -523,13 +615,10 @@ public class TeamFragment extends Fragment
         List<String> firestoreIDsToDelete = new ArrayList<>();
         List<Player> firestorePlayersToDelete = new ArrayList<>();
         String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
-        int total = 1;
-        if (waivers) {
-            total--;
-        }
+
         int amountDeleted = 0;
         FirestoreHelper firestoreHelper = new FirestoreHelper(getActivity(), mSelectionID);
-        for (int i = 0; i < mPlayers.size() - total; i++) {
+        for (int i = 0; i < mPlayers.size(); i++) {
             Player player = mPlayers.get(i);
             String firestoreID = player.getFirestoreID();
             String name = player.getName();
@@ -627,9 +716,6 @@ public class TeamFragment extends Fragment
         colorView = getView().findViewById(statSorter);
         colorView.setTextColor(ContextCompat.getColor(getActivity(), R.color.colorAccent));
 
-        Player total = mPlayers.get(mPlayers.size() - 1);
-        mPlayers.remove(total);
-
         switch (statSorter) {
 
             case R.id.name_title:
@@ -699,8 +785,6 @@ public class TeamFragment extends Fragment
             default:
                 Toast.makeText(getActivity(), "SOMETHING WRONG WITH onClick", Toast.LENGTH_LONG).show();
         }
-
-        mPlayers.add(total);
         updateTeamRV();
     }
 

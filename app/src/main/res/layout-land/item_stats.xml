@@ -35,8 +35,7 @@
         android:paddingRight="4dp"
         android:paddingLeft="0dp"
         android:paddingStart="0dp"
-        android:textStyle="italic"
-        android:textColor="@color/colorPrimaryDark"
+        android:textStyle="italic|bold"
         tools:text="AAA" />
 
     <TextView

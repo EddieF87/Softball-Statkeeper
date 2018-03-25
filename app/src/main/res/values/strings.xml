@@ -121,7 +121,7 @@
     <string name="rs">RS</string>
     <string name="winpct">Win%</string>
     <string name="exit_game">Exit Game</string>
-    <string name="load_from_cache">Load from Cache?</string>
+    <string name="load_from_cache">Load from Cache (some stats may not be up to date)?</string>
     <string name="retry">Retry</string>
     <string name="load">Load</string>
     <string name="back">Back</string>
@@ -177,4 +177,6 @@
     <string name="enter_statkeeper_code">Enter StatKeeper Code</string>
     <string name="choose_diff_teams_text">Please choose different teams.</string>
     <string name="sign_in_to_start_text">PLEASE SIGN IN TO START!</string>
+    <string name="total">Total</string>
+    <string name="wait">Wait</string>
 </resources>
