@@ -53,7 +53,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginTop="24dp"
-        android:text="@string/runs_this_inning"
+        android:text="@string/runs"
         android:textSize="18sp"
         android:textColor="@color/colorDefault"
         android:textStyle="bold"

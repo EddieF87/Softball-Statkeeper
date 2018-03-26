@@ -4,7 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="16dp"
-    android:id="@+id/league_code_layout"
     android:orientation="horizontal"
     >
         <TextView
@@ -13,7 +12,7 @@
             android:text="@string/statkeeper_code"
             />
 
-        <com.example.android.softballstatkeeper.views.MyEditText
+        <xyz.sleekstats.softball.views.MyEditText
             android:id="@+id/edit_code"
             android:layout_width="0dp"
             android:layout_weight="1"

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">StatKeeper Softball</string>
+    <string name="app_name">SleekStats: Softball</string>
     <string name="nowbatting">At Bat:</string>
     <string name="_3b">3B</string>
     <string name="bb">BB</string>
@@ -16,14 +16,11 @@
     <string name="team">Team</string>
     <string name="name">Name</string>
     <string name="delete_dialog_msg">Are you sure you want to permanently delete %1$s from the league?</string>
-    <string name="delete_team_msg">Are you sure you want to permanently delete this team from the league?</string>
     <string name="delete_warning_msg">Deleting will cause all info to be lost forever.</string>
     <string name="remove_warning_msg">You will no longer have any access to this %1$s.</string>
     <string name="delete">Delete</string>
     <string name="cancel">Cancel</string>
-    <string name="editor_delete_player_failed">There was an error deleting the player!</string>
     <string name="editor_delete_player_successful"> was successfully deleted.</string>
-    <string name="editor_delete_team_failed">There was an error deleting the team!</string>
     <string name="delete_or_freeagency_msg">Delete players permanently or make players free agents?</string>
     <string name="waivers">Waivers</string>
     <string name="add_teams_text">PLEASE ADD TEAMS!</string>
@@ -35,17 +32,14 @@
     <string name="undo">Undo</string>
     <string name="end_game_msg">This game is over. Would you like to finish?</string>
     <string name="end_msg">Finish</string>
-    <string name="edit_photo">Edit Photo</string>
     <string name="edit_name">Edit Name</string>
     <string name="edit_team">Change Team</string>
     <string name="delete_player">Delete Player</string>
     <string name="delete_team">Delete Team</string>
     <string name="edit_lineup">Edit Lineup</string>
-    <string name="quit">Quit</string>
     <string name="redo_play">Redo Play</string>
     <string name="undo_play">Undo Play</string>
     <string name="stats">Stats</string>
-    <string name="game_completed">Game is completed</string>
     <string name="bench">Bench</string>
     <string name="remove_all_players">Remove All Players</string>
     <string name="remove_all_free_agents">Remove all free agents from league?</string>
@@ -63,25 +57,10 @@
     <string name="t">T</string>
 
     <!-- Strings related to login -->
-    <string name="prompt_email">Email</string>
-    <string name="prompt_password">Password (optional)</string>
-    <string name="action_sign_in">Sign in or register</string>
-    <string name="action_sign_in_short">Sign in</string>
-    <string name="error_invalid_email">This email address is invalid</string>
-    <string name="error_invalid_password">This password is too short</string>
-    <string name="error_incorrect_password">This password is incorrect</string>
-    <string name="error_field_required">This field is required</string>
-    <string name="permission_rationale">"Contacts permissions are needed for providing email
-        completions."
-    </string>
     <string name="sign_out">Sign Out</string>
     <string name="sign_in">Sign In</string>
-    <string name="signed_out">Signed Out</string>
-    <string name="add_player">Add Player</string>
-    <string name="add_team">Add Team</string>
     <string name="outs">Outs</string>
     <string name="continue_game">Continue Game</string>
-    <string name="new_game">New Game</string>
     <string name="add_players">Add Players</string>
     <string name="home">Home</string>
     <string name="away">Away</string>
@@ -89,10 +68,7 @@
 
     <string name="empty_avg">---</string>
     <string name="user_settings">User Settings</string>
-    <string name="email">email</string>
     <string name="reset">Reset</string>
-    <string name="add_user">Add User</string>
-    <string name="add_email">Add email</string>
     <string name="save">Save</string>
     <string name="lineup">Lineup</string>
     <string name="submit_lineup">Submit Lineup</string>
@@ -108,9 +84,7 @@
     <string name="view_only">View Only</string>
     <string name="view_manage">View/Manage</string>
     <string name="admin">Admin</string>
-    <string name="access_requested">Access Requested</string>
     <string name="remove_user">Remove User</string>
-    <string name="edit">Edit</string>
     <string name="export_stats">Export Stats</string>
     <string name="skip">Skip</string>
     <string name="submit">Submit</string>
@@ -122,7 +96,6 @@
     <string name="winpct">Win%</string>
     <string name="exit_game">Exit Game</string>
     <string name="load_from_cache">Load from Cache (some stats may not be up to date)?</string>
-    <string name="retry">Retry</string>
     <string name="load">Load</string>
     <string name="back">Back</string>
     <string name="edit_gender">Edit Gender</string>
@@ -148,8 +121,6 @@
     <string name="player_statkeeper_desc"><![CDATA[Manage & view individual player stats]]></string>
     <string name="league_statkeeper_desc">Manage, view, &amp; share stats, scores, &amp; standings of a league</string>
     <string name="team_statkeeper_desc">Manage, view, &amp; share stats &amp; scores of a team</string>
-    <string name="level">Level</string>
-    <string name="runs_this_inning">Runs this inning</string>
     <string name="blank">----</string>
     <string name="load1_prepare_sync">(1/3)  Preparing Sync</string>
     <string name="load1_desc">Please wait while database is retrieved.</string>
@@ -179,4 +150,7 @@
     <string name="sign_in_to_start_text">PLEASE SIGN IN TO START!</string>
     <string name="total">Total</string>
     <string name="wait">Wait</string>
+    <string name="sac_bunt">Sac Bunt</string>
+    <string name="runs">Runs Scored</string>
+    <string name="asset_statements" translatable="false">[{\n  \"relation\": [\"delegate_permission/common.handle_all_urls\"],\n  \"target\": {\n    \"namespace\": \"web\",\n    \"site\": \"https://seekstats.xyz\",\n  }\n}]</string>
 </resources>

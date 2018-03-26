@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="8dp"
-    tools:context="com.example.android.softballstatkeeper.dialogs.SelectionInfoDialog">
+    tools:context="xyz.sleekstats.softball.dialogs.SelectionInfoDialog">
 
     <TextView
         android:id="@+id/name"

@@ -8,17 +8,17 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:472325178022:android:7e2846ce256e3dd1",
+        "mobilesdk_app_id": "1:472325178022:android:b95237f5af0cfcf8",
         "android_client_info": {
-          "package_name": "com.example.android.softballstatkeeper"
+          "package_name": "xyz.sleekstats.softball"
         }
       },
       "oauth_client": [
         {
-          "client_id": "472325178022-22dfgmngce4tgsshiplg393pj1p7v302.apps.googleusercontent.com",
+          "client_id": "472325178022-k9i84vrcecabj33913a9kcqkj5j0m218.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.android.softballstatkeeper",
+            "package_name": "xyz.sleekstats.softball",
             "certificate_hash": "26a8da60b6dfccb6a88fe02d4f361cf7ce851666"
           }
         },

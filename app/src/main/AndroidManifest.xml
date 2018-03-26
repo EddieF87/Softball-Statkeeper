@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.android.softballstatkeeper">
+    package="xyz.sleekstats.softball">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -14,7 +14,7 @@
     <uses-permission android:name="android.permission.WRITE_CONTACTS" />
 
     <application
-        android:name="com.example.android.softballstatkeeper.MyApp"
+        android:name="xyz.sleekstats.softball.MyApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_statkeep"
         android:label="@string/app_name"
@@ -24,68 +24,79 @@
         android:windowSoftInputMode="stateHidden|adjustResize"
         android:fullBackupContent="@xml/backup_descriptor">
 
-        <activity
-            android:name="com.example.android.softballstatkeeper.activities.MainActivity">
+        <meta-data
+            android:name="asset_statements"
+            android:resource="@string/asset_statements" />
+
+        <activity android:name="xyz.sleekstats.softball.activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data
+                    android:scheme="https"
+                    android:host="play.google.com"
+                    android:path="/store/apps/dev?id=5700313618786177705" />
+            </intent-filter>
         </activity>
 
         <activity
-            android:name="com.example.android.softballstatkeeper.activities.LeagueManagerActivity"
+            android:name="xyz.sleekstats.softball.activities.LeagueManagerActivity"
             android:launchMode="singleTask"
-            android:parentActivityName="com.example.android.softballstatkeeper.activities.MainActivity" />
+            android:parentActivityName="xyz.sleekstats.softball.activities.MainActivity" />
 
         <activity
-            android:name="com.example.android.softballstatkeeper.activities.LeagueGameActivity"
+            android:name="xyz.sleekstats.softball.activities.LeagueGameActivity"
             android:launchMode="singleTask"
-            android:parentActivityName="com.example.android.softballstatkeeper.activities.LeagueManagerActivity"
+            android:parentActivityName="xyz.sleekstats.softball.activities.LeagueManagerActivity"
             android:screenOrientation="portrait" />
 
         <activity
-            android:name="com.example.android.softballstatkeeper.activities.SetLineupActivity"
+            android:name="xyz.sleekstats.softball.activities.SetLineupActivity"
             android:label="Lineup Editor"
             android:screenOrientation="portrait"
             android:launchMode="singleTask" />
 
         <activity
-            android:name="com.example.android.softballstatkeeper.activities.BoxScoreActivity"
+            android:name="xyz.sleekstats.softball.activities.BoxScoreActivity"
             android:label="Box Score" />
 
         <activity
-            android:name="com.example.android.softballstatkeeper.activities.TeamGameActivity"
+            android:name="xyz.sleekstats.softball.activities.TeamGameActivity"
             android:launchMode="singleTask"
-            android:parentActivityName="com.example.android.softballstatkeeper.activities.TeamManagerActivity"
+            android:parentActivityName="xyz.sleekstats.softball.activities.TeamManagerActivity"
             android:screenOrientation="portrait" />
 
-        <activity android:name="com.example.android.softballstatkeeper.activities.TeamPagerActivity"
-            />
+        <activity android:name="xyz.sleekstats.softball.activities.TeamPagerActivity" />
 
-        <activity android:name="com.example.android.softballstatkeeper.activities.PlayerPagerActivity"
-            />
+        <activity android:name="xyz.sleekstats.softball.activities.PlayerPagerActivity" />
 
         <activity
-            android:name="com.example.android.softballstatkeeper.activities.TeamManagerActivity"
+            android:name="xyz.sleekstats.softball.activities.TeamManagerActivity"
             android:launchMode="singleTask"
-            android:parentActivityName="com.example.android.softballstatkeeper.activities.MainActivity" />
+            android:parentActivityName="xyz.sleekstats.softball.activities.MainActivity" />
+
+        <activity android:name="xyz.sleekstats.softball.activities.PlayerManagerActivity" />
 
         <activity
-            android:name="com.example.android.softballstatkeeper.activities.PlayerManagerActivity" />
-
-        <activity
-            android:name="com.example.android.softballstatkeeper.activities.UsersActivity"
+            android:name="xyz.sleekstats.softball.activities.UsersActivity"
             android:screenOrientation="portrait" />
 
         <provider
-            android:name="com.example.android.softballstatkeeper.data.StatsProvider"
-            android:authorities="com.example.android.softballstatkeeper"
+            android:name="xyz.sleekstats.softball.data.StatsProvider"
+            android:authorities="xyz.sleekstats.softball"
             android:exported="false" />
 
         <provider
-            android:name="com.example.android.softballstatkeeper.data.MyFileProvider"
-            android:authorities="com.example.android.softballstatkeeper.data.fileprovider"
+            android:name="xyz.sleekstats.softball.data.MyFileProvider"
+            android:authorities="xyz.sleekstats.softball.data.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
@@ -93,9 +104,9 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
-        <activity android:name="com.example.android.softballstatkeeper.activities.LoadingActivity"
-            android:screenOrientation="portrait"
-            />
+        <activity
+            android:name="xyz.sleekstats.softball.activities.LoadingActivity"
+            android:screenOrientation="portrait" />
 
     </application>
 

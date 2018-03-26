@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.android.softballstatkeeper.activities.TeamManagerActivity">
+    tools:context="xyz.sleekstats.softball.activities.TeamManagerActivity">
 
     <LinearLayout
         android:id="@+id/team_header"

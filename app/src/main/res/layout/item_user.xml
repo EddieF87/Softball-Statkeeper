@@ -16,7 +16,6 @@
 
 
     <LinearLayout
-        android:id="@+id/user_level_relativelayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="10"

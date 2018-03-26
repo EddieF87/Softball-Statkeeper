@@ -3,10 +3,9 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.android.softballstatkeeper.activities.SetLineupActivity">
+    tools:context="xyz.sleekstats.softball.activities.SetLineupActivity">
 
     <TextView
         android:id="@+id/team_name_display"
@@ -44,7 +43,6 @@
         android:layout_marginEnd="8dp">
 
         <TextView
-            android:id="@+id/lineup_title"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="2"
@@ -57,7 +55,6 @@
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/bench_title"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="2"
@@ -224,7 +221,6 @@
         android:layout_marginRight="32dp" />
 
     <FrameLayout
-        android:id="@+id/layout_lineup"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginBottom="8dp"

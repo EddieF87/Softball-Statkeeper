@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/bg_grass"
     android:padding="4dp"
-    tools:context="com.example.android.softballstatkeeper.activities.TeamGameActivity">
+    tools:context="xyz.sleekstats.softball.activities.TeamGameActivity">
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
@@ -166,7 +166,6 @@
     </android.support.constraint.ConstraintLayout>
 
     <android.support.design.widget.NavigationView
-        android:id="@+id/lineup_drawer"
         android:layout_width="180dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"

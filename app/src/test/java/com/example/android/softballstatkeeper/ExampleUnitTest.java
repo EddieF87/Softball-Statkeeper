@@ -1,4 +1,4 @@
-package com.example.android.softballstatkeeper;
+package xyz.sleekstats.softball;
 
 import org.junit.Test;
 

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.android.softballstatkeeper.activities.MainActivity"
+    tools:context="xyz.sleekstats.softball.activities.MainActivity"
     tools:layout_editor_absoluteY="73dp">
 
 
@@ -27,7 +27,6 @@
         tools:targetApi="o" />
 
     <FrameLayout
-        android:id="@+id/league_framelayout"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintHorizontal_weight="1"
