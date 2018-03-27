@@ -6,7 +6,9 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:windowBackground">@color/colorPrimaryLight</item>
-        <item name="buttonStyle">@style/Widget.AppCompat.Button.Colored</item>
+        <item name="buttonStyle">@style/MyButtonStyle</item>
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+        <item name="alertDialogTheme">@style/MyAlertDialog</item>
     </style>
 
     <style name="RadioButtonStyle">
@@ -19,6 +21,14 @@
         <item name="android:gravity">center</item>
         <item name="android:paddingTop">12dp</item>
         <item name="android:paddingBottom">12dp</item>
+    </style>
+
+    <style name="MyButtonStyle" parent="Widget.AppCompat.Button.Colored">
+        <item name="android:textColor">@color/colorDefault</item>
+    </style>
+
+    <style name="MyAlertDialog" parent="@style/ThemeOverlay.AppCompat.Dialog.Alert">
+        <item name="android:textColor">@color/colorPrimaryDark</item>
     </style>
 
     <style name="SmallRadioButtonStyle" parent="RadioButtonStyle">

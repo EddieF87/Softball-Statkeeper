@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -14,8 +15,10 @@ import android.support.v4.content.ContextCompat;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.data.StatsContract;
@@ -27,6 +30,7 @@ public class GameSettingsDialog extends DialogFragment {
     private int genderSorter;
     private int innings;
     private String mSelectionID;
+    private int inningNumber;
     private TextView mGenderDisplay;
     private TextView mInningDisplay;
 
@@ -34,13 +38,14 @@ public class GameSettingsDialog extends DialogFragment {
         // Required empty public constructor
     }
 
-    public static GameSettingsDialog newInstance(int innings, int genderSortArg, String selectionID) {
+    public static GameSettingsDialog newInstance(int innings, int genderSortArg, String selectionID, int currentInning) {
 
         Bundle args = new Bundle();
         GameSettingsDialog fragment = new GameSettingsDialog();
         args.putInt(StatsContract.StatsEntry.INNINGS, innings);
         args.putInt(StatsContract.StatsEntry.COLUMN_GENDER, genderSortArg);
         args.putString("mSelectionID", selectionID);
+        args.putInt("inningNumber", currentInning);
         fragment.setArguments(args);
         return fragment;
     }
@@ -53,6 +58,7 @@ public class GameSettingsDialog extends DialogFragment {
             innings = args.getInt(StatsContract.StatsEntry.INNINGS);
             genderSorter = args.getInt(StatsContract.StatsEntry.COLUMN_GENDER);
             mSelectionID = args.getString("mSelectionID");
+            inningNumber = args.getInt("inningNumber") / 2;
         }
     }
 
@@ -65,6 +71,19 @@ public class GameSettingsDialog extends DialogFragment {
         mInningDisplay = v.findViewById(R.id.innings_textview);
         mInningDisplay.setText(String.valueOf(innings));
         inningSeekBar.setProgress(innings - 1);
+
+        if(inningNumber > 0) {
+            v.findViewById(R.id.gender_sort_seekbar).setVisibility(View.GONE);
+            v.findViewById(R.id.gender_sort_textview).setVisibility(View.GONE);
+            v.findViewById(R.id.gender_sort_title).setVisibility(View.GONE);
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//                inningSeekBar.setMin((inningNumber / 2) - 1);
+//                inningSeekBar.setScrollBarStyle(View.SCROLLBARS_OUTSIDE_OVERLAY);
+//            }
+
+        }
+
+
         inningSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -91,14 +110,17 @@ public class GameSettingsDialog extends DialogFragment {
             public void onStopTrackingTouch(SeekBar seekBar) {}
         });
 
-        AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
+        final AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
                 .setView(v)
                 .setTitle(R.string.game_settings)
                 .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        innings = inningSeekBar.getProgress() + 1;
-                        genderSorter = genderSeekBar.getProgress();
-                        onButtonPressed();
+//                        innings = inningSeekBar.getProgress() + 1;
+//                        if(innings < inningNumber) {
+//                            return;
+//                        }
+//                        genderSorter = genderSeekBar.getProgress();
+//                        onButtonPressed();
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -111,13 +133,29 @@ public class GameSettingsDialog extends DialogFragment {
                 .setCancelable(false)
                 .create();
         alertDialog.setCanceledOnTouchOutside(false);
+        alertDialog.show();
+
+        Button submitButton = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
+        submitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                innings = inningSeekBar.getProgress() + 1;
+                if(innings < inningNumber) {
+                    Toast.makeText(getContext(), "It's already Inning " + inningNumber, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                genderSorter = genderSeekBar.getProgress();
+                onButtonPressed();
+                alertDialog.dismiss();
+            }
+        });
         return alertDialog;
     }
 
     private void setDisplay(int i) {
         if (i == 0) {
             mGenderDisplay.setText(R.string.OFF);
-            mGenderDisplay.setTextColor(Color.BLACK);
+            mGenderDisplay.setTextColor(ContextCompat.getColor(getContext(), R.color.colorPrimaryDark));
             return;
         }
         mGenderDisplay.setTextColor(ContextCompat.getColor(getContext(), R.color.male));

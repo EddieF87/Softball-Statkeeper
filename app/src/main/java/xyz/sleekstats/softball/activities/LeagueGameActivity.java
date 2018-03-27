@@ -16,6 +16,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -36,7 +37,7 @@ import java.util.List;
 /**
  * @author Eddie
  */
-public class LeagueGameActivity extends GameActivity /*implements LoaderManager.LoaderCallbacks<Cursor>*/ {
+public class LeagueGameActivity extends GameActivity {
 
     private List<Player> awayTeam;
     private List<Player> homeTeam;
@@ -285,6 +286,7 @@ public class LeagueGameActivity extends GameActivity /*implements LoaderManager.
     protected void updateGameLogs() {
         String previousBatterID = currentBatter.getFirestoreID();
         currentBatter = currentTeam.get(getIndex());
+        Log.d("xxx", "updateGameLogs: " + currentBatter.getName());
 
         BaseLog currentBaseLogEnd = new BaseLog(currentTeam, currentBatter, firstDisplay.getText().toString(),
                 secondDisplay.getText().toString(), thirdDisplay.getText().toString(),
@@ -300,8 +302,10 @@ public class LeagueGameActivity extends GameActivity /*implements LoaderManager.
         int team;
         if (currentTeam == awayTeam) {
             team = 0;
+            Log.d("xxx", "team = 0;");
         } else {
             team = 1;
+            Log.d("xxx", "team = 1;");
         }
 
         String onDeck = currentBatter.getFirestoreID();
@@ -359,6 +363,7 @@ public class LeagueGameActivity extends GameActivity /*implements LoaderManager.
         increaseLineupIndex();
         if (currentTeam == awayTeam) {
             if (finalInning && homeTeamRuns > awayTeamRuns) {
+                redoEndsGame = true;
                 showFinishGameDialog();
                 return;
             }

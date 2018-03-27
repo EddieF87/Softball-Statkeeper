@@ -4,6 +4,7 @@ package xyz.sleekstats.softball.fragments;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.graphics.Color;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
@@ -221,8 +222,9 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             opsView.setText(String.valueOf(formatter.format(player.getOPS())));
 
             if (mSelectionType == MainPageSelection.TYPE_PLAYER) {
-                nameView.setTextColor(getResources().getColor(R.color.colorPrimary));
-                playerImage.setColorFilter(getResources().getColor(R.color.colorPrimary));
+                int color = getResources().getColor(R.color.colorPrimaryDark);
+                nameView.setTextColor(color);
+                playerImage.setColorFilter(color);
                 teamView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {

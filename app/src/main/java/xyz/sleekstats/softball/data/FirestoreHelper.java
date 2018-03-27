@@ -918,64 +918,64 @@ public class FirestoreHelper implements Parcelable {
         return currentlyPlaying;
     }
 
-//    public void retryGameLogLoad() {
-//        MyApp myApp = (MyApp) mContext.getApplicationContext();
-//        String leagueID = myApp.getCurrentSelection().getId();
-//
-//        WriteBatch batch = mFirestore.batch();
-//
-//        Cursor cursor = mContext.getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_PLAYERS,
-//                null, null, null, null);
-//        while (cursor.moveToNext()) {
-//            long logId = StatsContract.getColumnLong(cursor, StatsEntry.COLUMN_LOG_ID);
-//            long playerId = StatsContract.getColumnLong(cursor, StatsEntry.COLUMN_PLAYERID);
-//            int gameRBI = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_RBI);
-//            int gameRun = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_RUN);
-//            int game1b = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_1B);
-//            int game2b = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_2B);
-//            int game3b = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_3B);
-//            int gameHR = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_HR);
-//            int gameOuts = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_OUT);
-//            int gameBB = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_BB);
-//            int gameSF = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_SF);
-//
-//            final DocumentReference docRef = mFirestore.collection(LEAGUE_COLLECTION).document(leagueID).collection(PLAYERS_COLLECTION)
-//                    .document(String.valueOf(playerId)).collection(PLAYER_LOGS).document(String.valueOf(logId));
-//
-//            PlayerLog playerLog = new PlayerLog(playerId, gameRBI, gameRun, game1b, game2b, game3b, gameHR, gameOuts, gameBB, gameSF);
-//            batch.set(docRef, playerLog);
-//        }
-//
-//        cursor.close();
-//
-//        cursor = mContext.getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_TEAMS, null,
-//                null, null, null);
-//        while (cursor.moveToNext()) {
-//            long logId = StatsContract.getColumnLong(cursor, StatsEntry.COLUMN_LOG_ID);
-//            long teamId = StatsContract.getColumnLong(cursor, StatsEntry.COLUMN_TEAM_ID);
-//            int gameWins = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_WINS);
-//            int gameLosses = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_LOSSES);
-//            int gameTies = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_TIES);
-//            int gameRunsScored = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_RUNSFOR);
-//            int gameRunsAllowed = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_RUNSAGAINST);
-//
-//            final DocumentReference docRef = mFirestore.collection(LEAGUE_COLLECTION).document(leagueID).collection(TEAMS_COLLECTION)
-//                    .document(String.valueOf(teamId)).collection(TEAM_LOGS).document(String.valueOf(logId));
-//
-//            TeamLog teamLog = new TeamLog(teamId, gameWins, gameLosses, gameTies, gameRunsScored, gameRunsAllowed);
-//            batch.set(docRef, teamLog);
-//        }
-//
-//        batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
-//            @Override
-//            public void onComplete(@NonNull Task<Void> task) {
-//                mContext.getContentResolver().delete(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, null, null);
-//                mContext.getContentResolver().delete(StatsEntry.CONTENT_URI_BACKUP_TEAMS, null, null);
-//            }
-//        });
-//        cursor.close();
-//
-//    }
+    public void retryGameLogLoad() {
+        MyApp myApp = (MyApp) mContext.getApplicationContext();
+        String leagueID = myApp.getCurrentSelection().getId();
+
+        WriteBatch batch = mFirestore.batch();
+
+        Cursor cursor = mContext.getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_PLAYERS,
+                null, null, null, null);
+        while (cursor.moveToNext()) {
+            long logId = StatsContract.getColumnLong(cursor, StatsEntry.COLUMN_LOG_ID);
+            long playerId = StatsContract.getColumnLong(cursor, StatsEntry.COLUMN_PLAYERID);
+            int gameRBI = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_RBI);
+            int gameRun = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_RUN);
+            int game1b = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_1B);
+            int game2b = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_2B);
+            int game3b = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_3B);
+            int gameHR = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_HR);
+            int gameOuts = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_OUT);
+            int gameBB = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_BB);
+            int gameSF = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_SF);
+
+            final DocumentReference docRef = mFirestore.collection(LEAGUE_COLLECTION).document(leagueID).collection(PLAYERS_COLLECTION)
+                    .document(String.valueOf(playerId)).collection(PLAYER_LOGS).document(String.valueOf(logId));
+
+            PlayerLog playerLog = new PlayerLog(playerId, gameRBI, gameRun, game1b, game2b, game3b, gameHR, gameOuts, gameBB, gameSF);
+            batch.set(docRef, playerLog);
+        }
+
+        cursor.close();
+
+        cursor = mContext.getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_TEAMS, null,
+                null, null, null);
+        while (cursor.moveToNext()) {
+            long logId = StatsContract.getColumnLong(cursor, StatsEntry.COLUMN_LOG_ID);
+            long teamId = StatsContract.getColumnLong(cursor, StatsEntry.COLUMN_TEAM_ID);
+            int gameWins = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_WINS);
+            int gameLosses = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_LOSSES);
+            int gameTies = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_TIES);
+            int gameRunsScored = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_RUNSFOR);
+            int gameRunsAllowed = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_RUNSAGAINST);
+
+            final DocumentReference docRef = mFirestore.collection(LEAGUE_COLLECTION).document(leagueID).collection(TEAMS_COLLECTION)
+                    .document(String.valueOf(teamId)).collection(TEAM_LOGS).document(String.valueOf(logId));
+
+            TeamLog teamLog = new TeamLog(teamId, gameWins, gameLosses, gameTies, gameRunsScored, gameRunsAllowed);
+            batch.set(docRef, teamLog);
+        }
+
+        batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                mContext.getContentResolver().delete(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, null, null);
+                mContext.getContentResolver().delete(StatsEntry.CONTENT_URI_BACKUP_TEAMS, null, null);
+            }
+        });
+        cursor.close();
+
+    }
 
     //LISTENER
     public interface onFirestoreSyncListener {

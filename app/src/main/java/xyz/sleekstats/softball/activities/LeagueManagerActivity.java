@@ -63,7 +63,7 @@ public class LeagueManagerActivity extends ExportActivity
             leagueName = mainPageSelection.getName();
             leagueID = mainPageSelection.getId();
             level = mainPageSelection.getLevel();
-            setTitle(leagueName + "(League)");
+            setTitle(leagueName + " (League)");
         } catch (Exception e) {
             Intent intent = new Intent(LeagueManagerActivity.this, MainActivity.class);
             startActivity(intent);
@@ -77,6 +77,20 @@ public class LeagueManagerActivity extends ExportActivity
 
         TabLayout tabLayout = findViewById(R.id.league_tab_layout);
         tabLayout.setupWithViewPager(viewPager);
+
+        Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, null, null, null, null);
+        if(cursor.moveToFirst()){
+            FirestoreHelper firestoreHelper = new FirestoreHelper(LeagueManagerActivity.this, leagueID);
+            firestoreHelper.retryGameLogLoad();
+            cursor.close();
+            return;
+        }
+        cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_TEAMS, null, null, null, null);
+        if(cursor.moveToFirst()){
+            FirestoreHelper firestoreHelper = new FirestoreHelper(LeagueManagerActivity.this, leagueID);
+            firestoreHelper.retryGameLogLoad();
+        }
+        cursor.close();
     }
 
     @Override
@@ -194,7 +208,7 @@ public class LeagueManagerActivity extends ExportActivity
         int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = GameSettingsDialog.newInstance(innings, genderSorter, leagueID);
+        DialogFragment newFragment = GameSettingsDialog.newInstance(innings, genderSorter, leagueID, 0);
         newFragment.show(fragmentTransaction, "");
     }
 

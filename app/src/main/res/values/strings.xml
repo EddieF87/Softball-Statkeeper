@@ -95,17 +95,17 @@
     <string name="rs">RS</string>
     <string name="winpct">Win%</string>
     <string name="exit_game">Exit Game</string>
-    <string name="load_from_cache">Load from Cache (some stats may not be up to date)?</string>
+    <string name="load_from_cache">If you can\'t wait, you can load from cache, but some stats may be incomplete!</string>
     <string name="load">Load</string>
     <string name="back">Back</string>
     <string name="edit_gender">Edit Gender</string>
     <string name="save_edit">Save Edit</string>
-    <string name="create_statkeeper">Please create a StatKeeper!</string>
+    <string name="create_statkeeper">Welcome to SleekStats-Softball.\n\nKeep stats for a player, team, or entire league!\n\nPlease create a new StatKeeper!</string>
     <string name="creator">Creator</string>
     <string name="create_a_new_statkeeper">Create a new StatKeeper!</string>
     <string name="keep_stats_for_a_player_team_or_entire_league">Keep stats for a player, team, or entire league!</string>
     <string name="error_with_loading">Error with loading</string>
-    <string name="welcome_to_statkeeper">Welcome to StatKeeper!</string>
+    <string name="welcome_to_statkeeper">SleekStats Softball</string>
     <string name="my_statkeepers">My StatKeepers</string>
     <string name="please_enter_name_first">Please enter a name first!</string>
     <string name="create">Create</string>
@@ -114,7 +114,7 @@
     <string name="step_2_choose_at_bat_result">Step 2: Choose at bat result</string>
     <string name="step_3_submit_play">Step 3: Submit play</string>
     <string name="step_4_repeat">Step 4: Repeat!</string>
-    <string name="step_1_drag_batter_to_a_base">Step 1: Drag batter to a base</string>
+    <string name="step_1_drag_batter_to_a_base">Step 1: Drag batter to empty base</string>
     <string name="select_from_current_teams">Select from current teams</string>
     <string name="create_new_team">Create New Team</string>
     <string name="user_email">User Email</string>
@@ -147,10 +147,12 @@
     <string name="bottom_of_inning">bottom of inning</string>
     <string name="enter_statkeeper_code">Enter StatKeeper Code</string>
     <string name="choose_diff_teams_text">Please choose different teams.</string>
-    <string name="sign_in_to_start_text">PLEASE SIGN IN TO START!</string>
+    <string name="sign_in_to_start_text">Welcome to SleekStats-Softball.\n\nKeep stats for a player, team, or entire league!\n\nPLEASE SIGN IN!</string>
     <string name="total">Total</string>
     <string name="wait">Wait</string>
     <string name="sac_bunt">Sac Bunt</string>
     <string name="runs">Runs Scored</string>
     <string name="asset_statements" translatable="false">[{\n  \"relation\": [\"delegate_permission/common.handle_all_urls\"],\n  \"target\": {\n    \"namespace\": \"web\",\n    \"site\": \"https://seekstats.xyz\",\n  }\n}]</string>
+    <string name="reload">Re-Upload</string>
+    <string name="change_game_length">Set Innings</string>
 </resources>

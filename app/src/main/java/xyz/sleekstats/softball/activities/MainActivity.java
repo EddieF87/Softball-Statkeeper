@@ -1,7 +1,9 @@
 package xyz.sleekstats.softball.activities;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -14,6 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -47,6 +50,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
@@ -364,6 +368,10 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onClick(View view) {
+        if (mAuth.getCurrentUser() == null) {
+            Toast.makeText(MainActivity.this, "Please sign in first!", Toast.LENGTH_LONG).show();
+            return;
+        }
         int type;
         switch (view.getId()) {
             case R.id.player_sk_card:
@@ -448,9 +456,9 @@ public class MainActivity extends AppCompatActivity
             Map<String, Object> leagueUpdate = new HashMap<>();
             if (level == UsersActivity.LEVEL_REMOVE_USER) {
                 //todo FieldValue.delete()
-                leagueUpdate.put(userID, 0);
+                leagueUpdate.put(userID, FieldValue.delete());
                 writeBatch.delete(userRef);
-            } else if (level > UsersActivity.LEVEL_REMOVE_USER) {
+            } else {
                 leagueUpdate.put(userID, level);
                 Map<String, Object> userUpdate = new HashMap<>();
                 userUpdate.put(StatsEntry.LEVEL, level);
@@ -530,7 +538,7 @@ public class MainActivity extends AppCompatActivity
 
         Map<String, Object> updates = new HashMap<>();
         //todo FieldValue.delete()
-        updates.put(userID, 0);
+        updates.put(userID, FieldValue.delete());
         batch.update(leagueDoc, updates);
 
         leagueDoc.collection(USERS)
@@ -629,6 +637,10 @@ public class MainActivity extends AppCompatActivity
                     }
                     batch.commit();
                 }
+                SharedPreferences updatePreferences = getSharedPreferences(selectionID + "_updateSettings", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = updatePreferences.edit();
+                editor.clear();
+                editor.apply();
             }
         });
     }
@@ -822,9 +834,11 @@ public class MainActivity extends AppCompatActivity
         }
 
         firestoreLeagueMap.put(userID, level);
+        Log.d("xyedd", userID + "   " + level + "  " + statKeeperID);
         statKeeperDocument.set(firestoreLeagueMap, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
+                Log.d("xyedd", "first sucess");
                 Map<String, Object> firestoreUserMap = new HashMap<>();
                 firestoreUserMap.put(StatsEntry.LEVEL, level);
                 firestoreUserMap.put(StatsEntry.EMAIL, userEmail);
@@ -833,6 +847,8 @@ public class MainActivity extends AppCompatActivity
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
+                                Log.d("xyedd", "second success");
+                                Toast.makeText(MainActivity.this, "OK WORKING SO FAR....", Toast.LENGTH_SHORT).show();
 
                                 MyApp myApp = (MyApp) getApplicationContext();
                                 String selectionID = statKeeperDocument.getId();
@@ -863,7 +879,18 @@ public class MainActivity extends AppCompatActivity
                                 }
                                 startActivity(intent);
                             }
-                        });
+                        }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d("xyedd", "second fail");
+                        Toast.makeText(MainActivity.this, "Firebase error! Try again!", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d("xyedd", "first fail");
             }
         });
     }
@@ -969,9 +996,12 @@ public class MainActivity extends AppCompatActivity
                                 return;
                             }
 
-                            if (level >= UsersActivity.LEVEL_VIEW_ONLY && level <= UsersActivity.LEVEL_ADMIN) {
+                            if (level == UsersActivity.LEVEL_VIEW_ONLY) {
                                 postMessage(0);
                                 addSelection(name, type, level, idText);
+                            } else {
+                                Log.d("xyedd", "???????? fail");
+
                             }
 
                         } catch (Exception e) {

@@ -697,7 +697,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         if (genderSortOn) {
             color = ContextCompat.getColor(getContext(), R.color.male);
         } else {
-            color = Color.parseColor("#666666");
+            color = ContextCompat.getColor(getContext(), R.color.colorPrimaryDark);
         }
 
         if (teamID.equals(awayTeamID) || teamID.equals(homeTeamID)) {

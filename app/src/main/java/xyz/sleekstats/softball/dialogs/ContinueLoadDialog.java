@@ -52,7 +52,7 @@ public class ContinueLoadDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
         AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
-                .setTitle("Taking a while to access database")
+                .setTitle("Accessing database: Please Wait!")
                 .setMessage(R.string.load_from_cache)
                 .setPositiveButton(R.string.load, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {

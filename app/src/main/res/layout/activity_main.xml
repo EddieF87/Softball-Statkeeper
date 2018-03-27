@@ -14,14 +14,16 @@
         android:layout_height="wrap_content"
         android:autoSizeMinTextSize="18sp"
         android:autoSizeTextType="uniform"
-        android:gravity="center"
         android:background="@color/colorDefault"
-        android:maxLines="1"
+        android:fontFamily="sans-serif-smallcaps"
+        android:gravity="center"
+        android:maxLines="2"
+        android:paddingBottom="8dp"
         android:paddingTop="8dp"
         android:text="@string/welcome_to_statkeeper"
         android:textColor="@color/colorPrimary"
         android:textSize="30sp"
-        android:textStyle="bold"
+        android:textStyle="bold|italic"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -43,6 +45,8 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:text="@string/error_with_loading"
+            android:textSize="18sp"
+            android:textStyle="bold"
             android:visibility="gone" />
 
         <ProgressBar
@@ -62,19 +66,19 @@
 
     </FrameLayout>
 
-    <TextView
-        android:id="@+id/textview_description"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@color/colorDefault"
-        android:gravity="center"
-        android:paddingBottom="4dp"
-        android:text="@string/keep_stats_for_a_player_team_or_entire_league"
-        android:textSize="14sp"
-        android:textStyle="italic"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/welcome_title" />
+    <!--<TextView-->
+        <!--android:id="@+id/textview_description"-->
+        <!--android:layout_width="0dp"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:background="@color/colorDefault"-->
+        <!--android:gravity="center"-->
+        <!--android:paddingBottom="4dp"-->
+        <!--android:text="@string/keep_stats_for_a_player_team_or_entire_league"-->
+        <!--android:textSize="14sp"-->
+        <!--android:textStyle="italic"-->
+        <!--app:layout_constraintEnd_toEndOf="parent"-->
+        <!--app:layout_constraintStart_toStartOf="parent"-->
+        <!--app:layout_constraintTop_toBottomOf="@+id/welcome_title" />-->
 
     <TextView
         android:id="@+id/current_statkeepers_title"
@@ -83,8 +87,8 @@
         android:background="@color/colorPrimary"
         android:maxLines="1"
         android:padding="8dp"
-        android:paddingLeft="16dp"
-        android:paddingStart="16dp"
+        android:paddingLeft="32dp"
+        android:paddingStart="32dp"
         android:paddingEnd="0dp"
         android:paddingRight="0dp"
         android:text="@string/my_statkeepers"
@@ -94,24 +98,25 @@
         android:textStyle="bold|italic"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textview_description" />
+        app:layout_constraintTop_toBottomOf="@+id/welcome_title" />
 
 
     <TextView
         android:id="@+id/textview_join_or_create"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:autoSizeMinTextSize="18sp"
+        android:autoSizeTextType="uniform"
         android:background="@color/colorPrimary"
+        android:drawableLeft="@drawable/ic_reorder_white_500_24dp"
+        android:drawableStart="@drawable/ic_reorder_white_500_24dp"
+        android:drawablePadding="8dp"
         android:maxLines="1"
         android:padding="8dp"
         android:text="@string/create_a_new_statkeeper"
         android:textColor="#ffffff"
         android:textSize="24sp"
         android:textStyle="bold|italic"
-        android:autoSizeMinTextSize="18sp"
-        android:autoSizeTextType="uniform"
-        android:drawableLeft="@drawable/ic_reorder_white_500_24dp"
-        android:drawableStart="@drawable/ic_reorder_white_500_24dp"
         app:layout_constraintBottom_toTopOf="@+id/player_sk_card"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

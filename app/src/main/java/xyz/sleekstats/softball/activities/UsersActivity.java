@@ -111,8 +111,6 @@ public class UsersActivity extends AppCompatActivity
 
         firestore = FirebaseFirestore.getInstance();
 
-        setButtons();
-
         if (savedInstanceState != null) {
             levelChanges = (HashMap<String, Integer>) savedInstanceState.getSerializable(SAVED_MAP);
             mOriginalLevelsMap = (HashMap<String, Integer>) savedInstanceState.getSerializable(SAVED_USER_LEVELS);
@@ -148,6 +146,7 @@ public class UsersActivity extends AppCompatActivity
                             }
                             Collections.sort(mUserList, StatKeepUser.levelComparator());
                             updateRV();
+                            setButtons();
                         }
                     }
                 });
@@ -194,12 +193,13 @@ public class UsersActivity extends AppCompatActivity
                     openInviteUserDialog();
                 }
             });
-
             saveBtn = findViewById(R.id.btn_save_changes);
             resetBtn = findViewById(R.id.btn_reset);
             saveBtn.setVisibility(View.INVISIBLE);
             resetBtn.setVisibility(View.INVISIBLE);
         }
+        Button emailButton = findViewById(R.id.btn_email);
+        emailButton.setVisibility(View.VISIBLE);
     }
 
     public void saveChanges(View v) {
@@ -337,7 +337,7 @@ public class UsersActivity extends AppCompatActivity
         msgIntent.setType("text/plain");
         msgIntent.putExtra(Intent.EXTRA_TEXT, "You're invited to view the stats & standings for "
                 + mSelectionName + "!\n\nTo join follow these simple steps:" +
-                "\n\n    1. Log on to the StatKeeper app: " + "https://play.google.com/store/apps/dev?id=5700313618786177705" + //todo link
+                "\n\n    1. Log on to the StatKeeper app: " + "https://play.google.com/store/apps/details?id=xyz.sleekstats.softball" +
                 "\n\n    2. Click on \"Join " + selectionType + "\"" +
                 "\n\n    3. Enter the following code: " + mSelectionID + "-" + codeText);
 
@@ -418,7 +418,7 @@ public class UsersActivity extends AppCompatActivity
         emailIntent.putExtra(Intent.EXTRA_BCC, emailList);
         emailIntent.putExtra(Intent.EXTRA_SUBJECT, "StatKeeper Invitation for " + mSelectionName + "!");
         emailIntent.putExtra(Intent.EXTRA_TEXT, "You're invited to view, manage, and share stats and standings for " + mSelectionName + "." +
-                "\n\nFollow this link to begin: ");
+                "\n\nFollow this link to begin: https://play.google.com/store/apps/details?id=xyz.sleekstats.softball");
         //todo add link
         startActivity(Intent.createChooser(emailIntent, "Email friends about their invitation!"));
 

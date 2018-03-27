@@ -35,8 +35,9 @@ public class MatchupAdapter extends RecyclerView.Adapter<MatchupAdapter.ListView
         this.mContext = context;
         this.genderSettingsOff = genderSorter == 0;
         if(genderSettingsOff) {
-            colorMale = Color.parseColor("#666666");
-            colorFemale = Color.parseColor("#666666");
+            int color = ContextCompat.getColor(context, R.color.colorPrimaryDark);
+            colorMale = color;
+            colorFemale = color;
         } else {
             colorMale = ContextCompat.getColor(context, R.color.male);
             colorFemale = ContextCompat.getColor(context, R.color.female);
@@ -55,8 +56,9 @@ public class MatchupAdapter extends RecyclerView.Adapter<MatchupAdapter.ListView
             if (genderSettingsOff) {
                 return false;
             }
-            colorMale = Color.parseColor("#666666");
-            colorFemale = Color.parseColor("#666666");
+            int color = ContextCompat.getColor(mContext, R.color.colorPrimaryDark);
+            colorMale = color;
+            colorFemale = color;
             genderSettingsOff = true;
         }
         return true;

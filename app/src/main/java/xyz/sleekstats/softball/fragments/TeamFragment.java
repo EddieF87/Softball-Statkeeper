@@ -549,7 +549,7 @@ public class TeamFragment extends Fragment
                 int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                DialogFragment newFragment = GameSettingsDialog.newInstance(innings, genderSorter, mSelectionID);
+                DialogFragment newFragment = GameSettingsDialog.newInstance(innings, genderSorter, mSelectionID, 0);
                 newFragment.show(fragmentTransaction, "");
                 return true;
         }

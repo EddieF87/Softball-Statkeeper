@@ -34,7 +34,9 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!--http://play.google.com/store/apps/details?id=com.google.android.apps.maps-->
 
+            <!--todo-->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.BROWSABLE" />
@@ -43,7 +45,8 @@
                 <data
                     android:scheme="https"
                     android:host="play.google.com"
-                    android:path="/store/apps/dev?id=5700313618786177705" />
+                    android:path="/store/apps/details?id=com.google.android.apps.maps"/>
+                <data android:scheme="http"/>
             </intent-filter>
         </activity>
 

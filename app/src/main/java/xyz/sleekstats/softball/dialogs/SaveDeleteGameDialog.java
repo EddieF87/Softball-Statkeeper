@@ -57,7 +57,7 @@ public class SaveDeleteGameDialog extends DialogFragment {
 
         AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.exit_game)
-                .setMessage("Save the game or delete it?")
+                .setMessage("Save the game and continue later or delete it permanently?")
                 .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         onButtonPressed(true);

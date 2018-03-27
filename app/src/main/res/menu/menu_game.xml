@@ -26,6 +26,11 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/change_game_settings"
+        android:title="@string/change_game_length"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_exit_game"
         android:title="@string/exit"
         app:showAsAction="never" />

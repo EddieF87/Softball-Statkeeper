@@ -57,7 +57,7 @@ public class TeamManagerActivity extends ExportActivity
             mTeamID = mainPageSelection.getId();
             mSelectionType = mainPageSelection.getType();
             mLevel = mainPageSelection.getLevel();
-            setTitle(mTeamName + "(Team)");
+            setTitle(mTeamName + " (Team)");
         } catch (Exception e) {
             Intent intent = new Intent(TeamManagerActivity.this, MainActivity.class);
             startActivity(intent);
@@ -70,6 +70,21 @@ public class TeamManagerActivity extends ExportActivity
 
         TabLayout tabLayout = findViewById(R.id.league_tab_layout);
         tabLayout.setupWithViewPager(mViewPager);
+
+
+        Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, null, null, null, null);
+        if(cursor.moveToFirst()){
+            FirestoreHelper firestoreHelper = new FirestoreHelper(TeamManagerActivity.this, mTeamID);
+            firestoreHelper.retryGameLogLoad();
+            cursor.close();
+            return;
+        }
+        cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_TEAMS, null, null, null, null);
+        if(cursor.moveToFirst()){
+            FirestoreHelper firestoreHelper = new FirestoreHelper(TeamManagerActivity.this, mTeamID);
+            firestoreHelper.retryGameLogLoad();
+        }
+        cursor.close();
     }
 
     @Override

@@ -17,6 +17,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.DragEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,6 +35,7 @@ import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.dialogs.EndOfGameDialog;
 import xyz.sleekstats.softball.dialogs.FinishGameConfirmationDialog;
+import xyz.sleekstats.softball.dialogs.GameSettingsDialog;
 import xyz.sleekstats.softball.dialogs.SaveDeleteGameDialog;
 import xyz.sleekstats.softball.models.BaseLog;
 
@@ -50,7 +52,8 @@ import java.util.List;
 public abstract class GameActivity extends AppCompatActivity
         implements EndOfGameDialog.OnFragmentInteractionListener,
         SaveDeleteGameDialog.OnFragmentInteractionListener,
-        FinishGameConfirmationDialog.OnFragmentInteractionListener {
+        FinishGameConfirmationDialog.OnFragmentInteractionListener,
+        GameSettingsDialog.OnFragmentInteractionListener {
 
     Cursor gameCursor;
 
@@ -501,6 +504,7 @@ public abstract class GameActivity extends AppCompatActivity
         values.put(StatsEntry.COLUMN_HOME_RUNS, homeTeamRuns);
         values.put(StatsEntry.COLUMN_INNING_CHANGED, inningChanged);
         values.put(StatsEntry.COLUMN_LOG_INDEX, gameLogIndex);
+        Log.d("xxx", "batter: " + previousBatterID + "   result:" + result + "    ondeck: " + onDeckID);
         for (int i = 0; i < currentRunsLog.size(); i++) {
             String player = currentRunsLog.get(i);
             switch (i) {
@@ -648,21 +652,21 @@ public abstract class GameActivity extends AppCompatActivity
         }
         inningDisplay.setText(String.valueOf(inningNumber / 2));
 
-//        String indicator;
-//        switch (inningNumber / 2) {
-//            case 1:
-//                indicator = "st";
-//                break;
-//            case 2:
-//                indicator = "nd";
-//                break;
-//            case 3:
-//                indicator = "rd";
-//                break;
-//            default:
-//                indicator = "th";
-//        }
-        //Toast.makeText(LeagueGameActivity.this, topOrBottom + " of the " + inningNumber / 2 + indicator, Toast.LENGTH_LONG).show();
+        String indicator;
+        switch (inningNumber / 2) {
+            case 1:
+                indicator = "st";
+                break;
+            case 2:
+                indicator = "nd";
+                break;
+            case 3:
+                indicator = "rd";
+                break;
+            default:
+                indicator = "th";
+        }
+        Toast.makeText(GameActivity.this, topOrBottom + " of the " + inningNumber / 2 + indicator, Toast.LENGTH_LONG).show();
     }
 
     void updatePlayerStats(String action, int n) {
@@ -1234,6 +1238,14 @@ public abstract class GameActivity extends AppCompatActivity
             case R.id.action_goto_stats:
                 actionViewBoxScore();
                 break;
+            case R.id.change_game_settings:
+                int innings = totalInnings;
+                int genderSorter = 0;
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                DialogFragment newFragment = GameSettingsDialog.newInstance(innings, genderSorter, selectionID, inningNumber);
+                newFragment.show(fragmentTransaction, "");
+                break;
             case R.id.action_exit_game:
                 showExitDialog();
                 break;
@@ -1340,5 +1352,21 @@ public abstract class GameActivity extends AppCompatActivity
         }
         cursor.close();
         return name;
+    }
+
+    @Override
+    public void onGameSettingsChanged(int innings, int genderSorter) {
+        totalInnings = innings;
+        SharedPreferences gamePreferences = getSharedPreferences(selectionID + StatsEntry.GAME, MODE_PRIVATE);
+        SharedPreferences.Editor editor = gamePreferences.edit();
+        editor.putInt(KEY_TOTALINNINGS, totalInnings);
+        editor.apply();
+
+        if (inningNumber / 2 >= totalInnings) {
+            finalInning = true;
+        } else {
+            finalInning = false;
+            redoEndsGame = false;
+        }
     }
 }
