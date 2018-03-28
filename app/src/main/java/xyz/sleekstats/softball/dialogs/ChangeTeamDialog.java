@@ -12,7 +12,7 @@ import android.support.v4.app.DialogFragment;
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.activities.LeagueManagerActivity;
 import xyz.sleekstats.softball.data.StatsContract;
-import xyz.sleekstats.softball.models.Team;
+import xyz.sleekstats.softball.objects.Team;
 
 import java.util.ArrayList;
 import java.util.HashMap;

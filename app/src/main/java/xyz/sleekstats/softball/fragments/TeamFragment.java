@@ -32,7 +32,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import xyz.sleekstats.softball.MyApp;
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.activities.SetLineupActivity;
 import xyz.sleekstats.softball.activities.UsersActivity;
@@ -46,9 +45,9 @@ import xyz.sleekstats.softball.dialogs.DeleteVsWaiversDialog;
 import xyz.sleekstats.softball.dialogs.EditNameDialog;
 import xyz.sleekstats.softball.dialogs.GameSettingsDialog;
 import xyz.sleekstats.softball.dialogs.RemoveAllPlayersDialog;
-import xyz.sleekstats.softball.models.MainPageSelection;
-import xyz.sleekstats.softball.models.Player;
-import xyz.sleekstats.softball.models.Team;
+import xyz.sleekstats.softball.objects.MainPageSelection;
+import xyz.sleekstats.softball.objects.Player;
+import xyz.sleekstats.softball.objects.Team;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;

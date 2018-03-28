@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="MyAlertDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:borderlessButtonStyle">
+            @android:style/Widget.Material.Light.Button.Borderless
+        </item>
+    </style>
+</resources>

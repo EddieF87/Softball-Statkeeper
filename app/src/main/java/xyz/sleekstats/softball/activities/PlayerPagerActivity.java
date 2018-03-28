@@ -7,7 +7,7 @@ import android.os.Bundle;
 import xyz.sleekstats.softball.data.FirestoreHelper;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.fragments.PlayerFragment;
-import xyz.sleekstats.softball.models.MainPageSelection;
+import xyz.sleekstats.softball.objects.MainPageSelection;
 
 public class PlayerPagerActivity extends ObjectPagerActivity {
 

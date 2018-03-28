@@ -37,10 +37,10 @@ import xyz.sleekstats.softball.dialogs.EndOfGameDialog;
 import xyz.sleekstats.softball.dialogs.FinishGameConfirmationDialog;
 import xyz.sleekstats.softball.dialogs.GameSettingsDialog;
 import xyz.sleekstats.softball.dialogs.SaveDeleteGameDialog;
-import xyz.sleekstats.softball.models.BaseLog;
+import xyz.sleekstats.softball.objects.BaseLog;
 
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
-import xyz.sleekstats.softball.models.Player;
+import xyz.sleekstats.softball.objects.Player;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 

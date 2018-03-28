@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import xyz.sleekstats.softball.models.InningScore;
+import xyz.sleekstats.softball.objects.InningScore;
 import xyz.sleekstats.softball.R;
 
 import java.util.List;

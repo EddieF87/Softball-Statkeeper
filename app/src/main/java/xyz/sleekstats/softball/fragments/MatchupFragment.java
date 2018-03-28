@@ -2,7 +2,6 @@ package xyz.sleekstats.softball.fragments;
 
 
 import android.content.Context;
-import android.graphics.Color;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
@@ -40,8 +39,8 @@ import xyz.sleekstats.softball.adapters.MatchupAdapter;
 import xyz.sleekstats.softball.views.VerticalTextView;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
-import xyz.sleekstats.softball.models.MainPageSelection;
-import xyz.sleekstats.softball.models.Player;
+import xyz.sleekstats.softball.objects.MainPageSelection;
+import xyz.sleekstats.softball.objects.Player;
 
 import java.util.ArrayList;
 import java.util.HashMap;

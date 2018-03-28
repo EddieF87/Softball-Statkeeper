@@ -21,9 +21,9 @@ import xyz.sleekstats.softball.adapters.MatchupAdapter;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
 import xyz.sleekstats.softball.dialogs.EndOfGameDialog;
-import xyz.sleekstats.softball.models.BaseLog;
-import xyz.sleekstats.softball.models.MainPageSelection;
-import xyz.sleekstats.softball.models.Player;
+import xyz.sleekstats.softball.objects.BaseLog;
+import xyz.sleekstats.softball.objects.MainPageSelection;
+import xyz.sleekstats.softball.objects.Player;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -29,8 +29,8 @@ import xyz.sleekstats.softball.dialogs.GameSettingsDialog;
 import xyz.sleekstats.softball.fragments.MatchupFragment;
 import xyz.sleekstats.softball.fragments.StandingsFragment;
 import xyz.sleekstats.softball.fragments.StatsFragment;
-import xyz.sleekstats.softball.models.MainPageSelection;
-import xyz.sleekstats.softball.models.Team;
+import xyz.sleekstats.softball.objects.MainPageSelection;
+import xyz.sleekstats.softball.objects.Team;
 
 import java.util.ArrayList;
 import java.util.List;

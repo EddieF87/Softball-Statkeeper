@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package xyz.sleekstats.softball.models;
+package xyz.sleekstats.softball.objects;
 
 import android.database.Cursor;
 

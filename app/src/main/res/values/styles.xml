@@ -8,7 +8,7 @@
         <item name="android:windowBackground">@color/colorPrimaryLight</item>
         <item name="buttonStyle">@style/MyButtonStyle</item>
         <item name="android:textColor">@color/colorPrimaryDark</item>
-        <item name="alertDialogTheme">@style/MyAlertDialog</item>
+        <item name="android:alertDialogTheme">@style/MyAlertDialog</item>
     </style>
 
     <style name="RadioButtonStyle">
@@ -25,9 +25,10 @@
 
     <style name="MyButtonStyle" parent="Widget.AppCompat.Button.Colored">
         <item name="android:textColor">@color/colorDefault</item>
+        <item name="android:state_selected">@color/colorPrimaryDark</item>
     </style>
 
-    <style name="MyAlertDialog" parent="@style/ThemeOverlay.AppCompat.Dialog.Alert">
+    <style name="MyAlertDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
         <item name="android:textColor">@color/colorPrimaryDark</item>
     </style>
 

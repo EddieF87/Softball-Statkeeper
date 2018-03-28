@@ -15,7 +15,7 @@ import android.widget.Button;
 
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.views.MyEditText;
-import xyz.sleekstats.softball.models.Team;
+import xyz.sleekstats.softball.objects.Team;
 
 import java.util.ArrayList;
 

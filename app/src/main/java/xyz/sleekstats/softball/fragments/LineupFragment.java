@@ -41,8 +41,8 @@ import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
 import xyz.sleekstats.softball.dialogs.AddNewPlayersDialog;
 import xyz.sleekstats.softball.dialogs.GameSettingsDialog;
-import xyz.sleekstats.softball.models.MainPageSelection;
-import xyz.sleekstats.softball.models.Player;
+import xyz.sleekstats.softball.objects.MainPageSelection;
+import xyz.sleekstats.softball.objects.Player;
 import com.woxthebox.draglistview.BoardView;
 
 import java.util.ArrayList;

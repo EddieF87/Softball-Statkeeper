@@ -9,7 +9,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import xyz.sleekstats.softball.R;
-import xyz.sleekstats.softball.models.MainPageSelection;
+import xyz.sleekstats.softball.objects.MainPageSelection;
 
 import java.util.List;
 

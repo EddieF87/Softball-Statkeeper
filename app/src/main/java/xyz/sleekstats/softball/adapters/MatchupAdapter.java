@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import xyz.sleekstats.softball.models.Player;
+import xyz.sleekstats.softball.objects.Player;
 import xyz.sleekstats.softball.R;
 
 import java.util.List;

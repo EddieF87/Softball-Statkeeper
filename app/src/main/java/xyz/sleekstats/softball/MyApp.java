@@ -2,7 +2,7 @@ package xyz.sleekstats.softball;
 
 import android.app.Application;
 
-import xyz.sleekstats.softball.models.MainPageSelection;
+import xyz.sleekstats.softball.objects.MainPageSelection;
 
 /**
  * Created by Eddie on 11/10/2017.

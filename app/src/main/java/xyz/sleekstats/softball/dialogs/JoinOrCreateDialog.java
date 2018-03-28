@@ -11,7 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import xyz.sleekstats.softball.R;
-import xyz.sleekstats.softball.models.MainPageSelection;
+import xyz.sleekstats.softball.objects.MainPageSelection;
 
 
 public class JoinOrCreateDialog extends DialogFragment {

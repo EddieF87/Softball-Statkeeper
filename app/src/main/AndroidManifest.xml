@@ -28,7 +28,8 @@
             android:name="asset_statements"
             android:resource="@string/asset_statements" />
 
-        <activity android:name="xyz.sleekstats.softball.activities.MainActivity">
+        <activity android:name="xyz.sleekstats.softball.activities.MainActivity"
+            android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

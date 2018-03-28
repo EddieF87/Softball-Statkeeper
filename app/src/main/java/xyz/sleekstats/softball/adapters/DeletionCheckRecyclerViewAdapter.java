@@ -9,7 +9,7 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import xyz.sleekstats.softball.R;
-import xyz.sleekstats.softball.models.ItemMarkedForDeletion;
+import xyz.sleekstats.softball.objects.ItemMarkedForDeletion;
 
 import java.util.ArrayList;
 import java.util.List;

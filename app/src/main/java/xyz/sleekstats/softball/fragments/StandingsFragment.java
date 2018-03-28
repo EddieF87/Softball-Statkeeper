@@ -25,14 +25,13 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import xyz.sleekstats.softball.MyApp;
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.activities.UsersActivity;
 import xyz.sleekstats.softball.activities.TeamPagerActivity;
 import xyz.sleekstats.softball.adapters.StandingsAdapter;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
-import xyz.sleekstats.softball.models.MainPageSelection;
-import xyz.sleekstats.softball.models.Team;
+import xyz.sleekstats.softball.objects.MainPageSelection;
+import xyz.sleekstats.softball.objects.Team;
 
 import java.util.ArrayList;
 import java.util.Collections;

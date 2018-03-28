@@ -31,8 +31,8 @@ import xyz.sleekstats.softball.dialogs.GameSettingsDialog;
 import xyz.sleekstats.softball.dialogs.RemoveAllPlayersDialog;
 import xyz.sleekstats.softball.fragments.PlayerFragment;
 import xyz.sleekstats.softball.fragments.TeamFragment;
-import xyz.sleekstats.softball.models.MainPageSelection;
-import xyz.sleekstats.softball.models.Player;
+import xyz.sleekstats.softball.objects.MainPageSelection;
+import xyz.sleekstats.softball.objects.Player;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 

@@ -22,8 +22,8 @@ import xyz.sleekstats.softball.adapters.BoxScoreArrayAdapter;
 import xyz.sleekstats.softball.adapters.BoxScorePlayerCursorAdapter;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
-import xyz.sleekstats.softball.models.InningScore;
-import xyz.sleekstats.softball.models.MainPageSelection;
+import xyz.sleekstats.softball.objects.InningScore;
+import xyz.sleekstats.softball.objects.MainPageSelection;
 
 import java.util.ArrayList;
 import java.util.List;

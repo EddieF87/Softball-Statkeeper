@@ -1,4 +1,4 @@
-package xyz.sleekstats.softball.models;
+package xyz.sleekstats.softball.objects;
 
 import android.database.Cursor;
 

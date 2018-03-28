@@ -10,7 +10,7 @@ import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.data.FirestoreHelper;
 import xyz.sleekstats.softball.dialogs.EditNameDialog;
 import xyz.sleekstats.softball.fragments.PlayerFragment;
-import xyz.sleekstats.softball.models.MainPageSelection;
+import xyz.sleekstats.softball.objects.MainPageSelection;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class PlayerManagerActivity extends ExportActivity

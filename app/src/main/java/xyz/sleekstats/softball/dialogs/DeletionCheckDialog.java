@@ -16,7 +16,7 @@ import android.view.View;
 
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.adapters.DeletionCheckRecyclerViewAdapter;
-import xyz.sleekstats.softball.models.ItemMarkedForDeletion;
+import xyz.sleekstats.softball.objects.ItemMarkedForDeletion;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -27,10 +27,10 @@ import xyz.sleekstats.softball.activities.TeamManagerActivity;
 import xyz.sleekstats.softball.activities.TeamPagerActivity;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.dialogs.ChangeTeamDialog;
-import xyz.sleekstats.softball.models.Player;
+import xyz.sleekstats.softball.objects.Player;
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
-import xyz.sleekstats.softball.models.Team;
+import xyz.sleekstats.softball.objects.Team;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;

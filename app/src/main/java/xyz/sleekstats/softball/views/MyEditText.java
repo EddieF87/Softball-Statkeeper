@@ -29,10 +29,4 @@ public class MyEditText extends AppCompatEditText {
     public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
         return null;
     }
-
-//    @Override
-//    public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
-//        return AppCompatHintHelper.onCreateInputConnection(super.onCreateInputConnection(outAttrs),
-//                outAttrs, this);
-//    }
 }

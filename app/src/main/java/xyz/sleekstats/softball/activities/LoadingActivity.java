@@ -20,8 +20,8 @@ import xyz.sleekstats.softball.MyApp;
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.data.FirestoreHelper;
 import xyz.sleekstats.softball.dialogs.DeletionCheckDialog;
-import xyz.sleekstats.softball.models.ItemMarkedForDeletion;
-import xyz.sleekstats.softball.models.MainPageSelection;
+import xyz.sleekstats.softball.objects.ItemMarkedForDeletion;
+import xyz.sleekstats.softball.objects.MainPageSelection;
 
 import java.util.ArrayList;
 import java.util.List;

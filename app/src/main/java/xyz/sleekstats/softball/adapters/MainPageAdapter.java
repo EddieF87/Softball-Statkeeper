@@ -20,7 +20,7 @@ import xyz.sleekstats.softball.activities.LoadingActivity;
 import xyz.sleekstats.softball.activities.MainActivity;
 import xyz.sleekstats.softball.activities.PlayerManagerActivity;
 import xyz.sleekstats.softball.dialogs.SelectionInfoDialog;
-import xyz.sleekstats.softball.models.MainPageSelection;
+import xyz.sleekstats.softball.objects.MainPageSelection;
 
 import java.util.List;
 

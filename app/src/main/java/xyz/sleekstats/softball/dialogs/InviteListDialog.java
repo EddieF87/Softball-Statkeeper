@@ -15,7 +15,7 @@ import android.view.View;
 
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.adapters.InviteListRecyclerViewAdapter;
-import xyz.sleekstats.softball.models.MainPageSelection;
+import xyz.sleekstats.softball.objects.MainPageSelection;
 
 import java.util.ArrayList;
 import java.util.List;

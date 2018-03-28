@@ -14,12 +14,12 @@ import android.widget.Toast;
 
 import xyz.sleekstats.softball.MyApp;
 import xyz.sleekstats.softball.activities.UsersActivity;
-import xyz.sleekstats.softball.models.ItemMarkedForDeletion;
-import xyz.sleekstats.softball.models.Player;
-import xyz.sleekstats.softball.models.Team;
+import xyz.sleekstats.softball.objects.ItemMarkedForDeletion;
+import xyz.sleekstats.softball.objects.Player;
+import xyz.sleekstats.softball.objects.Team;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
-import xyz.sleekstats.softball.models.PlayerLog;
-import xyz.sleekstats.softball.models.TeamLog;
+import xyz.sleekstats.softball.objects.PlayerLog;
+import xyz.sleekstats.softball.objects.TeamLog;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;

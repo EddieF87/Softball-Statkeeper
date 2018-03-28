@@ -17,8 +17,8 @@ import android.widget.Toast;
 
 import xyz.sleekstats.softball.data.MyFileProvider;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
-import xyz.sleekstats.softball.models.Player;
-import xyz.sleekstats.softball.models.Team;
+import xyz.sleekstats.softball.objects.Player;
+import xyz.sleekstats.softball.objects.Team;
 import com.opencsv.CSVWriter;
 
 import java.io.File;
