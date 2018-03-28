@@ -30,8 +30,7 @@
     <string name="ab">AB</string>
     <string name="g">G</string>
     <string name="undo">Undo</string>
-    <string name="end_game_msg">This game is over. Would you like to finish?</string>
-    <string name="end_msg">Finish</string>
+    <string name="end_msg">Finish &amp; Update Stats</string>
     <string name="edit_name">Edit Name</string>
     <string name="edit_team">Change Team</string>
     <string name="delete_player">Delete Player</string>

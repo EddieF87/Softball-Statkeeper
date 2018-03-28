@@ -50,6 +50,7 @@ public class DeletionCheckDialog extends DialogFragment {
         }
     }
 
+
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -59,7 +60,7 @@ public class DeletionCheckDialog extends DialogFragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));
         recyclerView.setAdapter(mAdapter);
 
-        AlertDialog alertDialog = new AlertDialog.Builder(context)
+        AlertDialog alertDialog = new AlertDialog.Builder(context, R.style.MyAlertDialog)
                 .setView(view)
                 .setTitle("Permanently delete?")
                 .setMessage("The following players/teams have been deleted elsewhere." +

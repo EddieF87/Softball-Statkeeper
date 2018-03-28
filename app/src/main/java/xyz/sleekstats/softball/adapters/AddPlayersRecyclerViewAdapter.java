@@ -133,7 +133,7 @@ public class AddPlayersRecyclerViewAdapter extends RecyclerView.Adapter<AddPlaye
                                 mGenderEntries.add(0);
                                 notifyDataSetChanged();
                             }
-                        }, 500);
+                        }, 200);
                     }
                 }
             });

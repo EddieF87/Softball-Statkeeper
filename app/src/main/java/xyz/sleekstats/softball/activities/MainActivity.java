@@ -286,7 +286,7 @@ public class MainActivity extends AppCompatActivity
 
     private void openInviteDialog() {
         if(mInviteDialogFragment != null) {
-            mInviteDialogFragment.isShowing();
+            mInviteDialogFragment.dismissIfShowing();
         }
         FragmentManager fragmentManager = getSupportFragmentManager();
         mInviteDialogFragment = InviteListDialog.newInstance(mInviteList);
@@ -471,6 +471,11 @@ public class MainActivity extends AppCompatActivity
             public void onSuccess(Void aVoid) {
                 insertSelectionListToSQL(insertList);
             }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(MainActivity.this, "FAILLLL", Toast.LENGTH_LONG).show();
+            }
         });
     }
 
@@ -635,14 +640,24 @@ public class MainActivity extends AppCompatActivity
                         batch.update(userDoc, userCreatorUpdate);
                         batch.update(leagueDoc, leagueCreatorUpdate);
                     }
-                    batch.commit();
+                    batch.commit().addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(MainActivity.this, "FAILLLL 1111111111", Toast.LENGTH_LONG).show();
+                        }
+                    });
                 }
                 SharedPreferences updatePreferences = getSharedPreferences(selectionID + "_updateSettings", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = updatePreferences.edit();
                 editor.clear();
                 editor.apply();
             }
-        });
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(MainActivity.this, "FAILLLL 1111111111", Toast.LENGTH_LONG).show();
+            }
+        });;
     }
 
     @Override

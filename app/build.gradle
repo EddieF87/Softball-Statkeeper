@@ -45,16 +45,16 @@ dependencies {
 
     // Firestore
     implementation 'com.google.firebase:firebase-core:12.0.0'
+    implementation 'com.google.firebase:firebase-invites:12.0.0'
     implementation 'com.google.firebase:firebase-ads:12.0.0'
     implementation 'com.google.firebase:firebase-firestore:12.0.0'
-    // Other Firebase/Play services deps
     implementation 'com.google.firebase:firebase-auth:12.0.0'
     implementation 'com.google.android.gms:play-services-auth:12.0.0'
-    // FirebaseUI (for authentication)
-    implementation 'com.firebaseui:firebase-ui-auth:3.1.0'
+    implementation 'com.firebaseui:firebase-ui-auth:3.2.2'
     implementation 'com.crashlytics.sdk.android:crashlytics:2.9.1'
 
-    implementation files('libs/opencsv-4.1.jar')
+    implementation 'com.opencsv:opencsv:4.1'
+
 }
 
 apply plugin: 'com.google.gms.google-services'

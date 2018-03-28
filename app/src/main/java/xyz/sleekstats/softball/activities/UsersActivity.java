@@ -20,14 +20,19 @@ import xyz.sleekstats.softball.MyApp;
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.adapters.UserListAdapter;
 import xyz.sleekstats.softball.data.StatsContract;
+import xyz.sleekstats.softball.dialogs.CancelLoadDialog;
 import xyz.sleekstats.softball.dialogs.EmailInviteDialog;
 import xyz.sleekstats.softball.dialogs.InviteUserDialog;
 import xyz.sleekstats.softball.objects.MainPageSelection;
 import xyz.sleekstats.softball.objects.StatKeepUser;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.dynamiclinks.DynamicLink;
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
+import com.google.firebase.dynamiclinks.ShortDynamicLink;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -49,6 +54,7 @@ import static xyz.sleekstats.softball.data.FirestoreHelper.USERS;
 public class UsersActivity extends AppCompatActivity
         implements InviteUserDialog.OnFragmentInteractionListener,
         EmailInviteDialog.OnListFragmentInteractionListener,
+CancelLoadDialog.OnListFragmentInteractionListener,
         UserListAdapter.AdapterListener {
 
     private static final String SAVED_MAP = "map";
@@ -78,6 +84,9 @@ public class UsersActivity extends AppCompatActivity
     private String mSelectionName;
     private int mSelectionType;
     private int mLevel;
+
+    private CancelLoadDialog mCancelLoadDialog;
+    boolean loadingUri;
 
     private FirebaseFirestore firestore;
 
@@ -319,31 +328,102 @@ public class UsersActivity extends AppCompatActivity
             public void onSuccess(QuerySnapshot querySnapshot) {
                 DocumentSnapshot documentSnapshot = querySnapshot.getDocuments().get(0);
                 String codeText = documentSnapshot.getId();
-                sendInvite(codeText);
+                createMsgInvite(codeText);
             }
         });
 
     }
 
-    private void sendInvite(String codeText) {
-        String selectionType;
+    private void createMsgInvite(final String codeText) {
+        final String selectionType;
         if (mSelectionType == MainPageSelection.TYPE_LEAGUE) {
             selectionType = "League";
         } else {
             selectionType = "Team";
         }
 
+
+        DynamicLink dynamicLink = FirebaseDynamicLinks.getInstance().createDynamicLink()
+                .setLink(Uri.parse("http://seekstats.xyz/"))
+                .setDynamicLinkDomain("v4mcm.app.goo.gl")
+                // Open links with this app on Android
+                .setAndroidParameters(new DynamicLink.AndroidParameters.Builder()
+                        .setFallbackUrl(Uri.parse("http://play.google.com/store/apps/details?id=com.google.android.apps.maps"))
+                        .build())
+                // Open links with com.example.ios on iOS
+                .setIosParameters(new DynamicLink.IosParameters.Builder("com.example.ios").build())
+                .buildDynamicLink();
+
+        Uri dynamicLinkUri = dynamicLink.getUri();
+
+        Task<ShortDynamicLink> shortLinkTask = FirebaseDynamicLinks.getInstance().createDynamicLink()
+                .setLongLink(dynamicLinkUri)
+                .buildShortDynamicLink()
+                .addOnCompleteListener(this, new OnCompleteListener<ShortDynamicLink>() {
+                    @Override
+                    public void onComplete(@NonNull Task<ShortDynamicLink> task) {
+                        if (startAdderBtn != null) {
+                            startAdderBtn.setVisibility(View.VISIBLE);
+                        }
+                        if (mProgressBar != null) {
+                            mProgressBar.setVisibility(View.GONE);
+                        }
+                        loadingUri = false;
+                        if (mCancelLoadDialog != null) {
+                            mCancelLoadDialog.dismissIfShowing();
+                        }
+                        if (task.isSuccessful()) {
+                            // Short link created
+                            Uri shortLink = task.getResult().getShortLink();
+                            Uri flowchartLink = task.getResult().getPreviewLink();
+                            sendMsgInvite(shortLink, selectionType, codeText);
+                        } else {
+                            Toast.makeText(UsersActivity.this, "Error creating link. " +
+                                    "\n Please try again.", Toast.LENGTH_SHORT).show();
+                        }
+
+                    }
+                });
+        mProgressBar.setVisibility(View.VISIBLE);
+        loadingUri = true;
+//        Intent msgIntent = new Intent(Intent.ACTION_SEND);
+//        msgIntent.setType("text/plain");
+//        msgIntent.putExtra(Intent.EXTRA_TEXT, "You're invited to view the stats & standings for "
+//                + mSelectionName + "!\n\nTo join follow these simple steps:" + dynamicLinkUri +
+//                "\n\n    1. Log on to the StatKeeper app: " + "https://play.google.com/store/apps/details?id=xyz.sleekstats.softball" +
+//                "\n\n    2. Click on \"Join " + selectionType + "\"" +
+//                "\n\n    3. Enter the following code: " + mSelectionID + "-" + codeText);
+//
+//        startActivity(Intent.createChooser(msgIntent, "Message invite code to friends!"));
+    }
+
+
+    private void openCancelLoadDialog() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        mCancelLoadDialog = new CancelLoadDialog();
+        mCancelLoadDialog.show(fragmentTransaction, "");
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (loadingUri) {
+            openCancelLoadDialog();
+            return;
+        }
+        super.onBackPressed();
+    }
+
+    public void sendMsgInvite(Uri shortLink, String selectionType, String codeText) {
         Intent msgIntent = new Intent(Intent.ACTION_SEND);
         msgIntent.setType("text/plain");
         msgIntent.putExtra(Intent.EXTRA_TEXT, "You're invited to view the stats & standings for "
-                + mSelectionName + "!\n\nTo join follow these simple steps:" +
+                + mSelectionName + "!\n\nTo join follow these simple steps:" + shortLink +
                 "\n\n    1. Log on to the StatKeeper app: " + "https://play.google.com/store/apps/details?id=xyz.sleekstats.softball" +
                 "\n\n    2. Click on \"Join " + selectionType + "\"" +
                 "\n\n    3. Enter the following code: " + mSelectionID + "-" + codeText);
 
-        startActivity(Intent.createChooser(msgIntent, "Message invite code to friends!"));
-
-        startAdderBtn.setVisibility(View.VISIBLE);
+        startActivity(Intent.createChooser(msgIntent, "Send View-Link to friends!"));
     }
 
 
@@ -361,7 +441,7 @@ public class UsersActivity extends AppCompatActivity
 
         for (int i = 0; i < emailSize; i++) {
             String emailText = emails.get(i);
-            if(emailText == null || emailText.isEmpty()) {
+            if (emailText == null || emailText.isEmpty()) {
                 continue;
             }
             final String email = emailText.toLowerCase();
@@ -425,4 +505,9 @@ public class UsersActivity extends AppCompatActivity
         startAdderBtn.setVisibility(View.VISIBLE);
     }
 
+    @Override
+    public void onCancelLoad() {
+        loadingUri = false;
+        onBackPressed();
+    }
 }

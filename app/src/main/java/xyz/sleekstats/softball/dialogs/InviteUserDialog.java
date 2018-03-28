@@ -26,7 +26,7 @@ public class InviteUserDialog extends DialogFragment {
 
         AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
                 .setTitle("Invite Users")
-                .setNeutralButton("Message Invite Codes", new DialogInterface.OnClickListener() {
+                .setNeutralButton("Share View Link", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int i) {
                         if (mListener != null) {

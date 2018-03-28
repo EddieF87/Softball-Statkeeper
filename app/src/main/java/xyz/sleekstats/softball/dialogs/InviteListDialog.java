@@ -80,7 +80,7 @@ public class InviteListDialog extends DialogFragment {
         return myDialog;
     }
 
-    public void isShowing(){
+    public void dismissIfShowing(){
         if (myDialog != null && myDialog.isShowing()){
             myDialog.dismiss();
         }

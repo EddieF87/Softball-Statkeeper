@@ -559,7 +559,7 @@ public abstract class GameActivity extends AppCompatActivity
         }
         fragmentTransaction.addToBackStack(null);
 
-        DialogFragment newFragment = EndOfGameDialog.newInstance();
+        DialogFragment newFragment = EndOfGameDialog.newInstance(homeTeamName, awayTeamName, homeTeamRuns, awayTeamRuns);
         newFragment.show(fragmentTransaction, DIALOG_FINISH);
     }
 
