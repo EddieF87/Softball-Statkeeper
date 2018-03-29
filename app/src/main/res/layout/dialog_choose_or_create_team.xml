@@ -18,7 +18,7 @@
         android:layout_marginTop="8dp"
         android:text="@string/select_from_current_teams" />
 
-    <xyz.sleekstats.softball.views.MyEditText
+    <EditText
         android:id="@+id/edit_text_new_team"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

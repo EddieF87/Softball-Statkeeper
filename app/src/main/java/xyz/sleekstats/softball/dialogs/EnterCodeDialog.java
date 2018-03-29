@@ -10,6 +10,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.EditText;
 
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.views.MyEditText;
@@ -21,7 +22,7 @@ import xyz.sleekstats.softball.views.MyEditText;
 public class EnterCodeDialog extends DialogFragment {
 
     private EnterCodeDialog.OnFragmentInteractionListener mListener;
-    private MyEditText mCodeText;
+    private EditText mCodeText;
     private int mType;
 
     public EnterCodeDialog() {

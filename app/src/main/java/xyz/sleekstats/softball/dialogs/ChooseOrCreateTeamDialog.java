@@ -12,6 +12,7 @@ import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.views.MyEditText;
@@ -25,7 +26,7 @@ public class ChooseOrCreateTeamDialog extends DialogFragment {
 
     private ArrayList<Team> mTeams;
     private static final String KEY_TEAMS = "mTeams";
-    private MyEditText newTeamEditText;
+    private EditText newTeamEditText;
 
     private ChooseOrCreateTeamDialog.OnFragmentInteractionListener mListener;
 

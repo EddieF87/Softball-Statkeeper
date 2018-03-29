@@ -4,13 +4,20 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
+import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 
 import xyz.sleekstats.softball.MyApp;
 import xyz.sleekstats.softball.R;
@@ -73,14 +80,14 @@ public class TeamManagerActivity extends ExportActivity
 
 
         Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, null, null, null, null);
-        if(cursor.moveToFirst()){
+        if (cursor.moveToFirst()) {
             FirestoreHelper firestoreHelper = new FirestoreHelper(TeamManagerActivity.this, mTeamID);
             firestoreHelper.retryGameLogLoad();
             cursor.close();
             return;
         }
         cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_TEAMS, null, null, null, null);
-        if(cursor.moveToFirst()){
+        if (cursor.moveToFirst()) {
             FirestoreHelper firestoreHelper = new FirestoreHelper(TeamManagerActivity.this, mTeamID);
             firestoreHelper.retryGameLogLoad();
         }

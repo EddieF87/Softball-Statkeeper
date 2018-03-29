@@ -57,6 +57,8 @@ public class LeagueManagerActivity extends ExportActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lg_mgr_pager);
 
+
+
         try {
             MyApp myApp = (MyApp) getApplicationContext();
             MainPageSelection mainPageSelection = myApp.getCurrentSelection();

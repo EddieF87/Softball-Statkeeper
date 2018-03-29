@@ -7,6 +7,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -107,7 +108,7 @@ public class EmailInviteRecyclerViewAdapter extends RecyclerView.Adapter<EmailIn
     }
 
     class InviteViewHolder extends RecyclerView.ViewHolder {
-        private final MyEditText mEditText;
+        private final EditText mEditText;
         private final TextView levelTextView;
         private final SeekBar mSeekBar;
 

@@ -341,10 +341,12 @@ CancelLoadDialog.OnListFragmentInteractionListener,
         } else {
             selectionType = "Team";
         }
+        String linkString = "http://sleekstats.xyz/" + selectionType.toLowerCase()
+                + "?key=" + mSelectionID + "-" + mSelectionName;
 
 
         DynamicLink dynamicLink = FirebaseDynamicLinks.getInstance().createDynamicLink()
-                .setLink(Uri.parse("http://seekstats.xyz/"))
+                .setLink(Uri.parse(linkString))
                 .setDynamicLinkDomain("v4mcm.app.goo.gl")
                 // Open links with this app on Android
                 .setAndroidParameters(new DynamicLink.AndroidParameters.Builder()

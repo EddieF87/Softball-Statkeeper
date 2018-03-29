@@ -10,6 +10,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.EditText;
 
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.views.MyEditText;
@@ -18,7 +19,7 @@ public class EditNameDialog extends DialogFragment {
 
     private EditNameDialog.OnFragmentInteractionListener mListener;
     private String mTitle;
-    private MyEditText mEditText;
+    private EditText mEditText;
     private int mType;
 
     public EditNameDialog() {

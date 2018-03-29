@@ -27,6 +27,7 @@ android {
             res.srcDirs = ['src/main/res', 'src/main/res/color-v24', 'src/main/res/drawable-v24', 'src/main/res/values-v24']
         }
     }
+
 }
 
 
@@ -53,8 +54,10 @@ dependencies {
     implementation 'com.firebaseui:firebase-ui-auth:3.2.2'
     implementation 'com.crashlytics.sdk.android:crashlytics:2.9.1'
 
-    implementation 'com.opencsv:opencsv:4.1'
+    implementation files('libs/opencsv-4.1.jar')
 
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.5.4'
+    releaseImplementation 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.4'
 }
 
 apply plugin: 'com.google.gms.google-services'

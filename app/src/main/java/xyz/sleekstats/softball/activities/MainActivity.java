@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.net.Uri;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
@@ -48,6 +50,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
+import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
@@ -141,17 +145,91 @@ public class MainActivity extends AppCompatActivity
     protected void authenticateUser() {
         mAuth = FirebaseAuth.getInstance();
         if (mAuth.getCurrentUser() != null) {
+            Log.d("xyxyx", "mAuth.getCurrentUser() != null");
             loadSelections();
             invalidateOptionsMenu();
+            checkInvite();
         } else {
             startActivityForResult(AuthUI.getInstance()
                     .createSignInIntentBuilder()
                     .setIsSmartLockEnabled(true)
                     .setAvailableProviders(
-                            Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build(),
-                                    new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()
+                            Arrays.asList(new AuthUI.IdpConfig.EmailBuilder().build(),
+                                    new AuthUI.IdpConfig.GoogleBuilder().build()
                             )).build(), RC_SIGN_IN);
         }
+    }
+
+    private void checkInvite(){
+        Log.d("xyxyx", "checkInvite");
+        FirebaseDynamicLinks.getInstance()
+                .getDynamicLink(getIntent())
+                .addOnSuccessListener(this, new OnSuccessListener<PendingDynamicLinkData>() {
+                    @Override
+                    public void onSuccess(PendingDynamicLinkData pendingDynamicLinkData) {
+                        // Get deep link from result (may be null if no link is found)
+                        Log.d("xyxyx", "getDynamicLink:SUCCESS");
+
+                        Uri deepLink = null;
+                        if (pendingDynamicLinkData != null) {
+                            deepLink = pendingDynamicLinkData.getLink();
+                        } else {
+                            Log.d("xyxyx", "pendingDynamicLinkData == null");
+                            return;
+                        }
+                        Log.d("xyxyx", "uri: " + deepLink.toString());
+
+                        String path = deepLink.getPath();
+                        Log.d("xyxyx", "path: " + path);
+                        String fullText = deepLink.getQueryParameter("key");
+                        String[] splitCode = fullText.split("-");
+                        final String id = splitCode[0];
+                        final String name = splitCode[1];
+                        int level = 1;
+                        int type;
+                        Log.d("xyxyx", "id: " + id);
+
+                        switch (path) {
+                            case "/" + StatsEntry.COLUMN_TEAM:
+                                type = MainPageSelection.TYPE_TEAM;
+                                break;
+                            case "/" + StatsEntry.COLUMN_LEAGUE:
+                                type = MainPageSelection.TYPE_LEAGUE;
+                                break;
+                            default:
+                                Log.d("xyxyx", "path: wrong");
+                                return;
+                        }
+
+                        MyApp myApp = (MyApp) getApplicationContext();
+
+                        String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
+                        String[] selectionArgs = new String[]{id};
+                        String[] projection = new String[]{StatsEntry.COLUMN_FIRESTORE_ID, StatsEntry.LEVEL};
+                        Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_SELECTIONS,
+                                projection, selection, selectionArgs, null);
+                        if(cursor.moveToFirst()) {
+                            level = StatsContract.getColumnInt(cursor, StatsEntry.LEVEL);
+                            myApp.setCurrentSelection(new MainPageSelection(id, name, type, level));
+                            final Intent intent;
+                            intent = new Intent(MainActivity.this, LoadingActivity.class);
+                            startActivity(intent);
+                            return;
+                        }
+
+                        myApp.setCurrentSelection(new MainPageSelection(id, name, type, level));
+                        Log.d("xyxyx", "MainPageSelection: " + id + name + type + level);
+
+                        addSelection(name, type, level, id);
+                    }
+                })
+                .addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d("xyxyx", "getDynamicLink:onFailure", e);
+
+                    }
+                });
     }
 
     @Override
@@ -1001,7 +1079,6 @@ public class MainActivity extends AppCompatActivity
                                 postMessage(1);
                                 return;
                             }
-
                             if (!String.valueOf(type).equals(requestType)) {
                                 if (type == MainPageSelection.TYPE_TEAM) {
                                     postMessage(3);
@@ -1010,15 +1087,12 @@ public class MainActivity extends AppCompatActivity
                                 }
                                 return;
                             }
-
                             if (level == UsersActivity.LEVEL_VIEW_ONLY) {
                                 postMessage(0);
                                 addSelection(name, type, level, idText);
                             } else {
                                 Log.d("xyedd", "???????? fail");
-
                             }
-
                         } catch (Exception e) {
                             postMessage(99);
                         }

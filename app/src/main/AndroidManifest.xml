@@ -28,30 +28,33 @@
             android:name="asset_statements"
             android:resource="@string/asset_statements" />
 
-        <activity android:name="xyz.sleekstats.softball.activities.MainActivity"
-            android:theme="@style/AppTheme">
+        <activity
+            android:name="xyz.sleekstats.softball.activities.MainActivity"
+            android:theme="@style/AppTheme"
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <!--http://play.google.com/store/apps/details?id=com.google.android.apps.maps-->
 
-            <!--todo-->
-            <intent-filter>
+            <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <category android:name="android.intent.category.DEFAULT" />
 
-                <data android:scheme="http" android:host="seekstats.xyz"/>
-                <data android:scheme="https"/>
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="https" android:host="sleekstats.xyz" />
+                <data android:path="/league" />
+                <data android:path="/team" />
             </intent-filter>
         </activity>
 
         <activity
             android:name="xyz.sleekstats.softball.activities.LeagueManagerActivity"
             android:launchMode="singleTask"
-            android:parentActivityName="xyz.sleekstats.softball.activities.MainActivity" />
+            android:parentActivityName="xyz.sleekstats.softball.activities.MainActivity">
+        </activity>
 
         <activity
             android:name="xyz.sleekstats.softball.activities.LeagueGameActivity"
@@ -82,7 +85,8 @@
         <activity
             android:name="xyz.sleekstats.softball.activities.TeamManagerActivity"
             android:launchMode="singleTask"
-            android:parentActivityName="xyz.sleekstats.softball.activities.MainActivity" />
+            android:parentActivityName="xyz.sleekstats.softball.activities.MainActivity">
+        </activity>
 
         <activity android:name="xyz.sleekstats.softball.activities.PlayerManagerActivity" />
 

@@ -31,7 +31,7 @@
         app:layout_constraintTop_toBottomOf="@+id/new_user_level_view"
         android:layout_marginLeft="8dp" />
 
-    <xyz.sleekstats.softball.views.MyEditText
+    <EditText
         android:id="@+id/new_user_edit"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

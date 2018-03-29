@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ToggleButton;
 
 import xyz.sleekstats.softball.R;
@@ -103,7 +104,7 @@ public class AddPlayersRecyclerViewAdapter extends RecyclerView.Adapter<AddPlaye
     }
 
     class EditViewHolder extends RecyclerView.ViewHolder {
-        private final MyEditText mEditText;
+        private final EditText mEditText;
         private final ToggleButton mToggle;
 
         EditViewHolder(View view) {
