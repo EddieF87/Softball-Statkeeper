@@ -20,6 +20,7 @@ import xyz.sleekstats.softball.data.FirestoreHelper;
 import xyz.sleekstats.softball.adapters.MatchupAdapter;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
+import xyz.sleekstats.softball.data.TimeStampUpdater;
 import xyz.sleekstats.softball.dialogs.EndOfGameDialog;
 import xyz.sleekstats.softball.objects.BaseLog;
 import xyz.sleekstats.softball.objects.MainPageSelection;
@@ -441,14 +442,14 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
 
     @Override
     protected void firestoreUpdate() {
-        FirestoreHelper firestoreHelper = new FirestoreHelper(this, selectionID);
+        long gameID = System.currentTimeMillis();
         if (isHome) {
-            firestoreHelper.addTeamStatsToDB(selectionID, homeTeamRuns, awayTeamRuns);
+            sendTeamIntent(gameID, selectionID, homeTeamRuns, awayTeamRuns);
         } else {
-            firestoreHelper.addTeamStatsToDB(selectionID, awayTeamRuns, homeTeamRuns);
+            sendTeamIntent(gameID, selectionID, awayTeamRuns, homeTeamRuns);
         }
-        firestoreHelper.addPlayerStatsToDB();
-        firestoreHelper.updateTimeStamps();
+        sendPlayersIntent(gameID);
+        TimeStampUpdater.updateTimeStamps(this, selectionID);
     }
 
     @Override

@@ -6,6 +6,8 @@
 package xyz.sleekstats.softball.objects;
 
 import android.database.Cursor;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import xyz.sleekstats.softball.data.StatsContract.*;
 
@@ -17,7 +19,8 @@ import static xyz.sleekstats.softball.data.StatsContract.getColumnString;
 /**
  * @author Eddie
  */
-public class Player {
+
+public class Player implements Parcelable {
 
     private String name;
     private String team;
@@ -431,4 +434,61 @@ public class Player {
         Player comparedPlayer = (Player) obj;
         return this.firestoreID.equals(comparedPlayer.getFirestoreID());
     }
+
+    protected Player(Parcel in) {
+        name = in.readString();
+        team = in.readString();
+        singles = in.readInt();
+        doubles = in.readInt();
+        triples = in.readInt();
+        hrs = in.readInt();
+        walks = in.readInt();
+        runs = in.readInt();
+        rbis = in.readInt();
+        outs = in.readInt();
+        sacFlies = in.readInt();
+        games = in.readInt();
+        gender = in.readInt();
+        playerId = in.readLong();
+        firestoreID = in.readString();
+        teamfirestoreid = in.readString();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(name);
+        dest.writeString(team);
+        dest.writeInt(singles);
+        dest.writeInt(doubles);
+        dest.writeInt(triples);
+        dest.writeInt(hrs);
+        dest.writeInt(walks);
+        dest.writeInt(runs);
+        dest.writeInt(rbis);
+        dest.writeInt(outs);
+        dest.writeInt(sacFlies);
+        dest.writeInt(games);
+        dest.writeInt(gender);
+        dest.writeLong(playerId);
+        dest.writeString(firestoreID);
+        dest.writeString(teamfirestoreid);
+    }
+
+    @SuppressWarnings("unused")
+    public static final Parcelable.Creator<Player> CREATOR = new Parcelable.Creator<Player>() {
+        @Override
+        public Player createFromParcel(Parcel in) {
+            return new Player(in);
+        }
+
+        @Override
+        public Player[] newArray(int size) {
+            return new Player[size];
+        }
+    };
 }

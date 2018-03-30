@@ -82,9 +82,10 @@ public class MainPageAdapter extends RecyclerView.Adapter<MainPageAdapter.MainPa
             public void onClick(View view) {
                 MyApp myApp = (MyApp) mContext.getApplicationContext();
                 myApp.setCurrentSelection(mainPageSelection);
-//                mList.clear();
-//                notifyDataSetChanged();
                 startActivity(mContext, intent, null);
+                if(mContext instanceof MainActivity) {
+                    ((MainActivity) mContext).finish();
+                }
             }
         });
         holder.mInfoView.setOnClickListener(new View.OnClickListener() {

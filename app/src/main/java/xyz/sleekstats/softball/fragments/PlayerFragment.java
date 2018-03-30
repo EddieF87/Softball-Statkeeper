@@ -37,6 +37,7 @@ import xyz.sleekstats.softball.activities.UsersActivity;
 import xyz.sleekstats.softball.data.FirestoreHelper;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
+import xyz.sleekstats.softball.data.TimeStampUpdater;
 import xyz.sleekstats.softball.dialogs.ChangeTeamDialog;
 import xyz.sleekstats.softball.dialogs.DeleteConfirmationDialog;
 import xyz.sleekstats.softball.dialogs.EditNameDialog;
@@ -499,7 +500,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 contentValues.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
                 int rowsUpdated = getActivity().getContentResolver().update(mCurrentPlayerUri, contentValues, null, null);
                 if(rowsUpdated > 0) {
-                    new FirestoreHelper(getActivity(), mSelectionID).updateTimeStamps();
+                    TimeStampUpdater.updateTimeStamps(getActivity(), mSelectionID);
                 }
                 setColor();
                 ((PlayerPagerActivity) getActivity()).returnGenderEdit(gender, firestoreID);
@@ -577,13 +578,20 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     }
 
     public void deletePlayer() {
-        FirestoreHelper firestoreHelper = new FirestoreHelper(getActivity(), mSelectionID);
         if (mCurrentPlayerUri != null) {
             String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
             String[] selectionArgs = new String[]{firestoreID};
             int rowsDeleted = getActivity().getContentResolver().delete(mCurrentPlayerUri, selection, selectionArgs);
             if (rowsDeleted > 0) {
-                firestoreHelper.addDeletion(firestoreID, 1, playerName, gender, teamFirestoreID);
+                Intent intent = new Intent(getActivity(), FirestoreHelper.class);
+                intent.putExtra(FirestoreHelper.STATKEEPER_ID, mSelectionID);
+                intent.setAction(FirestoreHelper.INTENT_DELETE_PLAYER);
+                intent.putExtra(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
+                intent.putExtra(StatsEntry.TYPE, 1);
+                intent.putExtra(StatsEntry.COLUMN_NAME, playerName);
+                intent.putExtra(StatsEntry.COLUMN_GENDER, gender);
+                intent.putExtra(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, teamFirestoreID);
+                getActivity().startService(intent);
                 Toast.makeText(getActivity(), playerName + " " + getString(R.string.editor_delete_player_successful), Toast.LENGTH_SHORT).show();
             } else {
                 return;

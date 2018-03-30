@@ -22,6 +22,7 @@ import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.data.FirestoreHelper;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
+import xyz.sleekstats.softball.data.TimeStampUpdater;
 import xyz.sleekstats.softball.dialogs.AddNewPlayersDialog;
 import xyz.sleekstats.softball.dialogs.ChangeTeamDialog;
 import xyz.sleekstats.softball.dialogs.DeleteConfirmationDialog;
@@ -52,7 +53,7 @@ public abstract class ObjectPagerActivity extends AppCompatActivity
     private ViewPager mViewPager;
     private int selectionType;
     private int level;
-    private String selectionID;
+    private String mSelectionID;
     private String selectionName;
     private int mObjectType;
     private Uri mUri;
@@ -139,7 +140,7 @@ public abstract class ObjectPagerActivity extends AppCompatActivity
             MainPageSelection mainPageSelection = myApp.getCurrentSelection();
             selectionType = mainPageSelection.getType();
             selectionName = mainPageSelection.getName();
-            selectionID = mainPageSelection.getId();
+            mSelectionID = mainPageSelection.getId();
             level = mainPageSelection.getLevel();
         } catch (Exception e) {
             Intent intent = new Intent(ObjectPagerActivity.this, MainActivity.class);
@@ -151,7 +152,6 @@ public abstract class ObjectPagerActivity extends AppCompatActivity
     @Override
     public void onSubmitPlayersListener(List<String> names, List<Integer> genders, String teamName, String teamID) {
         List<Player> players = new ArrayList<>();
-        FirestoreHelper firestoreHelper = new FirestoreHelper(this, selectionID);
         for (int i = 0; i < names.size() - 1; i++) {
             ContentValues values = new ContentValues();
             String playerName = names.get(i);
@@ -178,7 +178,7 @@ public abstract class ObjectPagerActivity extends AppCompatActivity
 
 
         if (!players.isEmpty()) {
-            firestoreHelper.updateTimeStamps();
+            TimeStampUpdater.updateTimeStamps(this, mSelectionID);
             int pos = mViewPager.getCurrentItem();
             TeamFragment teamFragment = (TeamFragment) mAdapter.getRegisteredFragment(pos);
             if (teamFragment != null) {
@@ -218,7 +218,7 @@ public abstract class ObjectPagerActivity extends AppCompatActivity
                 teamFragment.showDeleteVsWaiversDialog();
             }
         }
-        new FirestoreHelper(this, selectionID).updateTimeStamps();
+        TimeStampUpdater.updateTimeStamps(this, mSelectionID);
         setResult(RESULT_OK);
     }
 
@@ -262,7 +262,7 @@ public abstract class ObjectPagerActivity extends AppCompatActivity
     }
 
     String getSelectionID() {
-        return selectionID;
+        return mSelectionID;
     }
 
     int getSelectionType() {
@@ -293,19 +293,18 @@ public abstract class ObjectPagerActivity extends AppCompatActivity
         values.put(StatsEntry.COLUMN_FIRESTORE_ID, playerFirestoreID);
         getContentResolver().update(StatsEntry.CONTENT_URI_PLAYERS, values, selection, selectionArgs);
 
-        if(selectionID == null) {
+        if(mSelectionID == null) {
             setLeagueInfo();
         }
-        FirestoreHelper firestoreHelper = new FirestoreHelper(ObjectPagerActivity.this, selectionID);
-        firestoreHelper.setUpdate(playerFirestoreID, 1);
-        firestoreHelper.updateTimeStamps();
+        TimeStampUpdater.setUpdate(playerFirestoreID, 1, mSelectionID, this);
+        TimeStampUpdater.updateTimeStamps(this, mSelectionID);
 
         if (mObjectType == KEY_TEAM_PAGER) {
             TeamFragment teamFragment = (TeamFragment) mAdapter.getRegisteredFragment(pos);
             if (teamFragment != null && !teamFirestoreID.equals(StatsEntry.FREE_AGENT)) {
                 teamFragment.removePlayerFromTeam(playerFirestoreID);
             }
-            new FirestoreHelper(this, selectionID).updateTimeStamps();
+            TimeStampUpdater.updateTimeStamps(this, mSelectionID);
         }
         setResult(RESULT_OK);
     }
@@ -333,9 +332,9 @@ public abstract class ObjectPagerActivity extends AppCompatActivity
             }
             switch (mObjectType) {
                 case 0:
-                    return TeamFragment.newInstance(selectionID, selectionType, selectionName, level, currentObjectUri);
+                    return TeamFragment.newInstance(mSelectionID, selectionType, selectionName, level, currentObjectUri);
                 case 1:
-                    return PlayerFragment.newInstance(selectionID, selectionType, level, currentObjectUri);
+                    return PlayerFragment.newInstance(mSelectionID, selectionType, level, currentObjectUri);
                 default:
                     return null;
             }

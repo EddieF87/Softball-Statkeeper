@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import static xyz.sleekstats.softball.data.FirestoreHelper.LEAGUE_COLLECTION;
@@ -17,12 +18,10 @@ import static xyz.sleekstats.softball.data.FirestoreHelper.LEAGUE_COLLECTION;
 
 public class FireTaskLoader extends android.support.v4.content.AsyncTaskLoader<QuerySnapshot> {
 
-    private final String userID;
     private boolean loading;
 
-    public FireTaskLoader(@NonNull Context context, String id) {
+    public FireTaskLoader(@NonNull Context context) {
         super(context);
-        userID = id;
     }
 
     @Override
@@ -37,7 +36,11 @@ public class FireTaskLoader extends android.support.v4.content.AsyncTaskLoader<Q
     public QuerySnapshot loadInBackground() {
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         String userId = mAuth.getCurrentUser().getUid();
+        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
+                .setPersistenceEnabled(false)
+                .build();
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        firestore.setFirestoreSettings(settings);
 
         Task<QuerySnapshot> task = firestore.collection(LEAGUE_COLLECTION)
                 .whereLessThan(userId, 99)

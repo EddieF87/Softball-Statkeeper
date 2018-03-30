@@ -25,6 +25,7 @@ import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.adapters.MatchupAdapter;
 import xyz.sleekstats.softball.data.FirestoreHelper;
 import xyz.sleekstats.softball.data.StatsContract;
+import xyz.sleekstats.softball.data.TimeStampUpdater;
 import xyz.sleekstats.softball.objects.BaseLog;
 
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
@@ -388,11 +389,11 @@ public class LeagueGameActivity extends GameActivity {
 
     @Override
     protected void firestoreUpdate() {
-        FirestoreHelper firestoreHelper = new FirestoreHelper(this, selectionID);
-        firestoreHelper.addTeamStatsToDB(homeTeamID, homeTeamRuns, awayTeamRuns);
-        firestoreHelper.addTeamStatsToDB(awayTeamID, awayTeamRuns, homeTeamRuns);
-        firestoreHelper.addPlayerStatsToDB();
-        firestoreHelper.updateTimeStamps();
+        long gameID = System.currentTimeMillis();
+        sendTeamIntent(gameID, awayTeamID, awayTeamRuns, homeTeamRuns);
+        sendTeamIntent(gameID, homeTeamID, homeTeamRuns, awayTeamRuns);
+        sendPlayersIntent(gameID);
+        TimeStampUpdater.updateTimeStamps(this, selectionID);
     }
 
     @Override

@@ -227,7 +227,6 @@ CancelLoadDialog.OnListFragmentInteractionListener,
             DocumentReference leagueUser = firestore.collection(LEAGUE_COLLECTION).document(mSelectionID)
                     .collection(USERS).document(id);
             if (level == LEVEL_REMOVE_USER) {
-                //todo FieldValue.delete()
                 batch.update(league, id, 0);
                 batch.delete(leagueUser);
             } else {

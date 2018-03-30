@@ -64,7 +64,7 @@
         <RadioButton
             android:id="@+id/fc"
             style="@style/RadioButtonStyle"
-            android:text="@string/fc"/>
+            android:text="@string/fc" />
 
         <RadioButton
             android:id="@+id/sf"
@@ -74,20 +74,19 @@
         <RadioButton
             android:id="@+id/sacbunt"
             style="@style/RadioButtonStyle"
-            android:text="@string/sac_bunt"
-            android:textSize="12sp"
+            android:maxLines="2"
             android:paddingBottom="2dp"
             android:paddingTop="2dp"
-            android:maxLines="2"
-            />
+            android:text="@string/sac_bunt"
+            android:textSize="12sp" />
 
         <RadioButton
             android:id="@+id/error"
             style="@style/RadioButtonStyle"
-            android:text="@string/error"
             android:maxLines="3"
-            android:paddingTop="2dp"
             android:paddingBottom="2dp"
+            android:paddingTop="2dp"
+            android:text="@string/error"
             android:textSize="12sp"
             tools:text="Reached on Error" />
     </RadioGroup>
@@ -104,7 +103,8 @@
         android:textSize="12sp"
         app:layout_constraintBottom_toTopOf="@+id/group1"
         app:layout_constraintEnd_toStartOf="@+id/submit"
-        app:layout_constraintStart_toStartOf="@+id/group1"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
         tools:targetApi="m" />
 
     <Button
@@ -116,8 +116,9 @@
         android:drawableTint="@color/colorPrimary"
         android:text="@string/submit_play"
         android:textSize="12sp"
-        app:layout_constraintEnd_toEndOf="@+id/group1"
-        app:layout_constraintLeft_toRightOf="@+id/reset"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/reset"
         app:layout_constraintTop_toTopOf="@+id/reset"
         tools:targetApi="m" />
 

@@ -31,7 +31,7 @@
         <activity
             android:name="xyz.sleekstats.softball.activities.MainActivity"
             android:theme="@style/AppTheme"
-            android:launchMode="singleTask">
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

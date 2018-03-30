@@ -11,6 +11,7 @@ import android.os.Bundle;
 import xyz.sleekstats.softball.MyApp;
 import xyz.sleekstats.softball.data.FirestoreHelper;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
+import xyz.sleekstats.softball.data.TimeStampUpdater;
 import xyz.sleekstats.softball.dialogs.AddNewPlayersDialog;
 import xyz.sleekstats.softball.dialogs.GameSettingsDialog;
 import xyz.sleekstats.softball.fragments.LineupFragment;
@@ -84,7 +85,7 @@ public class SetLineupActivity extends SingleFragmentActivity
             }
         }
         if (!players.isEmpty()) {
-            new FirestoreHelper(this, mSelectionID).updateTimeStamps();
+            TimeStampUpdater.updateTimeStamps(this, mSelectionID);
 
             if(lineupFragment != null) {
                 lineupFragment.updateBench(players);

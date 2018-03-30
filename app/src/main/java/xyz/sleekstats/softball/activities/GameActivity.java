@@ -32,6 +32,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import xyz.sleekstats.softball.R;
+import xyz.sleekstats.softball.data.FirestoreHelper;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.dialogs.EndOfGameDialog;
 import xyz.sleekstats.softball.dialogs.FinishGameConfirmationDialog;
@@ -549,6 +550,25 @@ public abstract class GameActivity extends AppCompatActivity
     }
 
     protected abstract void firestoreUpdate();
+
+    void sendPlayersIntent(long gameID) {
+        Intent playersIntent = new Intent(GameActivity.this, FirestoreHelper.class);
+        playersIntent.setAction(FirestoreHelper.INTENT_ADD_PLAYER_STATS);
+        playersIntent.putExtra(FirestoreHelper.STATKEEPER_ID, selectionID);
+        playersIntent.putExtra(StatsEntry.COLUMN_GAME_ID, gameID);
+        startService(playersIntent);
+    }
+
+    void sendTeamIntent(long gameID, String teamID, int runsFor, int runsAgainst) {
+        Intent teamIntent = new Intent(GameActivity.this, FirestoreHelper.class);
+        teamIntent.setAction(FirestoreHelper.INTENT_ADD_TEAM_STATS);
+        teamIntent.putExtra(FirestoreHelper.STATKEEPER_ID, selectionID);
+        teamIntent.putExtra(StatsEntry.COLUMN_GAME_ID, gameID);
+        teamIntent.putExtra(StatsEntry.COLUMN_FIRESTORE_ID, teamID);
+        teamIntent.putExtra(StatsEntry.COLUMN_RUNSFOR, runsFor);
+        teamIntent.putExtra(StatsEntry.COLUMN_RUNSAGAINST, runsAgainst);
+        startService(teamIntent);
+    }
 
     void showFinishGameDialog() {
         FragmentManager fragmentManager = getSupportFragmentManager();

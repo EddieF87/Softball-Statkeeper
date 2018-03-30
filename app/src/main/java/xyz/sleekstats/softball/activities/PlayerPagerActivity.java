@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import xyz.sleekstats.softball.data.FirestoreHelper;
 import xyz.sleekstats.softball.data.StatsContract;
+import xyz.sleekstats.softball.data.TimeStampUpdater;
 import xyz.sleekstats.softball.fragments.PlayerFragment;
 import xyz.sleekstats.softball.objects.MainPageSelection;
 
@@ -63,7 +64,7 @@ public class PlayerPagerActivity extends ObjectPagerActivity {
             update = playerFragment.updatePlayerName(enteredText);
         }
         if(update) {
-            new FirestoreHelper(this, getSelectionID()).updateTimeStamps();
+            TimeStampUpdater.updateTimeStamps(this, getSelectionID());
             String playerFirestoreID = playerFragment.getFirestoreID();
             Intent intent = getIntent();
             intent.putExtra(StatsContract.StatsEntry.COLUMN_FIRESTORE_ID, playerFirestoreID);

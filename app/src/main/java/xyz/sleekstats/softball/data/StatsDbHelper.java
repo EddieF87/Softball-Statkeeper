@@ -77,6 +77,7 @@ public class StatsDbHelper extends SQLiteOpenHelper {
         final String SQL_CREATE_BACKUP_PLAYERSTATS_TABLE =
                 "CREATE TABLE " + StatsEntry.BACKUP_PLAYERS_TABLE_NAME + " (" +
                         StatsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        StatsEntry.COLUMN_FIRESTORE_ID + " TEXT NOT NULL, " +
                         StatsEntry.COLUMN_LEAGUE_ID + " TEXT NOT NULL, " +
                         StatsEntry.COLUMN_LOG_ID + " INTEGER NOT NULL, " +
                         StatsEntry.COLUMN_PLAYERID + " INTEGER NOT NULL, " +
@@ -110,6 +111,7 @@ public class StatsDbHelper extends SQLiteOpenHelper {
         final String SQL_CREATE_BACKUP_TEAMSTATS_TABLE =
                 "CREATE TABLE " + StatsEntry.BACKUP_TEAMS_TABLE_NAME + " (" +
                         StatsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        StatsEntry.COLUMN_FIRESTORE_ID + " TEXT NOT NULL, " +
                         StatsEntry.COLUMN_LEAGUE_ID + " TEXT NOT NULL, " +
                         StatsEntry.COLUMN_LOG_ID + " INTEGER NOT NULL, " +
                         StatsEntry.COLUMN_TEAM_ID + " INTEGER NOT NULL, " +
@@ -154,6 +156,40 @@ public class StatsDbHelper extends SQLiteOpenHelper {
                         StatsEntry.LEVEL + " INTEGER NOT NULL" +
                         ");";
 
+        final String SQL_CREATE_BOXSCORE_TABLE =
+                "CREATE TABLE " + StatsEntry.BOXSCORE_TABLE_NAME + " (" +
+                        StatsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        StatsEntry.COLUMN_LEAGUE_ID + " TEXT NOT NULL, " +
+                        StatsEntry.COLUMN_GAME_ID + " INTEGER NOT NULL, " +
+                        StatsEntry.COLUMN_FIRESTORE_ID + " TEXT NOT NULL, " +
+                        StatsEntry.COLUMN_1B + " INTEGER DEFAULT 0, " +
+                        StatsEntry.COLUMN_2B + " INTEGER DEFAULT 0, " +
+                        StatsEntry.COLUMN_3B + " INTEGER DEFAULT 0, " +
+                        StatsEntry.COLUMN_HR + " INTEGER DEFAULT 0, " +
+                        StatsEntry.COLUMN_BB + " INTEGER DEFAULT 0, " +
+                        StatsEntry.COLUMN_SF + " INTEGER DEFAULT 0, " +
+                        StatsEntry.COLUMN_OUT + " INTEGER DEFAULT 0, " +
+                        StatsEntry.COLUMN_RUN + " INTEGER DEFAULT 0, " +
+                        StatsEntry.COLUMN_RBI + " INTEGER DEFAULT 0" +
+                        ");";
+
+        final String SQL_CREATE_BACKUP_BOXSCORE_TABLE =
+                "CREATE TABLE " + StatsEntry.BACKUP_BOXSCORE_TABLE_NAME + " (" +
+                        StatsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        StatsEntry.COLUMN_LEAGUE_ID + " TEXT NOT NULL, " +
+                        StatsEntry.COLUMN_GAME_ID + " INTEGER NOT NULL, " +
+                        StatsEntry.COLUMN_FIRESTORE_ID + " TEXT NOT NULL, " +
+                        StatsEntry.COLUMN_1B + " INTEGER DEFAULT 0, " +
+                        StatsEntry.COLUMN_2B + " INTEGER DEFAULT 0, " +
+                        StatsEntry.COLUMN_3B + " INTEGER DEFAULT 0, " +
+                        StatsEntry.COLUMN_HR + " INTEGER DEFAULT 0, " +
+                        StatsEntry.COLUMN_BB + " INTEGER DEFAULT 0, " +
+                        StatsEntry.COLUMN_SF + " INTEGER DEFAULT 0, " +
+                        StatsEntry.COLUMN_OUT + " INTEGER DEFAULT 0, " +
+                        StatsEntry.COLUMN_RUN + " INTEGER DEFAULT 0, " +
+                        StatsEntry.COLUMN_RBI + " INTEGER DEFAULT 0" +
+                        ");";
+
         db.execSQL(SQL_CREATE_LEAGUES_TABLE);
         db.execSQL(SQL_CREATE_PLAYERSTATS_TABLE);
         db.execSQL(SQL_CREATE_TEAMSTATS_TABLE);
@@ -161,6 +197,8 @@ public class StatsDbHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_GAMESTATS_TABLE);
         db.execSQL(SQL_CREATE_BACKUP_PLAYERSTATS_TABLE);
         db.execSQL(SQL_CREATE_BACKUP_TEAMSTATS_TABLE);
+        db.execSQL(SQL_CREATE_BOXSCORE_TABLE);
+        db.execSQL(SQL_CREATE_BACKUP_BOXSCORE_TABLE);
     }
 
     @Override
@@ -172,6 +210,8 @@ public class StatsDbHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + StatsEntry.GAME_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + StatsEntry.BACKUP_PLAYERS_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + StatsEntry.BACKUP_TEAMS_TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + StatsEntry.BOXSCORE_TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + StatsEntry.BACKUP_BOXSCORE_TABLE_NAME);
         onCreate(db);
     }
 }

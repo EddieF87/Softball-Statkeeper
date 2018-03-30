@@ -18,7 +18,7 @@ import android.widget.TextView;
 
 import xyz.sleekstats.softball.MyApp;
 import xyz.sleekstats.softball.R;
-import xyz.sleekstats.softball.data.FirestoreHelper;
+import xyz.sleekstats.softball.data.FirestoreStatkeeperSync;
 import xyz.sleekstats.softball.dialogs.DeletionCheckDialog;
 import xyz.sleekstats.softball.objects.ItemMarkedForDeletion;
 import xyz.sleekstats.softball.objects.MainPageSelection;
@@ -29,7 +29,7 @@ import java.util.List;
 public class LoadingActivity extends AppCompatActivity
         implements
         LoaderManager.LoaderCallbacks,
-        FirestoreHelper.onFirestoreSyncListener,
+        FirestoreStatkeeperSync.onFirestoreSyncListener,
         DeletionCheckDialog.OnListFragmentInteractionListener {
 
     private int countdown;
@@ -39,7 +39,7 @@ public class LoadingActivity extends AppCompatActivity
     private int mSelectionType;
     private int mLevel;
     private String mSelectionID;
-    private FirestoreHelper firestoreHelper;
+    private FirestoreStatkeeperSync firestoreStatkeeperSync;
 
     private TextView loadTitle;
     private TextView loadDescription;
@@ -57,8 +57,8 @@ public class LoadingActivity extends AppCompatActivity
         loadTitle = findViewById(R.id.load_title);
         loadProgressBar = findViewById(R.id.load_bar);
         if(savedInstanceState != null) {
-            firestoreHelper = savedInstanceState.getParcelable("fh");
-            firestoreHelper.setContext(this);
+            firestoreStatkeeperSync = savedInstanceState.getParcelable("fh");
+            firestoreStatkeeperSync.setContext(this);
         }
         try {
             MyApp myApp = (MyApp) getApplicationContext();
@@ -86,7 +86,7 @@ public class LoadingActivity extends AppCompatActivity
             loadTitle.setText(R.string.load1_prepare_sync);
             loadDescription.setText(R.string.load1_desc);
             countdown = 2;
-            firestoreHelper.syncStats();
+            firestoreStatkeeperSync.syncStats();
         } else {
             proceedToNext();
         }
@@ -95,7 +95,7 @@ public class LoadingActivity extends AppCompatActivity
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable("fh", firestoreHelper);
+        outState.putParcelable("fh", firestoreStatkeeperSync);
     }
 
     @Override
@@ -119,7 +119,7 @@ public class LoadingActivity extends AppCompatActivity
         loadProgressBar.setVisibility(View.INVISIBLE);
         loadTitle.setText(R.string.load3_deletion_check);
         loadDescription.setText(R.string.load3_desc);
-        firestoreHelper.deletionCheck(mLevel);
+        firestoreStatkeeperSync.deletionCheck(mLevel);
     }
 
     private void decreaseCountDown() {
@@ -195,9 +195,9 @@ public class LoadingActivity extends AppCompatActivity
 
     @Override
     public void onDeletePlayersListener(List<ItemMarkedForDeletion> deleteList, List<ItemMarkedForDeletion> saveList) {
-        firestoreHelper.deleteItems(deleteList);
-        firestoreHelper.saveItems(saveList);
-        firestoreHelper.updateAfterSync();
+        firestoreStatkeeperSync.deleteItems(deleteList);
+        firestoreStatkeeperSync.saveItems(saveList);
+        firestoreStatkeeperSync.updateAfterSync();
         proceedToNext();
     }
 
@@ -217,12 +217,12 @@ public class LoadingActivity extends AppCompatActivity
             ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo networkInfo = connManager.getActiveNetworkInfo();
             if (networkInfo != null && networkInfo.isConnected()) {
-                firestoreHelper = new FirestoreHelper(this, mSelectionID);
-                firestoreHelper.checkForUpdate();
+                firestoreStatkeeperSync = new FirestoreStatkeeperSync(this, mSelectionID);
+                firestoreStatkeeperSync.checkForUpdate();
             } else {
-                if(firestoreHelper != null) {
-                    firestoreHelper.detachListener();
-                    firestoreHelper = null;
+                if(firestoreStatkeeperSync != null) {
+                    firestoreStatkeeperSync.detachListener();
+                    firestoreStatkeeperSync = null;
                 }
                 finish();
             }
@@ -243,9 +243,9 @@ public class LoadingActivity extends AppCompatActivity
     @Override
     protected void onStop() {
         super.onStop();
-        if(firestoreHelper != null) {
-            firestoreHelper.detachListener();
-            firestoreHelper = null;
+        if(firestoreStatkeeperSync != null) {
+            firestoreStatkeeperSync.detachListener();
+            firestoreStatkeeperSync = null;
         }
     }
 }

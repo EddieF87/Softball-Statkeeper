@@ -22,6 +22,7 @@ import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.data.FirestoreHelper;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
+import xyz.sleekstats.softball.data.TimeStampUpdater;
 import xyz.sleekstats.softball.dialogs.AddNewPlayersDialog;
 import xyz.sleekstats.softball.dialogs.ChangeTeamDialog;
 import xyz.sleekstats.softball.dialogs.ChooseOrCreateTeamDialog;
@@ -48,7 +49,7 @@ public class LeagueManagerActivity extends ExportActivity
     private StatsFragment statsFragment;
     private MatchupFragment matchupFragment;
 
-    private String leagueID;
+    private String mLeagueID;
     private int level;
     private String leagueName;
 
@@ -63,7 +64,7 @@ public class LeagueManagerActivity extends ExportActivity
             MyApp myApp = (MyApp) getApplicationContext();
             MainPageSelection mainPageSelection = myApp.getCurrentSelection();
             leagueName = mainPageSelection.getName();
-            leagueID = mainPageSelection.getId();
+            mLeagueID = mainPageSelection.getId();
             level = mainPageSelection.getLevel();
             setTitle(leagueName + " (League)");
         } catch (Exception e) {
@@ -82,17 +83,30 @@ public class LeagueManagerActivity extends ExportActivity
 
         Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, null, null, null, null);
         if(cursor.moveToFirst()){
-            FirestoreHelper firestoreHelper = new FirestoreHelper(LeagueManagerActivity.this, leagueID);
-            firestoreHelper.retryGameLogLoad();
+            sendRetryGameLoadIntent();
             cursor.close();
             return;
         }
         cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_TEAMS, null, null, null, null);
         if(cursor.moveToFirst()){
-            FirestoreHelper firestoreHelper = new FirestoreHelper(LeagueManagerActivity.this, leagueID);
-            firestoreHelper.retryGameLogLoad();
+            sendRetryGameLoadIntent();
+            cursor.close();
+            return;
+        }
+        cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_BOXSCORES, null, null, null, null);
+        if(cursor.moveToFirst()){
+            sendRetryGameLoadIntent();
+            cursor.close();
+            return;
         }
         cursor.close();
+    }
+
+    private void sendRetryGameLoadIntent(){
+        Intent intent = new Intent(LeagueManagerActivity.this, FirestoreHelper.class);
+        intent.putExtra(FirestoreHelper.STATKEEPER_ID, mLeagueID);
+        intent.setAction(FirestoreHelper.INTENT_RETRY_GAME_LOAD);
+        startService(intent);
     }
 
     @Override
@@ -116,7 +130,7 @@ public class LeagueManagerActivity extends ExportActivity
             if (teamUri == null) {
                 return;
             }
-            new FirestoreHelper(LeagueManagerActivity.this, leagueID).updateTimeStamps();
+            TimeStampUpdater.updateTimeStamps(LeagueManagerActivity.this, mLeagueID);
 
             Cursor cursor = getContentResolver().query(teamUri, new String[]{StatsEntry._ID, StatsEntry.COLUMN_FIRESTORE_ID}, null, null, null);
             if (cursor.moveToFirst()) {
@@ -197,7 +211,7 @@ public class LeagueManagerActivity extends ExportActivity
     public void clearGameDB() {
         getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, null, null);
         getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, null, null);
-        SharedPreferences savedGamePreferences = getSharedPreferences(leagueID + StatsEntry.GAME, Context.MODE_PRIVATE);
+        SharedPreferences savedGamePreferences = getSharedPreferences(mLeagueID + StatsEntry.GAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = savedGamePreferences.edit();
         editor.clear();
         editor.apply();
@@ -205,12 +219,12 @@ public class LeagueManagerActivity extends ExportActivity
 
     @Override
     public void goToGameSettings() {
-        SharedPreferences settingsPreferences = getSharedPreferences(leagueID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
+        SharedPreferences settingsPreferences = getSharedPreferences(mLeagueID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
         int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
         int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = GameSettingsDialog.newInstance(innings, genderSorter, leagueID, 0);
+        DialogFragment newFragment = GameSettingsDialog.newInstance(innings, genderSorter, mLeagueID, 0);
         newFragment.show(fragmentTransaction, "");
     }
 
@@ -226,12 +240,12 @@ public class LeagueManagerActivity extends ExportActivity
                 case 0:
                     return StandingsFragment.newInstance(level, leagueName);
                 case 1:
-                    return StatsFragment.newInstance(leagueID, level, leagueName);
+                    return StatsFragment.newInstance(mLeagueID, level, leagueName);
                 case 2:
                     if (level < UsersActivity.LEVEL_VIEW_WRITE) {
                         return null;
                     }
-                    return MatchupFragment.newInstance(leagueID, leagueName);
+                    return MatchupFragment.newInstance(mLeagueID, leagueName);
                 default:
                     return null;
             }
@@ -282,7 +296,7 @@ public class LeagueManagerActivity extends ExportActivity
     @Override
     protected void onResume() {
         super.onResume();
-        SharedPreferences settingsPreferences = getSharedPreferences(leagueID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
+        SharedPreferences settingsPreferences = getSharedPreferences(mLeagueID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
         int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
         int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
         onGameSettingsChanged(innings, genderSorter);
@@ -323,7 +337,7 @@ public class LeagueManagerActivity extends ExportActivity
             }
         }
         if (update) {
-            new FirestoreHelper(this, leagueID).updateTimeStamps();
+            TimeStampUpdater.updateTimeStamps(LeagueManagerActivity.this, mLeagueID);
         }
 
         if (matchupFragment != null) {
@@ -344,5 +358,12 @@ public class LeagueManagerActivity extends ExportActivity
             matchupFragment.updateBenchColors();
             matchupFragment.changeColorsRV(genderSettingsOn);
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent intent = new Intent(LeagueManagerActivity.this, MainActivity.class);
+        startActivity(intent);
     }
 }

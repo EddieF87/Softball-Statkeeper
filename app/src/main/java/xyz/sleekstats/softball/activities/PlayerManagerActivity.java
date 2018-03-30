@@ -94,4 +94,11 @@ public class PlayerManagerActivity extends ExportActivity
     public void onExport(String name) {
         startExport(name);
     }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent intent = new Intent(PlayerManagerActivity.this, MainActivity.class);
+        startActivity(intent);
+    }
 }

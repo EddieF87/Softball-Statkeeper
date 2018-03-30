@@ -21,6 +21,7 @@ import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 
 import xyz.sleekstats.softball.MyApp;
 import xyz.sleekstats.softball.R;
+import xyz.sleekstats.softball.data.TimeStampUpdater;
 import xyz.sleekstats.softball.views.CustomViewPager;
 import xyz.sleekstats.softball.adapters.PlayerStatsAdapter;
 import xyz.sleekstats.softball.data.FirestoreHelper;
@@ -81,23 +82,35 @@ public class TeamManagerActivity extends ExportActivity
 
         Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, null, null, null, null);
         if (cursor.moveToFirst()) {
-            FirestoreHelper firestoreHelper = new FirestoreHelper(TeamManagerActivity.this, mTeamID);
-            firestoreHelper.retryGameLogLoad();
+            sendRetryGameLoadIntent();
             cursor.close();
             return;
         }
         cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_TEAMS, null, null, null, null);
         if (cursor.moveToFirst()) {
-            FirestoreHelper firestoreHelper = new FirestoreHelper(TeamManagerActivity.this, mTeamID);
-            firestoreHelper.retryGameLogLoad();
+            sendRetryGameLoadIntent();
+            cursor.close();
+            return;
+        }
+        cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_BOXSCORES, null, null, null, null);
+        if(cursor.moveToFirst()){
+            sendRetryGameLoadIntent();
+            cursor.close();
+            return;
         }
         cursor.close();
+    }
+
+    private void sendRetryGameLoadIntent(){
+        Intent intent = new Intent(TeamManagerActivity.this, FirestoreHelper.class);
+        intent.putExtra(FirestoreHelper.STATKEEPER_ID, mTeamID);
+        intent.setAction(FirestoreHelper.INTENT_RETRY_GAME_LOAD);
+        startService(intent);
     }
 
     @Override
     public void onSubmitPlayersListener(List<String> names, List<Integer> genders, String teamName, String teamID) {
         List<Player> players = new ArrayList<>();
-        FirestoreHelper firestoreHelper = new FirestoreHelper(this, mTeamID);
         for (int i = 0; i < names.size() - 1; i++) {
             ContentValues values = new ContentValues();
             String playerName = names.get(i);
@@ -123,7 +136,7 @@ public class TeamManagerActivity extends ExportActivity
         }
 
         if (!players.isEmpty()) {
-            firestoreHelper.updateTimeStamps();
+            TimeStampUpdater.updateTimeStamps(TeamManagerActivity.this, mTeamID);
 
             if (lineupFragment != null) {
                 lineupFragment.updateBench(players);
@@ -171,7 +184,7 @@ public class TeamManagerActivity extends ExportActivity
         }
 
         if (update) {
-            new FirestoreHelper(this, mTeamID).updateTimeStamps();
+            TimeStampUpdater.updateTimeStamps(TeamManagerActivity.this, mTeamID);
         }
     }
 
@@ -297,5 +310,12 @@ public class TeamManagerActivity extends ExportActivity
             Toast.makeText(TeamManagerActivity.this, ex.toString(),
                     Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent intent = new Intent(TeamManagerActivity.this, MainActivity.class);
+        startActivity(intent);
     }
 }

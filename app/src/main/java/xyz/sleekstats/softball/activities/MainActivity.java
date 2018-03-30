@@ -33,6 +33,7 @@ import xyz.sleekstats.softball.data.FireTaskLoader;
 import xyz.sleekstats.softball.adapters.MainPageAdapter;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
+import xyz.sleekstats.softball.dialogs.AcceptInviteDialog;
 import xyz.sleekstats.softball.dialogs.DeleteSelectionDialog;
 import xyz.sleekstats.softball.dialogs.EditNameDialog;
 import xyz.sleekstats.softball.dialogs.EnterCodeDialog;
@@ -85,7 +86,8 @@ public class MainActivity extends AppCompatActivity
         ContinueLoadDialog.OnFragmentInteractionListener,
         JoinOrCreateDialog.OnFragmentInteractionListener,
         EditNameDialog.OnFragmentInteractionListener,
-        EnterCodeDialog.OnFragmentInteractionListener {
+        EnterCodeDialog.OnFragmentInteractionListener,
+        AcceptInviteDialog.OnFragmentInteractionListener {
 
     private FirebaseAuth mAuth;
     private static final int RC_SIGN_IN = 0;
@@ -101,8 +103,10 @@ public class MainActivity extends AppCompatActivity
     private MainPageAdapter mainPageAdapter;
     private static final int MAIN_LOADER = 22;
     private FireTaskLoader mFireTaskLoader;
+    private FirebaseFirestore mFirestore;
     private ContinueLoadDialog mContinueLoadDialogFragment;
     private InviteListDialog mInviteDialogFragment;
+    private AcceptInviteDialog mAcceptInviteDialog;
     private boolean loadingFinished;
 
 
@@ -145,10 +149,11 @@ public class MainActivity extends AppCompatActivity
     protected void authenticateUser() {
         mAuth = FirebaseAuth.getInstance();
         if (mAuth.getCurrentUser() != null) {
-            Log.d("xyxyx", "mAuth.getCurrentUser() != null");
             loadSelections();
             invalidateOptionsMenu();
-            checkInvite();
+            if(mAcceptInviteDialog == null) {
+                checkInvite();
+            }
         } else {
             startActivityForResult(AuthUI.getInstance()
                     .createSignInIntentBuilder()
@@ -185,8 +190,7 @@ public class MainActivity extends AppCompatActivity
                         String[] splitCode = fullText.split("-");
                         final String id = splitCode[0];
                         final String name = splitCode[1];
-                        int level = 1;
-                        int type;
+                        final int type;
                         Log.d("xyxyx", "id: " + id);
 
                         switch (path) {
@@ -201,35 +205,48 @@ public class MainActivity extends AppCompatActivity
                                 return;
                         }
 
-                        MyApp myApp = (MyApp) getApplicationContext();
+                        final MyApp myApp = (MyApp) getApplicationContext();
 
-                        String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
-                        String[] selectionArgs = new String[]{id};
-                        String[] projection = new String[]{StatsEntry.COLUMN_FIRESTORE_ID, StatsEntry.LEVEL};
-                        Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_SELECTIONS,
-                                projection, selection, selectionArgs, null);
-                        if(cursor.moveToFirst()) {
-                            level = StatsContract.getColumnInt(cursor, StatsEntry.LEVEL);
-                            myApp.setCurrentSelection(new MainPageSelection(id, name, type, level));
-                            final Intent intent;
-                            intent = new Intent(MainActivity.this, LoadingActivity.class);
-                            startActivity(intent);
-                            return;
+                        if(mFirestore == null) {
+                            mFirestore = FirebaseFirestore.getInstance();
                         }
-
-                        myApp.setCurrentSelection(new MainPageSelection(id, name, type, level));
-                        Log.d("xyxyx", "MainPageSelection: " + id + name + type + level);
-
-                        addSelection(name, type, level, id);
-                    }
-                })
-                .addOnFailureListener(this, new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d("xyxyx", "getDynamicLink:onFailure", e);
-
+                        mFirestore.collection(LEAGUE_COLLECTION).document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if(task.isSuccessful()) {
+                                    Log.d("xyxyx", "task.isSuccessful()");
+                                    DocumentSnapshot documentSnapshot = task.getResult();
+                                    Object levelObject = documentSnapshot.get(userID);
+                                    if(levelObject == null) {
+                                        openAcceptInviteDialog(id, name, type, 1);
+                                        return;
+                                    }
+                                    int level = ((Long) levelObject).intValue();
+                                    if(level < UsersActivity.LEVEL_REMOVE_USER && -level < UsersActivity.LEVEL_CREATOR) {
+                                        level = -level;
+                                        openAcceptInviteDialog(id, name, type, level);
+                                    }
+                                    Log.d("xyxyx", "task.phase2()");
+                                    myApp.setCurrentSelection(new MainPageSelection(id, name, type, level));
+                                    final Intent intent;
+                                    intent = new Intent(MainActivity.this, LoadingActivity.class);
+                                    startActivity(intent);
+                                    finish();
+                                } else {
+                                    openAcceptInviteDialog(id, name, type, 1);
+                                    Log.d("xyxyx", "task.fail()");
+                                }
+                            }
+                        });
                     }
                 });
+    }
+
+    private void openAcceptInviteDialog(String id, String name, int type, int level) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        mAcceptInviteDialog = AcceptInviteDialog.newInstance(id, name, type, level);
+        mAcceptInviteDialog.show(fragmentTransaction, "");
     }
 
     @Override
@@ -247,13 +264,15 @@ public class MainActivity extends AppCompatActivity
                     Map<String, Object> userInfo = new HashMap<>();
                     userInfo.put(StatsEntry.EMAIL, email);
 
-                    final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+                    if(mFirestore == null) {
+                        mFirestore = FirebaseFirestore.getInstance();
+                    }
 
-                    firestore.collection(USERS).document(id).set(userInfo).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    mFirestore.collection(USERS).document(id).set(userInfo).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
                             if(email == null){return;}
-                            firestore.collection(USERS).document(email).collection(REQUESTS).get()
+                            mFirestore.collection(USERS).document(email).collection(REQUESTS).get()
                                     .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -264,13 +283,13 @@ public class MainActivity extends AppCompatActivity
                                             final String statKeeper = emailReqSnapshot.getId();
                                             final long level = emailReqSnapshot.getLong(StatsEntry.LEVEL);
 
-                                            final DocumentReference requestRef = firestore.collection(LEAGUE_COLLECTION).document(statKeeper).collection(REQUESTS).document(email);
+                                            final DocumentReference requestRef = mFirestore.collection(LEAGUE_COLLECTION).document(statKeeper).collection(REQUESTS).document(email);
                                             requestRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                                 @Override
                                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                                     if(task.isSuccessful()) {
 
-                                                        DocumentReference statKeeperRef = firestore.collection(LEAGUE_COLLECTION).document(statKeeper);
+                                                        DocumentReference statKeeperRef = mFirestore.collection(LEAGUE_COLLECTION).document(statKeeper);
                                                         DocumentReference userRef = statKeeperRef.collection(USERS).document(id);
                                                         DocumentReference emailRequestRef = emailReqSnapshot.getReference();
 
@@ -282,7 +301,7 @@ public class MainActivity extends AppCompatActivity
                                                         updateStatKeeper.put(id, level);
 
 
-                                                        WriteBatch writeBatch = firestore.batch();
+                                                        WriteBatch writeBatch = mFirestore.batch();
                                                         writeBatch.set(userRef, updateUser, SetOptions.merge());
                                                         writeBatch.set(statKeeperRef, updateStatKeeper, SetOptions.merge());
                                                         writeBatch.delete(requestRef);
@@ -505,14 +524,16 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onInvitesSorted(List<MainPageSelection> list, SparseIntArray changes) {
-        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        if(mFirestore == null) {
+            mFirestore = FirebaseFirestore.getInstance();
+        }
         if (userID == null) {
             FirebaseUser currentUser = mAuth.getCurrentUser();
             userID = currentUser.getUid();
         }
 
         final List<MainPageSelection> insertList = new ArrayList<>();
-        WriteBatch writeBatch = firestore.batch();
+        WriteBatch writeBatch = mFirestore.batch();
 
         for (int i = 0; i < changes.size(); i++) {
             int key = changes.keyAt(i);
@@ -527,13 +548,12 @@ public class MainActivity extends AppCompatActivity
             String selectionID = mainPageSelection.getId();
             insertList.add(mainPageSelection);
 
-            DocumentReference leagueRef = firestore.collection(LEAGUE_COLLECTION).document(selectionID);
-            DocumentReference userRef = firestore.collection(LEAGUE_COLLECTION).document(selectionID)
+            DocumentReference leagueRef = mFirestore.collection(LEAGUE_COLLECTION).document(selectionID);
+            DocumentReference userRef = mFirestore.collection(LEAGUE_COLLECTION).document(selectionID)
                     .collection(USERS).document(userID);
 
             Map<String, Object> leagueUpdate = new HashMap<>();
             if (level == UsersActivity.LEVEL_REMOVE_USER) {
-                //todo FieldValue.delete()
                 leagueUpdate.put(userID, FieldValue.delete());
                 writeBatch.delete(userRef);
             } else {
@@ -613,14 +633,15 @@ public class MainActivity extends AppCompatActivity
             FirebaseUser currentUser = mAuth.getCurrentUser();
             userID = currentUser.getUid();
         }
-        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-        final DocumentReference leagueDoc = firestore.collection(LEAGUE_COLLECTION).document(selectionID);
-        final WriteBatch batch = firestore.batch();
+        if(mFirestore == null) {
+            mFirestore = FirebaseFirestore.getInstance();
+        }
+        final DocumentReference leagueDoc = mFirestore.collection(LEAGUE_COLLECTION).document(selectionID);
+        final WriteBatch batch = mFirestore.batch();
 
         batch.delete(leagueDoc.collection(USERS).document(userID));
 
         Map<String, Object> updates = new HashMap<>();
-        //todo FieldValue.delete()
         updates.put(userID, FieldValue.delete());
         batch.update(leagueDoc, updates);
 
@@ -740,7 +761,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public Loader<QuerySnapshot> onCreateLoader(int id, Bundle args) {
-        mFireTaskLoader = new FireTaskLoader(this, userID);
+        mFireTaskLoader = new FireTaskLoader(this);
         mProgressBar.setVisibility(View.VISIBLE);
         mErrorView.setVisibility(View.GONE);
         Handler handler = new Handler();
@@ -756,7 +777,7 @@ public class MainActivity extends AppCompatActivity
 
 
     private void continueLoadDialog() {
-        if (loadingFinished) {
+        if (loadingFinished || mAcceptInviteDialog != null) {
             return;
         }
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -776,6 +797,7 @@ public class MainActivity extends AppCompatActivity
                 public void run() {
                     if (mContinueLoadDialogFragment != null) {
                         mContinueLoadDialogFragment.dismiss();
+                        mContinueLoadDialogFragment = null;
                     }
                 }
             });
@@ -842,6 +864,7 @@ public class MainActivity extends AppCompatActivity
                 int level = StatsContract.getColumnInt(cursor, StatsEntry.LEVEL);
                 mSelectionList.add(new MainPageSelection(id, name, type, level));
             }
+            cursor.close();
             setViews();
         }
     }
@@ -887,6 +910,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void addSelection(final String name, final int type, final int level, final String statKeeperID) {
+        Log.d("xyxyx", "addSelection");
         final Intent intent;
         if (statKeeperID == null) {
             switch (type) {
@@ -908,39 +932,44 @@ public class MainActivity extends AppCompatActivity
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
+            Log.d("xyxyx", "currentUser == null");
             return;
         }
         final String userEmail = currentUser.getEmail();
         final String userDisplayName = currentUser.getDisplayName();
 
         final Map<String, Object> firestoreLeagueMap = new HashMap<>();
-        final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        if(mFirestore == null) {
+            mFirestore = FirebaseFirestore.getInstance();
+        }
         final DocumentReference statKeeperDocument;
 
         if (statKeeperID == null) {
-            statKeeperDocument = firestore.collection(LEAGUE_COLLECTION).document();
+            statKeeperDocument = mFirestore.collection(LEAGUE_COLLECTION).document();
             firestoreLeagueMap.put(StatsEntry.COLUMN_NAME, name);
             firestoreLeagueMap.put(StatsEntry.TYPE, type);
             firestoreLeagueMap.put("creator", null);
         } else {
-            statKeeperDocument = firestore.collection(LEAGUE_COLLECTION).document(statKeeperID);
+            statKeeperDocument = mFirestore.collection(LEAGUE_COLLECTION).document(statKeeperID);
         }
 
         firestoreLeagueMap.put(userID, level);
-        Log.d("xyedd", userID + "   " + level + "  " + statKeeperID);
+        Log.d("xyxyx", userID + "   " + level + "  " + statKeeperID);
         statKeeperDocument.set(firestoreLeagueMap, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                Log.d("xyedd", "first sucess");
+                Log.d("xyxyx", "first sucess");
                 Map<String, Object> firestoreUserMap = new HashMap<>();
                 firestoreUserMap.put(StatsEntry.LEVEL, level);
                 firestoreUserMap.put(StatsEntry.EMAIL, userEmail);
                 firestoreUserMap.put(StatsEntry.COLUMN_NAME, userDisplayName);
+                Log.d("xyxyx", "second attempt: " + level + userEmail + userDisplayName + userID);
+
                 statKeeperDocument.collection(USERS).document(userID).set(firestoreUserMap)
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                Log.d("xyedd", "second success");
+                                Log.d("xyxyx", "second success");
                                 Toast.makeText(MainActivity.this, "OK WORKING SO FAR....", Toast.LENGTH_SHORT).show();
 
                                 MyApp myApp = (MyApp) getApplicationContext();
@@ -965,17 +994,18 @@ public class MainActivity extends AppCompatActivity
                                         getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
                                     }
 
-                                    DocumentReference requestDocument = firestore.collection(LEAGUE_COLLECTION)
+                                    DocumentReference requestDocument = mFirestore.collection(LEAGUE_COLLECTION)
                                             .document(selectionID).collection(REQUESTS).document();
                                     StatKeepUser statKeepUser = new StatKeepUser(REQUESTS, name, String.valueOf(type), UsersActivity.LEVEL_VIEW_ONLY - 100);
                                     requestDocument.set(statKeepUser, SetOptions.merge());
                                 }
                                 startActivity(intent);
+                                finish();
                             }
                         }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.d("xyedd", "second fail");
+                        Log.d("xyxyx", "second fail");
                         Toast.makeText(MainActivity.this, "Firebase error! Try again!", Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -983,7 +1013,7 @@ public class MainActivity extends AppCompatActivity
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Log.d("xyedd", "first fail");
+                Log.d("xyxyx", "first fail");
             }
         });
     }
@@ -1057,8 +1087,10 @@ public class MainActivity extends AppCompatActivity
             }
         }
 
-        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-        firestore.collection(LEAGUE_COLLECTION)
+        if(mFirestore == null) {
+            mFirestore = FirebaseFirestore.getInstance();
+        }
+        mFirestore.collection(LEAGUE_COLLECTION)
                 .document(idText).collection(REQUESTS).document(codeText).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
@@ -1091,7 +1123,7 @@ public class MainActivity extends AppCompatActivity
                                 postMessage(0);
                                 addSelection(name, type, level, idText);
                             } else {
-                                Log.d("xyedd", "???????? fail");
+                                Log.d("xyxyx", "???????? fail");
                             }
                         } catch (Exception e) {
                             postMessage(99);
@@ -1104,5 +1136,15 @@ public class MainActivity extends AppCompatActivity
                         postMessage(99);
                     }
                 });
+    }
+
+    @Override
+    public void onGoToStatkeeper(boolean goTo, String id, String name, int type, int level) {
+        if(goTo) {
+            MyApp myApp = (MyApp) getApplicationContext();
+            myApp.setCurrentSelection(new MainPageSelection(id, name, type, level));
+            addSelection(name, type, 1, id);
+        }
+        mAcceptInviteDialog = null;
     }
 }

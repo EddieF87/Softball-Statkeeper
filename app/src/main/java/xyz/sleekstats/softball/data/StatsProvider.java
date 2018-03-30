@@ -39,17 +39,21 @@ public class StatsProvider extends ContentProvider {
 
     private static final int PLAYERS = 100;
     private static final int PLAYERS_ID = 101;
+    private static final int BACKUP_PLAYERS = 102;
+    private static final int BACKUP_PLAYERS_ID = 103;
     private static final int TEAMS = 200;
     private static final int TEAMS_ID = 201;
+    private static final int BACKUP_TEAMS = 202;
+    private static final int BACKUP_TEAMS_ID = 203;
     private static final int TEMP = 300;
     private static final int TEMP_ID = 301;
     private static final int GAME = 400;
     private static final int GAME_ID = 401;
-    private static final int BACKUP_PLAYERS = 500;
-    private static final int BACKUP_PLAYERS_ID = 501;
-    private static final int BACKUP_TEAMS = 600;
-    private static final int BACKUP_TEAMS_ID = 601;
-    private static final int SELECTIONS = 700;
+    private static final int SELECTIONS = 500;
+    private static final int BOXSCORES = 600;
+    private static final int BOXSCORES_ID = 601;
+    private static final int BACKUP_BOXSCORES = 602;
+    private static final int BACKUP_BOXSCORES_ID = 603;
 
 
     private static final UriMatcher sUriMatcher = buildUriMatcher();
@@ -72,6 +76,10 @@ public class StatsProvider extends ContentProvider {
         matcher.addURI(authority, StatsContract.PATH_BACKUP_TEAMS, BACKUP_TEAMS);
         matcher.addURI(authority, StatsContract.PATH_BACKUP_TEAMS + "/#", BACKUP_TEAMS_ID);
         matcher.addURI(authority, StatsContract.PATH_SELECTIONS, SELECTIONS);
+        matcher.addURI(authority, StatsContract.PATH_BOXSCORES, BOXSCORES);
+        matcher.addURI(authority, StatsContract.PATH_BOXSCORES + "/#", BOXSCORES_ID);
+        matcher.addURI(authority, StatsContract.PATH_BACKUP_BOXSCORES, BACKUP_BOXSCORES);
+        matcher.addURI(authority, StatsContract.PATH_BACKUP_BOXSCORES + "/#", BACKUP_BOXSCORES_ID);
 
         return matcher;
     }
@@ -150,6 +158,12 @@ public class StatsProvider extends ContentProvider {
             case BACKUP_TEAMS:
                 table = StatsEntry.BACKUP_TEAMS_TABLE_NAME;
                 break;
+            case BOXSCORES:
+                table = StatsEntry.BOXSCORE_TABLE_NAME;
+                break;
+            case BACKUP_BOXSCORES:
+                table = StatsEntry.BACKUP_BOXSCORE_TABLE_NAME;
+                break;
             default:
                 throw new IllegalArgumentException("Cannot query unknown URI " + uri);
         }
@@ -158,25 +172,18 @@ public class StatsProvider extends ContentProvider {
         return cursor;
     }
 
+    @Nullable
+    @Override
+    public String getType(@NonNull Uri uri) {
+        return null;
+    }
+
     private Cursor querySelection(String[] projection,  String selection,
                                    String[] selectionArgs,  String sortOrder){
         SQLiteDatabase database = mOpenHelper.getReadableDatabase();
         return database.query(StatsEntry.SELECTIONS_TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
     }
 
-    @Nullable
-    @Override
-    public String getType(@NonNull Uri uri) {
-        final int match = sUriMatcher.match(uri);
-        switch (match) {
-            case PLAYERS:
-                return StatsEntry.CONTENT_PLAYERS_TYPE;
-            case PLAYERS_ID:
-                return StatsEntry.CONTENT_TEAMS_TYPE;
-            default:
-                throw new IllegalStateException("Unknown URI " + uri + " with match " + match);
-        }
-    }
 
     @Nullable
     @Override
@@ -299,6 +306,12 @@ public class StatsProvider extends ContentProvider {
                 break;
             case GAME:
                 table = StatsEntry.GAME_TABLE_NAME;
+                break;
+            case BOXSCORES:
+                table = StatsEntry.BOXSCORE_TABLE_NAME;
+                break;
+            case BACKUP_BOXSCORES:
+                table = StatsEntry.BACKUP_BOXSCORE_TABLE_NAME;
                 break;
             default:
                 throw new IllegalArgumentException("Insertion is not supported for " + uri);
@@ -429,6 +442,22 @@ public class StatsProvider extends ContentProvider {
                 selection = StatsEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 table = StatsEntry.BACKUP_TEAMS_TABLE_NAME;
+                break;
+            case BOXSCORES:
+                table = StatsEntry.BOXSCORE_TABLE_NAME;
+                break;
+            case BOXSCORES_ID:
+                selection = StatsEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                table = StatsEntry.BOXSCORE_TABLE_NAME;
+                break;
+            case BACKUP_BOXSCORES:
+                table = StatsEntry.BACKUP_BOXSCORE_TABLE_NAME;
+                break;
+            case BACKUP_BOXSCORES_ID:
+                selection = StatsEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                table = StatsEntry.BACKUP_BOXSCORE_TABLE_NAME;
                 break;
 
             default:

@@ -19,6 +19,7 @@ import java.util.List;
 
 public class BoxScoreArrayAdapter extends
         RecyclerView.Adapter<BoxScoreArrayAdapter.BoxScoreListViewHolder> {
+
     private final List<InningScore> data;
 
     public BoxScoreArrayAdapter(List<InningScore> list) {
