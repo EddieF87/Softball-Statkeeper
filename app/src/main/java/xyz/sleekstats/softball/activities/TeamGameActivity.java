@@ -442,14 +442,14 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
 
     @Override
     protected void firestoreUpdate() {
-        long gameID = System.currentTimeMillis();
+        long updateTime = System.currentTimeMillis();
         if (isHome) {
-            sendTeamIntent(gameID, selectionID, homeTeamRuns, awayTeamRuns);
+            sendTeamIntent(updateTime, selectionID, homeTeamRuns, awayTeamRuns);
         } else {
-            sendTeamIntent(gameID, selectionID, awayTeamRuns, homeTeamRuns);
+            sendTeamIntent(updateTime, selectionID, awayTeamRuns, homeTeamRuns);
         }
-        sendPlayersIntent(gameID);
-        TimeStampUpdater.updateTimeStamps(this, selectionID);
+        sendPlayersIntent(updateTime);
+        TimeStampUpdater.updateTimeStamps(this, selectionID, updateTime);
     }
 
     @Override

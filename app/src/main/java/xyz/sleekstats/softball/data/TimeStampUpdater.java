@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -17,6 +18,7 @@ import static xyz.sleekstats.softball.data.FirestoreHelper.UPDATE_SETTINGS;
 
 public class TimeStampUpdater {
 
+    public static final String UPDATE_TIME = "updatetime";
     //TIMESTAMP MAINTENANCE
 
     private static long getNewTimeStamp() {
@@ -24,7 +26,6 @@ public class TimeStampUpdater {
     }
 
     private static long getLocalTimeStamp(Context context, String statKeeperID) {
-//        return 0;
         SharedPreferences updatePreferences = context.getSharedPreferences(statKeeperID + UPDATE_SETTINGS, Context.MODE_PRIVATE);
         return updatePreferences.getLong(LAST_UPDATE, 0);
     }
@@ -49,9 +50,8 @@ public class TimeStampUpdater {
         return cloudTimeStamp;
     }
 
-    public static void updateTimeStamps(final Context context, final String statKeeperID) {
+    public static void updateTimeStamps(final Context context, final String statKeeperID, final long newTimeStamp) {
 
-        final long newTimeStamp = getNewTimeStamp();
         final long localTimeStamp = getLocalTimeStamp(context, statKeeperID);
 
         FirebaseFirestore.getInstance().collection(LEAGUE_COLLECTION).document(statKeeperID).get()
@@ -86,11 +86,9 @@ public class TimeStampUpdater {
 
     //SETTING UPDATES
 
-    public static void setUpdate(String firestoreID, int type, String statKeeperID, Context context) {
+    public static void setUpdate(String firestoreID, int type, final String statKeeperID, final Context context, final long timeStamp) {
 
-        long timeStamp = System.currentTimeMillis();
         String collection;
-
         if (type == 0) {
             collection = FirestoreHelper.TEAMS_COLLECTION;
         } else if (type == 1) {
@@ -101,8 +99,12 @@ public class TimeStampUpdater {
 
         DocumentReference documentReference = FirebaseFirestore.getInstance().collection(LEAGUE_COLLECTION).document(statKeeperID)
                 .collection(collection).document(firestoreID);
-        documentReference.update(StatsContract.StatsEntry.UPDATE, timeStamp);
-        updateTimeStamps(context, statKeeperID);
+        documentReference.update(StatsContract.StatsEntry.UPDATE, timeStamp).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                updateTimeStamps(context, statKeeperID, timeStamp);
+            }
+        });
     }
 
 }

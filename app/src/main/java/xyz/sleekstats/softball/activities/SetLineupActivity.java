@@ -85,7 +85,7 @@ public class SetLineupActivity extends SingleFragmentActivity
             }
         }
         if (!players.isEmpty()) {
-            TimeStampUpdater.updateTimeStamps(this, mSelectionID);
+            TimeStampUpdater.updateTimeStamps(this, mSelectionID, System.currentTimeMillis());
 
             if(lineupFragment != null) {
                 lineupFragment.updateBench(players);

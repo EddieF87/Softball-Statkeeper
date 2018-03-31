@@ -389,11 +389,11 @@ public class LeagueGameActivity extends GameActivity {
 
     @Override
     protected void firestoreUpdate() {
-        long gameID = System.currentTimeMillis();
-        sendTeamIntent(gameID, awayTeamID, awayTeamRuns, homeTeamRuns);
-        sendTeamIntent(gameID, homeTeamID, homeTeamRuns, awayTeamRuns);
-        sendPlayersIntent(gameID);
-        TimeStampUpdater.updateTimeStamps(this, selectionID);
+        long updateTime = System.currentTimeMillis();
+        sendTeamIntent(updateTime, awayTeamID, awayTeamRuns, homeTeamRuns);
+        sendTeamIntent(updateTime, homeTeamID, homeTeamRuns, awayTeamRuns);
+        sendPlayersIntent(updateTime);
+        TimeStampUpdater.updateTimeStamps(this, selectionID, updateTime);
     }
 
     @Override

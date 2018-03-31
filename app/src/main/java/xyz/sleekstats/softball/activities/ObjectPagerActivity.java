@@ -178,7 +178,7 @@ public abstract class ObjectPagerActivity extends AppCompatActivity
 
 
         if (!players.isEmpty()) {
-            TimeStampUpdater.updateTimeStamps(this, mSelectionID);
+            TimeStampUpdater.updateTimeStamps(this, mSelectionID, System.currentTimeMillis());
             int pos = mViewPager.getCurrentItem();
             TeamFragment teamFragment = (TeamFragment) mAdapter.getRegisteredFragment(pos);
             if (teamFragment != null) {
@@ -218,7 +218,7 @@ public abstract class ObjectPagerActivity extends AppCompatActivity
                 teamFragment.showDeleteVsWaiversDialog();
             }
         }
-        TimeStampUpdater.updateTimeStamps(this, mSelectionID);
+        TimeStampUpdater.updateTimeStamps(this, mSelectionID, System.currentTimeMillis());
         setResult(RESULT_OK);
     }
 
@@ -296,15 +296,13 @@ public abstract class ObjectPagerActivity extends AppCompatActivity
         if(mSelectionID == null) {
             setLeagueInfo();
         }
-        TimeStampUpdater.setUpdate(playerFirestoreID, 1, mSelectionID, this);
-        TimeStampUpdater.updateTimeStamps(this, mSelectionID);
+        TimeStampUpdater.setUpdate(playerFirestoreID, 1, mSelectionID, this, System.currentTimeMillis());
 
         if (mObjectType == KEY_TEAM_PAGER) {
             TeamFragment teamFragment = (TeamFragment) mAdapter.getRegisteredFragment(pos);
             if (teamFragment != null && !teamFirestoreID.equals(StatsEntry.FREE_AGENT)) {
                 teamFragment.removePlayerFromTeam(playerFirestoreID);
             }
-            TimeStampUpdater.updateTimeStamps(this, mSelectionID);
         }
         setResult(RESULT_OK);
     }

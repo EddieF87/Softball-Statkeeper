@@ -19,6 +19,7 @@ import xyz.sleekstats.softball.objects.Player;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
 import xyz.sleekstats.softball.objects.PlayerLog;
 import xyz.sleekstats.softball.objects.TeamLog;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -53,6 +54,7 @@ public class FirestoreHelper extends IntentService {
     public static final String UPDATE_SETTINGS = "_updateSettings";
     public static final String USERS = "users";
     public static final String REQUESTS = "requests";
+    public static final String KEY_DELETE_PLAYERS = "playersToDelete";
 
     public static final String STATKEEPER_ID = "statkeeperID";
     public static final String INTENT_ADD_PLAYER_STATS = "addPlayerStats";
@@ -62,107 +64,11 @@ public class FirestoreHelper extends IntentService {
     public static final String INTENT_RETRY_GAME_LOAD = "retry";
 
     private String statKeeperID;
-    private Context mContext;
+    private long mUpdateTime;
     private FirebaseFirestore mFirestore;
 
-    public FirestoreHelper(String name) {
-        super(name);
-    }
-
-    //TIMESTAMP MAINTENANCE
-
-    private long getNewTimeStamp() {
-        return System.currentTimeMillis();
-    }
-
-    private long getLocalTimeStamp() {
-//        return 0;
-        SharedPreferences updatePreferences = getSharedPreferences(statKeeperID + UPDATE_SETTINGS, Context.MODE_PRIVATE);
-        return updatePreferences.getLong(LAST_UPDATE, 0);
-    }
-
-    public void setLocalTimeStamp(long time) {
-        SharedPreferences updatePreferences = getSharedPreferences(statKeeperID + UPDATE_SETTINGS, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = updatePreferences.edit();
-        editor.putLong(LAST_UPDATE, time);
-        editor.apply();
-    }
-
-    private long getCloudTimeStamp(DocumentSnapshot documentSnapshot) {
-        Map<String, Object> data = documentSnapshot.getData();
-        long cloudTimeStamp;
-        Object object = data.get(LAST_UPDATE);
-        if (object == null) {
-            cloudTimeStamp = 0;
-            updateCloudTimeStamp(cloudTimeStamp);
-        } else {
-            cloudTimeStamp = (long) object;
-        }
-        return cloudTimeStamp;
-    }
-
-    public void updateTimeStamps() {
-
-        final long newTimeStamp = getNewTimeStamp();
-        final long localTimeStamp = getLocalTimeStamp();
-
-        mFirestore.collection(LEAGUE_COLLECTION).document(statKeeperID).get()
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            long cloudTimeStamp = getCloudTimeStamp(task.getResult());
-
-                            if (localTimeStamp >= cloudTimeStamp) {
-                                updateLocalTimeStamp(newTimeStamp);
-                            }
-                            updateCloudTimeStamp(newTimeStamp);
-                        }
-                    }
-                });
-
-    }
-
-    private void updateLocalTimeStamp(long timestamp) {
-        SharedPreferences updatePreferences = getSharedPreferences(statKeeperID + UPDATE_SETTINGS, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = updatePreferences.edit();
-        editor.putLong(LAST_UPDATE, timestamp);
-        editor.apply();
-    }
-
-    private void updateCloudTimeStamp(long timestamp) {
-        DocumentReference leagueDoc = mFirestore.collection(LEAGUE_COLLECTION).document(statKeeperID);
-        leagueDoc.update(LAST_UPDATE, timestamp);
-    }
-
-
-    //SETTING UPDATES
-
-    public void setUpdate(String firestoreID, int type) {
-        if (mFirestore == null) {
-            mFirestore = FirebaseFirestore.getInstance();
-        }
-
-        long timeStamp = System.currentTimeMillis();
-        String collection;
-
-        if (type == 0) {
-            collection = FirestoreHelper.TEAMS_COLLECTION;
-        } else if (type == 1) {
-            collection = FirestoreHelper.PLAYERS_COLLECTION;
-        } else {
-            return;
-        }
-
-        DocumentReference documentReference = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION).document(statKeeperID)
-                .collection(collection).document(firestoreID);
-        documentReference.update(StatsEntry.UPDATE, timeStamp).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(mContext, "UPDATE FAILURE", Toast.LENGTH_LONG).show();
-            }
-        });
-        updateTimeStamps();
+    public FirestoreHelper() {
+        super("FirestoreHelper");
     }
 
     public void addDeletion(final String firestoreID, final int type, final String name, final int gender, final String teamFireID) {
@@ -180,7 +86,7 @@ public class FirestoreHelper extends IntentService {
     }
 
     public void addDeletionList(List<Player> playersToDelete) {
-        if(playersToDelete.isEmpty()) {
+        if (playersToDelete.isEmpty()) {
             return;
         }
         if (mFirestore == null) {
@@ -201,7 +107,7 @@ public class FirestoreHelper extends IntentService {
             batch.delete(playersCollection.document(fireID));
 
             Map<String, Object> deletion = new HashMap<>();
-            deletion.put(StatsEntry.TIME, System.currentTimeMillis());
+            deletion.put(StatsEntry.TIME, mUpdateTime);
             deletion.put(StatsEntry.TYPE, 1);
             deletion.put(StatsEntry.COLUMN_NAME, name);
             deletion.put(StatsEntry.COLUMN_GENDER, gender);
@@ -209,12 +115,6 @@ public class FirestoreHelper extends IntentService {
 
             batch.set(deletionCollection.document(fireID), deletion, SetOptions.merge());
         }
-        batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                updateTimeStamps();
-            }
-        });
     }
 
     private void setDeletionDoc(String leagueID, String firestoreID, int type, String name, int gender, String team) {
@@ -230,16 +130,15 @@ public class FirestoreHelper extends IntentService {
         deletion.put(StatsEntry.TIME, time);
         deletion.put(StatsEntry.TYPE, type);
         deletion.put(StatsEntry.COLUMN_NAME, name);
-        if(type == 1) {
+        if (type == 1) {
             deletion.put(StatsEntry.COLUMN_GENDER, gender);
             deletion.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, team);
         }
 
         deletionDoc.set(deletion, SetOptions.merge());
-        updateTimeStamps();
     }
 
-    public void addPlayerStatsToDB(final long gameID) {
+    public void addPlayerStatsToDB() {
 
         ArrayList<Long> playerList = new ArrayList<>();
         String selection = StatsEntry.COLUMN_PLAYERID + "=?";
@@ -273,7 +172,7 @@ public class FirestoreHelper extends IntentService {
 
             Map<String, Object> boxscoreMap = new HashMap<>();
             boxscoreMap.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
-            boxscoreMap.put(StatsEntry.COLUMN_GAME_ID, gameID);
+            boxscoreMap.put(StatsEntry.COLUMN_GAME_ID, mUpdateTime);
             boxscoreMap.put(StatsEntry.COLUMN_1B, game1b);
             boxscoreMap.put(StatsEntry.COLUMN_2B, game2b);
             boxscoreMap.put(StatsEntry.COLUMN_3B, game3b);
@@ -284,13 +183,13 @@ public class FirestoreHelper extends IntentService {
             boxscoreMap.put(StatsEntry.COLUMN_OUT, gameOuts);
             boxscoreMap.put(StatsEntry.COLUMN_SF, gameSF);
             final DocumentReference boxscoreRef = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION)
-                    .document(statKeeperID).collection(FirestoreHelper.BOXSCORE_COLLECTION).document(String.valueOf(gameID))
+                    .document(statKeeperID).collection(FirestoreHelper.BOXSCORE_COLLECTION).document(String.valueOf(mUpdateTime))
                     .collection(BOXSCORE_LOGS).document(firestoreID);
             playerBatch.set(boxscoreRef, boxscoreMap, SetOptions.merge());
 
             ContentValues boxscoreValues = new ContentValues();
             boxscoreValues.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
-            boxscoreValues.put(StatsEntry.COLUMN_GAME_ID, gameID);
+            boxscoreValues.put(StatsEntry.COLUMN_GAME_ID, mUpdateTime);
             boxscoreValues.put(StatsEntry.COLUMN_1B, game1b);
             boxscoreValues.put(StatsEntry.COLUMN_2B, game2b);
             boxscoreValues.put(StatsEntry.COLUMN_3B, game3b);
@@ -303,7 +202,6 @@ public class FirestoreHelper extends IntentService {
             getContentResolver().insert(StatsEntry.CONTENT_URI_BOXSCORES, boxscoreValues);
 
 
-
             long logId;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 logId = new Date().getTime();
@@ -312,12 +210,14 @@ public class FirestoreHelper extends IntentService {
             }
 
             final DocumentReference playerRef = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION)
-                    .document(statKeeperID).collection(FirestoreHelper.PLAYERS_COLLECTION).document(firestoreID)
-                    .collection(FirestoreHelper.PLAYER_LOGS).document(String.valueOf(logId));
+                    .document(statKeeperID).collection(FirestoreHelper.PLAYERS_COLLECTION).document(firestoreID);
+
+            final DocumentReference playerLogRef =
+                    playerRef.collection(FirestoreHelper.PLAYER_LOGS).document(String.valueOf(logId));
 
             PlayerLog playerLog = new PlayerLog(playerId, gameRBI, gameRun, game1b, game2b, game3b,
                     gameHR, gameOuts, gameBB, gameSF);
-            playerBatch.set(playerRef, playerLog);
+            playerBatch.set(playerLogRef, playerLog);
 
             Uri playerUri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_PLAYERS, playerId);
             cursor = getContentResolver().query(playerUri, null, null, null, null);
@@ -348,7 +248,8 @@ public class FirestoreHelper extends IntentService {
             values.put(StatsEntry.COLUMN_G, games + 1);
             values.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
             getContentResolver().update(playerUri, values, null, null);
-            setUpdate(firestoreID, 1);
+
+            playerBatch.update(playerRef, StatsEntry.UPDATE, mUpdateTime);
         }
         cursor.close();
         playerBatch.commit().addOnFailureListener(new OnFailureListener() {
@@ -388,7 +289,7 @@ public class FirestoreHelper extends IntentService {
                     backupValues.put(StatsEntry.COLUMN_OUT, gameOuts);
                     backupValues.put(StatsEntry.COLUMN_SF, gameSF);
 
-                    backupValues.put(StatsEntry.COLUMN_GAME_ID, gameID);
+                    backupValues.put(StatsEntry.COLUMN_GAME_ID, mUpdateTime);
                     getContentResolver().insert(StatsEntry.CONTENT_URI_BACKUP_BOXSCORES, backupValues);
 
                     backupValues.remove(StatsEntry.COLUMN_GAME_ID);
@@ -406,7 +307,7 @@ public class FirestoreHelper extends IntentService {
         });
     }
 
-    public void addTeamStatsToDB(final long gameID, final String teamFirestoreID, int teamRuns, int otherTeamRuns) {
+    public void addTeamStatsToDB(final String teamFirestoreID, int teamRuns, int otherTeamRuns) {
         WriteBatch teamBatch = mFirestore.batch();
 
         String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
@@ -427,33 +328,33 @@ public class FirestoreHelper extends IntentService {
 
         Map<String, Object> boxscoreMap = new HashMap<>();
         boxscoreMap.put(StatsEntry.COLUMN_FIRESTORE_ID, teamFirestoreID);
-        boxscoreMap.put(StatsEntry.COLUMN_GAME_ID, gameID);
+        boxscoreMap.put(StatsEntry.COLUMN_GAME_ID, mUpdateTime);
         boxscoreMap.put(StatsEntry.COLUMN_1B, -1);
         boxscoreMap.put(StatsEntry.COLUMN_2B, teamRuns);
         boxscoreMap.put(StatsEntry.COLUMN_3B, otherTeamRuns);
 
         final DocumentReference boxscoreRef = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION)
-                .document(statKeeperID).collection(FirestoreHelper.BOXSCORE_COLLECTION).document(String.valueOf(gameID))
+                .document(statKeeperID).collection(FirestoreHelper.BOXSCORE_COLLECTION).document(String.valueOf(mUpdateTime))
                 .collection(BOXSCORE_LOGS).document(teamFirestoreID);
         teamBatch.set(boxscoreRef, boxscoreMap, SetOptions.merge());
 
         final ContentValues boxscoreValues = new ContentValues();
         boxscoreValues.put(StatsEntry.COLUMN_FIRESTORE_ID, teamFirestoreID);
-        boxscoreValues.put(StatsEntry.COLUMN_GAME_ID, gameID);
+        boxscoreValues.put(StatsEntry.COLUMN_GAME_ID, mUpdateTime);
         boxscoreValues.put(StatsEntry.COLUMN_1B, -1);
         boxscoreValues.put(StatsEntry.COLUMN_2B, teamRuns);
         boxscoreValues.put(StatsEntry.COLUMN_3B, otherTeamRuns);
         getContentResolver().insert(StatsEntry.CONTENT_URI_BOXSCORES, boxscoreValues);
 
 
-
         long teamId = StatsContract.getColumnLong(cursor, StatsEntry._ID);
         TeamLog teamLog = new TeamLog(teamId, teamRuns, otherTeamRuns);
         backupValues.put(StatsEntry.COLUMN_TEAM_ID, teamId);
 
-        final DocumentReference docRef = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION)
-                .document(statKeeperID).collection(FirestoreHelper.TEAMS_COLLECTION).document(teamFirestoreID)
-                .collection(FirestoreHelper.TEAM_LOGS).document(String.valueOf(logId));
+        final DocumentReference teamRef = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION)
+                .document(statKeeperID).collection(FirestoreHelper.TEAMS_COLLECTION).document(teamFirestoreID);
+
+        final DocumentReference teamLogRef = teamRef.collection(FirestoreHelper.TEAM_LOGS).document(String.valueOf(logId));
 
         if (teamRuns > otherTeamRuns) {
             int newValue = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_WINS) + 1;
@@ -485,23 +386,17 @@ public class FirestoreHelper extends IntentService {
 
         getContentResolver().update(StatsEntry.CONTENT_URI_TEAMS, values, selection, selectionArgs);
 
-        teamBatch.set(docRef, teamLog);
-        teamBatch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+        teamBatch.update(teamRef, StatsEntry.UPDATE, mUpdateTime);
+        teamBatch.set(teamLogRef, teamLog);
+        teamBatch.commit().addOnFailureListener(new OnFailureListener() {
             @Override
-            public void onSuccess(Void aVoid) {
-                setUpdate(teamFirestoreID, 0);
+            public void onFailure(@NonNull Exception e) {
+                getContentResolver().insert(StatsEntry.CONTENT_URI_BACKUP_TEAMS, backupValues);
+                getContentResolver().insert(StatsEntry.CONTENT_URI_BACKUP_BOXSCORES, boxscoreValues);
             }
-        })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        getContentResolver().insert(StatsEntry.CONTENT_URI_BACKUP_TEAMS, backupValues);
-                        getContentResolver().insert(StatsEntry.CONTENT_URI_BACKUP_BOXSCORES, boxscoreValues);
-                    }
-                });
+        });
 
     }
-
 
 
     public void retryGameLogLoad() {
@@ -567,27 +462,30 @@ public class FirestoreHelper extends IntentService {
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        if(intent == null) {return;}
+        if (intent == null) {
+            return;
+        }
         String action = intent.getAction();
-        if(action == null) {return;}
-        if(mFirestore == null) {
+        if (action == null) {
+            return;
+        }
+        if (mFirestore == null) {
             mFirestore = FirebaseFirestore.getInstance();
         }
         statKeeperID = intent.getStringExtra(STATKEEPER_ID);
-        long gameID;
+        mUpdateTime = intent.getLongExtra(TimeStampUpdater.UPDATE_TIME, 0);
+
         String firestoreID;
         switch (action) {
             case INTENT_ADD_PLAYER_STATS:
-                gameID = intent.getLongExtra(StatsEntry.COLUMN_GAME_ID, 0);
-                addPlayerStatsToDB(gameID);
+                addPlayerStatsToDB();
                 break;
 
             case INTENT_ADD_TEAM_STATS:
-                gameID = intent.getLongExtra(StatsEntry.COLUMN_GAME_ID, 0);
                 firestoreID = intent.getStringExtra(StatsEntry.COLUMN_FIRESTORE_ID);
                 int runsFor = intent.getIntExtra(StatsEntry.COLUMN_RUNSFOR, 0);
                 int runsAgainst = intent.getIntExtra(StatsEntry.COLUMN_RUNSAGAINST, 0);
-                addTeamStatsToDB(gameID, firestoreID, runsFor, runsAgainst);
+                addTeamStatsToDB(firestoreID, runsFor, runsAgainst);
                 break;
 
             case INTENT_RETRY_GAME_LOAD:
@@ -604,7 +502,7 @@ public class FirestoreHelper extends IntentService {
                 break;
 
             case INTENT_DELETE_PLAYERS:
-                List<Player> playersToDelete = intent.getParcelableArrayListExtra("playersToDelete");
+                List<Player> playersToDelete = intent.getParcelableArrayListExtra(KEY_DELETE_PLAYERS);
                 addDeletionList(playersToDelete);
                 break;
         }

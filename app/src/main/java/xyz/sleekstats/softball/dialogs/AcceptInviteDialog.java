@@ -63,14 +63,14 @@ public class AcceptInviteDialog extends DialogFragment {
                 .setPositiveButton(R.string.accept, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         if (mListener != null) {
-                            mListener.onGoToStatkeeper(true, mID, mName, mType, mLevel);
+                            mListener.onAcceptInvite(true, mID, mName, mType, mLevel);
                         }
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         if (mListener != null) {
-                            mListener.onGoToStatkeeper(false, mID, mName, mType, mLevel);
+                            mListener.onAcceptInvite(false, mID, mName, mType, mLevel);
                         }
                     }
                 })
@@ -100,6 +100,6 @@ public class AcceptInviteDialog extends DialogFragment {
     }
 
     public interface OnFragmentInteractionListener {
-        void onGoToStatkeeper(boolean goTo, String id, String name, int type, int level);
+        void onAcceptInvite(boolean accepted, String id, String name, int type, int level);
     }
 }

@@ -15,6 +15,7 @@ import xyz.sleekstats.softball.R;
 public class ContinueLoadDialog extends DialogFragment {
 
     private ContinueLoadDialog.OnFragmentInteractionListener mListener;
+    private AlertDialog myDialog;
 
     public ContinueLoadDialog() {
         // Required empty public constructor
@@ -51,7 +52,7 @@ public class ContinueLoadDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-        AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
+        myDialog = new AlertDialog.Builder(getActivity())
                 .setTitle("Accessing database: Please Wait!")
                 .setMessage(R.string.load_from_cache)
                 .setPositiveButton(R.string.load, new DialogInterface.OnClickListener() {
@@ -66,8 +67,13 @@ public class ContinueLoadDialog extends DialogFragment {
                 })
                 .setCancelable(false)
                 .create();
-        alertDialog.setCanceledOnTouchOutside(false);
-        return alertDialog;
+        myDialog.setCanceledOnTouchOutside(false);
+        return myDialog;
     }
 
+    public void dismissIfShowing(){
+        if (myDialog != null && myDialog.isShowing()){
+            myDialog.dismiss();
+        }
+    }
 }

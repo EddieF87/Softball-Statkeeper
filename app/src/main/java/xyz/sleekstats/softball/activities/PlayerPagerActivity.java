@@ -64,7 +64,7 @@ public class PlayerPagerActivity extends ObjectPagerActivity {
             update = playerFragment.updatePlayerName(enteredText);
         }
         if(update) {
-            TimeStampUpdater.updateTimeStamps(this, getSelectionID());
+            TimeStampUpdater.updateTimeStamps(this, getSelectionID(), System.currentTimeMillis());
             String playerFirestoreID = playerFragment.getFirestoreID();
             Intent intent = getIntent();
             intent.putExtra(StatsContract.StatsEntry.COLUMN_FIRESTORE_ID, playerFirestoreID);

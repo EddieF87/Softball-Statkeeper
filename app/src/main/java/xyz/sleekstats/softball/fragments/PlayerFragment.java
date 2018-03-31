@@ -500,7 +500,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 contentValues.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
                 int rowsUpdated = getActivity().getContentResolver().update(mCurrentPlayerUri, contentValues, null, null);
                 if(rowsUpdated > 0) {
-                    TimeStampUpdater.updateTimeStamps(getActivity(), mSelectionID);
+                    TimeStampUpdater.updateTimeStamps(getActivity(), mSelectionID, System.currentTimeMillis());
                 }
                 setColor();
                 ((PlayerPagerActivity) getActivity()).returnGenderEdit(gender, firestoreID);

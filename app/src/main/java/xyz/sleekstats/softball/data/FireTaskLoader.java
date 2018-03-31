@@ -5,10 +5,13 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.concurrent.ExecutionException;
 
 import static xyz.sleekstats.softball.data.FirestoreHelper.LEAGUE_COLLECTION;
 
@@ -46,13 +49,21 @@ public class FireTaskLoader extends android.support.v4.content.AsyncTaskLoader<Q
                 .whereLessThan(userId, 99)
                 .get();
 
-        while (!task.isComplete()) {
+        try {
+            Tasks.await(task);
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+//
+//        while (!task.isComplete()) {
+//        }
+
+        if(task.isSuccessful()) {
             if(isLoadInBackgroundCanceled()) {
                 return null;
             }
-        }
-
-        if(task.isSuccessful()) {
             return task.getResult();
         } else {
             return null;

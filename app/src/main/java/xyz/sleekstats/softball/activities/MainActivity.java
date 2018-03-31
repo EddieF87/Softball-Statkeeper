@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -105,7 +104,7 @@ public class MainActivity extends AppCompatActivity
     private FireTaskLoader mFireTaskLoader;
     private FirebaseFirestore mFirestore;
     private ContinueLoadDialog mContinueLoadDialogFragment;
-    private InviteListDialog mInviteDialogFragment;
+    private InviteListDialog mInviteListDialogFragment;
     private AcceptInviteDialog mAcceptInviteDialog;
     private boolean loadingFinished;
 
@@ -222,9 +221,11 @@ public class MainActivity extends AppCompatActivity
                                         return;
                                     }
                                     int level = ((Long) levelObject).intValue();
+                                    Log.d("xyxyx", "levelObject).intValue()" + level);
                                     if(level < UsersActivity.LEVEL_REMOVE_USER && -level < UsersActivity.LEVEL_CREATOR) {
                                         level = -level;
                                         openAcceptInviteDialog(id, name, type, level);
+                                        return;
                                     }
                                     Log.d("xyxyx", "task.phase2()");
                                     myApp.setCurrentSelection(new MainPageSelection(id, name, type, level));
@@ -243,6 +244,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void openAcceptInviteDialog(String id, String name, int type, int level) {
+        if(mInviteListDialogFragment != null) {
+            mInviteListDialogFragment.dismissIfShowing();
+        }
+        if(mContinueLoadDialogFragment != null) {
+            mContinueLoadDialogFragment.dismissIfShowing();
+        }
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         mAcceptInviteDialog = AcceptInviteDialog.newInstance(id, name, type, level);
@@ -382,12 +389,15 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void openInviteDialog() {
-        if(mInviteDialogFragment != null) {
-            mInviteDialogFragment.dismissIfShowing();
+        if(mAcceptInviteDialog != null) {
+            return;
+        }
+        if(mInviteListDialogFragment != null) {
+            mInviteListDialogFragment.dismissIfShowing();
         }
         FragmentManager fragmentManager = getSupportFragmentManager();
-        mInviteDialogFragment = InviteListDialog.newInstance(mInviteList);
-        fragmentManager.beginTransaction().add(mInviteDialogFragment, null).commitAllowingStateLoss();
+        mInviteListDialogFragment = InviteListDialog.newInstance(mInviteList);
+        fragmentManager.beginTransaction().add(mInviteListDialogFragment, null).commitAllowingStateLoss();
     }
 
     private void shuffleCreateStatKeeperViewsVisibility() {
@@ -796,7 +806,7 @@ public class MainActivity extends AppCompatActivity
                 @Override
                 public void run() {
                     if (mContinueLoadDialogFragment != null) {
-                        mContinueLoadDialogFragment.dismiss();
+                        mContinueLoadDialogFragment.dismissIfShowing();
                         mContinueLoadDialogFragment = null;
                     }
                 }
@@ -1139,11 +1149,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onGoToStatkeeper(boolean goTo, String id, String name, int type, int level) {
-        if(goTo) {
+    public void onAcceptInvite(boolean accepted, String id, String name, int type, int level) {
+        if(accepted) {
             MyApp myApp = (MyApp) getApplicationContext();
             myApp.setCurrentSelection(new MainPageSelection(id, name, type, level));
-            addSelection(name, type, 1, id);
+            addSelection(name, type, level, id);
         }
         mAcceptInviteDialog = null;
     }

@@ -113,6 +113,7 @@
             android:name="xyz.sleekstats.softball.activities.LoadingActivity"
             android:screenOrientation="portrait" />
 
+        <service android:name=".data.FirestoreHelper" />
     </application>
 
 </manifest>

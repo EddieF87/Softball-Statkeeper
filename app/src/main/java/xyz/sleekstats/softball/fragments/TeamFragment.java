@@ -599,13 +599,18 @@ public class TeamFragment extends Fragment
             if (rowsDeleted > 0) {
                 Toast.makeText(getActivity(), teamName + " " + getString(R.string.editor_delete_player_successful),
                         Toast.LENGTH_SHORT).show();
+                long updateTime = System.currentTimeMillis();
+
                 Intent intent = new Intent(getActivity(), FirestoreHelper.class);
                 intent.putExtra(FirestoreHelper.STATKEEPER_ID, mSelectionID);
+                intent.putExtra(TimeStampUpdater.UPDATE_TIME, updateTime);
+
                 intent.putExtra(StatsEntry.COLUMN_FIRESTORE_ID, teamFirestoreID);
                 intent.putExtra(StatsEntry.TYPE, teamFirestoreID);
                 intent.putExtra(StatsEntry.COLUMN_NAME, teamFirestoreID);
                 intent.putExtra(StatsEntry.COLUMN_GENDER, teamFirestoreID);
                 intent.putExtra(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, teamFirestoreID);
+
                 intent.setAction(FirestoreHelper.INTENT_DELETE_PLAYER);
                 getActivity().startService(intent);
             } else {
@@ -636,11 +641,16 @@ public class TeamFragment extends Fragment
                 firestorePlayersToDelete.add(new Player(firestoreID, name, teamFirestoreID, gender));
             }
         }
+        long updateTime = System.currentTimeMillis();
+
         Intent intent = new Intent(getActivity(), FirestoreHelper.class);
         intent.putExtra(FirestoreHelper.STATKEEPER_ID, mSelectionID);
-        intent.putParcelableArrayListExtra("playersToDelete", firestorePlayersToDelete);
+        intent.putExtra(TimeStampUpdater.UPDATE_TIME, updateTime);
+
+        intent.putParcelableArrayListExtra(FirestoreHelper.KEY_DELETE_PLAYERS, firestorePlayersToDelete);
         intent.setAction(FirestoreHelper.INTENT_DELETE_PLAYERS);
         getActivity().startService(intent);
+        TimeStampUpdater.updateTimeStamps(getActivity(), mSelectionID, updateTime);
 
         if (amountDeleted > 0) {
             updateTeamRV();
@@ -675,8 +685,7 @@ public class TeamFragment extends Fragment
         if (rowsUpdated > 0) {
             teamName = newName;
             updatePlayersTeam(teamName);
-            TimeStampUpdater.setUpdate(firestoreID, 0, mSelectionID, getActivity());
-            TimeStampUpdater.updateTimeStamps(getActivity(), mSelectionID);
+            TimeStampUpdater.setUpdate(firestoreID, 0, mSelectionID, getActivity(), System.currentTimeMillis());
             return true;
         }
         return false;
@@ -684,6 +693,7 @@ public class TeamFragment extends Fragment
 
     public void updatePlayersTeam(String team) {
         ContentValues contentValues = new ContentValues();
+        long updateTime = System.currentTimeMillis();
         for (int i = 0; i < mPlayers.size() - 1; i++) {
             Player player = mPlayers.get(i);
             long playerID = player.getPlayerId();
@@ -699,7 +709,7 @@ public class TeamFragment extends Fragment
             Uri playerURI = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_PLAYERS, playerID);
             getActivity().getContentResolver().update(playerURI, contentValues, null, null);
 
-            TimeStampUpdater.setUpdate(firestoreID, 1, mSelectionID,getActivity());
+            TimeStampUpdater.setUpdate(firestoreID, 1, mSelectionID, getActivity(), updateTime);
         }
         updateTeamRV();
     }

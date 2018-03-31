@@ -56,7 +56,7 @@ public class TeamPagerActivity extends ObjectPagerActivity {
             update = teamFragment.updateTeamName(enteredText);
         }
         if(update) {
-            TimeStampUpdater.updateTimeStamps(this, getSelectionID());
+            TimeStampUpdater.updateTimeStamps(this, getSelectionID(), System.currentTimeMillis());
         }
         setResult(RESULT_OK);
     }

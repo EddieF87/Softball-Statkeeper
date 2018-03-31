@@ -130,7 +130,7 @@ public class LeagueManagerActivity extends ExportActivity
             if (teamUri == null) {
                 return;
             }
-            TimeStampUpdater.updateTimeStamps(LeagueManagerActivity.this, mLeagueID);
+            TimeStampUpdater.updateTimeStamps(LeagueManagerActivity.this, mLeagueID, System.currentTimeMillis());
 
             Cursor cursor = getContentResolver().query(teamUri, new String[]{StatsEntry._ID, StatsEntry.COLUMN_FIRESTORE_ID}, null, null, null);
             if (cursor.moveToFirst()) {
@@ -337,7 +337,7 @@ public class LeagueManagerActivity extends ExportActivity
             }
         }
         if (update) {
-            TimeStampUpdater.updateTimeStamps(LeagueManagerActivity.this, mLeagueID);
+            TimeStampUpdater.updateTimeStamps(LeagueManagerActivity.this, mLeagueID, System.currentTimeMillis());
         }
 
         if (matchupFragment != null) {

@@ -136,7 +136,7 @@ public class TeamManagerActivity extends ExportActivity
         }
 
         if (!players.isEmpty()) {
-            TimeStampUpdater.updateTimeStamps(TeamManagerActivity.this, mTeamID);
+            TimeStampUpdater.updateTimeStamps(TeamManagerActivity.this, mTeamID, System.currentTimeMillis());
 
             if (lineupFragment != null) {
                 lineupFragment.updateBench(players);
@@ -184,7 +184,7 @@ public class TeamManagerActivity extends ExportActivity
         }
 
         if (update) {
-            TimeStampUpdater.updateTimeStamps(TeamManagerActivity.this, mTeamID);
+            TimeStampUpdater.updateTimeStamps(TeamManagerActivity.this, mTeamID, System.currentTimeMillis());
         }
     }
 
