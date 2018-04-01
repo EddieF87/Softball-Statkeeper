@@ -19,22 +19,22 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <RadioButton
-            android:id="@+id/single"
+            android:id="@+id/single_rb"
             style="@style/SmallRadioButtonStyle"
             android:text="@string/_1b" />
 
         <RadioButton
-            android:id="@+id/dbl"
+            android:id="@+id/dbl_rb"
             style="@style/SmallRadioButtonStyle"
             android:text="@string/_2b" />
 
         <RadioButton
-            android:id="@+id/triple"
+            android:id="@+id/triple_rb"
             style="@style/SmallRadioButtonStyle"
             android:text="@string/_3b" />
 
         <RadioButton
-            android:id="@+id/hr"
+            android:id="@+id/hr_rb"
             style="@style/SmallRadioButtonStyle"
             android:text="@string/hr" />
     </RadioGroup>
@@ -51,44 +51,42 @@
 
 
         <RadioButton
-            android:id="@+id/out"
+            android:id="@+id/out_rb"
             style="@style/SmallRadioButtonStyle"
             android:text="@string/out" />
 
         <RadioButton
-            android:id="@+id/sf"
+            android:id="@+id/sf_rb"
             style="@style/SmallRadioButtonStyle"
             android:text="@string/sf" />
 
         <RadioButton
-            android:id="@+id/bb"
+            android:id="@+id/bb_rb"
             style="@style/SmallRadioButtonStyle"
             android:text="@string/bb" />
 
         <RadioButton
-            android:id="@+id/run"
+            android:id="@+id/run_rb"
             style="@style/SmallRadioButtonStyle"
             android:text="@string/r" />
 
         <RadioButton
-            android:id="@+id/rbi"
+            android:id="@+id/rbi_rb"
             style="@style/SmallRadioButtonStyle"
             android:text="@string/rbi" />
     </RadioGroup>
 
     <Button
         android:id="@+id/submit"
-        android:layout_width="wrap_content"
+        android:layout_width="136dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
         android:autoSizeMaxTextSize="16sp"
-        android:autoSizeMinTextSize="8sp"
-        android:autoSizeTextType="uniform"
         android:text="@string/submit"
-        android:textSize="12sp"
+        android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="@+id/btn_add_result"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/btn_add_result"
@@ -136,6 +134,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/btn_add_result"
         app:layout_constraintEnd_toStartOf="@+id/btn_add_result"
         app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/btn_add_result"
         app:srcCompat="@drawable/ic_remove_circle_outline_black_18dp" />
@@ -145,6 +144,7 @@
         android:layout_width="0dp"
         android:layout_height="40dp"
         android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
         android:layout_marginStart="16dp"
         android:contentDescription="@string/add_result_button"
         android:tint="@color/colorPrimary"

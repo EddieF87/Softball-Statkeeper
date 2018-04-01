@@ -89,14 +89,6 @@ public class TeamManagerActivity extends ExportActivity
         cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_TEAMS, null, null, null, null);
         if (cursor.moveToFirst()) {
             sendRetryGameLoadIntent();
-            cursor.close();
-            return;
-        }
-        cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_BOXSCORES, null, null, null, null);
-        if(cursor.moveToFirst()){
-            sendRetryGameLoadIntent();
-            cursor.close();
-            return;
         }
         cursor.close();
     }

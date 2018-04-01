@@ -103,29 +103,29 @@
         android:id="@+id/playerboard_ab"
         style="@style/PlayerBoardStyle"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/playerboard_ab_title"
-        app:layout_constraintStart_toStartOf="@+id/playerboard_ab_title"
+        app:layout_constraintRight_toRightOf="@+id/playerboard_ab_title"
+        app:layout_constraintLeft_toLeftOf="@+id/playerboard_ab_title"
         app:layout_constraintTop_toBottomOf="@+id/playerboard_ab_title" />
 
     <TextView
         android:id="@+id/playerboard_hit"
         style="@style/PlayerBoardStyle"
         app:layout_constraintBottom_toBottomOf="@+id/playerboard_ab"
-        app:layout_constraintEnd_toEndOf="@+id/playerboard_hit_title"
+        app:layout_constraintRight_toRightOf="@+id/playerboard_hit_title"
         app:layout_constraintLeft_toLeftOf="@+id/playerboard_hit_title" />
 
     <TextView
         android:id="@+id/playerboard_1b"
         style="@style/PlayerBoardStyle"
         app:layout_constraintBottom_toBottomOf="@+id/playerboard_hit"
-        app:layout_constraintEnd_toEndOf="@+id/playerboard_1b_title"
+        app:layout_constraintRight_toRightOf="@+id/playerboard_1b_title"
         app:layout_constraintLeft_toLeftOf="@+id/playerboard_1b_title" />
 
     <TextView
         android:id="@+id/playerboard_2b"
         style="@style/PlayerBoardStyle"
         app:layout_constraintBottom_toBottomOf="@+id/playerboard_1b"
-        app:layout_constraintEnd_toEndOf="@+id/playerboard_2b_title"
+        app:layout_constraintRight_toRightOf="@+id/playerboard_2b_title"
         app:layout_constraintLeft_toLeftOf="@+id/playerboard_2b_title"
         tools:text="999" />
 
@@ -133,7 +133,7 @@
         android:id="@+id/playerboard_3b"
         style="@style/PlayerBoardStyle"
         app:layout_constraintBottom_toBottomOf="@+id/playerboard_2b"
-        app:layout_constraintEnd_toEndOf="@+id/playerboard_3b_title"
+        app:layout_constraintRight_toRightOf="@+id/playerboard_3b_title"
         app:layout_constraintLeft_toLeftOf="@+id/playerboard_3b_title"
         tools:text="999" />
 
@@ -141,7 +141,7 @@
         android:id="@+id/playerboard_bb"
         style="@style/PlayerBoardStyle"
         app:layout_constraintBottom_toBottomOf="@+id/playerboard_3b"
-        app:layout_constraintEnd_toEndOf="@+id/playerboard_bb_title"
+        app:layout_constraintRight_toRightOf="@+id/playerboard_bb_title"
         app:layout_constraintLeft_toLeftOf="@+id/playerboard_bb_title"
         tools:text="999" />
 
@@ -150,7 +150,7 @@
         style="@style/PlayerBoardStyle"
         android:text="@string/empty_avg"
         app:layout_constraintBottom_toBottomOf="@+id/playerboard_bb"
-        app:layout_constraintEnd_toEndOf="@+id/playerboard_obp_title"
+        app:layout_constraintRight_toRightOf="@+id/playerboard_obp_title"
         app:layout_constraintLeft_toLeftOf="@+id/playerboard_obp_title"
         tools:text=".333" />
 
@@ -175,9 +175,9 @@
         android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/guideline1"
-        app:layout_constraintEnd_toEndOf="@+id/player_avg_title"
-        app:layout_constraintLeft_toLeftOf="@+id/player_avg_title"
         app:layout_constraintTop_toBottomOf="@+id/player_avg_title"
+        app:layout_constraintLeft_toLeftOf="@+id/player_avg_title"
+        app:layout_constraintRight_toRightOf="@+id/player_avg_title"
         tools:text=".333" />
 
     <TextView
@@ -187,7 +187,7 @@
         android:text="@string/hr"
         android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@+id/player_hr"
-        app:layout_constraintEnd_toEndOf="@+id/player_avg_title"
+        app:layout_constraintRight_toRightOf="@+id/player_avg_title"
         app:layout_constraintLeft_toLeftOf="@+id/player_avg_title"
         app:layout_constraintTop_toBottomOf="@+id/guideline1"
         app:layout_constraintVertical_chainStyle="packed" />
@@ -198,7 +198,7 @@
         android:layout_height="wrap_content"
         android:text="@string/r"
         android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="@+id/player_slg_title"
+        app:layout_constraintRight_toRightOf="@+id/player_slg_title"
         app:layout_constraintLeft_toLeftOf="@+id/player_slg_title"
         app:layout_constraintTop_toTopOf="@+id/player_hr_title" />
 
@@ -208,7 +208,7 @@
         android:layout_height="wrap_content"
         android:text="@string/rbi"
         android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="@+id/player_ops_title"
+        app:layout_constraintRight_toRightOf="@+id/player_ops_title"
         app:layout_constraintLeft_toLeftOf="@+id/player_ops_title"
         app:layout_constraintTop_toTopOf="@+id/player_runs_title" />
 
@@ -219,7 +219,7 @@
         android:text="0"
         android:textSize="24sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="@+id/player_rbi_title"
+        app:layout_constraintRight_toRightOf="@+id/player_rbi_title"
         app:layout_constraintLeft_toLeftOf="@+id/player_rbi_title"
         app:layout_constraintTop_toBottomOf="@+id/player_rbi_title" />
 
@@ -230,7 +230,7 @@
         android:text="0"
         android:textSize="24sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="@+id/player_runs_title"
+        app:layout_constraintRight_toRightOf="@+id/player_runs_title"
         app:layout_constraintLeft_toLeftOf="@+id/player_runs_title"
         app:layout_constraintTop_toBottomOf="@+id/player_runs_title" />
 
@@ -251,7 +251,7 @@
         android:text="@string/empty_avg"
         android:textSize="24sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="@+id/player_ops_title"
+        app:layout_constraintRight_toRightOf="@+id/player_ops_title"
         app:layout_constraintLeft_toLeftOf="@+id/player_ops_title"
         app:layout_constraintTop_toBottomOf="@+id/player_ops_title" />
 
@@ -263,7 +263,7 @@
         android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/guideline2"
-        app:layout_constraintEnd_toEndOf="@+id/player_hr_title"
+        app:layout_constraintRight_toRightOf="@+id/player_hr_title"
         app:layout_constraintLeft_toLeftOf="@+id/player_hr_title"
         app:layout_constraintTop_toBottomOf="@+id/player_hr_title" />
 
@@ -284,7 +284,7 @@
         android:text="@string/empty_avg"
         android:textSize="24sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="@+id/player_slg_title"
+        app:layout_constraintRight_toRightOf="@+id/player_slg_title"
         app:layout_constraintLeft_toLeftOf="@+id/player_slg_title"
         app:layout_constraintTop_toBottomOf="@+id/player_slg_title"
         tools:text=".555" />

@@ -86,8 +86,8 @@ public class BoxScoreActivity extends AppCompatActivity implements LoaderManager
         TextView header = findViewById(R.id.boxscore_header);
         View awayTitle = findViewById(R.id.away_players_title);
         View homeTitle = findViewById(R.id.home_players_title);
-        TextView awayNameView = awayTitle.findViewById(R.id.name_title);
-        TextView homeNameView = homeTitle.findViewById(R.id.name_title);
+        TextView awayNameView = awayTitle.findViewById(R.id.bs_name_title);
+        TextView homeNameView = homeTitle.findViewById(R.id.bs_name_title);
         ListView awayListView = findViewById(R.id.away_players_listview);
         ListView homeListView = findViewById(R.id.home_players_listview);
 
@@ -103,7 +103,7 @@ public class BoxScoreActivity extends AppCompatActivity implements LoaderManager
 
             awayNameView.setText(selectionName);
 
-            awayAdapter = new BoxScorePlayerCursorAdapter(this);
+            awayAdapter = new BoxScorePlayerCursorAdapter(this, BoxScorePlayerCursorAdapter.KEY_CURRENT);
             awayListView.setAdapter(awayAdapter);
             getLoaderManager().initLoader(AWAY_LOADER, null, this);
             return;
@@ -112,9 +112,9 @@ public class BoxScoreActivity extends AppCompatActivity implements LoaderManager
         awayNameView.setText(awayTeamName);
         homeNameView.setText(homeTeamName);
 
-        awayAdapter = new BoxScorePlayerCursorAdapter(this);
+        awayAdapter = new BoxScorePlayerCursorAdapter(this, BoxScorePlayerCursorAdapter.KEY_CURRENT);
         awayListView.setAdapter(awayAdapter);
-        homeAdapter = new BoxScorePlayerCursorAdapter(this);
+        homeAdapter = new BoxScorePlayerCursorAdapter(this, BoxScorePlayerCursorAdapter.KEY_CURRENT);
         homeListView.setAdapter(homeAdapter);
         getLoaderManager().initLoader(AWAY_LOADER, null, this);
         getLoaderManager().initLoader(HOME_LOADER, null, this);

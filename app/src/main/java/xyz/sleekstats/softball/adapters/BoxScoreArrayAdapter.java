@@ -60,6 +60,7 @@ public class BoxScoreArrayAdapter extends
 
     @Override
     public int getItemCount() {
+        if(data == null) {return 0;}
         return data.size();
     }
 

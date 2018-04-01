@@ -21,11 +21,11 @@ public class TimeStampUpdater {
     public static final String UPDATE_TIME = "updatetime";
     //TIMESTAMP MAINTENANCE
 
-    private static long getNewTimeStamp() {
+    public static long getNewTimeStamp() {
         return System.currentTimeMillis();
     }
 
-    private static long getLocalTimeStamp(Context context, String statKeeperID) {
+    public static long getLocalTimeStamp(Context context, String statKeeperID) {
         SharedPreferences updatePreferences = context.getSharedPreferences(statKeeperID + UPDATE_SETTINGS, Context.MODE_PRIVATE);
         return updatePreferences.getLong(LAST_UPDATE, 0);
     }
@@ -37,7 +37,7 @@ public class TimeStampUpdater {
         editor.apply();
     }
 
-    private static long getCloudTimeStamp(DocumentSnapshot documentSnapshot, String statKeeperID) {
+    public static long getCloudTimeStamp(DocumentSnapshot documentSnapshot, String statKeeperID) {
         Map<String, Object> data = documentSnapshot.getData();
         long cloudTimeStamp;
         Object object = data.get(LAST_UPDATE);
@@ -71,14 +71,14 @@ public class TimeStampUpdater {
 
     }
 
-    private static void updateLocalTimeStamp(long timestamp, Context context, String statKeeperID) {
+    public static void updateLocalTimeStamp(long timestamp, Context context, String statKeeperID) {
         SharedPreferences updatePreferences = context.getSharedPreferences(statKeeperID + UPDATE_SETTINGS, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = updatePreferences.edit();
         editor.putLong(LAST_UPDATE, timestamp);
         editor.apply();
     }
 
-    private static void updateCloudTimeStamp(long timestamp, String statKeeperID) {
+    public static void updateCloudTimeStamp(long timestamp, String statKeeperID) {
         DocumentReference leagueDoc = FirebaseFirestore.getInstance().collection(LEAGUE_COLLECTION).document(statKeeperID);
         leagueDoc.update(LAST_UPDATE, timestamp);
     }

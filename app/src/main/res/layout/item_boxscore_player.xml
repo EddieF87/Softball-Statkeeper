@@ -1,54 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
     <TextView
-        android:id="@+id/name"
+        android:id="@+id/bs_name"
         android:layout_width="0dp"
-        android:layout_weight="3"
         android:layout_height="wrap_content"
-        android:paddingRight="20dp"
-        android:paddingEnd="20dp"
-        android:paddingLeft="8dp"
-        android:paddingStart="8dp"
-        android:paddingBottom="4dp"
+        android:layout_weight="3"
+        android:gravity="start|center_vertical"
+        android:layout_gravity="center_vertical"
         android:maxLines="1"
-        android:text="@string/name"
-        android:textSize="16sp"
-        android:textStyle="bold"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp"
         android:textAlignment="textStart"
-        android:gravity="start"
-        />
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:autoSizeTextType="uniform"
+        android:autoSizeMinTextSize="10sp"
+        tools:text="Wiener Sniener" />
 
     <TextView
-        android:id="@+id/ab"
+        android:id="@+id/bs_ab"
         style="@style/BoxScoreStyle"
-        android:text="@string/ab" />
+        tools:text="@string/ab" />
 
     <TextView
-        android:id="@+id/run"
+        android:id="@+id/bs_run"
         style="@style/BoxScoreStyle"
-        android:text="@string/r" />
+        tools:text="@string/r" />
 
     <TextView
-        android:id="@+id/hit"
+        android:id="@+id/bs_hit"
         style="@style/BoxScoreStyle"
-        android:text="@string/h" />
+        tools:text="@string/h" />
 
     <TextView
-        android:id="@+id/rbi"
+        android:id="@+id/bs_rbi"
         style="@style/BoxScoreStyle"
-        android:text="@string/rbi" />
+        tools:text="@string/rbi" />
 
     <TextView
-        android:id="@+id/hr"
+        android:id="@+id/bs_hr"
         style="@style/BoxScoreStyle"
-        android:text="@string/hr" />
+        tools:text="@string/hr" />
 
     <TextView
-        android:id="@+id/bb"
+        android:id="@+id/bs_tpl"
         style="@style/BoxScoreStyle"
-        android:text="@string/bb" />
+        tools:text="@string/_3b" />
+
+    <TextView
+        android:id="@+id/bs_dbl"
+        style="@style/BoxScoreStyle"
+        tools:text="@string/_2b" />
+
+    <TextView
+        android:id="@+id/bs_sgl"
+        style="@style/BoxScoreStyle"
+        tools:text="@string/_1b" />
+
+    <TextView
+        android:id="@+id/bs_bb"
+        style="@style/BoxScoreStyle"
+        tools:text="@string/bb" />
+
+    <TextView
+        android:id="@+id/bs_sf"
+        style="@style/BoxScoreStyle"
+        tools:text="@string/sf" />
+
+    <TextView
+        android:id="@+id/bs_out"
+        style="@style/BoxScoreStyle"
+        tools:text="@string/out" />
+
 </LinearLayout>

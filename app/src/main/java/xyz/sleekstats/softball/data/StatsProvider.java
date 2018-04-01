@@ -12,6 +12,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.widget.Toast;
 
 import xyz.sleekstats.softball.MyApp;
@@ -50,10 +51,10 @@ public class StatsProvider extends ContentProvider {
     private static final int GAME = 400;
     private static final int GAME_ID = 401;
     private static final int SELECTIONS = 500;
-    private static final int BOXSCORES = 600;
-    private static final int BOXSCORES_ID = 601;
-    private static final int BACKUP_BOXSCORES = 602;
-    private static final int BACKUP_BOXSCORES_ID = 603;
+    private static final int BOXSCORE_PLAYERS = 600;
+    private static final int BOXSCORE_PLAYER_ID = 601;
+    private static final int BOXSCORE_OVERVIEWS = 700;
+    private static final int BOXSCORE_OVERVIEW_ID = 701;
 
 
     private static final UriMatcher sUriMatcher = buildUriMatcher();
@@ -76,10 +77,10 @@ public class StatsProvider extends ContentProvider {
         matcher.addURI(authority, StatsContract.PATH_BACKUP_TEAMS, BACKUP_TEAMS);
         matcher.addURI(authority, StatsContract.PATH_BACKUP_TEAMS + "/#", BACKUP_TEAMS_ID);
         matcher.addURI(authority, StatsContract.PATH_SELECTIONS, SELECTIONS);
-        matcher.addURI(authority, StatsContract.PATH_BOXSCORES, BOXSCORES);
-        matcher.addURI(authority, StatsContract.PATH_BOXSCORES + "/#", BOXSCORES_ID);
-        matcher.addURI(authority, StatsContract.PATH_BACKUP_BOXSCORES, BACKUP_BOXSCORES);
-        matcher.addURI(authority, StatsContract.PATH_BACKUP_BOXSCORES + "/#", BACKUP_BOXSCORES_ID);
+        matcher.addURI(authority, StatsContract.PATH_BOXSCORE_PLAYERS, BOXSCORE_PLAYERS);
+        matcher.addURI(authority, StatsContract.PATH_BOXSCORE_PLAYERS + "/#", BOXSCORE_PLAYER_ID);
+        matcher.addURI(authority, StatsContract.PATH_BOXSCORE_OVERVIEWS, BOXSCORE_OVERVIEWS);
+        matcher.addURI(authority, StatsContract.PATH_BOXSCORE_OVERVIEWS + "/#", BOXSCORE_OVERVIEW_ID);
 
         return matcher;
     }
@@ -108,8 +109,6 @@ public class StatsProvider extends ContentProvider {
                 selection = selection + " AND " + StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
             }
         } catch (Exception e) {
-            Intent intent = new Intent(getContext(), MainActivity.class);
-            getContext().startActivity(intent);
             return null;
         }
 
@@ -158,11 +157,11 @@ public class StatsProvider extends ContentProvider {
             case BACKUP_TEAMS:
                 table = StatsEntry.BACKUP_TEAMS_TABLE_NAME;
                 break;
-            case BOXSCORES:
-                table = StatsEntry.BOXSCORE_TABLE_NAME;
+            case BOXSCORE_PLAYERS:
+                table = StatsEntry.BOXSCORE_PLAYERS_TABLE_NAME;
                 break;
-            case BACKUP_BOXSCORES:
-                table = StatsEntry.BACKUP_BOXSCORE_TABLE_NAME;
+            case BOXSCORE_OVERVIEWS:
+                table = StatsEntry.BOXSCORE_OVERVIEW_TABLE_NAME;
                 break;
             default:
                 throw new IllegalArgumentException("Cannot query unknown URI " + uri);
@@ -203,8 +202,6 @@ public class StatsProvider extends ContentProvider {
             selectionType = myApp.getCurrentSelection().getType();
             values.put(StatsEntry.COLUMN_LEAGUE_ID, leagueID);
         } catch (Exception e) {
-            Intent intent = new Intent(getContext(), MainActivity.class);
-            getContext().startActivity(intent);
             return null;
         }
 
@@ -307,11 +304,11 @@ public class StatsProvider extends ContentProvider {
             case GAME:
                 table = StatsEntry.GAME_TABLE_NAME;
                 break;
-            case BOXSCORES:
-                table = StatsEntry.BOXSCORE_TABLE_NAME;
+            case BOXSCORE_PLAYERS:
+                table = StatsEntry.BOXSCORE_PLAYERS_TABLE_NAME;
                 break;
-            case BACKUP_BOXSCORES:
-                table = StatsEntry.BACKUP_BOXSCORE_TABLE_NAME;
+            case BOXSCORE_OVERVIEWS:
+                table = StatsEntry.BOXSCORE_OVERVIEW_TABLE_NAME;
                 break;
             default:
                 throw new IllegalArgumentException("Insertion is not supported for " + uri);
@@ -359,8 +356,6 @@ public class StatsProvider extends ContentProvider {
                 selection = selection + " AND " + StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
             }
         } catch (Exception e) {
-            Intent intent = new Intent(getContext(), MainActivity.class);
-            getContext().startActivity(intent);
             return -1;
         }
 
@@ -443,23 +438,22 @@ public class StatsProvider extends ContentProvider {
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 table = StatsEntry.BACKUP_TEAMS_TABLE_NAME;
                 break;
-            case BOXSCORES:
-                table = StatsEntry.BOXSCORE_TABLE_NAME;
+            case BOXSCORE_PLAYERS:
+                table = StatsEntry.BOXSCORE_PLAYERS_TABLE_NAME;
                 break;
-            case BOXSCORES_ID:
+            case BOXSCORE_PLAYER_ID:
                 selection = StatsEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
-                table = StatsEntry.BOXSCORE_TABLE_NAME;
+                table = StatsEntry.BOXSCORE_PLAYERS_TABLE_NAME;
                 break;
-            case BACKUP_BOXSCORES:
-                table = StatsEntry.BACKUP_BOXSCORE_TABLE_NAME;
+            case BOXSCORE_OVERVIEWS:
+                table = StatsEntry.BOXSCORE_OVERVIEW_TABLE_NAME;
                 break;
-            case BACKUP_BOXSCORES_ID:
+            case BOXSCORE_OVERVIEW_ID:
                 selection = StatsEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
-                table = StatsEntry.BACKUP_BOXSCORE_TABLE_NAME;
+                table = StatsEntry.BOXSCORE_OVERVIEW_TABLE_NAME;
                 break;
-
             default:
                 throw new IllegalArgumentException("Deletion is not supported for " + uri);
         }
@@ -496,8 +490,6 @@ public class StatsProvider extends ContentProvider {
                 selection = selection + " AND " + StatsEntry.COLUMN_LEAGUE_ID + "='" + leagueID + "'";
             }
         } catch (Exception e) {
-            Intent intent = new Intent(getContext(), MainActivity.class);
-            getContext().startActivity(intent);
             return -1;
         }
 

@@ -171,11 +171,12 @@ public abstract class GameActivity extends AppCompatActivity
     protected abstract void getSelectionData();
 
     private void setViews() {
-        AdView adView = findViewById(R.id.game_ad);
-        AdRequest adRequest = new AdRequest.Builder()
-                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
-                .build();
-        adView.loadAd(adRequest);
+        //todo
+//        AdView adView = findViewById(R.id.game_ad);
+//        AdRequest adRequest = new AdRequest.Builder()
+//                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+//                .build();
+//        adView.loadAd(adRequest);
 
 
         scoreboard = findViewById(R.id.scoreboard);
@@ -331,43 +332,43 @@ public abstract class GameActivity extends AppCompatActivity
         boolean checked = ((RadioButton) view).isChecked();
         playEntered = true;
         switch (view.getId()) {
-            case R.id.single:
+            case R.id.single_rb:
                 if (checked)
                     result = StatsEntry.COLUMN_1B;
                 group2.clearCheck();
                 break;
-            case R.id.dbl:
+            case R.id.dbl_rb:
                 if (checked)
                     result = StatsEntry.COLUMN_2B;
                 group2.clearCheck();
                 break;
-            case R.id.triple:
+            case R.id.triple_rb:
                 if (checked)
                     result = StatsEntry.COLUMN_3B;
                 group2.clearCheck();
                 break;
-            case R.id.hr:
+            case R.id.hr_rb:
                 if (checked)
                     result = StatsEntry.COLUMN_HR;
                 group2.clearCheck();
                 break;
-            case R.id.bb:
+            case R.id.bb_rb:
                 if (checked)
                     result = StatsEntry.COLUMN_BB;
                 group2.clearCheck();
                 break;
-            case R.id.out:
-            case R.id.error:
-            case R.id.fc:
+            case R.id.out_rb:
+            case R.id.error_rb:
+            case R.id.fc_rb:
                 if (checked)
                     result = StatsEntry.COLUMN_OUT;
                 group1.clearCheck();
                 break;
-            case R.id.sf:
+            case R.id.sf_rb:
                 if (checked)
                     result = StatsEntry.COLUMN_SF;
                 group1.clearCheck();
-            case R.id.sacbunt:
+            case R.id.sacbunt_rb:
                 if (checked)
                     result = StatsEntry.COLUMN_SAC_BUNT;
                 group1.clearCheck();
@@ -550,9 +551,47 @@ public abstract class GameActivity extends AppCompatActivity
         exitToManager();
     }
 
+    protected void transferStats(long gameID){
+        Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEMP, null,
+                null, null, null);
+        while (cursor.moveToNext()) {
+            Log.d("zztop", "player backup");
+
+            String playerFirestoreID = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_FIRESTORE_ID);
+            String teamFirestoreID = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_TEAM_FIRESTORE_ID);
+            int playerId = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_PLAYERID);
+            int game1b = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_1B);
+            int game2b = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_2B);
+            int game3b = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_3B);
+            int gameHR = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_HR);
+            int gameRBI = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_RBI);
+            int gameRun = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_RUN);
+            int gameBB = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_BB);
+            int gameOuts = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_OUT);
+            int gameSF = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_SF);
+
+            ContentValues backupValues = new ContentValues();
+            backupValues.put(StatsEntry.COLUMN_GAME_ID, gameID);
+            backupValues.put(StatsEntry.COLUMN_FIRESTORE_ID, playerFirestoreID);
+            backupValues.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, teamFirestoreID);
+            backupValues.put(StatsEntry.COLUMN_PLAYERID, playerId);
+            backupValues.put(StatsEntry.COLUMN_1B, game1b);
+            backupValues.put(StatsEntry.COLUMN_2B, game2b);
+            backupValues.put(StatsEntry.COLUMN_3B, game3b);
+            backupValues.put(StatsEntry.COLUMN_HR, gameHR);
+            backupValues.put(StatsEntry.COLUMN_RUN, gameRun);
+            backupValues.put(StatsEntry.COLUMN_RBI, gameRBI);
+            backupValues.put(StatsEntry.COLUMN_BB, gameBB);
+            backupValues.put(StatsEntry.COLUMN_OUT, gameOuts);
+            backupValues.put(StatsEntry.COLUMN_SF, gameSF);
+            getContentResolver().insert(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, backupValues);
+        }
+    }
+
     protected abstract void firestoreUpdate();
 
     void sendPlayersIntent(long updateTime) {
+        Log.d("zztop", "sendPlayersIntent");
         Intent playersIntent = new Intent(GameActivity.this, FirestoreHelper.class);
         playersIntent.setAction(FirestoreHelper.INTENT_ADD_PLAYER_STATS);
         playersIntent.putExtra(FirestoreHelper.STATKEEPER_ID, selectionID);
@@ -568,6 +607,18 @@ public abstract class GameActivity extends AppCompatActivity
         teamIntent.putExtra(StatsEntry.COLUMN_FIRESTORE_ID, teamID);
         teamIntent.putExtra(StatsEntry.COLUMN_RUNSFOR, runsFor);
         teamIntent.putExtra(StatsEntry.COLUMN_RUNSAGAINST, runsAgainst);
+        startService(teamIntent);
+    }
+
+    void sendBoxscoreIntent(long updateTime, String awayID, String homeID,  int awayRuns, int homeRuns) {
+        Intent teamIntent = new Intent(GameActivity.this, FirestoreHelper.class);
+        teamIntent.setAction(FirestoreHelper.INTENT_ADD_BOXSCORE);
+        teamIntent.putExtra(FirestoreHelper.STATKEEPER_ID, selectionID);
+        teamIntent.putExtra(TimeStampUpdater.UPDATE_TIME, updateTime);
+        teamIntent.putExtra(StatsEntry.COLUMN_AWAY_TEAM, awayID);
+        teamIntent.putExtra(StatsEntry.COLUMN_HOME_TEAM, homeID);
+        teamIntent.putExtra(StatsEntry.COLUMN_AWAY_RUNS, awayRuns);
+        teamIntent.putExtra(StatsEntry.COLUMN_HOME_RUNS, homeRuns);
         startService(teamIntent);
     }
 
@@ -1037,6 +1088,7 @@ public abstract class GameActivity extends AppCompatActivity
         @Override
         public boolean onDrag(View v, final DragEvent event) {
             int action = event.getAction();
+            Log.d("zztop", "onDrag" + action);
             TextView dropPoint = null;
             if (v.getId() != R.id.trash) {
                 dropPoint = (TextView) v;
@@ -1044,6 +1096,7 @@ public abstract class GameActivity extends AppCompatActivity
             final View eventView = (View) event.getLocalState();
             switch (action) {
                 case DragEvent.ACTION_DRAG_STARTED:
+                    Log.d("zztop", "ACTION_DRAG_STARTED");
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         if (v.getId() == R.id.home_display) {
                             v.setBackground(getDrawable(R.drawable.img_home2));
@@ -1055,29 +1108,35 @@ public abstract class GameActivity extends AppCompatActivity
                     }
                     break;
                 case DragEvent.ACTION_DRAG_ENTERED:
+                    Log.d("zztop", "ACTION_DRAG_ENTERED");
                     break;
                 case DragEvent.ACTION_DRAG_EXITED:
 //                    v.setBackgroundColor(Color.TRANSPARENT);
-                    break;
-                case DragEvent.ACTION_DRAG_LOCATION:
+                    Log.d("zztop", "ACTION_DRAG_EXITED");
                     break;
                 case DragEvent.ACTION_DROP:
+                    Log.d("zztop", "ACTION_DROP");
                     String movedPlayer = "";
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         if (v.getId() == R.id.home_display) {
                             v.setBackground(getDrawable(R.drawable.img_home));
+                            Log.d("zztop", "v.setBackgroundResource(getDrawable(R.drawable.img_home))");
                         } else if (v.getId() == R.id.trash) {
                             v.setBackgroundResource(0);
+                            Log.d("zztop", "v.setBackgroundResource(0)");
                         } else {
                             v.setBackground(getDrawable(R.drawable.img_base));
+                            Log.d("zztop", "v.setBackground(getDrawable(R.drawable.img_base)");
                         }
                     }
                     if (v.getId() == R.id.trash) {
                         if (eventView instanceof TextView) {
+                            Log.d("zztop", "v.getId() == R.id.tras");
                             TextView draggedView = (TextView) eventView;
                             draggedView.setText(null);
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                                 draggedView.setForeground(null);
+                                Log.d("zztop", "draggedView.setForeground(null);");
                             }
 
                         } else {
@@ -1085,6 +1144,7 @@ public abstract class GameActivity extends AppCompatActivity
                             batterMoved = true;
                             if (playEntered) {
                                 enableSubmitButton();
+                                Log.d("zztop", "enableSubmitButton");
                             }
                         }
                         tempOuts++;
@@ -1149,24 +1209,39 @@ public abstract class GameActivity extends AppCompatActivity
                         }
                         scoreboard.setText(scoreString);
                     }
+                    Log.d("zztop", "enableResetButton");
                     enableResetButton();
+                    Log.d("zztop", "setBaseListeners");
                     setBaseListeners();
+                    Log.d("zztop", "break");
                     break;
                 case DragEvent.ACTION_DRAG_ENDED:
+                    Log.d("zztop", "ACTION_DRAG_ENDED");
                     View dragView = (View) event.getLocalState();
-                    dragView.setAlpha(1f);
+                    if(dragView != null) {
+                        dragView.setAlpha(1f);
+                        Log.d("zztop", "dragView != null");
+                    } else {
+                        Log.d("zztop", "dragView == NULLLLLLLLLLLLLL");
+
+                    }
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         switch (v.getId()) {
                             case R.id.home_display:
                                 v.setBackground(getDrawable(R.drawable.img_home));
+                                Log.d("zztop", "v.setBackground(getDrawable(R.drawable.img_home))");
                                 break;
                             case R.id.trash:
                                 v.setBackgroundResource(0);
+                                Log.d("zztop", "v.setBackground(0)");
                                 break;
                             default:
                                 v.setBackground(getDrawable(R.drawable.img_base));
+                                Log.d("zztop", "v.setBackground(getDrawable(R.drawable.img_base");
                         }
                     }
+                    break;
+                case DragEvent.ACTION_DRAG_LOCATION:
                     break;
             }
             return true;

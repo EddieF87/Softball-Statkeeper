@@ -89,7 +89,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
     public void onBindViewHolder(final PlayerStatsAdapter.PlayerStatsListViewHolder holder, int position) {
 
         if (position % 2 == 1) {
-            holder.linearLayout.setBackgroundColor(Color.parseColor("#dfdfdf"));
+            holder.linearLayout.setBackgroundColor(ContextCompat.getColor(mContext, R.color.colorPrimaryLight));
         } else {
             holder.linearLayout.setBackground(null);
         }
@@ -130,6 +130,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
 
     @Override
     public int getItemCount() {
+        if(players == null) {return 0;}
         return players.size();
     }
 

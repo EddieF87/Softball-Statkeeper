@@ -16,6 +16,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -24,6 +26,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -34,6 +38,7 @@ import xyz.sleekstats.softball.activities.LeagueManagerActivity;
 import xyz.sleekstats.softball.activities.PlayerPagerActivity;
 import xyz.sleekstats.softball.activities.TeamPagerActivity;
 import xyz.sleekstats.softball.activities.UsersActivity;
+import xyz.sleekstats.softball.adapters.BoxScorePlayerCursorAdapter;
 import xyz.sleekstats.softball.data.FirestoreHelper;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
@@ -239,6 +244,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 setPlayerManager();
             } else {
                 setColor();
+                setGameStats();
             }
         } else if (mSelectionType == MainPageSelection.TYPE_PLAYER) {
             ContentValues values = new ContentValues();
@@ -257,6 +263,23 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         }
         nameView.setTextColor(getResources().getColor(color));
         playerImage.setColorFilter(getResources().getColor(color));
+    }
+
+    private void setGameStats(){
+        LinearLayout gameStatTitles = getView().findViewById(R.id.stats_title_view);
+        ListView gameStatsListView = getView().findViewById(R.id.list_games);
+        gameStatTitles.setVisibility(View.VISIBLE);
+        gameStatsListView.setVisibility(View.VISIBLE);
+
+        BoxScorePlayerCursorAdapter adapter =
+                new BoxScorePlayerCursorAdapter(getActivity(),BoxScorePlayerCursorAdapter.KEY_PLAYER);
+        gameStatsListView.setAdapter(adapter);
+        String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
+        String[] selectionArgs = new String[]{firestoreID};
+        String sortOrder = StatsEntry.COLUMN_GAME_ID + " DESC";
+        Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_BOXSCORE_PLAYERS,
+                        null, selection, selectionArgs, sortOrder);
+        adapter.swapCursor(cursor);
     }
 
     private void setPlayerManager() {
@@ -347,15 +370,15 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     private void setRadioButtons(View view) {
         group1 = view.findViewById(R.id.group1);
         group2 = view.findViewById(R.id.group2);
-        RadioButton single = view.findViewById(R.id.single);
-        RadioButton dbl = view.findViewById(R.id.dbl);
-        RadioButton triple = view.findViewById(R.id.triple);
-        RadioButton hr = view.findViewById(R.id.hr);
-        RadioButton bb = view.findViewById(R.id.bb);
-        RadioButton out = view.findViewById(R.id.out);
-        RadioButton sf = view.findViewById(R.id.sf);
-        RadioButton run = view.findViewById(R.id.run);
-        RadioButton rbi = view.findViewById(R.id.rbi);
+        RadioButton single = view.findViewById(R.id.single_rb);
+        RadioButton dbl = view.findViewById(R.id.dbl_rb);
+        RadioButton triple = view.findViewById(R.id.triple_rb);
+        RadioButton hr = view.findViewById(R.id.hr_rb);
+        RadioButton bb = view.findViewById(R.id.bb_rb);
+        RadioButton out = view.findViewById(R.id.out_rb);
+        RadioButton sf = view.findViewById(R.id.sf_rb);
+        RadioButton run = view.findViewById(R.id.run_rb);
+        RadioButton rbi = view.findViewById(R.id.rbi_rb);
         single.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

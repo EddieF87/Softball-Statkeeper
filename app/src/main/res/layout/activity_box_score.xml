@@ -98,7 +98,9 @@
         <ListView
             android:id="@+id/away_players_listview"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            tools:listitem="@layout/item_boxscore_player"
+            />
     </LinearLayout>
 
     <LinearLayout
@@ -121,6 +123,7 @@
             android:id="@+id/home_players_listview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            tools:listitem="@layout/item_boxscore_player"
             />
     </LinearLayout>
 

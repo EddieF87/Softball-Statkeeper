@@ -39,7 +39,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginRight="8dp"
             android:layout_marginTop="8dp"
             android:layout_weight="1"
             android:gravity="start"
@@ -106,6 +106,22 @@
             android:textStyle="bold"
             android:visibility="gone" />
     </FrameLayout>
+
+    <Button
+        android:id="@+id/btn_games"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="64dp"
+        android:layout_marginLeft="32dp"
+        android:layout_marginRight="64dp"
+        android:layout_marginStart="32dp"
+        android:text="@string/games"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@+id/btn_start_adder"
+        app:layout_constraintEnd_toStartOf="@+id/btn_start_adder"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/btn_start_adder" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/btn_start_adder"

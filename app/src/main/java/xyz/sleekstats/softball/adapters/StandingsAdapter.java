@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,9 +49,9 @@ public class StandingsAdapter extends RecyclerView.Adapter<StandingsAdapter.Stan
     @Override
     public void onBindViewHolder(StandingsViewHolder holder, int position) {
         if (position % 2 == 1) {
-            holder.linearLayout.setBackgroundColor(Color.parseColor("#dfdfdf"));
-        } else {
             holder.linearLayout.setBackgroundColor(Color.WHITE);
+        } else {
+            holder.linearLayout.setBackground(null);
         }
         Team team = mTeams.get(position);
         holder.bindTeam(team);
@@ -78,6 +79,7 @@ public class StandingsAdapter extends RecyclerView.Adapter<StandingsAdapter.Stan
 
     @Override
     public int getItemCount() {
+        if(mTeams == null) {return 0;}
         return mTeams.size();
     }
 

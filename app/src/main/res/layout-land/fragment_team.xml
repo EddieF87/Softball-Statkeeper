@@ -9,79 +9,86 @@
     tools:layout_editor_absoluteY="73dp">
 
 
-    <LinearLayout
-        android:id="@+id/team_header"
+    <TextView
+        android:id="@+id/teamName"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintVertical_weight="2"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
         android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf="@+id/frameLayout2"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp"
+        android:layout_weight="4"
+        android:autoSizeMinTextSize="20sp"
+        android:autoSizeTextType="uniform"
+        android:maxLines="1"
+        android:textAlignment="center"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toStartOf="@+id/teamRecord"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        tools:targetApi="o"
+        tools:text="teambitres" />
 
-        <TextView
-            android:id="@+id/teamName"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="center_vertical"
-            android:layout_marginBottom="4dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="4dp"
-            android:layout_weight="4"
-            android:autoSizeMinTextSize="20sp"
-            android:autoSizeTextType="uniform"
-            android:maxLines="1"
-            android:textAlignment="center"
-            android:textSize="30sp"
-            tools:targetApi="o"
-            tools:text="teambitres" />
+    <TextView
+        android:id="@+id/teamRecord"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_weight="1"
+        android:autoSizeMinTextSize="12sp"
+        android:autoSizeTextType="uniform"
+        android:gravity="start"
+        android:maxLines="1"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="@+id/teamName"
+        app:layout_constraintEnd_toStartOf="@+id/btn_games"
+        tools:targetApi="o"
+        tools:text="23-54-2" />
 
-        <TextView
-            android:id="@+id/teamRecord"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_weight="1"
-            android:layout_gravity="bottom"
-            android:autoSizeMinTextSize="12sp"
-            android:autoSizeTextType="uniform"
-            android:gravity="start"
-            android:maxLines="1"
-            android:textSize="18sp"
-            tools:text="23-54-2"
-            tools:targetApi="o" />
+    <Button
+        android:id="@+id/btn_games"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:text="@string/games"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@+id/btn_start_adder"
+        app:layout_constraintEnd_toStartOf="@+id/btn_start_adder"
+        app:layout_constraintTop_toTopOf="@+id/btn_start_adder" />
 
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/btn_start_adder"
-            style="@style/AddPlayersFABStyle"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_gravity="center_vertical"
-            android:layout_marginBottom="4dp"
-            android:layout_marginLeft="24dp"
-            android:layout_marginStart="24dp"
-            android:layout_marginTop="8dp"
-            android:layout_weight="1" />
-
-    </LinearLayout>
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/btn_start_adder"
+        style="@style/AddPlayersFABStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginBottom="4dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginRight="32dp"
+        android:layout_marginTop="4dp"
+        android:layout_weight="1"
+        app:layout_constraintBottom_toBottomOf="@+id/teamName"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/teamName" />
 
     <FrameLayout
         android:id="@+id/frameLayout2"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintVertical_weight="8"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/team_header">
+        app:layout_constraintTop_toBottomOf="@+id/teamName"
+        app:layout_constraintVertical_weight="8">
 
 
         <HorizontalScrollView
@@ -92,10 +99,10 @@
             android:layout_marginEnd="16dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
-            android:scrollbarFadeDuration="500"
-
             android:background="@drawable/bg_white"
-            android:padding="6dp">
+
+            android:padding="6dp"
+            android:scrollbarFadeDuration="500">
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -114,8 +121,7 @@
 
                 <include
                     android:id="@+id/team_stats_totals"
-                    layout="@layout/item_stats_title"
-                    />
+                    layout="@layout/item_stats_title" />
 
             </LinearLayout>
         </HorizontalScrollView>

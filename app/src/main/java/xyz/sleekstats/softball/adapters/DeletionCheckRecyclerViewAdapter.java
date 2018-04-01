@@ -69,6 +69,7 @@ public class DeletionCheckRecyclerViewAdapter  extends RecyclerView.Adapter<Dele
 
     @Override
     public int getItemCount() {
+        if(mItems == null) {return 0;}
         return mItems.size();
     }
 

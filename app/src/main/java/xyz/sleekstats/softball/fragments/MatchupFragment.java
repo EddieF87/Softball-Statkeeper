@@ -733,16 +733,16 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString("awayTeam", awayTeamID);
-        outState.putString("homeTeam", homeTeamID);
+        outState.putString(StatsEntry.COLUMN_AWAY_TEAM, awayTeamID);
+        outState.putString(StatsEntry.COLUMN_HOME_TEAM, homeTeamID);
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if (savedInstanceState != null) {
-            awayTeamID = savedInstanceState.getString("awayTeam");
-            homeTeamID = savedInstanceState.getString("homeTeam");
+            awayTeamID = savedInstanceState.getString(StatsEntry.COLUMN_AWAY_TEAM);
+            homeTeamID = savedInstanceState.getString(StatsEntry.COLUMN_HOME_TEAM);
         }
     }
 

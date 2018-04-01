@@ -82,24 +82,18 @@ public class LeagueManagerActivity extends ExportActivity
         tabLayout.setupWithViewPager(viewPager);
 
         Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, null, null, null, null);
-        if(cursor.moveToFirst()){
+        if(cursor != null && cursor.moveToFirst()){
             sendRetryGameLoadIntent();
             cursor.close();
             return;
         }
         cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_TEAMS, null, null, null, null);
-        if(cursor.moveToFirst()){
-            sendRetryGameLoadIntent();
-            cursor.close();
-            return;
+        if(cursor != null) {
+           if (cursor.moveToFirst()) {
+               sendRetryGameLoadIntent();
+           }
+           cursor.close();
         }
-        cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_BOXSCORES, null, null, null, null);
-        if(cursor.moveToFirst()){
-            sendRetryGameLoadIntent();
-            cursor.close();
-            return;
-        }
-        cursor.close();
     }
 
     private void sendRetryGameLoadIntent(){

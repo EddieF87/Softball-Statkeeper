@@ -82,6 +82,7 @@ public class EmailInviteRecyclerViewAdapter extends RecyclerView.Adapter<EmailIn
 
     @Override
     public int getItemCount() {
+        if(mEmails == null) {return 0;}
         return mEmails.size();
     }
 

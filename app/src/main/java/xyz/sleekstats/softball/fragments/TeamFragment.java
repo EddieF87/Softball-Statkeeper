@@ -166,7 +166,7 @@ public class TeamFragment extends Fragment
         teamRecordView = rootView.findViewById(R.id.teamRecord);
         rv = rootView.findViewById(R.id.rv_players);
 
-        rootView.findViewById(R.id.name_title).setOnClickListener(this);
+        rootView.findViewById(R.id.player_name_title).setOnClickListener(this);
         rootView.findViewById(R.id.hr_title).setOnClickListener(this);
         rootView.findViewById(R.id.ab_title).setOnClickListener(this);
         rootView.findViewById(R.id.hit_title).setOnClickListener(this);
@@ -365,7 +365,7 @@ public class TeamFragment extends Fragment
             return;
         }
 
-        TextView totalNameView = totalLayout.findViewById(R.id.name_title);
+        TextView totalNameView = totalLayout.findViewById(R.id.player_name_title);
         TextView abView = totalLayout.findViewById(R.id.ab_title);
         TextView hitView = totalLayout.findViewById(R.id.hit_title);
         TextView hrView = totalLayout.findViewById(R.id.hr_title);
@@ -734,7 +734,7 @@ public class TeamFragment extends Fragment
 
         switch (statSorter) {
 
-            case R.id.name_title:
+            case R.id.player_name_title:
                 Collections.sort(mPlayers, Player.nameComparator());
                 break;
 

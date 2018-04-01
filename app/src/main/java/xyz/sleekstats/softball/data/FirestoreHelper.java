@@ -3,16 +3,12 @@ package xyz.sleekstats.softball.data;
 import android.app.IntentService;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.widget.Toast;
 
 import xyz.sleekstats.softball.MyApp;
 import xyz.sleekstats.softball.objects.Player;
@@ -26,13 +22,11 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +42,6 @@ public class FirestoreHelper extends IntentService {
     public static final String BOXSCORE_COLLECTION = "boxscores";
     public static final String DELETION_COLLECTION = "deletion";
     public static final String PLAYER_LOGS = "playerlogs";
-    public static final String BOXSCORE_LOGS = "boxscorelogs";
     public static final String TEAM_LOGS = "teamlogs";
     public static final String LAST_UPDATE = "last_update";
     public static final String UPDATE_SETTINGS = "_updateSettings";
@@ -62,6 +55,7 @@ public class FirestoreHelper extends IntentService {
     public static final String INTENT_DELETE_PLAYER = "delete";
     public static final String INTENT_DELETE_PLAYERS = "deleteList";
     public static final String INTENT_RETRY_GAME_LOAD = "retry";
+    public static final String INTENT_ADD_BOXSCORE = "boxScore";
 
     private String statKeeperID;
     private long mUpdateTime;
@@ -139,56 +133,32 @@ public class FirestoreHelper extends IntentService {
     }
 
     public void addPlayerStatsToDB() {
+        Log.d("zztop", "addPlayerStatsToDB");
 
-        ArrayList<Long> playerList = new ArrayList<>();
-        String selection = StatsEntry.COLUMN_PLAYERID + "=?";
-
-        Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEMP, null,
+        Cursor backupPlayerCursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, null,
                 null, null, null);
-
-        while (cursor.moveToNext()) {
-            long playerId = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_PLAYERID);
-            playerList.add(playerId);
-        }
 
         WriteBatch playerBatch = mFirestore.batch();
 
-        for (long playerId : playerList) {
-            String[] selectionArgs = new String[]{String.valueOf(playerId)};
 
-            cursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEMP, null,
-                    selection, selectionArgs, null);
-            cursor.moveToFirst();
-            int gameRBI = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_RBI);
-            int gameRun = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_RUN);
-            int game1b = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_1B);
-            int game2b = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_2B);
-            int game3b = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_3B);
-            int gameHR = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_HR);
-            int gameOuts = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_OUT);
-            int gameBB = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_BB);
-            int gameSF = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_SF);
-            String firestoreID = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_FIRESTORE_ID);
+        while (backupPlayerCursor.moveToNext()) {
 
-            Map<String, Object> boxscoreMap = new HashMap<>();
-            boxscoreMap.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
-            boxscoreMap.put(StatsEntry.COLUMN_GAME_ID, mUpdateTime);
-            boxscoreMap.put(StatsEntry.COLUMN_1B, game1b);
-            boxscoreMap.put(StatsEntry.COLUMN_2B, game2b);
-            boxscoreMap.put(StatsEntry.COLUMN_3B, game3b);
-            boxscoreMap.put(StatsEntry.COLUMN_HR, gameHR);
-            boxscoreMap.put(StatsEntry.COLUMN_RUN, gameRun);
-            boxscoreMap.put(StatsEntry.COLUMN_RBI, gameRBI);
-            boxscoreMap.put(StatsEntry.COLUMN_BB, gameBB);
-            boxscoreMap.put(StatsEntry.COLUMN_OUT, gameOuts);
-            boxscoreMap.put(StatsEntry.COLUMN_SF, gameSF);
-            final DocumentReference boxscoreRef = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION)
-                    .document(statKeeperID).collection(FirestoreHelper.BOXSCORE_COLLECTION).document(String.valueOf(mUpdateTime))
-                    .collection(BOXSCORE_LOGS).document(firestoreID);
-            playerBatch.set(boxscoreRef, boxscoreMap, SetOptions.merge());
+            long playerId = StatsContract.getColumnInt(backupPlayerCursor, StatsEntry.COLUMN_PLAYERID);
+            String firestoreID = StatsContract.getColumnString(backupPlayerCursor, StatsEntry.COLUMN_FIRESTORE_ID);
+            String teamfirestoreID = StatsContract.getColumnString(backupPlayerCursor, StatsEntry.COLUMN_TEAM_FIRESTORE_ID);
+            int game1b = StatsContract.getColumnInt(backupPlayerCursor, StatsEntry.COLUMN_1B);
+            int game2b = StatsContract.getColumnInt(backupPlayerCursor, StatsEntry.COLUMN_2B);
+            int game3b = StatsContract.getColumnInt(backupPlayerCursor, StatsEntry.COLUMN_3B);
+            int gameHR = StatsContract.getColumnInt(backupPlayerCursor, StatsEntry.COLUMN_HR);
+            int gameRun = StatsContract.getColumnInt(backupPlayerCursor, StatsEntry.COLUMN_RUN);
+            int gameRBI = StatsContract.getColumnInt(backupPlayerCursor, StatsEntry.COLUMN_RBI);
+            int gameOuts = StatsContract.getColumnInt(backupPlayerCursor, StatsEntry.COLUMN_OUT);
+            int gameBB = StatsContract.getColumnInt(backupPlayerCursor, StatsEntry.COLUMN_BB);
+            int gameSF = StatsContract.getColumnInt(backupPlayerCursor, StatsEntry.COLUMN_SF);
 
             ContentValues boxscoreValues = new ContentValues();
             boxscoreValues.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
+            boxscoreValues.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, teamfirestoreID);
             boxscoreValues.put(StatsEntry.COLUMN_GAME_ID, mUpdateTime);
             boxscoreValues.put(StatsEntry.COLUMN_1B, game1b);
             boxscoreValues.put(StatsEntry.COLUMN_2B, game2b);
@@ -199,43 +169,37 @@ public class FirestoreHelper extends IntentService {
             boxscoreValues.put(StatsEntry.COLUMN_BB, gameBB);
             boxscoreValues.put(StatsEntry.COLUMN_OUT, gameOuts);
             boxscoreValues.put(StatsEntry.COLUMN_SF, gameSF);
-            getContentResolver().insert(StatsEntry.CONTENT_URI_BOXSCORES, boxscoreValues);
-
-
-            long logId;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                logId = new Date().getTime();
-            } else {
-                logId = System.currentTimeMillis();
-            }
+            getContentResolver().insert(StatsEntry.CONTENT_URI_BOXSCORE_PLAYERS, boxscoreValues);
 
             final DocumentReference playerRef = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION)
                     .document(statKeeperID).collection(FirestoreHelper.PLAYERS_COLLECTION).document(firestoreID);
 
             final DocumentReference playerLogRef =
-                    playerRef.collection(FirestoreHelper.PLAYER_LOGS).document(String.valueOf(logId));
+                    playerRef.collection(FirestoreHelper.PLAYER_LOGS).document(String.valueOf(mUpdateTime));
 
             PlayerLog playerLog = new PlayerLog(playerId, gameRBI, gameRun, game1b, game2b, game3b,
                     gameHR, gameOuts, gameBB, gameSF);
             playerBatch.set(playerLogRef, playerLog);
 
             Uri playerUri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_PLAYERS, playerId);
-            cursor = getContentResolver().query(playerUri, null, null, null, null);
-            cursor.moveToFirst();
+            Cursor permanentPlayerCursor = getContentResolver().query(playerUri, null, null, null, null);
+            permanentPlayerCursor.moveToFirst();
 
-            int pRBI = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_RBI);
-            int pRun = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_RUN);
-            int p1b = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_1B);
-            int p2b = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_2B);
-            int p3b = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_3B);
-            int pHR = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_HR);
-            int pOuts = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_OUT);
-            int pBB = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_BB);
-            int pSF = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_SF);
-            int games = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_G);
-            firestoreID = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_FIRESTORE_ID);
+            firestoreID = StatsContract.getColumnString(permanentPlayerCursor, StatsEntry.COLUMN_FIRESTORE_ID);
+            int p1b = StatsContract.getColumnInt(permanentPlayerCursor, StatsEntry.COLUMN_1B);
+            int p2b = StatsContract.getColumnInt(permanentPlayerCursor, StatsEntry.COLUMN_2B);
+            int p3b = StatsContract.getColumnInt(permanentPlayerCursor, StatsEntry.COLUMN_3B);
+            int pHR = StatsContract.getColumnInt(permanentPlayerCursor, StatsEntry.COLUMN_HR);
+            int pRun = StatsContract.getColumnInt(permanentPlayerCursor, StatsEntry.COLUMN_RUN);
+            int pRBI = StatsContract.getColumnInt(permanentPlayerCursor, StatsEntry.COLUMN_RBI);
+            int pBB = StatsContract.getColumnInt(permanentPlayerCursor, StatsEntry.COLUMN_BB);
+            int pOuts = StatsContract.getColumnInt(permanentPlayerCursor, StatsEntry.COLUMN_OUT);
+            int pSF = StatsContract.getColumnInt(permanentPlayerCursor, StatsEntry.COLUMN_SF);
+            int pGames = StatsContract.getColumnInt(permanentPlayerCursor, StatsEntry.COLUMN_G);
+            permanentPlayerCursor.close();
 
             ContentValues values = new ContentValues();
+            values.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
             values.put(StatsEntry.COLUMN_1B, p1b + game1b);
             values.put(StatsEntry.COLUMN_2B, p2b + game2b);
             values.put(StatsEntry.COLUMN_3B, p3b + game3b);
@@ -245,107 +209,34 @@ public class FirestoreHelper extends IntentService {
             values.put(StatsEntry.COLUMN_BB, pBB + gameBB);
             values.put(StatsEntry.COLUMN_OUT, pOuts + gameOuts);
             values.put(StatsEntry.COLUMN_SF, pSF + gameSF);
-            values.put(StatsEntry.COLUMN_G, games + 1);
-            values.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
+            values.put(StatsEntry.COLUMN_G, pGames + 1);
+            Log.d("zztop", firestoreID + "  hr: " + gameHR);
             getContentResolver().update(playerUri, values, null, null);
 
             playerBatch.update(playerRef, StatsEntry.UPDATE, mUpdateTime);
         }
-        cursor.close();
-        playerBatch.commit().addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEMP, null,
-                        null, null, null);
-                while (cursor.moveToNext()) {
-                    Log.d("xyxyx", "playerBatch.commit( faill" + e.toString());
-                    long logId;
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        logId = new Date().getTime();
-                    } else {
-                        logId = System.currentTimeMillis();
+        backupPlayerCursor.close();
+
+        playerBatch.commit()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        getContentResolver().delete(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, null, null);
                     }
-                    int playerId = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_PLAYERID);
-                    int gameRBI = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_RBI);
-                    int gameRun = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_RUN);
-                    int game1b = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_1B);
-                    int game2b = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_2B);
-                    int game3b = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_3B);
-                    int gameHR = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_HR);
-                    int gameOuts = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_OUT);
-                    int gameBB = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_BB);
-                    int gameSF = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_SF);
-                    String playerFirestoreID = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_FIRESTORE_ID);
-
-                    ContentValues backupValues = new ContentValues();
-                    backupValues.put(StatsEntry.COLUMN_FIRESTORE_ID, playerFirestoreID);
-                    backupValues.put(StatsEntry.COLUMN_1B, game1b);
-                    backupValues.put(StatsEntry.COLUMN_2B, game2b);
-                    backupValues.put(StatsEntry.COLUMN_3B, game3b);
-                    backupValues.put(StatsEntry.COLUMN_HR, gameHR);
-                    backupValues.put(StatsEntry.COLUMN_RUN, gameRun);
-                    backupValues.put(StatsEntry.COLUMN_RBI, gameRBI);
-                    backupValues.put(StatsEntry.COLUMN_BB, gameBB);
-                    backupValues.put(StatsEntry.COLUMN_OUT, gameOuts);
-                    backupValues.put(StatsEntry.COLUMN_SF, gameSF);
-
-                    backupValues.put(StatsEntry.COLUMN_GAME_ID, mUpdateTime);
-                    getContentResolver().insert(StatsEntry.CONTENT_URI_BACKUP_BOXSCORES, backupValues);
-
-                    backupValues.remove(StatsEntry.COLUMN_GAME_ID);
-                    backupValues.put(StatsEntry.COLUMN_LOG_ID, logId);
-                    backupValues.put(StatsEntry.COLUMN_PLAYERID, playerId);
-                    getContentResolver().insert(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, backupValues);
-                }
-                cursor.close();
-            }
-        }).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Log.d("xyxyx", "playerBatch.commit( SUCCESS");
-            }
-        });
+                });
     }
 
     public void addTeamStatsToDB(final String teamFirestoreID, int teamRuns, int otherTeamRuns) {
+
         WriteBatch teamBatch = mFirestore.batch();
 
         String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
         String[] selectionArgs = {teamFirestoreID};
         Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS, null,
-                selection, selectionArgs, null
-        );
+                selection, selectionArgs, null);
         cursor.moveToFirst();
         ContentValues values = new ContentValues();
         final ContentValues backupValues = new ContentValues();
-
-        long logId;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            logId = new Date().getTime();
-        } else {
-            logId = System.currentTimeMillis();
-        }
-
-        Map<String, Object> boxscoreMap = new HashMap<>();
-        boxscoreMap.put(StatsEntry.COLUMN_FIRESTORE_ID, teamFirestoreID);
-        boxscoreMap.put(StatsEntry.COLUMN_GAME_ID, mUpdateTime);
-        boxscoreMap.put(StatsEntry.COLUMN_1B, -1);
-        boxscoreMap.put(StatsEntry.COLUMN_2B, teamRuns);
-        boxscoreMap.put(StatsEntry.COLUMN_3B, otherTeamRuns);
-
-        final DocumentReference boxscoreRef = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION)
-                .document(statKeeperID).collection(FirestoreHelper.BOXSCORE_COLLECTION).document(String.valueOf(mUpdateTime))
-                .collection(BOXSCORE_LOGS).document(teamFirestoreID);
-        teamBatch.set(boxscoreRef, boxscoreMap, SetOptions.merge());
-
-        final ContentValues boxscoreValues = new ContentValues();
-        boxscoreValues.put(StatsEntry.COLUMN_FIRESTORE_ID, teamFirestoreID);
-        boxscoreValues.put(StatsEntry.COLUMN_GAME_ID, mUpdateTime);
-        boxscoreValues.put(StatsEntry.COLUMN_1B, -1);
-        boxscoreValues.put(StatsEntry.COLUMN_2B, teamRuns);
-        boxscoreValues.put(StatsEntry.COLUMN_3B, otherTeamRuns);
-        getContentResolver().insert(StatsEntry.CONTENT_URI_BOXSCORES, boxscoreValues);
-
 
         long teamId = StatsContract.getColumnLong(cursor, StatsEntry._ID);
         TeamLog teamLog = new TeamLog(teamId, teamRuns, otherTeamRuns);
@@ -353,8 +244,7 @@ public class FirestoreHelper extends IntentService {
 
         final DocumentReference teamRef = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION)
                 .document(statKeeperID).collection(FirestoreHelper.TEAMS_COLLECTION).document(teamFirestoreID);
-
-        final DocumentReference teamLogRef = teamRef.collection(FirestoreHelper.TEAM_LOGS).document(String.valueOf(logId));
+        final DocumentReference teamLogRef = teamRef.collection(FirestoreHelper.TEAM_LOGS).document(String.valueOf(mUpdateTime));
 
         if (teamRuns > otherTeamRuns) {
             int newValue = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_WINS) + 1;
@@ -388,20 +278,50 @@ public class FirestoreHelper extends IntentService {
 
         teamBatch.update(teamRef, StatsEntry.UPDATE, mUpdateTime);
         teamBatch.set(teamLogRef, teamLog);
+
         teamBatch.commit().addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 getContentResolver().insert(StatsEntry.CONTENT_URI_BACKUP_TEAMS, backupValues);
-                getContentResolver().insert(StatsEntry.CONTENT_URI_BACKUP_BOXSCORES, boxscoreValues);
             }
         });
+    }
 
+    public void addBoxScoreToDB(final String awayID, String homeID, int awayRuns, int homeRuns) {
+        final ContentValues boxscoreValues = new ContentValues();
+        boxscoreValues.put(StatsEntry.COLUMN_GAME_ID, mUpdateTime);
+        boxscoreValues.put(StatsEntry.COLUMN_LOCAL, 1);
+        boxscoreValues.put(StatsEntry.COLUMN_AWAY_TEAM, awayID);
+        boxscoreValues.put(StatsEntry.COLUMN_HOME_TEAM, homeID);
+        boxscoreValues.put(StatsEntry.COLUMN_AWAY_RUNS, awayRuns);
+        boxscoreValues.put(StatsEntry.COLUMN_HOME_RUNS, homeRuns);
+
+        Map<String, Object> boxscoreMap = new HashMap<>();
+        boxscoreMap.put(StatsEntry.COLUMN_GAME_ID, mUpdateTime);
+        boxscoreMap.put(StatsEntry.COLUMN_AWAY_TEAM, awayID);
+        boxscoreMap.put(StatsEntry.COLUMN_HOME_TEAM, homeID);
+        boxscoreMap.put(StatsEntry.COLUMN_AWAY_RUNS, awayRuns);
+        boxscoreMap.put(StatsEntry.COLUMN_HOME_RUNS, homeRuns);
+        final DocumentReference boxscoreRef = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION)
+                .document(statKeeperID).collection(FirestoreHelper.BOXSCORE_COLLECTION).document(String.valueOf(mUpdateTime));
+        boxscoreRef.set(boxscoreMap, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    boxscoreValues.put(StatsEntry.COLUMN_LOCAL, 1);
+                } else {
+                    boxscoreValues.put(StatsEntry.COLUMN_LOCAL, 0);
+                }
+                getContentResolver().insert(StatsEntry.CONTENT_URI_BOXSCORE_OVERVIEWS, boxscoreValues);
+            }
+        });
     }
 
 
     public void retryGameLogLoad() {
         MyApp myApp = (MyApp) getApplicationContext();
         String leagueID = myApp.getCurrentSelection().getId();
+        Log.d("zztop", "retryGameLogLoad");
 
         WriteBatch batch = mFirestore.batch();
 
@@ -409,7 +329,7 @@ public class FirestoreHelper extends IntentService {
                 null, null, null, null);
         while (cursor.moveToNext()) {
             String playerFirestoreID = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_FIRESTORE_ID);
-            long logId = StatsContract.getColumnLong(cursor, StatsEntry.COLUMN_LOG_ID);
+            long gameID = StatsContract.getColumnLong(cursor, StatsEntry.COLUMN_GAME_ID);
             long playerId = StatsContract.getColumnLong(cursor, StatsEntry.COLUMN_PLAYERID);
             int gameRBI = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_RBI);
             int gameRun = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_RUN);
@@ -422,7 +342,7 @@ public class FirestoreHelper extends IntentService {
             int gameSF = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_SF);
 
             final DocumentReference docRef = mFirestore.collection(LEAGUE_COLLECTION).document(leagueID).collection(PLAYERS_COLLECTION)
-                    .document(playerFirestoreID).collection(PLAYER_LOGS).document(String.valueOf(logId));
+                    .document(playerFirestoreID).collection(PLAYER_LOGS).document(String.valueOf(gameID));
 
             PlayerLog playerLog = new PlayerLog(playerId, gameRBI, gameRun, game1b, game2b, game3b, gameHR, gameOuts, gameBB, gameSF);
             batch.set(docRef, playerLog);
@@ -433,7 +353,7 @@ public class FirestoreHelper extends IntentService {
         cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_TEAMS, null,
                 null, null, null);
         while (cursor.moveToNext()) {
-            long logId = StatsContract.getColumnLong(cursor, StatsEntry.COLUMN_LOG_ID);
+            long gameID = StatsContract.getColumnLong(cursor, StatsEntry.COLUMN_GAME_ID);
             long teamId = StatsContract.getColumnLong(cursor, StatsEntry.COLUMN_TEAM_ID);
             int gameWins = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_WINS);
             int gameLosses = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_LOSSES);
@@ -443,7 +363,7 @@ public class FirestoreHelper extends IntentService {
             String teamFirestoreID = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_FIRESTORE_ID);
 
             final DocumentReference docRef = mFirestore.collection(LEAGUE_COLLECTION).document(leagueID).collection(TEAMS_COLLECTION)
-                    .document(teamFirestoreID).collection(TEAM_LOGS).document(String.valueOf(logId));
+                    .document(teamFirestoreID).collection(TEAM_LOGS).document(String.valueOf(gameID));
 
             TeamLog teamLog = new TeamLog(teamId, gameWins, gameLosses, gameTies, gameRunsScored, gameRunsAllowed);
             batch.set(docRef, teamLog);
@@ -478,6 +398,7 @@ public class FirestoreHelper extends IntentService {
         String firestoreID;
         switch (action) {
             case INTENT_ADD_PLAYER_STATS:
+                Log.d("zztop", "addPlayerStatsToDB");
                 addPlayerStatsToDB();
                 break;
 
@@ -504,6 +425,14 @@ public class FirestoreHelper extends IntentService {
             case INTENT_DELETE_PLAYERS:
                 List<Player> playersToDelete = intent.getParcelableArrayListExtra(KEY_DELETE_PLAYERS);
                 addDeletionList(playersToDelete);
+                break;
+
+            case INTENT_ADD_BOXSCORE:
+                String awayID = intent.getStringExtra(StatsEntry.COLUMN_AWAY_TEAM);
+                String homeID = intent.getStringExtra(StatsEntry.COLUMN_HOME_TEAM);
+                int awayRuns = intent.getIntExtra(StatsEntry.COLUMN_AWAY_RUNS, 0);
+                int homeRuns = intent.getIntExtra(StatsEntry.COLUMN_HOME_RUNS, 0);
+                addBoxScoreToDB(awayID, homeID, awayRuns, homeRuns);
                 break;
         }
     }

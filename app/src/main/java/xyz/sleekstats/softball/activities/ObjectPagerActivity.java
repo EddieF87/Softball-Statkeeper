@@ -69,13 +69,12 @@ public abstract class ObjectPagerActivity extends AppCompatActivity
         ActionBar ab = getSupportActionBar();
         ab.setDisplayHomeAsUpEnabled(true);
 
-
-
-        AdView adView = findViewById(R.id.pager_ad);
-        AdRequest adRequest = new AdRequest.Builder()
-                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
-                .build();
-        adView.loadAd(adRequest);
+        //todo
+//        AdView adView = findViewById(R.id.pager_ad);
+//        AdRequest adRequest = new AdRequest.Builder()
+//                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+//                .build();
+//        adView.loadAd(adRequest);
     }
 
     @Override

@@ -93,6 +93,7 @@ public class InviteListRecyclerViewAdapter extends RecyclerView.Adapter<InviteLi
 
     @Override
     public int getItemCount() {
+        if(inviteList == null) {return 0;}
         return inviteList.size();
     }
 

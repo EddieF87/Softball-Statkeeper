@@ -136,7 +136,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
             });
         }
 
-        rootView.findViewById(R.id.name_title).setOnClickListener(this);
+        rootView.findViewById(R.id.player_name_title).setOnClickListener(this);
         rootView.findViewById(R.id.team_abv_title).setOnClickListener(this);
         rootView.findViewById(R.id.hr_title).setOnClickListener(this);
         rootView.findViewById(R.id.ab_title).setOnClickListener(this);
@@ -366,7 +366,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         colorView.setTextColor(ContextCompat.getColor(getActivity(), R.color.colorAccent));
 
         switch (statSorter) {
-            case R.id.name_title:
+            case R.id.player_name_title:
                 Collections.sort(mPlayers, Player.nameComparator());
                 break;
 

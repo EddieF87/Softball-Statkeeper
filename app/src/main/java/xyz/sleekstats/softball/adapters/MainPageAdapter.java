@@ -115,7 +115,7 @@ public class MainPageAdapter extends RecyclerView.Adapter<MainPageAdapter.MainPa
 
     @Override
     public int getItemCount() {
-        return mList.size();
+        if(mList == null) {return 0;} return mList.size();
     }
 
     static class MainPageViewHolder extends RecyclerView.ViewHolder {

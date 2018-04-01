@@ -78,6 +78,7 @@ public class AddPlayersRecyclerViewAdapter extends RecyclerView.Adapter<AddPlaye
 
     @Override
     public int getItemCount() {
+        if(mNameEntries == null) {return 0;}
         return mNameEntries.size();
     }
 

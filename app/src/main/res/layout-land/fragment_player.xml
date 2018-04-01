@@ -42,7 +42,7 @@
         android:textStyle="italic"
         app:layout_constraintHorizontal_weight="3"
         app:layout_constraintBottom_toBottomOf="@+id/player_name"
-        app:layout_constraintEnd_toStartOf="@+id/player_mgr"
+        app:layout_constraintEnd_toStartOf="@+id/manager_layout"
         app:layout_constraintStart_toEndOf="@+id/player_name"
         app:layout_constraintTop_toTopOf="@+id/player_name"
         tools:text="Playertope"
@@ -83,19 +83,63 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.15" />
 
-    <include
-        android:id="@+id/player_mgr"
-        layout="@layout/player_manager"
+
+
+    <LinearLayout
+        android:id="@+id/manager_layout"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:orientation="vertical"
         app:layout_constraintHorizontal_weight="3"
-        android:visibility="gone"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/stats"
+        app:layout_constraintStart_toEndOf="@id/stats"
         app:layout_constraintTop_toTopOf="parent"
-        tools:visibility="visible" />
+        >
+
+        <include
+            android:id="@+id/player_mgr"
+            layout="@layout/player_manager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone"
+            tools:visibility="gone" />
+
+        <include
+            android:id="@+id/stats_title_view"
+            layout="@layout/item_boxscore_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <ListView
+            android:id="@+id/list_games"
+            android:layout_width="match_parent"
+            android:layout_height="160dp"
+            android:layout_marginBottom="8dp"
+            android:visibility="gone"
+            tools:visibility="visible"
+            tools:listitem="@layout/item_boxscore_player" />
+
+    </LinearLayout>
+
+    <!--<include-->
+        <!--android:id="@+id/player_mgr"-->
+        <!--layout="@layout/player_manager"-->
+        <!--android:layout_width="0dp"-->
+        <!--android:layout_height="0dp"-->
+        <!--app:layout_constraintHorizontal_weight="3"-->
+        <!--android:visibility="gone"-->
+        <!--app:layout_constraintBottom_toBottomOf="parent"-->
+        <!--app:layout_constraintEnd_toEndOf="parent"-->
+        <!--app:layout_constraintHorizontal_bias="0.5"-->
+        <!--app:layout_constraintStart_toEndOf="@+id/stats"-->
+        <!--app:layout_constraintTop_toTopOf="parent"-->
+        <!--tools:visibility="visible" />-->
 
     <include
         android:id="@+id/stats"
@@ -105,7 +149,7 @@
         app:layout_constraintHorizontal_weight="7"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/player_mgr"
+        app:layout_constraintEnd_toStartOf="@+id/manager_layout"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/border1" />

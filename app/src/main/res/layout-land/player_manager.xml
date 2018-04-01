@@ -21,22 +21,22 @@
         app:layout_constraintVertical_chainStyle="packed">
 
         <RadioButton
-            android:id="@+id/single"
+            android:id="@+id/single_rb"
             style="@style/SmallRadioButtonStyle"
             android:text="@string/_1b" />
 
         <RadioButton
-            android:id="@+id/dbl"
+            android:id="@+id/dbl_rb"
             style="@style/SmallRadioButtonStyle"
             android:text="@string/_2b" />
 
         <RadioButton
-            android:id="@+id/triple"
+            android:id="@+id/triple_rb"
             style="@style/SmallRadioButtonStyle"
             android:text="@string/_3b" />
 
         <RadioButton
-            android:id="@+id/hr"
+            android:id="@+id/hr_rb"
             style="@style/SmallRadioButtonStyle"
             android:text="@string/hr" />
     </RadioGroup>
@@ -54,27 +54,27 @@
 
 
         <RadioButton
-            android:id="@+id/out"
+            android:id="@+id/out_rb"
             style="@style/SmallRadioButtonStyle"
             android:text="@string/out" />
 
         <RadioButton
-            android:id="@+id/sf"
+            android:id="@+id/sf_rb"
             style="@style/SmallRadioButtonStyle"
             android:text="@string/sf" />
 
         <RadioButton
-            android:id="@+id/bb"
+            android:id="@+id/bb_rb"
             style="@style/SmallRadioButtonStyle"
             android:text="@string/bb" />
 
         <RadioButton
-            android:id="@+id/run"
+            android:id="@+id/run_rb"
             style="@style/SmallRadioButtonStyle"
             android:text="@string/r" />
 
         <RadioButton
-            android:id="@+id/rbi"
+            android:id="@+id/rbi_rb"
             style="@style/SmallRadioButtonStyle"
             android:text="@string/rbi" />
     </RadioGroup>

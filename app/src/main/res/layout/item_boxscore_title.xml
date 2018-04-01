@@ -10,51 +10,77 @@
     >
 
     <TextView
-        android:id="@+id/name_title"
+        android:id="@+id/bs_name_title"
         android:layout_width="0dp"
         android:layout_weight="3"
         android:layout_height="wrap_content"
         android:maxLines="1"
         android:layout_gravity="center_vertical"
-        android:textSize="22sp"
+        android:textSize="14sp"
         android:textStyle="bold"
         android:textColor="#ffffff"
         android:paddingBottom="2dp"
-        android:paddingLeft="8dp"
+        android:paddingRight="4dp"
+        android:paddingLeft="4dp"
         android:autoSizeTextType="uniform"
-        android:autoSizeMinTextSize="8sp"
+        android:autoSizeMinTextSize="10sp"
         android:paddingStart="8dp"
         android:paddingEnd="0dp"
-        android:paddingRight="0dp"
+        tools:text = "Meteors"
         tools:targetApi="o" />
 
     <TextView
-        android:id="@+id/ab_title"
+        android:id="@+id/bs_ab_title"
         style="@style/BoxScoreTitleStyle"
         android:text="@string/ab"/>
 
     <TextView
-        android:id="@+id/run_title"
+        android:id="@+id/bs_run_title"
         style="@style/BoxScoreTitleStyle"
         android:text="@string/r" />
 
     <TextView
-        android:id="@+id/hit_title"
+        android:id="@+id/bs_hit_title"
         style="@style/BoxScoreTitleStyle"
         android:text="@string/h" />
 
     <TextView
-        android:id="@+id/rbi_title"
+        android:id="@+id/bs_rbi_title"
         style="@style/BoxScoreTitleStyle"
         android:text="@string/rbi" />
 
     <TextView
-        android:id="@+id/hr_title"
+        android:id="@+id/bs_hr_title"
         style="@style/BoxScoreTitleStyle"
         android:text="@string/hr" />
 
     <TextView
-        android:id="@+id/bb_title"
+        android:id="@+id/bs_tpl_title"
+        style="@style/BoxScoreTitleStyle"
+        android:text="@string/_3b" />
+
+    <TextView
+        android:id="@+id/bs_dbl_title"
+        style="@style/BoxScoreTitleStyle"
+        android:text="@string/_2b" />
+
+    <TextView
+        android:id="@+id/bs_sgl_title"
+        style="@style/BoxScoreTitleStyle"
+        android:text="@string/_1b" />
+
+    <TextView
+        android:id="@+id/bs_bb_title"
         style="@style/BoxScoreTitleStyle"
         android:text="@string/bb" />
+
+    <TextView
+        android:id="@+id/bs_sf_title"
+        style="@style/BoxScoreTitleStyle"
+        android:text="@string/sf" />
+
+    <TextView
+        android:id="@+id/bs_out_title"
+        style="@style/BoxScoreTitleStyle"
+        android:text="@string/out" />
 </LinearLayout>

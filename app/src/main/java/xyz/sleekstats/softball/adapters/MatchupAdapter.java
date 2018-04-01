@@ -100,6 +100,7 @@ public class MatchupAdapter extends RecyclerView.Adapter<MatchupAdapter.ListView
 
     @Override
     public int getItemCount() {
+        if(list == null) {return 0;}
         return list.size();
     }
 

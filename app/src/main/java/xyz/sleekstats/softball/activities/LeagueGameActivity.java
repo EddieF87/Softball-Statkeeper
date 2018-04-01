@@ -12,6 +12,7 @@ import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -25,6 +26,7 @@ import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.adapters.MatchupAdapter;
 import xyz.sleekstats.softball.data.FirestoreHelper;
 import xyz.sleekstats.softball.data.StatsContract;
+import xyz.sleekstats.softball.data.StatsDbHelper;
 import xyz.sleekstats.softball.data.TimeStampUpdater;
 import xyz.sleekstats.softball.objects.BaseLog;
 
@@ -389,10 +391,13 @@ public class LeagueGameActivity extends GameActivity {
 
     @Override
     protected void firestoreUpdate() {
+        Log.d("zztop", "firestoreUpdate");
         long updateTime = System.currentTimeMillis();
+        transferStats(updateTime);
         sendTeamIntent(updateTime, awayTeamID, awayTeamRuns, homeTeamRuns);
         sendTeamIntent(updateTime, homeTeamID, homeTeamRuns, awayTeamRuns);
         sendPlayersIntent(updateTime);
+        sendBoxscoreIntent(updateTime, awayTeamID, homeTeamID, awayTeamRuns, homeTeamRuns);
         TimeStampUpdater.updateTimeStamps(this, selectionID, updateTime);
     }
 

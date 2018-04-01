@@ -26,6 +26,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import xyz.sleekstats.softball.R;
+import xyz.sleekstats.softball.activities.GameRecapListActivity;
 import xyz.sleekstats.softball.activities.UsersActivity;
 import xyz.sleekstats.softball.activities.TeamPagerActivity;
 import xyz.sleekstats.softball.adapters.StandingsAdapter;
@@ -84,7 +85,7 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
                 startActivityForResult(intent, 0);
             }
         });
-        rootView.findViewById(R.id.name_title).setOnClickListener(this);
+        rootView.findViewById(R.id.standings_name_title).setOnClickListener(this);
         rootView.findViewById(R.id.win_title).setOnClickListener(this);
         rootView.findViewById(R.id.loss_title).setOnClickListener(this);
         rootView.findViewById(R.id.tie_title).setOnClickListener(this);
@@ -110,6 +111,14 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
                 }
             });
         }
+        Button gamesButton = rootView.findViewById(R.id.btn_games);
+        gamesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), GameRecapListActivity.class);
+                startActivity(intent);
+            }
+        });
 
         getLoaderManager().initLoader(STANDINGS_LOADER, null, this);
         return rootView;
@@ -218,7 +227,7 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
         colorView.setTextColor(ContextCompat.getColor(getActivity(), R.color.colorAccent));
 
         switch (view.getId()) {
-            case R.id.name_title:
+            case R.id.standings_name_title:
                 Collections.sort(mTeams, Team.nameComparator());
                 break;
             case R.id.win_title:
