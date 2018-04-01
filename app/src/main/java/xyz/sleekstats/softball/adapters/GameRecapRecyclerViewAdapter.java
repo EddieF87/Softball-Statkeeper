@@ -47,9 +47,21 @@ public class GameRecapRecyclerViewAdapter extends RecyclerView.Adapter<GameRecap
         String dateString = DateFormat.getDateInstance(DateFormat.DATE_FIELD).format(gameID);
 
         final String awayID = gameRecap.getAwayID();
-        final String awayTeamName = teamNameMap.get(awayID);
+        final String awayTeamName;
+        if(awayID.equals(StatsContract.StatsEntry.COLUMN_AWAY_TEAM)) {
+            awayTeamName = awayID;
+        } else {
+            awayTeamName = teamNameMap.get(awayID);
+        }
+
         final String homeID = gameRecap.getHomeID();
-        final String homeTeamName = teamNameMap.get(homeID);
+        final String homeTeamName;
+        if(homeID.equals(StatsContract.StatsEntry.COLUMN_HOME_TEAM)) {
+            homeTeamName = homeID;
+        } else {
+            homeTeamName = teamNameMap.get(homeID);
+        }
+
         final int awayRuns = gameRecap.getAwayRuns();
         final int homeRuns = gameRecap.getHomeRuns();
         String gameString = dateString + "   "

@@ -33,6 +33,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import xyz.sleekstats.softball.R;
+import xyz.sleekstats.softball.activities.GameRecapListActivity;
 import xyz.sleekstats.softball.activities.SetLineupActivity;
 import xyz.sleekstats.softball.activities.UsersActivity;
 import xyz.sleekstats.softball.adapters.PlayerStatsAdapter;
@@ -193,6 +194,19 @@ public class TeamFragment extends Fragment
         } else {
             startAdderBtn.setVisibility(View.INVISIBLE);
         }
+
+        rootView.findViewById(R.id.btn_games).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), GameRecapListActivity.class);
+                if(mSelectionType != MainPageSelection.TYPE_TEAM) {
+                    intent.setAction(StatsEntry.COLUMN_TEAM_ID);
+                    intent.putExtra(StatsEntry.COLUMN_FIRESTORE_ID, teamFirestoreID);
+                }
+                startActivity(intent);
+            }
+        });
+
         getLoaderManager().initLoader(EXISTING_TEAM_LOADER, null, this);
         return rootView;
     }

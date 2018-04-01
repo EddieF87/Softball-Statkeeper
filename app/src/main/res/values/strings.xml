@@ -156,4 +156,6 @@
     <string name="change_game_length">Set Innings</string>
     <string name="accept">Accept</string>
     <string name="games">Games</string>
+    <string name="game_edit">Game:</string>
+    <string name="player_edit">Player:</string>
 </resources>

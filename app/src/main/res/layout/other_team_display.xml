@@ -51,16 +51,18 @@
         android:id="@+id/tv_runs_scored_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="32dp"
+        android:layout_marginLeft="32dp"
+        android:layout_marginRight="32dp"
         android:layout_marginStart="32dp"
         android:layout_marginTop="24dp"
         android:text="@string/runs"
-        android:textSize="18sp"
         android:textColor="@color/colorDefault"
+        android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/tv_outs_title"
-        app:layout_constraintTop_toBottomOf="@+id/other_team_title"
-        android:layout_marginLeft="32dp" />
+        app:layout_constraintTop_toBottomOf="@+id/other_team_title" />
 
 
     <ImageView
@@ -108,14 +110,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="32dp"
-        android:layout_marginStart="32dp"
+        android:layout_marginLeft="48dp"
+        android:layout_marginStart="48dp"
         android:layout_marginTop="24dp"
         android:text="@string/outs"
         android:textColor="@color/colorDefault"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@+id/tv_runs_scored_title"
-        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/other_team_title" />
 

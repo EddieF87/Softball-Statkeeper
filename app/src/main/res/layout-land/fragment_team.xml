@@ -57,9 +57,9 @@
         android:layout_marginRight="16dp"
         android:text="@string/games"
         android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="@+id/btn_start_adder"
+        app:layout_constraintBottom_toBottomOf="@+id/teamName"
         app:layout_constraintEnd_toStartOf="@+id/btn_start_adder"
-        app:layout_constraintTop_toTopOf="@+id/btn_start_adder" />
+        app:layout_constraintTop_toTopOf="@+id/teamName" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/btn_start_adder"

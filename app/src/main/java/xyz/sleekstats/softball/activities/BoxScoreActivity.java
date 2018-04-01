@@ -59,7 +59,7 @@ public class BoxScoreActivity extends AppCompatActivity implements LoaderManager
             selectionName = mainPageSelection.getName();
             setTitle(selectionName + " BoxScore");
         } catch (Exception e) {
-            Intent intent = new Intent(BoxScoreActivity.this, xyz.sleekstats.softball.activities.MainActivity.class);
+            Intent intent = new Intent(BoxScoreActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
         }

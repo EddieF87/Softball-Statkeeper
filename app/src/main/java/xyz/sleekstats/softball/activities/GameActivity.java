@@ -738,7 +738,8 @@ public abstract class GameActivity extends AppCompatActivity
             default:
                 indicator = "th";
         }
-        Toast.makeText(GameActivity.this, topOrBottom + " of the " + inningNumber / 2 + indicator, Toast.LENGTH_LONG).show();
+        String inningString = topOrBottom + " of the " + inningNumber / 2 + indicator;
+        Toast.makeText(GameActivity.this, inningString, Toast.LENGTH_SHORT).show();
     }
 
     void updatePlayerStats(String action, int n) {
