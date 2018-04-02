@@ -4,20 +4,13 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.Toast;
-
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
-import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 
 import xyz.sleekstats.softball.MyApp;
 import xyz.sleekstats.softball.R;
@@ -56,7 +49,7 @@ public class TeamManagerActivity extends ExportActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_team_mgr_pager);
+        setContentView(R.layout.activity_pager);
 
         try {
             MyApp myApp = (MyApp) getApplicationContext();
@@ -72,11 +65,11 @@ public class TeamManagerActivity extends ExportActivity
             finish();
         }
 
-        CustomViewPager mViewPager = findViewById(R.id.team_view_pager);
+        CustomViewPager mViewPager = findViewById(R.id.my_view_pager);
         FragmentManager fragmentManager = getSupportFragmentManager();
         mViewPager.setAdapter(new TeamManagerPagerAdapter(fragmentManager));
 
-        TabLayout tabLayout = findViewById(R.id.league_tab_layout);
+        TabLayout tabLayout = findViewById(R.id.my_tab_layout);
         tabLayout.setupWithViewPager(mViewPager);
 
 
@@ -235,8 +228,6 @@ public class TeamManagerActivity extends ExportActivity
             }
             return createdFragment;
         }
-
-
     }
 
     @Override

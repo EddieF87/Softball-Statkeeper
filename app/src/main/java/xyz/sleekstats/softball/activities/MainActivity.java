@@ -833,6 +833,7 @@ public class MainActivity extends AppCompatActivity
         if (querySnapshot == null) {
             mProgressBar.setVisibility(View.GONE);
             mErrorView.setVisibility(View.VISIBLE);
+            loadSelections();
             return;
         }
 

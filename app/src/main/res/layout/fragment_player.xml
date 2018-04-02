@@ -125,7 +125,7 @@
             layout="@layout/item_boxscore_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone"
+            android:visibility="visible"
             tools:visibility="gone" />
 
         <ListView
@@ -133,7 +133,7 @@
             android:layout_width="match_parent"
             android:layout_height="160dp"
             android:layout_marginBottom="8dp"
-            android:visibility="gone"
+            android:visibility="visible"
             tools:visibility="gone"
             tools:listitem="@layout/item_boxscore_player" />
 

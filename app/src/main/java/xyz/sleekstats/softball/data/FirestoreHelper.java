@@ -52,6 +52,7 @@ public class FirestoreHelper extends IntentService {
     public static final String STATKEEPER_ID = "statkeeperID";
     public static final String INTENT_ADD_PLAYER_STATS = "addPlayerStats";
     public static final String INTENT_ADD_TEAM_STATS = "addTeamStats";
+    public static final String INTENT_UPDATE_PLAYER = "updatePlayer";
     public static final String INTENT_DELETE_PLAYER = "delete";
     public static final String INTENT_DELETE_PLAYERS = "deleteList";
     public static final String INTENT_RETRY_GAME_LOAD = "retry";
@@ -379,6 +380,38 @@ public class FirestoreHelper extends IntentService {
         cursor.close();
     }
 
+    public void updatePlayer(final String firestoreID, final PlayerLog playerLog){
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        final DocumentReference keeperRef = firestore.collection(FirestoreHelper.LEAGUE_COLLECTION)
+                .document(statKeeperID);
+        keeperRef.update(LAST_UPDATE, mUpdateTime);
+
+        final DocumentReference playerRef = keeperRef.collection(FirestoreHelper.PLAYERS_COLLECTION)
+                .document(firestoreID);
+        playerRef.update(StatsEntry.UPDATE, mUpdateTime);
+
+        final DocumentReference playerLogRef = playerRef.collection(FirestoreHelper.PLAYER_LOGS).document();
+        playerLogRef.set(playerLog).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                ContentValues values = new ContentValues();
+                values.put(StatsEntry.COLUMN_BB, - playerLog.getWalks());
+                values.put(StatsEntry.COLUMN_1B, - playerLog.getSingles());
+                values.put(StatsEntry.COLUMN_2B, - playerLog.getDoubles());
+                values.put(StatsEntry.COLUMN_3B, - playerLog.getTriples());
+                values.put(StatsEntry.COLUMN_HR, - playerLog.getHrs());
+                values.put(StatsEntry.COLUMN_OUT, - playerLog.getOuts());
+                values.put(StatsEntry.COLUMN_SF, - playerLog.getSacfly());
+                values.put(StatsEntry.COLUMN_RBI, - playerLog.getRbi());
+                values.put(StatsEntry.COLUMN_RUN, - playerLog.getRuns());
+
+                String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
+                String[] selectionArgs = new String[]{firestoreID};
+                getContentResolver().update(StatsEntry.CONTENT_URI_PLAYERS, values, selection, selectionArgs);
+            }
+        });
+    }
+
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
@@ -433,6 +466,12 @@ public class FirestoreHelper extends IntentService {
                 int awayRuns = intent.getIntExtra(StatsEntry.COLUMN_AWAY_RUNS, 0);
                 int homeRuns = intent.getIntExtra(StatsEntry.COLUMN_HOME_RUNS, 0);
                 addBoxScoreToDB(awayID, homeID, awayRuns, homeRuns);
+                break;
+
+            case INTENT_UPDATE_PLAYER:
+                PlayerLog playerLog = intent.getParcelableExtra(StatsEntry.PLAYERS_TABLE_NAME);
+                firestoreID = intent.getStringExtra(StatsEntry.COLUMN_FIRESTORE_ID);
+                updatePlayer(firestoreID, playerLog);
                 break;
         }
     }

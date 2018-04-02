@@ -28,6 +28,12 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/action_player_mgr"
+        android:title="@string/open_stat_manager"
+        android:visible="true"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_export_stats"
         android:title="@string/export_stats"
         android:visible="false"

@@ -286,8 +286,8 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     private void setGameSummaryView(final int awayRuns, final int homeRuns){
         SharedPreferences savedGamePreferences = getActivity()
                 .getSharedPreferences(leagueID + StatsEntry.GAME, Context.MODE_PRIVATE);
-        int inningNumber = savedGamePreferences.getInt("keyInningNumber", 2);
-        inningNumber = inningNumber/2;
+        final int inningNumber = savedGamePreferences.getInt("keyInningNumber", 2);
+        int inningDisplay = inningNumber / 2;
         final int totalInnings = savedGamePreferences.getInt("keyTotalInnings", 7);
         final String awayID = savedGamePreferences.getString("keyAwayTeam", "");
         final String homeID = savedGamePreferences.getString("keyHomeTeam", "");
@@ -298,7 +298,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         }
         String awayTeamAbv = getTeamAbv(awayTeamName);
         String homeTeamAbv = getTeamAbv(homeTeamName);
-        String summary = awayTeamAbv + ": " + awayRuns + "    "  + homeTeamAbv + ": " + homeRuns + "\nInning: " + inningNumber;
+        String summary = awayTeamAbv + ": " + awayRuns + "    "  + homeTeamAbv + ": " + homeRuns + "\nInning: " + inningDisplay;
         gameSummaryView.setText(summary);
         gameSummaryView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -310,7 +310,9 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                 b.putString("awayTeamID", awayID);
                 b.putString("homeTeamID", homeID);
                 b.putInt("totalInnings", totalInnings);
+                b.putInt("inningNumber", inningNumber);
                 b.putInt("awayTeamRuns", awayRuns);
+                b.putInt("homeTeamRuns", homeRuns);
                 b.putInt("homeTeamRuns", homeRuns);
                 intent.putExtras(b);
                 startActivity(intent);
@@ -549,6 +551,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
 
 
     private void updateRVs(RecyclerView rv, List<Player> playerList) {
+        if(playerList == null) {return;}
         if (initialization) {
             updateAwayRV(playerList);
             updateHomeRV(playerList);

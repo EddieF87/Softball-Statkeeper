@@ -104,7 +104,8 @@
 
         <activity android:name=".activities.GameRecapListActivity" />
         <activity android:name=".activities.GameRecapActivity" />
-        <activity android:name=".activities.StatsEditor"></activity>
+        <activity android:name=".activities.StatsEditor" />
+        <activity android:name=".fragments.PlayRecapFragment"></activity>
     </application>
 
 </manifest>

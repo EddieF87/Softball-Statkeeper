@@ -358,16 +358,25 @@ public abstract class GameActivity extends AppCompatActivity
                 group2.clearCheck();
                 break;
             case R.id.out_rb:
-            case R.id.error_rb:
-            case R.id.fc_rb:
                 if (checked)
                     result = StatsEntry.COLUMN_OUT;
+                group1.clearCheck();
+                break;
+            case R.id.error_rb:
+                if (checked)
+                    result = StatsEntry.COLUMN_ERROR;
+                group1.clearCheck();
+                break;
+            case R.id.fc_rb:
+                if (checked)
+                    result = StatsEntry.COLUMN_FC;
                 group1.clearCheck();
                 break;
             case R.id.sf_rb:
                 if (checked)
                     result = StatsEntry.COLUMN_SF;
                 group1.clearCheck();
+                break;
             case R.id.sacbunt_rb:
                 if (checked)
                     result = StatsEntry.COLUMN_SAC_BUNT;
@@ -506,8 +515,8 @@ public abstract class GameActivity extends AppCompatActivity
         values.put(StatsEntry.COLUMN_AWAY_RUNS, awayTeamRuns);
         values.put(StatsEntry.COLUMN_HOME_RUNS, homeTeamRuns);
         values.put(StatsEntry.COLUMN_INNING_CHANGED, inningChanged);
-        values.put(StatsEntry.COLUMN_LOG_INDEX, gameLogIndex);
-        Log.d("xxx", "batter: " + previousBatterID + "   result:" + result + "    ondeck: " + onDeckID);
+        values.put(StatsEntry.INNINGS, inningNumber);
+
         for (int i = 0; i < currentRunsLog.size(); i++) {
             String player = currentRunsLog.get(i);
             switch (i) {
@@ -782,6 +791,12 @@ public abstract class GameActivity extends AppCompatActivity
                 newValue = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_HR) + n;
                 values.put(StatsEntry.COLUMN_HR, newValue);
                 break;
+            case StatsEntry.COLUMN_OUT:
+            case StatsEntry.COLUMN_ERROR:
+            case StatsEntry.COLUMN_FC:
+                newValue = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_OUT) + n;
+                values.put(StatsEntry.COLUMN_OUT, newValue);
+                break;
             case StatsEntry.COLUMN_BB:
                 newValue = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_BB) + n;
                 values.put(StatsEntry.COLUMN_BB, newValue);
@@ -789,10 +804,6 @@ public abstract class GameActivity extends AppCompatActivity
             case StatsEntry.COLUMN_SF:
                 newValue = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_SF) + n;
                 values.put(StatsEntry.COLUMN_SF, newValue);
-                break;
-            case StatsEntry.COLUMN_OUT:
-                newValue = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_OUT) + n;
-                values.put(StatsEntry.COLUMN_OUT, newValue);
                 break;
             case StatsEntry.COLUMN_SAC_BUNT:
                 break;

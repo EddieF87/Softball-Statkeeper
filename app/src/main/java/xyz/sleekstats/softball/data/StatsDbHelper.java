@@ -145,7 +145,7 @@ public class StatsDbHelper extends SQLiteOpenHelper {
                         StatsEntry.COLUMN_RUN4 + " TEXT, " +
 
                         StatsEntry.COLUMN_INNING_CHANGED + " INTEGER, " +
-                        StatsEntry.COLUMN_LOG_INDEX + " INTEGER" +
+                        StatsEntry.INNINGS + " INTEGER" +
                         ");";
 
         final String SQL_CREATE_LEAGUES_TABLE =

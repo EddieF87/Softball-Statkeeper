@@ -46,7 +46,7 @@ public class GameRecapActivity extends AppCompatActivity implements LoaderManage
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_box_score);
+        setContentView(R.layout.fragment_boxscore);
 
         try {
             MyApp myApp = (MyApp) getApplicationContext();

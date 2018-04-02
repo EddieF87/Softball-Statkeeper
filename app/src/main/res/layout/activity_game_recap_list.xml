@@ -19,7 +19,6 @@
         android:id="@+id/spinner_recap_teams"
         android:layout_width="180dp"
         android:layout_height="wrap_content"
-        android:layout_margin="32dp"
-        android:spinnerMode="dialog" />
+        android:layout_margin="32dp"/>
 
 </LinearLayout>

@@ -414,8 +414,7 @@ public class LineupFragment extends Fragment {
     private void setGameSummaryView(final int awayRuns, final int homeRuns) {
         SharedPreferences savedGamePreferences = getActivity()
                 .getSharedPreferences(mSelectionID + StatsEntry.GAME, Context.MODE_PRIVATE);
-        int inningNumber = savedGamePreferences.getInt("keyInningNumber", 2);
-        inningNumber = inningNumber / 2;
+        final int inningNumber = savedGamePreferences.getInt("keyInningNumber", 2) / 2;
         boolean isHome = savedGamePreferences.getBoolean("isHome", false);
         final int totalInnings = savedGamePreferences.getInt("keyTotalInnings", 7);
         String awayTeamName = "Away";
@@ -439,6 +438,7 @@ public class LineupFragment extends Fragment {
                 b.putString("awayTeamID", mSelectionID);
                 b.putString("homeTeamID", null);
                 b.putInt("totalInnings", totalInnings);
+                b.putInt("inningNumber", inningNumber);
                 b.putInt("awayTeamRuns", awayRuns);
                 b.putInt("homeTeamRuns", homeRuns);
                 intent.putExtras(b);

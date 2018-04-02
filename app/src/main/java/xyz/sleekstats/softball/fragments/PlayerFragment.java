@@ -4,6 +4,7 @@ package xyz.sleekstats.softball.fragments;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
@@ -16,8 +17,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -32,6 +32,16 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.firestore.Transaction;
 
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.activities.LeagueManagerActivity;
@@ -48,6 +58,7 @@ import xyz.sleekstats.softball.dialogs.DeleteConfirmationDialog;
 import xyz.sleekstats.softball.dialogs.EditNameDialog;
 import xyz.sleekstats.softball.objects.MainPageSelection;
 import xyz.sleekstats.softball.objects.Player;
+import xyz.sleekstats.softball.objects.PlayerLog;
 import xyz.sleekstats.softball.objects.Team;
 
 import java.text.DecimalFormat;
@@ -66,8 +77,8 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     private String mSelectionID;
     private String teamString;
     private String playerName;
-    private String firestoreID;
-    private String teamFirestoreID;
+    private String mFirestoreID;
+    private String mTeamFirestoreID;
     private int gender;
     private int mSelectionType;
     private TextView resultCountText;
@@ -76,10 +87,22 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     private TextView resultText;
     private TextView nameView;
     private ImageView playerImage;
+    private boolean isMgrView;
+    private PlayerLog mPlayerLog;
 
     private RadioGroup group1;
     private RadioGroup group2;
     private OnFragmentInteractionListener mListener;
+
+    private static final String RESULT_1B = "1B";
+    private static final String RESULT_2B = "2B";
+    private static final String RESULT_3B = "3B";
+    private static final String RESULT_HR = "HR";
+    private static final String RESULT_BB = "BB";
+    private static final String RESULT_OUT = "Out";
+    private static final String RESULT_SF = "SF";
+    private static final String RESULT_R = "Run";
+    private static final String RESULT_RBI = "RBI";
 
     private static final String KEY_PLAYER_URI = "playerURI";
 
@@ -112,6 +135,11 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+
+        if (savedInstanceState != null) {
+            isMgrView = savedInstanceState.getBoolean("isMgrView");
+        }
+
         Bundle args = getArguments();
         mSelectionType = args.getInt(MainPageSelection.KEY_SELECTION_TYPE);
         mLevel = args.getInt(MainPageSelection.KEY_SELECTION_LEVEL);
@@ -121,6 +149,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         } else {
             String uriString = args.getString(KEY_PLAYER_URI);
             mCurrentPlayerUri = Uri.parse(uriString);
+            Log.d("zztop", "URI " + mCurrentPlayerUri);
             mSelectionID = args.getString(MainPageSelection.KEY_SELECTION_ID);
         }
     }
@@ -156,8 +185,8 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             playerName = player.getName();
             teamString = player.getTeam();
             gender = player.getGender();
-            firestoreID = player.getFirestoreID();
-            teamFirestoreID = player.getTeamfirestoreid();
+            mFirestoreID = player.getFirestoreID();
+            mTeamFirestoreID = player.getTeamfirestoreid();
 
             TextView abView = rootView.findViewById(R.id.playerboard_ab);
             TextView hitView = rootView.findViewById(R.id.playerboard_hit);
@@ -179,11 +208,11 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 teamView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if (teamFirestoreID != null) {
+                        if (mTeamFirestoreID != null) {
                             Intent intent;
                             String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
-                            String[] selectionArgs = new String[]{teamFirestoreID};
-                            if (teamFirestoreID.equals(StatsEntry.FREE_AGENT)) {
+                            String[] selectionArgs = new String[]{mTeamFirestoreID};
+                            if (mTeamFirestoreID.equals(StatsEntry.FREE_AGENT)) {
                                 intent = new Intent(getActivity(), TeamPagerActivity.class);
                                 intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                                 getActivity().startActivityForResult(intent, 0);
@@ -241,10 +270,15 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                         }
                     }
                 });
+                isMgrView = false;
                 setPlayerManager();
             } else {
                 setColor();
-                setGameStats();
+                if (isMgrView) {
+                    setPlayerManager();
+                } else {
+                    setGameStats();
+                }
             }
         } else if (mSelectionType == MainPageSelection.TYPE_PLAYER) {
             ContentValues values = new ContentValues();
@@ -265,26 +299,93 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         playerImage.setColorFilter(getResources().getColor(color));
     }
 
-    private void setGameStats(){
+    private void shuffleMgrView() {
+        isMgrView = !isMgrView;
+        if (isMgrView) {
+            setPlayerManager();
+        } else {
+            setGameStats();
+        }
+    }
+
+    private void updatePlayerDataFirebase(String currentResult, int currentResultCount) {
+        if(mPlayerLog == null) {
+            mPlayerLog = new PlayerLog(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        }
+        switch (currentResult) {
+            case RESULT_1B:
+                mPlayerLog.addSingles(currentResultCount);
+                break;
+            case RESULT_2B:
+                mPlayerLog.addDoubles(currentResultCount);
+                break;
+            case RESULT_3B:
+                mPlayerLog.addTriples(currentResultCount);
+                break;
+            case RESULT_HR:
+                mPlayerLog.addHrs(currentResultCount);
+                break;
+            case RESULT_BB:
+                mPlayerLog.addWalks(currentResultCount);
+                break;
+            case RESULT_OUT:
+                mPlayerLog.addOuts(currentResultCount);
+                break;
+            case RESULT_SF:
+                mPlayerLog.addSacfly(currentResultCount);
+                break;
+            case RESULT_R:
+                mPlayerLog.addRuns(currentResultCount);
+                break;
+            case RESULT_RBI:
+                mPlayerLog.addRbi(currentResultCount);
+                break;
+        }
+    }
+
+    @Override
+    public void onStop() {
+        if(mPlayerLog != null){
+            Intent intent = new Intent(getActivity(), FirestoreHelper.class);
+            intent.putExtra(StatsEntry.PLAYERS_TABLE_NAME, mPlayerLog);
+            intent.putExtra(FirestoreHelper.STATKEEPER_ID, mSelectionID);
+            intent.putExtra(StatsEntry.COLUMN_FIRESTORE_ID, mFirestoreID);
+            intent.putExtra(TimeStampUpdater.UPDATE_TIME, System.currentTimeMillis());
+            intent.setAction(FirestoreHelper.INTENT_UPDATE_PLAYER);
+            getActivity().startService(intent);
+            mPlayerLog = null;
+        }
+        super.onStop();
+    }
+
+    private void setViewVisibility(int mgrVisibility, int statsVisibility){
+        View playerManager = getView().findViewById(R.id.player_mgr);
         LinearLayout gameStatTitles = getView().findViewById(R.id.stats_title_view);
         ListView gameStatsListView = getView().findViewById(R.id.list_games);
-        gameStatTitles.setVisibility(View.VISIBLE);
-        gameStatsListView.setVisibility(View.VISIBLE);
+        playerManager.setVisibility(mgrVisibility);
+        gameStatTitles.setVisibility(statsVisibility);
+        gameStatsListView.setVisibility(statsVisibility);
 
+    }
+
+    private void setGameStats() {
+        setViewVisibility(View.GONE, View.VISIBLE);
+
+        ListView gameStatsListView = getView().findViewById(R.id.list_games);
         BoxScorePlayerCursorAdapter adapter =
-                new BoxScorePlayerCursorAdapter(getActivity(),BoxScorePlayerCursorAdapter.KEY_PLAYER);
+                new BoxScorePlayerCursorAdapter(getActivity(), BoxScorePlayerCursorAdapter.KEY_PLAYER);
         gameStatsListView.setAdapter(adapter);
         String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
-        String[] selectionArgs = new String[]{firestoreID};
+        String[] selectionArgs = new String[]{mFirestoreID};
         String sortOrder = StatsEntry.COLUMN_GAME_ID + " DESC";
         Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_BOXSCORE_PLAYERS,
-                        null, selection, selectionArgs, sortOrder);
+                null, selection, selectionArgs, sortOrder);
         adapter.swapCursor(cursor);
     }
 
     private void setPlayerManager() {
         View playerManager = getView().findViewById(R.id.player_mgr);
-        playerManager.setVisibility(View.VISIBLE);
+        setViewVisibility(View.VISIBLE, View.GONE);
         setRadioButtons(playerManager);
 
         resultCount = 0;
@@ -322,39 +423,45 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                         null, null, null, null);
                 if (cursor.moveToFirst()) {
                     switch (result) {
-                        case "1B":
+                        case RESULT_1B:
                             statEntry = StatsEntry.COLUMN_1B;
                             break;
-                        case "2B":
+                        case RESULT_2B:
                             statEntry = StatsEntry.COLUMN_2B;
                             break;
-                        case "3B":
+                        case RESULT_3B:
                             statEntry = StatsEntry.COLUMN_3B;
                             break;
-                        case "HR":
+                        case RESULT_HR:
                             statEntry = StatsEntry.COLUMN_HR;
                             break;
-                        case "BB":
+                        case RESULT_BB:
                             statEntry = StatsEntry.COLUMN_BB;
                             break;
-                        case "Out":
+                        case RESULT_OUT:
                             statEntry = StatsEntry.COLUMN_OUT;
                             break;
-                        case "SF":
+                        case RESULT_SF:
                             statEntry = StatsEntry.COLUMN_SF;
                             break;
-                        case "Run":
+                        case RESULT_R:
                             statEntry = StatsEntry.COLUMN_RUN;
                             break;
-                        case "RBI":
+                        case RESULT_RBI:
                             statEntry = StatsEntry.COLUMN_RBI;
                             break;
                         default:
                             return;
                     }
+                    if(mSelectionType != MainPageSelection.TYPE_PLAYER && resultCount != 0) {
+                        updatePlayerDataFirebase(result, resultCount);
+                    }
                     int currentResultCount = StatsContract.getColumnInt(cursor, statEntry);
                     resultCount += currentResultCount;
                     ContentValues values = new ContentValues();
+                    if (mSelectionType != MainPageSelection.TYPE_PLAYER) {
+                        values.put(StatsEntry.COLUMN_FIRESTORE_ID, mFirestoreID);
+                    }
                     values.put(statEntry, resultCount);
                     getActivity().getContentResolver().update(mCurrentPlayerUri,
                             values, null, null);
@@ -385,7 +492,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 boolean checked = ((RadioButton) view).isChecked();
                 if (checked) {
                     group2.clearCheck();
-                    result = "1B";
+                    result = RESULT_1B;
                     resultText.setText(result);
                 }
             }
@@ -396,7 +503,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 boolean checked = ((RadioButton) view).isChecked();
                 if (checked) {
                     group2.clearCheck();
-                    result = "2B";
+                    result = RESULT_2B;
                     resultText.setText(result);
                 }
             }
@@ -407,7 +514,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 boolean checked = ((RadioButton) view).isChecked();
                 if (checked) {
                     group2.clearCheck();
-                    result = "3B";
+                    result = RESULT_3B;
                     resultText.setText(result);
                 }
             }
@@ -418,7 +525,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 boolean checked = ((RadioButton) view).isChecked();
                 if (checked) {
                     group2.clearCheck();
-                    result = "HR";
+                    result = RESULT_HR;
                     resultText.setText(result);
                 }
             }
@@ -429,7 +536,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 boolean checked = ((RadioButton) view).isChecked();
                 if (checked) {
                     group1.clearCheck();
-                    result = "BB";
+                    result = RESULT_BB;
                     resultText.setText(result);
                 }
             }
@@ -440,7 +547,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 boolean checked = ((RadioButton) view).isChecked();
                 if (checked) {
                     group1.clearCheck();
-                    result = "Out";
+                    result = RESULT_OUT;
                     resultText.setText(result);
                 }
             }
@@ -451,7 +558,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 boolean checked = ((RadioButton) view).isChecked();
                 if (checked) {
                     group1.clearCheck();
-                    result = "SF";
+                    result = RESULT_SF;
                     resultText.setText(result);
                 }
             }
@@ -462,7 +569,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 boolean checked = ((RadioButton) view).isChecked();
                 if (checked) {
                     group1.clearCheck();
-                    result = "Run";
+                    result = RESULT_R;
                     resultText.setText(result);
                 }
             }
@@ -473,7 +580,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 boolean checked = ((RadioButton) view).isChecked();
                 if (checked) {
                     group1.clearCheck();
-                    result = "RBI";
+                    result = RESULT_RBI;
                     resultText.setText(result);
                 }
             }
@@ -520,16 +627,19 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 }
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(StatsEntry.COLUMN_GENDER, gender);
-                contentValues.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
+                contentValues.put(StatsEntry.COLUMN_FIRESTORE_ID, mFirestoreID);
                 int rowsUpdated = getActivity().getContentResolver().update(mCurrentPlayerUri, contentValues, null, null);
-                if(rowsUpdated > 0) {
+                if (rowsUpdated > 0) {
                     TimeStampUpdater.updateTimeStamps(getActivity(), mSelectionID, System.currentTimeMillis());
                 }
                 setColor();
-                ((PlayerPagerActivity) getActivity()).returnGenderEdit(gender, firestoreID);
+                ((PlayerPagerActivity) getActivity()).returnGenderEdit(gender, mFirestoreID);
                 return true;
             case R.id.action_delete_player:
                 showDeleteConfirmationDialog();
+                return true;
+            case R.id.action_player_mgr:
+                shuffleMgrView();
                 return true;
             case R.id.action_export_stats:
                 if (mListener != null) {
@@ -596,24 +706,24 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
 
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = ChangeTeamDialog.newInstance(teams, playerName, firestoreID);
+        DialogFragment newFragment = ChangeTeamDialog.newInstance(teams, playerName, mFirestoreID);
         newFragment.show(fragmentTransaction, "");
     }
 
     public void deletePlayer() {
         if (mCurrentPlayerUri != null) {
             String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
-            String[] selectionArgs = new String[]{firestoreID};
+            String[] selectionArgs = new String[]{mFirestoreID};
             int rowsDeleted = getActivity().getContentResolver().delete(mCurrentPlayerUri, selection, selectionArgs);
             if (rowsDeleted > 0) {
                 Intent intent = new Intent(getActivity(), FirestoreHelper.class);
                 intent.putExtra(FirestoreHelper.STATKEEPER_ID, mSelectionID);
                 intent.setAction(FirestoreHelper.INTENT_DELETE_PLAYER);
-                intent.putExtra(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
+                intent.putExtra(StatsEntry.COLUMN_FIRESTORE_ID, mFirestoreID);
                 intent.putExtra(StatsEntry.TYPE, 1);
                 intent.putExtra(StatsEntry.COLUMN_NAME, playerName);
                 intent.putExtra(StatsEntry.COLUMN_GENDER, gender);
-                intent.putExtra(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, teamFirestoreID);
+                intent.putExtra(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, mTeamFirestoreID);
                 getActivity().startService(intent);
                 Toast.makeText(getActivity(), playerName + " " + getString(R.string.editor_delete_player_successful), Toast.LENGTH_SHORT).show();
             } else {
@@ -621,19 +731,19 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             }
         }
         if (getActivity() instanceof PlayerPagerActivity) {
-            ((PlayerPagerActivity) getActivity()).returnDeleteResult(firestoreID);
+            ((PlayerPagerActivity) getActivity()).returnDeleteResult(mFirestoreID);
         }
     }
 
     public String getFirestoreID() {
-        return firestoreID;
+        return mFirestoreID;
     }
 
     public boolean updatePlayerName(String player) {
         playerName = player;
         ContentValues contentValues = new ContentValues();
         contentValues.put(StatsEntry.COLUMN_NAME, playerName);
-        contentValues.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
+        contentValues.put(StatsEntry.COLUMN_FIRESTORE_ID, mFirestoreID);
 
         int rowsUpdated = getActivity().getContentResolver().update(mCurrentPlayerUri, contentValues, null, null);
         return rowsUpdated > 0;
@@ -643,7 +753,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         teamString = team;
         ContentValues contentValues = new ContentValues();
         contentValues.put(StatsEntry.COLUMN_TEAM, team);
-        contentValues.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
+        contentValues.put(StatsEntry.COLUMN_FIRESTORE_ID, mFirestoreID);
 
         getActivity().getContentResolver().update(mCurrentPlayerUri, contentValues, null, null);
     }
@@ -654,7 +764,14 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
 
     public interface OnFragmentInteractionListener {
         void setTeamEdit();
+
         void onExport(String name);
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("isMgrView", isMgrView);
     }
 
     @Override

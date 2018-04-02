@@ -1,10 +1,13 @@
 package xyz.sleekstats.softball.objects;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by Eddie on 11/3/2017.
  */
 
-public class PlayerLog {
+public class PlayerLog implements Parcelable {
 
     private long id;
     private int rbi;
@@ -112,4 +115,89 @@ public class PlayerLog {
     public void setSacfly(int sacfly) {
         this.sacfly = sacfly;
     }
+
+    public void addWalks(int walks) {
+        this.walks += walks;
+    }
+
+    public void addTriples(int triples) {
+        this.triples += triples;
+    }
+
+    public void addSingles(int singles) {
+        this.singles += singles;
+    }
+
+    public void addRuns(int runs) {
+        this.runs += runs;
+    }
+
+    public void addHrs(int hrs) {
+        this.hrs += hrs;
+    }
+
+    public void addDoubles(int doubles) {
+        this.doubles += doubles;
+    }
+
+    public void addId(int id) {
+        this.id += id;
+    }
+
+    public void addOuts(int outs) {
+        this.outs += outs;
+    }
+
+    public void addRbi(int rbi) {
+        this.rbi += rbi;
+    }
+
+    public void addSacfly(int sacfly) {
+        this.sacfly += sacfly;
+    }
+
+    protected PlayerLog(Parcel in) {
+        id = in.readLong();
+        rbi = in.readInt();
+        runs = in.readInt();
+        singles = in.readInt();
+        doubles = in.readInt();
+        triples = in.readInt();
+        hrs = in.readInt();
+        outs = in.readInt();
+        walks = in.readInt();
+        sacfly = in.readInt();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(id);
+        dest.writeInt(rbi);
+        dest.writeInt(runs);
+        dest.writeInt(singles);
+        dest.writeInt(doubles);
+        dest.writeInt(triples);
+        dest.writeInt(hrs);
+        dest.writeInt(outs);
+        dest.writeInt(walks);
+        dest.writeInt(sacfly);
+    }
+
+    @SuppressWarnings("unused")
+    public static final Parcelable.Creator<PlayerLog> CREATOR = new Parcelable.Creator<PlayerLog>() {
+        @Override
+        public PlayerLog createFromParcel(Parcel in) {
+            return new PlayerLog(in);
+        }
+
+        @Override
+        public PlayerLog[] newArray(int size) {
+            return new PlayerLog[size];
+        }
+    };
 }

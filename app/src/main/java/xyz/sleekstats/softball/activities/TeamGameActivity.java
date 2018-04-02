@@ -72,6 +72,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         b.putString("awayTeamID", selectionID);
         b.putString("homeTeamID", null);
         b.putInt("totalInnings", totalInnings);
+        b.putInt("inningNumber", inningNumber);
         b.putInt("awayTeamRuns", awayTeamRuns);
         b.putInt("homeTeamRuns", homeTeamRuns);
         return b;
@@ -203,7 +204,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         values.put(StatsEntry.COLUMN_HOME_RUNS, 0);
         values.put(StatsEntry.COLUMN_PLAY, "start");
         values.put(StatsEntry.COLUMN_INNING_CHANGED, 0);
-        values.put(StatsEntry.COLUMN_LOG_INDEX, gameLogIndex);
+        values.put(StatsEntry.INNINGS, inningNumber);
         getContentResolver().insert(StatsEntry.CONTENT_URI_GAMELOG, values);
 
         String outsText = "0 outs";

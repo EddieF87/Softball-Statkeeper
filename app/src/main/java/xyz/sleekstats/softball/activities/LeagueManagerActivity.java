@@ -56,7 +56,7 @@ public class LeagueManagerActivity extends ExportActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_lg_mgr_pager);
+        setContentView(R.layout.activity_pager);
 
 
 
@@ -73,12 +73,12 @@ public class LeagueManagerActivity extends ExportActivity
             finish();
         }
 
-        ViewPager viewPager = findViewById(R.id.league_view_pager);
+        ViewPager viewPager = findViewById(R.id.my_view_pager);
         FragmentManager fragmentManager = getSupportFragmentManager();
         viewPager.setOffscreenPageLimit(2);
         viewPager.setAdapter(new LeagueManagerPagerAdapter(fragmentManager));
 
-        TabLayout tabLayout = findViewById(R.id.league_tab_layout);
+        TabLayout tabLayout = findViewById(R.id.my_tab_layout);
         tabLayout.setupWithViewPager(viewPager);
 
         Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, null, null, null, null);

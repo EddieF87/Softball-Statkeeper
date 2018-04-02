@@ -517,6 +517,7 @@ public class StatsProvider extends ContentProvider {
                     Map<String, Object> data = new HashMap<>();
                     String teamFirestoreID = values.getAsString(StatsEntry.COLUMN_TEAM_FIRESTORE_ID);
                     data.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, teamFirestoreID);
+
                     if (values.containsKey(StatsEntry.COLUMN_TEAM)) {
                         String teamName = values.getAsString(StatsEntry.COLUMN_TEAM);
                         data.put(StatsEntry.COLUMN_TEAM, teamName);
