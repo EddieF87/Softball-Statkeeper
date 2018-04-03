@@ -14,7 +14,7 @@
         android:foreground="@drawable/card_view_selector"
         card_view:cardBackgroundColor="@color/colorDefault"
         card_view:cardCornerRadius="4dp"
-        card_view:cardElevation="1dp"
+        card_view:cardElevation="4dp"
         card_view:cardPreventCornerOverlap="true"
         card_view:cardUseCompatPadding="true"
         android:layout_marginLeft="4dp"
@@ -24,36 +24,48 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
-            android:padding="24dp">
+            android:padding="8dp">
+
+            <TextView
+                android:id="@+id/date_text"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginEnd="4dp"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:maxLines="2"
+                tools:targetApi="o"
+                tools:text="12/34/56" />
 
             <TextView
                 android:id="@+id/game_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_toLeftOf="@id/img_view_game"
+                android:layout_toEndOf="@id/date_text"
                 android:layout_toStartOf="@id/img_view_game"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textSize="16sp"
+                android:textSize="14sp"
                 android:maxLines="2"
                 tools:targetApi="o"
                 tools:text="aaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbaaaaaaaaaaaaaaaaaaaa" />
 
             <ImageView
                 android:id="@+id/img_view_game"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:layout_marginLeft="4dp"
-                android:layout_marginRight="4dp"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:layout_marginStart="4dp"
+                android:layout_centerVertical="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
-                card_view:srcCompat="@drawable/ic_reorder_white_500_24dp"
-                android:background="@color/colorPrimary"
+                card_view:srcCompat="@android:drawable/ic_menu_save"
+                android:tint="@color/colorAccent"
                 android:contentDescription="@string/view_only" />
 
         </RelativeLayout>

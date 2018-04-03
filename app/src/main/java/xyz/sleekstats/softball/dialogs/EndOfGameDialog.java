@@ -9,6 +9,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
+import android.view.Gravity;
+import android.widget.TextView;
 
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.data.StatsContract;
@@ -93,16 +95,23 @@ public class EndOfGameDialog extends DialogFragment {
                 .setPositiveButton(R.string.end_msg, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         onButtonPressed(true);
+                        if(dialog != null) {
+                            dialog.dismiss();
+                        }
                     }
                 })
                 .setNegativeButton(R.string.undo, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         onButtonPressed(false);
+                        if(dialog != null) {
+                            dialog.dismiss();
+                        }
                     }
                 })
                 .setCancelable(false)
                 .create();
         alertDialog.setCanceledOnTouchOutside(false);
+        alertDialog.show();
         return alertDialog;
     }
 }

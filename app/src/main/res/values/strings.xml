@@ -160,4 +160,5 @@
     <string name="player_edit">Player:</string>
     <string name="open_stat_manager">Open Stat Manager</string>
     <string name="edit">Edit</string>
+    <string name="close_stat_manager">Close Stat Manager</string>
 </resources>

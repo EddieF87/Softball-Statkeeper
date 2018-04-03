@@ -59,7 +59,8 @@
         app:layout_constraintBottom_toTopOf="@+id/btn_start_adder"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/team_header">
+        app:layout_constraintTop_toBottomOf="@+id/team_header"
+        >
 
 
         <HorizontalScrollView
@@ -72,7 +73,8 @@
             android:layout_marginTop="8dp"
             android:background="@drawable/bg_white"
             android:scrollbarFadeDuration="500"
-            android:padding="6dp">
+            android:padding="6dp"
+            android:elevation="8dp">
 
             <LinearLayout
                 android:layout_width="wrap_content"

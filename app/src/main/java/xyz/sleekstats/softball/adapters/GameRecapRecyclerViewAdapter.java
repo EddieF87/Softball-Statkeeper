@@ -42,9 +42,12 @@ public class GameRecapRecyclerViewAdapter extends RecyclerView.Adapter<GameRecap
 
     @Override
     public void onBindViewHolder(RecapViewHolder holder, int position) {
+
         GameRecap gameRecap = recapList.get(position);
+
         final long gameID = gameRecap.getGameID();
         String dateString = DateFormat.getDateInstance(DateFormat.DATE_FIELD).format(gameID);
+        holder.mDateTextView.setText(dateString);
 
         final String awayID = gameRecap.getAwayID();
         final String awayTeamName;
@@ -64,10 +67,11 @@ public class GameRecapRecyclerViewAdapter extends RecyclerView.Adapter<GameRecap
 
         final int awayRuns = gameRecap.getAwayRuns();
         final int homeRuns = gameRecap.getHomeRuns();
-        String gameString = dateString + "   "
-                + awayTeamName + " " + awayRuns + " @ "
+
+        String gameString = awayTeamName + " " + awayRuns + " @ "
                 + homeTeamName + " " + homeRuns;
-        holder.mTextView.setText(gameString);
+        holder.mGameTextView.setText(gameString);
+
         int local = gameRecap.getLocal();
         if(local == 1) {
             holder.mImageView.setOnClickListener(new View.OnClickListener() {
@@ -115,14 +119,16 @@ public class GameRecapRecyclerViewAdapter extends RecyclerView.Adapter<GameRecap
 
     static class RecapViewHolder extends RecyclerView.ViewHolder {
         final FrameLayout mFrameLayout;
-        final TextView mTextView;
+        final TextView mGameTextView;
+        final TextView mDateTextView;
         final ImageView mImageView;
 
         private RecapViewHolder(View itemView) {
             super(itemView);
             mFrameLayout = (FrameLayout) itemView;
-            mTextView = mFrameLayout.findViewById(R.id.game_text);
+            mGameTextView = mFrameLayout.findViewById(R.id.game_text);
             mImageView = mFrameLayout.findViewById(R.id.img_view_game);
+            mDateTextView = mFrameLayout.findViewById(R.id.date_text);
         }
     }
 }

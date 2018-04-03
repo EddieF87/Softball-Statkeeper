@@ -46,37 +46,39 @@ public class FireTaskLoader extends android.support.v4.content.AsyncTaskLoader<Q
                 .build();
 
         FirebaseFirestore firestore;
+        firestore = FirebaseFirestore.getInstance();
         try {
-            firestore = FirebaseFirestore.getInstance();
             firestore.setFirestoreSettings(settings);
         } catch (Exception e) {
             Log.e("zztop", e.toString());
-            return null;
         }
 
-        Task<QuerySnapshot> task = firestore.collection(LEAGUE_COLLECTION)
+        Task<QuerySnapshot> task;
+        try {
+            task = firestore.collection(LEAGUE_COLLECTION)
                 .whereLessThan(userId, 99)
                 .get();
-
-        try {
             Tasks.await(task);
+
+            if(task.isSuccessful()) {
+                if(isLoadInBackgroundCanceled()) {
+                    return null;
+                }
+                return task.getResult();
+            } else {
+                return null;
+            }
+
         } catch (ExecutionException e) {
             e.printStackTrace();
+
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 //
 //        while (!task.isComplete()) {
 //        }
-
-        if(task.isSuccessful()) {
-            if(isLoadInBackgroundCanceled()) {
-                return null;
-            }
-            return task.getResult();
-        } else {
-            return null;
-        }
+        return null;
     }
 
     @Override

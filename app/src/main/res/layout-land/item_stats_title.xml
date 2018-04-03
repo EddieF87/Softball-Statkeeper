@@ -16,22 +16,18 @@
         android:maxLines="1"
         style="@style/StatsTitleStyle"
         android:paddingEnd="10dp"
-        android:paddingLeft="8dp"
-        android:paddingRight="10dp"
         android:paddingStart="8dp"
         android:text="@string/name"
         android:textAlignment="textStart"
         android:textStyle="bold"
         android:background="@color/colorPrimary"
-        android:textColor="#FFFFFF"/>
+        android:textColor="@color/colorDefault"/>
 
     <TextView
         android:id="@+id/team_abv_title"
         style="@style/StatsTitleStyle"
         android:layout_width="50dp"
-        android:paddingRight="4dp"
         android:paddingEnd="4dp"
-        android:paddingLeft="0dp"
         android:paddingStart="0dp"
         android:text="@string/team"
         android:visibility="gone"/>

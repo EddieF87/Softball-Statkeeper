@@ -100,9 +100,9 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
             android:background="@drawable/bg_white"
-
             android:padding="6dp"
-            android:scrollbarFadeDuration="500">
+            android:scrollbarFadeDuration="500"
+            android:elevation="8dp">
 
             <LinearLayout
                 android:layout_width="wrap_content"

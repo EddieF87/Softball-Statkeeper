@@ -16,7 +16,6 @@
         android:gravity="center"
         android:maxLines="1"
         android:orientation="horizontal"
-        android:textColor="@color/colorPrimary"
         android:textSize="24sp"
         android:textStyle="bold"
         tools:text="Purptopes 2    Young Bucks 1"
@@ -28,9 +27,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:background="@drawable/bg_white"
-
-        android:paddingLeft="24dp"
-        android:paddingRight="0dp"
         android:paddingStart="24dp"
         android:paddingEnd="0dp"
         android:paddingBottom="8dp"
@@ -40,7 +36,6 @@
             android:id="@+id/top_team"
             android:layout_width="wrap_content"
             android:layout_height="30dp"
-            android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_marginTop="30dp"
             android:singleLine="true"
@@ -49,9 +44,11 @@
 
         <TextView
             android:id="@+id/bottom_team"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="30dp"
             android:layout_below="@id/top_team"
+            android:layout_alignParentStart="true"
+            android:layout_toStartOf="@id/boxscore_grid"
             android:singleLine="true"
             android:textSize="16sp"
             android:textStyle="bold" />
@@ -61,12 +58,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="12dp"
             android:layout_toEndOf="@id/top_team"
-            android:layout_toRightOf="@id/top_team"
             android:layout_toStartOf="@id/boxscore_total"
-            android:layout_toLeftOf="@id/boxscore_total"
             android:layout_marginStart="30dp"
             android:layout_marginEnd="12dp" />
 
@@ -75,8 +68,7 @@
             layout="@layout/item_boxscore_score"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true" />
+            android:layout_alignParentEnd="true" />
     </RelativeLayout>
 
     <LinearLayout

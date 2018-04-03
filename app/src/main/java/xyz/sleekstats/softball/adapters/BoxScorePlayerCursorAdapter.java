@@ -50,6 +50,8 @@ public class BoxScorePlayerCursorAdapter extends CursorAdapter {
 
         if(cursor.getPosition() % 2 == 0) {
             view.setBackgroundColor(ContextCompat.getColor(context, R.color.colorPrimaryLight));
+        } else {
+            view.setBackground(null);
         }
         String name;
         if(cursorKey == KEY_CURRENT) {
@@ -102,5 +104,15 @@ public class BoxScorePlayerCursorAdapter extends CursorAdapter {
         tplV.setText(String.valueOf(p3b));
         sfV.setText(String.valueOf(pSF));
         outV.setText(String.valueOf(pOuts));
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
     }
 }

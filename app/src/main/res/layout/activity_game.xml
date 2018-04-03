@@ -146,6 +146,21 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <include
+            android:id="@+id/alternate_team_display"
+            layout="@layout/other_team_display"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@+id/radio_group_results"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/sb_table" />
+
     </android.support.constraint.ConstraintLayout>
 
     <android.support.design.widget.NavigationView
@@ -164,19 +179,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
-                android:textSize="32sp"
+                android:textSize="18sp"
                 android:textStyle="bold"
                 android:paddingBottom="8dp"
                 android:paddingTop="8dp"
-                android:layout_marginTop="8dp"
-                android:background="@color/colorAccent"
-                android:textColor="#FFFFFF"
-                android:drawableRight="@drawable/ic_reorder_white_500_24dp"
-                android:paddingRight="4dp"
+                android:background="@drawable/custom_radio_button_bg"
+                android:textColor="@color/colorAccent"
+                android:drawableEnd="@android:drawable/ic_menu_edit"
+                android:drawableTint="@color/colorPrimary"
                 android:paddingEnd="4dp"
-                android:paddingLeft="0dp"
-                android:paddingStart="0dp"
-                android:drawableEnd="@drawable/ic_reorder_white_500_24dp" />
+                android:paddingStart="4dp"          />
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/away_lineup"
@@ -190,18 +202,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
-                android:textSize="32sp"
+                android:textSize="18sp"
                 android:textStyle="bold"
                 android:paddingBottom="8dp"
                 android:paddingTop="8dp"
-                android:background="@color/colorAccent"
-                android:textColor="#FFFFFF"
-                android:drawableRight="@drawable/ic_reorder_white_500_24dp"
-                android:paddingRight="4dp"
-                android:drawableEnd="@drawable/ic_reorder_white_500_24dp"
+                android:background="@drawable/custom_radio_button_bg"
+                android:textColor="@color/colorAccent"
+                android:drawableEnd="@android:drawable/ic_menu_edit"
+                android:drawableTint="@color/colorAccent"
                 android:paddingEnd="4dp"
-                android:paddingLeft="0dp"
-                android:paddingStart="0dp" />
+                android:paddingStart="4dp" />
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/home_lineup"

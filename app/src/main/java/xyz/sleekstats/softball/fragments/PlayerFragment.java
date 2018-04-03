@@ -640,6 +640,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 return true;
             case R.id.action_player_mgr:
                 shuffleMgrView();
+                updateMenuTitle(item);
                 return true;
             case R.id.action_export_stats:
                 if (mListener != null) {
@@ -651,6 +652,14 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         return super.
 
                 onOptionsItemSelected(item);
+    }
+
+    private void updateMenuTitle(MenuItem menuItem) {
+        if (isMgrView) {
+            menuItem.setTitle(R.string.close_stat_manager);
+        } else {
+            menuItem.setTitle(R.string.open_stat_manager);
+        }
     }
 
 
@@ -665,16 +674,17 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
 
         if (levelAuthorized(UsersActivity.LEVEL_ADMIN)) {
             menu.findItem(R.id.action_delete_player).setVisible(true);
+            menu.findItem(R.id.action_player_mgr).setVisible(true);
         }
+
         if (mSelectionType != MainPageSelection.TYPE_TEAM) {
             menu.findItem(R.id.action_change_team).setVisible(true);
         }
 
         if (mSelectionType == MainPageSelection.TYPE_PLAYER) {
-            menu.findItem(R.id.action_export_stats).setVisible(true);
             menu.findItem(R.id.action_delete_player).setVisible(false);
             menu.findItem(R.id.action_change_gender).setVisible(false);
-            menu.findItem(R.id.action_change_gender).setVisible(false);
+            menu.findItem(R.id.action_player_mgr).setVisible(false);
         }
     }
 

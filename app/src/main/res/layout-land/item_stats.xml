@@ -23,7 +23,6 @@
         android:textAlignment="textStart"
         android:textSize="18sp"
         android:textStyle="bold"
-        android:textColor="@color/colorPrimaryDark"
         tools:text="DFFDFDFDF"
         tools:targetApi="o" />
 

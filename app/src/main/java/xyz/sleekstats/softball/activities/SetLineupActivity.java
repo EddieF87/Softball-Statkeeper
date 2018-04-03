@@ -1,7 +1,9 @@
 package xyz.sleekstats.softball.activities;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.support.v4.app.Fragment;
@@ -21,6 +23,8 @@ import xyz.sleekstats.softball.objects.Player;
 import java.util.ArrayList;
 import java.util.List;
 
+import static xyz.sleekstats.softball.activities.GameActivity.KEY_GENDERSORT;
+
 
 public class SetLineupActivity extends SingleFragmentActivity
         implements AddNewPlayersDialog.OnListFragmentInteractionListener,
@@ -28,27 +32,28 @@ public class SetLineupActivity extends SingleFragmentActivity
 
     private LineupFragment lineupFragment;
     private String mSelectionID;
+    private int mType;
+    private String mTeamID;
+    private boolean mInGame;
 
     @Override
     protected Fragment createFragment() {
         Bundle args = getIntent().getExtras();
         String teamName = null;
-        String teamID = null;
-        boolean inGame = false;
 
         if (args != null) {
             teamName = args.getString("team_name");
-            teamID = args.getString("team_id");
-            inGame = args.getBoolean("ingame");
+            mTeamID = args.getString("team_id");
+            mInGame = args.getBoolean("ingame");
         } else {
             finish();
         }
         try {
             MyApp myApp = (MyApp) getApplicationContext();
             MainPageSelection mainPageSelection = myApp.getCurrentSelection();
-            int type = mainPageSelection.getType();
+            mType = mainPageSelection.getType();
             mSelectionID = mainPageSelection.getId();
-            lineupFragment = LineupFragment.newInstance(mSelectionID, type, teamName, teamID, inGame);
+            lineupFragment = LineupFragment.newInstance(mSelectionID, mType, teamName, mTeamID, mInGame);
         } catch (Exception e) {
             Intent intent = new Intent(SetLineupActivity.this, MainActivity.class);
             startActivity(intent);
@@ -101,6 +106,51 @@ public class SetLineupActivity extends SingleFragmentActivity
             lineupFragment.changeColorsRV(genderSettingsOn);
         }
         setResult(RESULT_OK);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        if(!mInGame){return;}
+        Intent intent;
+        SharedPreferences gamePreferences = getSharedPreferences(mSelectionID + StatsEntry.GAME, Context.MODE_PRIVATE);
+
+        SharedPreferences.Editor editor = gamePreferences.edit();
+        if (mType == MainPageSelection.TYPE_LEAGUE) {
+            String awayTeam = gamePreferences.getString("keyAwayTeam", null);
+            String homeTeam = gamePreferences.getString("keyHomeTeam", null);
+            int sortArgument = gamePreferences.getInt(KEY_GENDERSORT, 0);
+
+            switch (sortArgument) {
+                case 3:
+                    if (mTeamID.equals(awayTeam)) {
+                        sortArgument = 2;
+                    } else if (mTeamID.equals(homeTeam)) {
+                        sortArgument = 1;
+                    }
+                    break;
+
+                case 2:
+                    if (mTeamID.equals(homeTeam)) {
+                        sortArgument = 0;
+                    }
+                    break;
+
+                case 1:
+                    if (mTeamID.equals(awayTeam)) {
+                        sortArgument = 0;
+                    }
+                    break;
+            }
+
+            intent = new Intent(SetLineupActivity.this, LeagueGameActivity.class);
+            editor.putInt(KEY_GENDERSORT, sortArgument);
+        } else {
+            intent = new Intent(SetLineupActivity.this, TeamGameActivity.class);
+            editor.putBoolean(KEY_GENDERSORT, false);
+        }
+        editor.apply();
+        startActivity(intent);
     }
 }
 

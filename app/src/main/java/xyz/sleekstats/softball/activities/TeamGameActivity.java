@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ImageView;
@@ -16,7 +17,6 @@ import android.widget.TextView;
 
 import xyz.sleekstats.softball.MyApp;
 import xyz.sleekstats.softball.R;
-import xyz.sleekstats.softball.data.FirestoreHelper;
 import xyz.sleekstats.softball.adapters.MatchupAdapter;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
@@ -87,6 +87,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         inningNumber = gamePreferences.getInt(KEY_INNINGNUMBER, 2);
         totalInnings = gamePreferences.getInt(KEY_TOTALINNINGS, 7);
         myTeamIndex = gamePreferences.getInt(KEY_MYTEAMINDEX, 0);
+        Log.d(TAG, "myTeamIndex = gamePref  " + myTeamIndex);
         undoRedo = gamePreferences.getBoolean(KEY_UNDOREDO, false);
         redoEndsGame = gamePreferences.getBoolean(KEY_REDOENDSGAME, false);
 
@@ -99,7 +100,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
 
     @Override
     protected void setCustomViews() {
-        setContentView(R.layout.activity_team_game);
+        setContentView(R.layout.activity_game);
 
         SharedPreferences settingsPreferences =
                 getSharedPreferences(selectionID + StatsEntry.SETTINGS, MODE_PRIVATE);
@@ -153,13 +154,15 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
             }
         });
 
-        mRecyclerView = findViewById(R.id.team_lineup);
+        findViewById(R.id.home_text).setVisibility(View.GONE);
+        findViewById(R.id.home_lineup).setVisibility(View.GONE);
+        mRecyclerView = findViewById(R.id.away_lineup);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this,
                 LinearLayoutManager.VERTICAL, false));
         mLineupAdapter = new MatchupAdapter(myTeam, this, genderSorter);
         mRecyclerView.setAdapter(mLineupAdapter);
 
-        TextView teamText = findViewById(R.id.team_text);
+        TextView teamText = findViewById(R.id.away_text);
         teamText.setText(myTeamName);
         teamText.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -206,6 +209,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         values.put(StatsEntry.COLUMN_INNING_CHANGED, 0);
         values.put(StatsEntry.INNINGS, inningNumber);
         getContentResolver().insert(StatsEntry.CONTENT_URI_GAMELOG, values);
+        Log.d(TAG, gameLogIndex +  " " + values.toString());
 
         String outsText = "0 outs";
         outsDisplay.setText(outsText);
@@ -235,7 +239,10 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         homeTeamRuns = currentBaseLogStart.getHomeTeamRuns();
         gameOuts = currentBaseLogStart.getOutCount();
         currentBatter = currentBaseLogStart.getBatter();
-        if (currentBatter != myTeam.get(myTeamIndex)) {
+        if(isAlternate) {
+            int rrri = 0;
+        }
+        if (!isAlternate && currentBatter != myTeam.get(myTeamIndex)) {
             currentBatter = myTeam.get(myTeamIndex);
             ContentValues values = new ContentValues();
             values.put(StatsEntry.COLUMN_ONDECK, currentBatter.getFirestoreID());
@@ -343,6 +350,8 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         } else {
             if (finalInning && homeTeamRuns > awayTeamRuns) {
                 if (!redoEndsGame) {
+                    redoEndsGame = true;
+                    increaseLineupIndex();
                     showFinishGameDialog();
                 }
                 return;
@@ -466,13 +475,25 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         return isHome;
     }
 
+    private static final String TAG = "UNDOREDOFIX";
+
     @Override
     protected void undoPlay() {
         String undoResult;
         if (gameLogIndex > 0) {
             undoResult = getUndoPlayResult();
+            String ondeckbt;
+            if(currentBatter == null) {
+                ondeckbt = "null";
+            } else {
+                ondeckbt = currentBatter.getFirestoreID();
+            }
+            Log.d(TAG, gameLogIndex + " UNDO=" + undoResult + "   " + StatsEntry.COLUMN_BATTER
+                    + "= " + tempBatter + "  " + StatsEntry.COLUMN_ONDECK + "  " + ondeckbt +
+                    "   innchanged?" + (inningChanged == 1));
             if (inningChanged == 1) {
                 inningNumber--;
+                chooseDisplay();
                 setInningDisplay();
             }
             isAlternate = (StatsContract.getColumnString(gameCursor, StatsEntry.COLUMN_ONDECK) == null);
@@ -484,16 +505,30 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
 
         resetBases(currentBaseLogStart);
         if (isAlternate) {
+            int pos = gameCursor.getPosition();
+            Log.d(TAG + "zz", "gameCursor " + pos +  "   " + "   gameLogIndex" + gameLogIndex);
+            Log.d(TAG + "zz", "decreaseLineupIndex1");
             decreaseLineupIndex();
             chooseDisplay();
             setInningDisplay();
         } else {
+            int pos = gameCursor.getPosition();
+            Log.d(TAG + "zz", "gameCursor " + pos +  "   " + "   gameLogIndex" + gameLogIndex);
+            String alternateString = StatsContract.getColumnString(gameCursor, StatsEntry.COLUMN_ONDECK);
+            if(alternateString != null) {
+                Log.d(TAG + "zz", "ondeck = " + alternateString);
+            } else {
+                Log.d(TAG + "zz", "ondeck = null");
+            }
             isAlternate = (StatsContract.getColumnString(gameCursor, StatsEntry.COLUMN_ONDECK) == null);
+            Log.d(TAG + "zz", "isAlternate = " + isAlternate);
+
             if (isAlternate) {
                 chooseDisplay();
                 setInningDisplay();
                 return;
             }
+            Log.d(TAG + "zz", "decreaseLineupIndex2");
             decreaseLineupIndex();
         }
         updatePlayerStats(undoResult, -1);
@@ -502,11 +537,21 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
     @Override
     protected void redoPlay() {
         String redoResult = getRedoResult();
-        if(redoResult == null & !isAlternate) {
+        if(redoResult == null && !isAlternate) {
             return;
         }
+        String ondeckbt;
+        if(currentBatter == null) {
+            ondeckbt = "null";
+        } else {
+            ondeckbt = currentBatter.getFirestoreID();
+        }
+        Log.d(TAG, gameLogIndex + " REDO=" + redoResult + "   " + StatsEntry.COLUMN_BATTER
+                + "= " + tempBatter + "  " + StatsEntry.COLUMN_ONDECK + "  " + ondeckbt +
+                "   innchanged?" + (inningChanged == 1));
         if (inningChanged == 1) {
             inningNumber++;
+            chooseDisplay();
             setInningDisplay();
             inningChanged = 0;
         }
@@ -549,6 +594,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         if (myTeamIndex >= myTeam.size()) {
             myTeamIndex = 0;
         }
+        Log.d(TAG, "myTeamIndex +   " + myTeamIndex);
     }
 
     private void decreaseLineupIndex() {
@@ -556,6 +602,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         if (myTeamIndex < 0) {
             myTeamIndex = myTeam.size() - 1;
         }
+        Log.d(TAG, "myTeamIndex -   " + myTeamIndex);
     }
 
     @Override

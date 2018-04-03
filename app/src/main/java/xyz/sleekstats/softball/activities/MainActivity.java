@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
@@ -60,6 +61,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -108,6 +110,7 @@ public class MainActivity extends AppCompatActivity
     private AcceptInviteDialog mAcceptInviteDialog;
     private boolean loadingFinished;
 
+    private final MyHandler mHandler = new MyHandler(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,9 +142,14 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        authenticateUser();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
-        authenticateUser();
         mErrorView.setVisibility(View.GONE);
     }
 
@@ -376,13 +384,7 @@ public class MainActivity extends AppCompatActivity
         }
         try {
             if (!mInviteList.isEmpty()) {
-                Handler handler = new Handler();
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        openInviteDialog();
-                    }
-                });
+                mHandler.post(openInviteRunnable);
             }
         } catch (Exception e) {
         }
@@ -774,19 +776,13 @@ public class MainActivity extends AppCompatActivity
         mFireTaskLoader = new FireTaskLoader(this);
         mProgressBar.setVisibility(View.VISIBLE);
         mErrorView.setVisibility(View.GONE);
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                continueLoadDialog();
-            }
-        }, 20000);
+        mHandler.postDelayed(continueLoadRunnable, 20000);
         return mFireTaskLoader;
     }
 
 
 
-    private void continueLoadDialog() {
+    private void openContinueLoadDialog() {
         if (loadingFinished || mAcceptInviteDialog != null) {
             return;
         }
@@ -801,16 +797,7 @@ public class MainActivity extends AppCompatActivity
         loadingFinished = true;
 
         if (mContinueLoadDialogFragment != null) {
-            Handler handler = new Handler();
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    if (mContinueLoadDialogFragment != null) {
-                        mContinueLoadDialogFragment.dismissIfShowing();
-                        mContinueLoadDialogFragment = null;
-                    }
-                }
-            });
+            mHandler.post(dismissContinueLoadRunnable);
         }
 
         if(mInviteList != null && mSelectionList != null) {
@@ -1157,5 +1144,50 @@ public class MainActivity extends AppCompatActivity
             addSelection(name, type, level, id);
         }
         mAcceptInviteDialog = null;
+    }
+
+    private static class MyHandler extends Handler {
+        private final WeakReference<MainActivity> mActivity;
+
+        MyHandler(MainActivity activity) {
+            mActivity = new WeakReference<MainActivity>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            MainActivity activity = mActivity.get();
+            if (activity != null) {
+                super.handleMessage(msg);
+            }
+        }
+    }
+
+    private Runnable openInviteRunnable = new Runnable() {
+        public void run() {
+            openInviteDialog();
+        }
+    };
+
+    private Runnable continueLoadRunnable = new Runnable() {
+        public void run() {
+            openContinueLoadDialog();
+        }
+    };
+
+    private Runnable dismissContinueLoadRunnable = new Runnable() {
+        public void run() {
+            if (mContinueLoadDialogFragment != null) {
+                mContinueLoadDialogFragment.dismissIfShowing();
+                mContinueLoadDialogFragment = null;
+            }
+        }
+    };
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mHandler.removeCallbacks(openInviteRunnable);
+        mHandler.removeCallbacks(continueLoadRunnable);
+        mHandler.removeCallbacks(dismissContinueLoadRunnable);
     }
 }

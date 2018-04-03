@@ -30,7 +30,7 @@
     <item
         android:id="@+id/action_player_mgr"
         android:title="@string/open_stat_manager"
-        android:visible="true"
+        android:visible="false"
         app:showAsAction="never" />
 
     <item

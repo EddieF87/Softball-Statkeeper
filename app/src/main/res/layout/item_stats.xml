@@ -21,7 +21,6 @@
         android:paddingStart="8dp"
         android:textAlignment="textStart"
         android:textSize="18sp"
-        android:textColor="@color/colorPrimaryDark"
         android:textStyle="bold"
         tools:text="DFFDFDFDF"
         tools:targetApi="o" />

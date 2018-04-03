@@ -33,17 +33,14 @@ public class PlayRecapFragment extends Fragment implements LoaderManager.LoaderC
     private PreviousPlaysAdapter mAdapter;
     private List<PreviousPlay> mPreviousPlays;
     private Map<String, String> mPlayerNames;
-    private String selectionID;
     private String awayTeamID;
     private String homeTeamID;
     private int inningNumber;
     private static final int PLAYER_NAMES_LOADER = 5;
     private static final int PLAYS_LOADER = 6;
 
-    public static PlayRecapFragment newInstance(String selectionID, String awayTeamID,
-                                                String homeTeamID, int inningNumber) {
+    public static PlayRecapFragment newInstance(String awayTeamID, String homeTeamID, int inningNumber) {
         Bundle args = new Bundle();
-        args.putString("selectionID", selectionID);
         args.putString("awayTeamID", awayTeamID);
         args.putString("homeTeamID", homeTeamID);
         args.putInt("inningNumber", inningNumber);
@@ -56,7 +53,6 @@ public class PlayRecapFragment extends Fragment implements LoaderManager.LoaderC
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
-        this.selectionID = args.getString("selectionID");
         this.awayTeamID = args.getString("awayTeamID", null);
         this.homeTeamID = args.getString("homeTeamID", null);
         this.inningNumber = args.getInt("inningNumber", 0);
@@ -92,8 +88,13 @@ public class PlayRecapFragment extends Fragment implements LoaderManager.LoaderC
         switch (id) {
             case PLAYER_NAMES_LOADER:
                 uri = StatsEntry.CONTENT_URI_PLAYERS;
-                selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=? OR " + StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=?";
-                selectionArgs = new String[]{awayTeamID, homeTeamID};
+                if(homeTeamID == null) {
+                    selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=?";
+                    selectionArgs = new String[]{awayTeamID};
+                } else {
+                    selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=? OR " + StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=?";
+                    selectionArgs = new String[]{awayTeamID, homeTeamID};
+                }
                 projection = new String[]{StatsEntry.COLUMN_FIRESTORE_ID, StatsEntry.COLUMN_NAME};
                 sortOrder = null;
                 break;
@@ -141,8 +142,13 @@ public class PlayRecapFragment extends Fragment implements LoaderManager.LoaderC
                 }
                 while (data.moveToPrevious());
                 mPreviousPlays.remove(mPreviousPlays.size() - 1);
-                PreviousPlay previousPlay = mPreviousPlays.get(0);
-                previousPlay.setInning(inningNumber + 1);
+
+                if(!mPreviousPlays.isEmpty()) {
+                    PreviousPlay previousPlay = mPreviousPlays.get(0);
+                    if (previousPlay.getInning() == 0) {
+                        previousPlay.setInning(inningNumber + 1);
+                    }
+                }
 
                 if (mAdapter == null) {
                     mAdapter = new PreviousPlaysAdapter(mPreviousPlays, mPlayerNames);

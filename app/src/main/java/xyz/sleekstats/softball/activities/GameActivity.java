@@ -58,6 +58,7 @@ public abstract class GameActivity extends AppCompatActivity
         GameSettingsDialog.OnFragmentInteractionListener {
 
     Cursor gameCursor;
+    private static final String TAG = "UNDOREDOFIX";
 
     private TextView scoreboard;
     TextView nowBatting;
@@ -146,6 +147,7 @@ public abstract class GameActivity extends AppCompatActivity
         setCustomViews();
         setViews();
 
+        Log.d(TAG, "ONCREATE");
         gameCursor = getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG, null,
                 null, null, null);
         if (gameCursor.moveToFirst()) {
@@ -463,6 +465,7 @@ public abstract class GameActivity extends AppCompatActivity
         }
         if (gameOuts >= 3) {
             if (!isTopOfInning() && finalInning && awayTeamRuns > homeTeamRuns) {
+                increaseLineupIndex();
                 showFinishGameDialog();
                 return;
             } else {
@@ -508,14 +511,15 @@ public abstract class GameActivity extends AppCompatActivity
         values.put(StatsEntry.COLUMN_TEAM, team);
         values.put(StatsEntry.COLUMN_BATTER, previousBatterID);
         values.put(StatsEntry.COLUMN_ONDECK, onDeckID);
+        values.put(StatsEntry.COLUMN_INNING_CHANGED, inningChanged);
+        values.put(StatsEntry.INNINGS, inningNumber);
+        values.put(StatsEntry.COLUMN_OUT, gameOuts);
+        Log.d(TAG, gameLogIndex +  " " + values.toString());
         values.put(StatsEntry.COLUMN_1B, first);
         values.put(StatsEntry.COLUMN_2B, second);
         values.put(StatsEntry.COLUMN_3B, third);
-        values.put(StatsEntry.COLUMN_OUT, gameOuts);
         values.put(StatsEntry.COLUMN_AWAY_RUNS, awayTeamRuns);
         values.put(StatsEntry.COLUMN_HOME_RUNS, homeTeamRuns);
-        values.put(StatsEntry.COLUMN_INNING_CHANGED, inningChanged);
-        values.put(StatsEntry.INNINGS, inningNumber);
 
         for (int i = 0; i < currentRunsLog.size(); i++) {
             String player = currentRunsLog.get(i);

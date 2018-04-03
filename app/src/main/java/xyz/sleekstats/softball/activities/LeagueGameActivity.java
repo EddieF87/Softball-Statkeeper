@@ -12,7 +12,6 @@ import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -24,9 +23,7 @@ import android.widget.TextView;
 import xyz.sleekstats.softball.MyApp;
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.adapters.MatchupAdapter;
-import xyz.sleekstats.softball.data.FirestoreHelper;
 import xyz.sleekstats.softball.data.StatsContract;
-import xyz.sleekstats.softball.data.StatsDbHelper;
 import xyz.sleekstats.softball.data.TimeStampUpdater;
 import xyz.sleekstats.softball.objects.BaseLog;
 
@@ -42,6 +39,7 @@ import java.util.List;
  */
 public class LeagueGameActivity extends GameActivity {
 
+    private static final String TAG = "undoredofix";
     private List<Player> awayTeam;
     private List<Player> homeTeam;
     private String awayTeamID;
@@ -64,7 +62,7 @@ public class LeagueGameActivity extends GameActivity {
 
     @Override
     protected void setCustomViews() {
-        setContentView(R.layout.activity_lg_game);
+        setContentView(R.layout.activity_game);
 
         SharedPreferences gamePreferences = getSharedPreferences(selectionID + StatsEntry.GAME, MODE_PRIVATE);
         totalInnings = gamePreferences.getInt(KEY_TOTALINNINGS, 7);
@@ -194,6 +192,7 @@ public class LeagueGameActivity extends GameActivity {
         values.put(StatsEntry.COLUMN_INNING_CHANGED, 0);
         values.put(StatsEntry.INNINGS, inningNumber);
         getContentResolver().insert(StatsEntry.CONTENT_URI_GAMELOG, values);
+        Log.d(TAG, gameLogIndex +  " " + values.toString());
 
         setLineupRVPosition(false);
 
@@ -368,6 +367,7 @@ public class LeagueGameActivity extends GameActivity {
         if (currentTeam == awayTeam) {
             if (finalInning && homeTeamRuns > awayTeamRuns) {
                 redoEndsGame = true;
+
                 showFinishGameDialog();
                 return;
             }
@@ -407,6 +407,15 @@ public class LeagueGameActivity extends GameActivity {
         String undoResult;
         if (gameLogIndex > 0) {
             undoResult = getUndoPlayResult();
+            String ondeckbt;
+            if(currentBatter == null) {
+                ondeckbt = "null";
+            } else {
+                ondeckbt = currentBatter.getFirestoreID();
+            }
+            Log.d(TAG, gameLogIndex + " UNDO=" + undoResult + "   " + StatsEntry.COLUMN_BATTER
+                    + "= " + tempBatter + "  " + StatsEntry.COLUMN_ONDECK + "  " + ondeckbt +
+                    "   innchanged?" + (inningChanged == 1));
             if (inningChanged == 1) {
                 inningNumber--;
                 setInningDisplay();
@@ -441,6 +450,15 @@ public class LeagueGameActivity extends GameActivity {
         if(redoResult == null) {
             return;
         }
+        String ondeckbt;
+        if(currentBatter == null) {
+            ondeckbt = "null";
+        } else {
+            ondeckbt = currentBatter.getFirestoreID();
+        }
+        Log.d(TAG, gameLogIndex + " REDO=" + redoResult + "   " + StatsEntry.COLUMN_BATTER
+                + "= " + tempBatter + "  " + StatsEntry.COLUMN_ONDECK + "  " + ondeckbt +
+                "   innchanged?" + (inningChanged == 1));
         currentTeam = currentBaseLogStart.getTeam();
         if (inningChanged == 1) {
             inningNumber++;

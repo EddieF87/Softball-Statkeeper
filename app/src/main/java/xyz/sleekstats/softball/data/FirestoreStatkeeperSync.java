@@ -269,11 +269,11 @@ public class FirestoreStatkeeperSync implements Parcelable {
                         if (task.isSuccessful()) {
 
                             QuerySnapshot querySnapshot = task.getResult();
-                            final int numberOfBoxscores = querySnapshot.size();
+//                            final int numberOfBoxscores = querySnapshot.size();
 //                            boxscoresofar = 0;
-                            if (mListener != null) {
-                                mListener.onSyncStart(numberOfBoxscores, false);
-                            }
+//                            if (mListener != null) {
+//                                mListener.onSyncStart(numberOfBoxscores, false);
+//                            }
                             for (DocumentSnapshot document : querySnapshot) {
                                 String gameIDString = document.getId();
 
@@ -299,9 +299,9 @@ public class FirestoreStatkeeperSync implements Parcelable {
                                 }
                                 cursor.close();
 
-                                if (mListener != null) {
-                                    mListener.onSyncUpdate(false);
-                                }
+//                                if (mListener != null) {
+//                                    mListener.onSyncUpdate(false);
+//                                }
                             }
                         } else {
                             if (mListener != null) {

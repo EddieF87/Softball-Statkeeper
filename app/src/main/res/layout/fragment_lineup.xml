@@ -18,7 +18,6 @@
         android:padding="4dp"
         android:text="x"
         android:textAlignment="center"
-        android:textColor="@color/colorPrimary"
         android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"

@@ -17,16 +17,21 @@ public class PreviousPlay {
     private int awayRuns;
     private int homeRuns;
     private int inning;
+    private int outs;
+    private String first;
+    private String second;
+    private String third;
 
-    public PreviousPlay(String play, String batter, boolean homeTeam, List<String> runsList, int awayRuns, int homeRuns, int inning) {
-        this.play = play;
-        this.batter = batter;
-        this.homeTeam = homeTeam;
-        this.runsList = runsList;
-        this.awayRuns = awayRuns;
-        this.homeRuns = homeRuns;
-        this.inning = inning;
-    }
+//    public PreviousPlay(String play, String batter, boolean homeTeam, List<String> runsList, int awayRuns, int homeRuns, int inning) {
+//        this.play = play;
+//        this.batter = batter;
+//        this.homeTeam = homeTeam;
+//        this.runsList = runsList;
+//        this.awayRuns = awayRuns;
+//        this.homeRuns = homeRuns;
+//        this.inning = inning;
+//    }
+
 
     public PreviousPlay(Cursor cursor) {
         this.play = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_PLAY);
@@ -54,7 +59,11 @@ public class PreviousPlay {
         this.homeRuns = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_HOME_RUNS);
         if (StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_INNING_CHANGED) == 1) {
             this.inning = StatsContract.getColumnInt(cursor, StatsEntry.INNINGS);
-        };
+        }
+        this.outs = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_OUT);
+        this.first = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_1B);
+        this.second = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_2B);
+        this.third = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_3B);
     }
 
     public String getPlay() {
@@ -111,5 +120,37 @@ public class PreviousPlay {
 
     public void setInning(int inning) {
         this.inning = inning;
+    }
+
+    public int getOuts() {
+        return outs;
+    }
+
+    public void setOuts(int outs) {
+        this.outs = outs;
+    }
+
+    public String getFirst() {
+        return first;
+    }
+
+    public void setFirst(String first) {
+        this.first = first;
+    }
+
+    public String getSecond() {
+        return second;
+    }
+
+    public void setSecond(String second) {
+        this.second = second;
+    }
+
+    public String getThird() {
+        return third;
+    }
+
+    public void setThird(String third) {
+        this.third = third;
     }
 }
