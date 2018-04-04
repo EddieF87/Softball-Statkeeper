@@ -442,6 +442,7 @@ public class LeagueGameActivity extends GameActivity {
 
         resetBases(currentBaseLogStart);
         updatePlayerStats(undoResult, -1);
+        setDisplays();
     }
 
     @Override
@@ -490,6 +491,7 @@ public class LeagueGameActivity extends GameActivity {
                 showFinishGameDialog();
             }
         }
+        setDisplays();
     }
 
     @Override

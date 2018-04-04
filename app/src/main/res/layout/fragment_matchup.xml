@@ -179,17 +179,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent">
 
-        <xyz.sleekstats.softball.views.VerticalTextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="2dp"
-            android:layout_marginTop="2dp"
-            android:layout_weight="5"
-            android:gravity="center"
-            android:maxLines="1"
-            android:rotation="180"
-            android:text="@string/bench"
-            android:textSize="18sp" />
+
 
         <TextView
             android:id="@+id/bench_away"
@@ -205,10 +195,17 @@
             android:textSize="12sp"
             tools:targetApi="o" />
 
-        <View
-            android:layout_width="4dp"
-            android:layout_height="match_parent"
-            android:background="@color/colorPrimary" />
+        <xyz.sleekstats.softball.views.VerticalTextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp"
+            android:layout_marginTop="2dp"
+            android:layout_weight="5"
+            android:gravity="center"
+            android:maxLines="1"
+            android:rotation="180"
+            android:text="@string/bench"
+            android:textSize="18sp" />
 
         <TextView
             android:id="@+id/bench_home"
@@ -223,11 +220,6 @@
             android:paddingTop="4dp"
             android:textSize="12sp"
             tools:targetApi="o" />
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="5" />
 
     </LinearLayout>
 

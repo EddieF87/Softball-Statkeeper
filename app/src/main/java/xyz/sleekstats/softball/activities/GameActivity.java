@@ -158,8 +158,7 @@ public abstract class GameActivity extends AppCompatActivity
                     deleteGameLogs();
                     highestIndex = gameLogIndex;
                     invalidateOptionsMenu();
-                    setUndoButton();
-                    setRedoButton();
+                    setUndoRedo();
                 }
             }
             resumeGame();
@@ -662,6 +661,7 @@ public abstract class GameActivity extends AppCompatActivity
 
     //sets the textview displays with updated player/game data
     void setDisplays() {
+        Log.d("pinkfloyd", "setDisplays");
 
         String playerFirestoreID = currentBatter.getFirestoreID();
 
@@ -713,8 +713,7 @@ public abstract class GameActivity extends AppCompatActivity
         runDisplay.setText(runDisplayText);
         batterDisplay.setVisibility(View.VISIBLE);
 
-        setUndoButton();
-        setRedoButton();
+        setUndoRedo();
         setScoreDisplay();
     }
 
@@ -829,10 +828,6 @@ public abstract class GameActivity extends AppCompatActivity
             }
         }
         cursor.close();
-        if (isTeamAlternate()) {
-            return;
-        }
-        setDisplays();
     }
 
     protected abstract boolean isTeamAlternate();
@@ -1401,6 +1396,11 @@ public abstract class GameActivity extends AppCompatActivity
 
     protected abstract void actionEditLineup();
 
+    void setUndoRedo(){
+        setUndoButton();
+        setRedoButton();
+    }
+
     void setUndoButton() {
         boolean undo = gameLogIndex > 0;
         undoButton.setClickable(undo);
@@ -1414,6 +1414,7 @@ public abstract class GameActivity extends AppCompatActivity
     void setRedoButton() {
         boolean redo = gameLogIndex < highestIndex;
         redoButton.setClickable(redo);
+        Log.d("phil", "redoButton.setClickable(" + redo + ")   gameLogIndex=" + gameLogIndex + "   highestIndex=" + highestIndex);
         if (redo) {
             redoButton.setAlpha(1f);
         } else {

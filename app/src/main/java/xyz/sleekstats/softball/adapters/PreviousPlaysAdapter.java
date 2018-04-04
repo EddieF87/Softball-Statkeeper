@@ -43,9 +43,8 @@ public class PreviousPlaysAdapter extends RecyclerView.Adapter<PreviousPlaysAdap
         int homeRuns = currentPlay.getHomeRuns();
         int inningNum = currentPlay.getInning();
 
-        if(position == mPreviousPlays.size() - 1) {
+        if (position == mPreviousPlays.size() - 1) {
             holder.mScoreTextView.setText("0 - 0");
-
         } else {
             PreviousPlay lastPlay = mPreviousPlays.get(position + 1);
             if (awayRuns != lastPlay.getAwayRuns() || homeRuns != lastPlay.getHomeRuns()) {
@@ -66,7 +65,7 @@ public class PreviousPlaysAdapter extends RecyclerView.Adapter<PreviousPlaysAdap
             holder.mInningTextView.setText(sb.toString());
             holder.mInningTextView.setVisibility(View.VISIBLE);
 
-            if(batter == null) {
+            if (batter == null) {
                 String otherTeamResult;
                 if (inningNum % 2 == 0) {
                     otherTeamResult = "Home Team scored " + homeRuns + " runs";
@@ -143,22 +142,28 @@ public class PreviousPlaysAdapter extends RecyclerView.Adapter<PreviousPlaysAdap
         }
         int outs = currentPlay.getOuts();
         String outsText;
-        try {
+        if (position == mPreviousPlays.size() - 1) {
+            outsText = outs + " outs";
+            holder.mOutsTextView.setText(outsText);
+        } else {
             PreviousPlay lastPlay = mPreviousPlays.get(position + 1);
             if (outs != lastPlay.getOuts()) {
                 outsText = outs + " outs";
                 holder.mOutsTextView.setText(outsText);
             }
-        } catch (Exception e) {
-            outsText = outs + " outs";
-            holder.mOutsTextView.setText(outsText);
-        }
-        boolean threeOuts = (
-                (currentPlay.isHomeTeam() && (inningNum % 2 == 1))
-                        || (!currentPlay.isHomeTeam() && (inningNum > 0 && inningNum % 2 == 0)));
-        if (threeOuts) {
-            outsText = 3 + " outs";
-            holder.mOutsTextView.setText(outsText);
+            boolean threeOuts = (
+                    (currentPlay.isHomeTeam() && (inningNum % 2 == 1))
+                            || (!currentPlay.isHomeTeam() && (inningNum > 0 && inningNum % 2 == 0)));
+            if(position != 0) {
+                PreviousPlay nextPlay = mPreviousPlays.get(position - 1);
+                if(nextPlay.getBatter() == null) {
+                    threeOuts = true;
+                }
+            }
+            if (threeOuts) {
+                outsText = 3 + " outs";
+                holder.mOutsTextView.setText(outsText);
+            }
         }
     }
 

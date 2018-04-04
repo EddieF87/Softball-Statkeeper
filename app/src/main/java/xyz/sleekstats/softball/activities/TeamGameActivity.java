@@ -114,7 +114,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         boolean sortArgument = false;
 
         if (args != null) {
-            if(args.containsKey(KEY_ISHOME)) {
+            if (args.containsKey(KEY_ISHOME)) {
                 isHome = args.getBoolean(KEY_ISHOME);
             } else {
                 isHome = gamePreferences.getBoolean(KEY_ISHOME, false);
@@ -209,7 +209,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         values.put(StatsEntry.COLUMN_INNING_CHANGED, 0);
         values.put(StatsEntry.INNINGS, inningNumber);
         getContentResolver().insert(StatsEntry.CONTENT_URI_GAMELOG, values);
-        Log.d(TAG, gameLogIndex +  " " + values.toString());
+        Log.d(TAG, gameLogIndex + " " + values.toString());
 
         String outsText = "0 outs";
         outsDisplay.setText(outsText);
@@ -239,7 +239,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         homeTeamRuns = currentBaseLogStart.getHomeTeamRuns();
         gameOuts = currentBaseLogStart.getOutCount();
         currentBatter = currentBaseLogStart.getBatter();
-        if(isAlternate) {
+        if (isAlternate) {
             int rrri = 0;
         }
         if (!isAlternate && currentBatter != myTeam.get(myTeamIndex)) {
@@ -298,6 +298,8 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
 
         if (!isAlternate) {
             setDisplays();
+        } else {
+            setUndoRedo();
         }
 
         clearTempState();
@@ -318,6 +320,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
 
     @Override
     protected void nextInning() {
+        Log.d("phil", "nextInning");
         gameOuts = 0;
         emptyBases();
 
@@ -338,6 +341,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
     }
 
     private void chooseDisplay() {
+        Log.d("phil", "chooseDisplay");
         isTop = (inningNumber % 2 == 0);
         if (isTop) {
             if (isHome) {
@@ -371,14 +375,15 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         View diamond = findViewById(R.id.diamond);
         View alternateTeamDisplay = findViewById(R.id.alternate_team_display);
         if (alternateDisplay) {
-            setUndoButton();
-            setRedoButton();
+            setUndoRedo();
             radioGroup.setVisibility(View.GONE);
             diamond.setVisibility(View.GONE);
             alternateTeamDisplay.setVisibility(View.VISIBLE);
             TextView otherTeamTitle = findViewById(R.id.other_team_title);
-            if (isHome) {otherTeamTitle.setText(awayTeamName);
-            } else {otherTeamTitle.setText(homeTeamName);
+            if (isHome) {
+                otherTeamTitle.setText(awayTeamName);
+            } else {
+                otherTeamTitle.setText(homeTeamName);
             }
             addOutButton.setEnabled(true);
             otherTeamOutsView = alternateTeamDisplay.findViewById(R.id.tv_outs);
@@ -483,7 +488,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         if (gameLogIndex > 0) {
             undoResult = getUndoPlayResult();
             String ondeckbt;
-            if(currentBatter == null) {
+            if (currentBatter == null) {
                 ondeckbt = "null";
             } else {
                 ondeckbt = currentBatter.getFirestoreID();
@@ -506,16 +511,16 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         resetBases(currentBaseLogStart);
         if (isAlternate) {
             int pos = gameCursor.getPosition();
-            Log.d(TAG + "zz", "gameCursor " + pos +  "   " + "   gameLogIndex" + gameLogIndex);
+            Log.d(TAG + "zz", "gameCursor " + pos + "   " + "   gameLogIndex" + gameLogIndex);
             Log.d(TAG + "zz", "decreaseLineupIndex1");
             decreaseLineupIndex();
             chooseDisplay();
             setInningDisplay();
         } else {
             int pos = gameCursor.getPosition();
-            Log.d(TAG + "zz", "gameCursor " + pos +  "   " + "   gameLogIndex" + gameLogIndex);
+            Log.d(TAG + "zz", "gameCursor " + pos + "   " + "   gameLogIndex" + gameLogIndex);
             String alternateString = StatsContract.getColumnString(gameCursor, StatsEntry.COLUMN_ONDECK);
-            if(alternateString != null) {
+            if (alternateString != null) {
                 Log.d(TAG + "zz", "ondeck = " + alternateString);
             } else {
                 Log.d(TAG + "zz", "ondeck = null");
@@ -532,16 +537,17 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
             decreaseLineupIndex();
         }
         updatePlayerStats(undoResult, -1);
+        setDisplays();
     }
 
     @Override
     protected void redoPlay() {
         String redoResult = getRedoResult();
-        if(redoResult == null && !isAlternate) {
+        if (redoResult == null && !isAlternate) {
             return;
         }
         String ondeckbt;
-        if(currentBatter == null) {
+        if (currentBatter == null) {
             ondeckbt = "null";
         } else {
             ondeckbt = currentBatter.getFirestoreID();
@@ -562,6 +568,10 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
             increaseLineupIndex();
             isAlternate = (currentBatter == null);
             updatePlayerStats(redoResult, 1);
+
+            if (!isAlternate && !(undoRedo && tempBatter == null)) {
+                setDisplays();
+            }
         }
         if (redoEndsGame) {
             if (gameCursor.moveToNext()) {
