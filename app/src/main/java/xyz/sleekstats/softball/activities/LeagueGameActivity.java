@@ -64,7 +64,7 @@ public class LeagueGameActivity extends GameActivity {
     protected void setCustomViews() {
         setContentView(R.layout.activity_game);
 
-        SharedPreferences gamePreferences = getSharedPreferences(selectionID + StatsEntry.GAME, MODE_PRIVATE);
+        SharedPreferences gamePreferences = getSharedPreferences(mSelectionID + StatsEntry.GAME, MODE_PRIVATE);
         totalInnings = gamePreferences.getInt(KEY_TOTALINNINGS, 7);
         awayTeamID = gamePreferences.getString(KEY_AWAYTEAM, "x");
         awayTeamName = getTeamNameFromFirestoreID(awayTeamID);
@@ -131,7 +131,7 @@ public class LeagueGameActivity extends GameActivity {
         try {
             MyApp myApp = (MyApp) getApplicationContext();
             MainPageSelection mainPageSelection = myApp.getCurrentSelection();
-            selectionID = mainPageSelection.getId();
+            mSelectionID = mainPageSelection.getId();
             leagueName = mainPageSelection.getName();
         } catch (Exception e) {
             Intent intent = new Intent(LeagueGameActivity.this, MainActivity.class);
@@ -157,7 +157,7 @@ public class LeagueGameActivity extends GameActivity {
     @Override
     protected void loadGamePreferences() {
         SharedPreferences gamePreferences
-                = getSharedPreferences(selectionID + StatsEntry.GAME, MODE_PRIVATE);
+                = getSharedPreferences(mSelectionID + StatsEntry.GAME, MODE_PRIVATE);
         gameLogIndex = gamePreferences.getInt(KEY_GAMELOGINDEX, 0);
         highestIndex = gamePreferences.getInt(KEY_HIGHESTINDEX, 0);
         inningNumber = gamePreferences.getInt(KEY_INNINGNUMBER, 2);
@@ -191,6 +191,7 @@ public class LeagueGameActivity extends GameActivity {
         values.put(StatsEntry.COLUMN_PLAY, "start");
         values.put(StatsEntry.COLUMN_INNING_CHANGED, 0);
         values.put(StatsEntry.INNINGS, inningNumber);
+        values.put(StatsEntry.COLUMN_LEAGUE_ID, mSelectionID);
         getContentResolver().insert(StatsEntry.CONTENT_URI_GAMELOG, values);
         Log.d(TAG, gameLogIndex +  " " + values.toString());
 
@@ -331,7 +332,7 @@ public class LeagueGameActivity extends GameActivity {
 
     @Override
     protected void saveGameState() {
-        SharedPreferences gamePreferences = getSharedPreferences(selectionID + StatsEntry.GAME, MODE_PRIVATE);
+        SharedPreferences gamePreferences = getSharedPreferences(mSelectionID + StatsEntry.GAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = gamePreferences.edit();
         editor.putInt(KEY_GAMELOGINDEX, gameLogIndex);
         editor.putInt(KEY_HIGHESTINDEX, highestIndex);
@@ -345,8 +346,11 @@ public class LeagueGameActivity extends GameActivity {
 
     @Override
     protected void exitToManager() {
-        Intent exitIntent = new Intent(LeagueGameActivity.this, LeagueManagerActivity.class);
-        startActivity(exitIntent);
+//        Intent exitIntent = new Intent(LeagueGameActivity.this, LeagueManagerActivity.class);
+        Intent exitIntent = new Intent();
+        setResult(222, exitIntent);
+//        startActivity(exitIntent);
+        Log.d("megaman", "exitToManager");
         finish();
     }
 
@@ -392,14 +396,14 @@ public class LeagueGameActivity extends GameActivity {
 
     @Override
     protected void firestoreUpdate() {
-        Log.d("zztop", "firestoreUpdate");
+        Log.d("megaman", "firestoreUpdate");
         long updateTime = System.currentTimeMillis();
         transferStats(updateTime);
         sendTeamIntent(updateTime, awayTeamID, awayTeamRuns, homeTeamRuns);
         sendTeamIntent(updateTime, homeTeamID, homeTeamRuns, awayTeamRuns);
         sendPlayersIntent(updateTime);
         sendBoxscoreIntent(updateTime, awayTeamID, homeTeamID, awayTeamRuns, homeTeamRuns);
-        TimeStampUpdater.updateTimeStamps(this, selectionID, updateTime);
+        TimeStampUpdater.updateTimeStamps(this, mSelectionID, updateTime);
     }
 
     @Override

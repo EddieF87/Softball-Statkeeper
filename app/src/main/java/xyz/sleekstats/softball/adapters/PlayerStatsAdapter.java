@@ -51,12 +51,14 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
     private final Context mContext;
     private int colorMale;
     private int colorFemale;
+    private String mStatKeeperID;
     public static final int REQUEST_CODE = 1;
 
 
-    public PlayerStatsAdapter(List<Player> players, Context context, int genderSorter) {
+    public PlayerStatsAdapter(List<Player> players, Context context, int genderSorter, String statKeeperID) {
         super();
         this.setHasStableIds(true);
+        this.mStatKeeperID = statKeeperID;
         this.players = players;
         this.mContext = context;
         if (context instanceof TeamManagerActivity || context instanceof TeamPagerActivity) {
@@ -94,7 +96,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
         }
 
         Player player = players.get(position);
-        holder.bindPlayer(player, mContext, visibility, isTeam, colorMale, colorFemale);
+        holder.bindPlayer(player, mContext, visibility, isTeam, colorMale, colorFemale, mStatKeeperID);
     }
 
     public boolean changeColors(boolean genderSettingsOn) {
@@ -174,7 +176,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             gameView = linearLayout.findViewById(R.id.game);
         }
 
-        private void bindPlayer(Player player, final Context context, int visibility, boolean isTeam, int colorMale, int colorFemale) {
+        private void bindPlayer(Player player, final Context context, int visibility, boolean isTeam, int colorMale, int colorFemale, final String statKeeperID) {
             this.mPlayer = player;
             String teamfirestoreid = player.getTeamfirestoreid();
             String team = player.getTeam();
@@ -182,8 +184,8 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             boolean FA = false;
 
             if (team == null) {
-                String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
-                String[] selectionArgs = new String[]{teamfirestoreid};
+                String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+                String[] selectionArgs = new String[]{teamfirestoreid, statKeeperID};
                 String[] projection = new String[]{StatsEntry.COLUMN_NAME};
 
                 Cursor cursor = context.getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
@@ -226,8 +228,8 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
                         Uri currentTeamUri = null;
 
                         if (!teamfirestoreid.equals(StatsEntry.FREE_AGENT)) {
-                            String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
-                            String[] selectionArgs = new String[]{teamfirestoreid};
+                            String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+                            String[] selectionArgs = new String[]{teamfirestoreid, statKeeperID};
                             String[] projection = new String[]{StatsEntry._ID};
 
                             Cursor cursor = context.getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
@@ -289,7 +291,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
                 teamView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        changeTeamDialog(mPlayer, context);
+                        changeTeamDialog(mPlayer, context, statKeeperID);
                     }
                 });
             }
@@ -326,14 +328,18 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             }
         }
 
-        private void changeTeamDialog(final Player player, Context context) {
+        private void changeTeamDialog(final Player player, Context context, String statKeeperID) {
             if (!(context instanceof ObjectPagerActivity)) {
                 return;
             }
+
+            String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+            String[] selectionArgs = new String[]{statKeeperID};
+
             ArrayList<Team> teams = new ArrayList<>();
             String sortOrder = StatsEntry.COLUMN_NAME + " COLLATE NOCASE ASC";
             Cursor cursor = context.getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
-                    null, null, null, sortOrder);
+                    null, selection, selectionArgs, sortOrder);
             while (cursor.moveToNext()) {
                 teams.add(new Team(cursor));
             }

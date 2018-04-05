@@ -72,6 +72,7 @@ public class SetLineupActivity extends SingleFragmentActivity
                 continue;
             }
             int gender = genders.get(i);
+            values.put(StatsEntry.COLUMN_LEAGUE_ID, mTeamID);
             values.put(StatsEntry.COLUMN_NAME, name);
             values.put(StatsEntry.COLUMN_GENDER, gender);
             values.put(StatsEntry.COLUMN_TEAM, team);
@@ -80,7 +81,9 @@ public class SetLineupActivity extends SingleFragmentActivity
             values.put(StatsEntry.ADD, true);
             Uri uri = getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
             if (uri != null) {
-                Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+                String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+                String[] selectionArgs = new String[]{mSelectionID};
+                Cursor cursor = getContentResolver().query(uri, null, selection, selectionArgs, null);
                 if(cursor.moveToFirst()) {
                     Player player = new Player(cursor, false);
                     players.add(player);

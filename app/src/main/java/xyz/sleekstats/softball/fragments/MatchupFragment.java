@@ -195,7 +195,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                 if (setLineupsToDB()) {
                     return;
                 }
-                Intent intent = new Intent(getActivity(), LeagueGameActivity.class);
+
 
                 int sortArgument;
                 if (sortAwayLineup && sortHomeLineup) {
@@ -207,7 +207,6 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                 } else {
                     sortArgument = 0;
                 }
-
                 SharedPreferences gamePreferences =
                         getActivity().getSharedPreferences(leagueID + StatsEntry.GAME, Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = gamePreferences.edit();
@@ -218,7 +217,9 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                 editor.putInt("keyFemaleOrder", genderSorter);
                 editor.apply();
 
-                startActivity(intent);
+                if(mListener != null) {
+                    mListener.goToGameActivity();
+                }
             }
         });
         getLoaderManager().restartLoader(MATCHUP_LOADER, null, this);
@@ -233,13 +234,16 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         continueGameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), LeagueGameActivity.class);
-                startActivity(intent);
-
+                if(mListener != null) {
+                    mListener.goToGameActivity();
+                }
             }
         });
+
+        String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] selectionArgs = new String[]{leagueID};
         Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG,
-                null, null, null, null);
+                null, selection, selectionArgs, null);
         if (cursor.moveToLast()) {
             continueGameButton.setVisibility(View.VISIBLE);
             gameSummaryView.setVisibility(View.VISIBLE);
@@ -305,8 +309,8 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     }
 
     private String getTeamNameFromFirestoreID(String firestoreID) {
-        String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
-        String[] selectionArgs = new String[]{firestoreID};
+        String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] selectionArgs = new String[]{firestoreID, leagueID};
         String[] projection = new String[]{StatsEntry.COLUMN_NAME};
 
         Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
@@ -404,6 +408,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
             int gender = player.getGender();
 
             ContentValues values = new ContentValues();
+            values.put(StatsEntry.COLUMN_LEAGUE_ID, leagueID);
             values.put(StatsEntry.COLUMN_PLAYERID, playerId);
             values.put(StatsEntry.COLUMN_NAME, playerName);
             values.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
@@ -623,9 +628,9 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     private ArrayList<Player> getLineup(String teamID) {
         ArrayList<Player> lineupList = new ArrayList<>();
         List<Player> benchList = new ArrayList<>();
-        try {
-            String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=?";
-            String[] selectionArgs = new String[]{teamID};
+        try {//todo
+            String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+            String[] selectionArgs = new String[]{teamID, leagueID};
             String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
 
             Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS, null,
@@ -649,9 +654,9 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
 
     private void getBench(String teamID) {
         List<Player> benchList = new ArrayList<>();
-        try {
-            String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_ORDER + ">?";
-            String[] selectionArgs = new String[]{teamID, String.valueOf(49)};
+        try {//todo
+            String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_ORDER + ">? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+            String[] selectionArgs = new String[]{teamID, String.valueOf(49), leagueID};
 
             Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS, null,
                     selection, selectionArgs, null);
@@ -800,5 +805,6 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     public interface OnFragmentInteractionListener {
         void clearGameDB();
         void goToGameSettings();
+        void goToGameActivity();
     }
 }

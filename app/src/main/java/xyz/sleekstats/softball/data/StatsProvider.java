@@ -222,8 +222,8 @@ public class StatsProvider extends ContentProvider {
                     break;
                 }
                 mFirestore = FirebaseFirestore.getInstance();
-                DocumentReference playerDoc = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION)
-                        .document(leagueID).collection(FirestoreHelper.PLAYERS_COLLECTION).document();
+                DocumentReference playerDoc = mFirestore.collection(FirestoreHelperService.LEAGUE_COLLECTION)
+                        .document(leagueID).collection(FirestoreHelperService.PLAYERS_COLLECTION).document();
 
                 Map<String, Object> player = new HashMap<>();
 
@@ -273,11 +273,11 @@ public class StatsProvider extends ContentProvider {
                 mFirestore = FirebaseFirestore.getInstance();
                 DocumentReference teamDoc;
                 if (selectionType == MainPageSelection.TYPE_TEAM) {
-                    teamDoc = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION)
-                            .document(leagueID).collection(FirestoreHelper.TEAMS_COLLECTION).document(leagueID);
+                    teamDoc = mFirestore.collection(FirestoreHelperService.LEAGUE_COLLECTION)
+                            .document(leagueID).collection(FirestoreHelperService.TEAMS_COLLECTION).document(leagueID);
                 } else {
-                    teamDoc = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION)
-                            .document(leagueID).collection(FirestoreHelper.TEAMS_COLLECTION).document();
+                    teamDoc = mFirestore.collection(FirestoreHelperService.LEAGUE_COLLECTION)
+                            .document(leagueID).collection(FirestoreHelperService.TEAMS_COLLECTION).document();
                 }
 
                 Map<String, Object> team = new HashMap<>();
@@ -511,8 +511,8 @@ public class StatsProvider extends ContentProvider {
                 }
                 firestoreID = values.getAsString(StatsEntry.COLUMN_FIRESTORE_ID);
                 mFirestore = FirebaseFirestore.getInstance();
-                documentReference = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION).document(leagueID)
-                        .collection(FirestoreHelper.PLAYERS_COLLECTION).document(firestoreID);
+                documentReference = mFirestore.collection(FirestoreHelperService.LEAGUE_COLLECTION).document(leagueID)
+                        .collection(FirestoreHelperService.PLAYERS_COLLECTION).document(firestoreID);
                 if (values.containsKey(StatsEntry.COLUMN_TEAM_FIRESTORE_ID)) {
                     Map<String, Object> data = new HashMap<>();
                     String teamFirestoreID = values.getAsString(StatsEntry.COLUMN_TEAM_FIRESTORE_ID);
@@ -544,8 +544,8 @@ public class StatsProvider extends ContentProvider {
                 firestoreID = values.getAsString(StatsEntry.COLUMN_FIRESTORE_ID);
 
                 mFirestore = FirebaseFirestore.getInstance();
-                documentReference = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION).document(leagueID)
-                        .collection(FirestoreHelper.PLAYERS_COLLECTION).document(firestoreID);
+                documentReference = mFirestore.collection(FirestoreHelperService.LEAGUE_COLLECTION).document(leagueID)
+                        .collection(FirestoreHelperService.PLAYERS_COLLECTION).document(firestoreID);
                 values.remove(StatsEntry.COLUMN_FIRESTORE_ID);
                 if (values.containsKey(StatsEntry.COLUMN_NAME)) {
                     String playerName = values.getAsString(StatsEntry.COLUMN_NAME);
@@ -577,13 +577,13 @@ public class StatsProvider extends ContentProvider {
                         break;
                     }
 
-                    documentReference = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION).document(leagueID)
-                            .collection(FirestoreHelper.TEAMS_COLLECTION).document(firestoreID);
+                    documentReference = mFirestore.collection(FirestoreHelperService.LEAGUE_COLLECTION).document(leagueID)
+                            .collection(FirestoreHelperService.TEAMS_COLLECTION).document(firestoreID);
                     values.remove(StatsEntry.COLUMN_FIRESTORE_ID);
                     documentReference.update(StatsEntry.COLUMN_NAME, teamName);
 
                     DocumentReference documentReference1 = mFirestore
-                            .collection(FirestoreHelper.LEAGUE_COLLECTION).document(leagueID);
+                            .collection(FirestoreHelperService.LEAGUE_COLLECTION).document(leagueID);
                     documentReference1.update(StatsEntry.COLUMN_NAME, teamName);
                 }
                 break;
@@ -599,8 +599,8 @@ public class StatsProvider extends ContentProvider {
                 if (values.containsKey(StatsEntry.COLUMN_NAME)) {
                     firestoreID = values.getAsString(StatsEntry.COLUMN_FIRESTORE_ID);
                     mFirestore = FirebaseFirestore.getInstance();
-                    documentReference = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION).document(leagueID)
-                            .collection(FirestoreHelper.TEAMS_COLLECTION).document(firestoreID);
+                    documentReference = mFirestore.collection(FirestoreHelperService.LEAGUE_COLLECTION).document(leagueID)
+                            .collection(FirestoreHelperService.TEAMS_COLLECTION).document(firestoreID);
                     values.remove(StatsEntry.COLUMN_FIRESTORE_ID);
                     String teamName = values.getAsString(StatsEntry.COLUMN_NAME);
                     documentReference.update(StatsEntry.COLUMN_NAME, teamName);

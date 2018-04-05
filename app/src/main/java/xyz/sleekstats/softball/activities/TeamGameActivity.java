@@ -55,7 +55,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         try {
             MyApp myApp = (MyApp) getApplicationContext();
             MainPageSelection mainPageSelection = myApp.getCurrentSelection();
-            selectionID = mainPageSelection.getId();
+            mSelectionID = mainPageSelection.getId();
             myTeamName = mainPageSelection.getName();
         } catch (Exception e) {
             Intent intent = new Intent(TeamGameActivity.this, MainActivity.class);
@@ -69,7 +69,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         Bundle b = new Bundle();
         b.putString("awayTeamName", awayTeamName);
         b.putString("homeTeamName", homeTeamName);
-        b.putString("awayTeamID", selectionID);
+        b.putString("awayTeamID", mSelectionID);
         b.putString("homeTeamID", null);
         b.putInt("totalInnings", totalInnings);
         b.putInt("inningNumber", inningNumber);
@@ -81,7 +81,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
     @Override
     protected void loadGamePreferences() {
         SharedPreferences gamePreferences
-                = getSharedPreferences(selectionID + StatsEntry.GAME, MODE_PRIVATE);
+                = getSharedPreferences(mSelectionID + StatsEntry.GAME, MODE_PRIVATE);
         gameLogIndex = gamePreferences.getInt(KEY_GAMELOGINDEX, 0);
         highestIndex = gamePreferences.getInt(KEY_HIGHESTINDEX, 0);
         inningNumber = gamePreferences.getInt(KEY_INNINGNUMBER, 2);
@@ -103,13 +103,13 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         setContentView(R.layout.activity_game);
 
         SharedPreferences settingsPreferences =
-                getSharedPreferences(selectionID + StatsEntry.SETTINGS, MODE_PRIVATE);
+                getSharedPreferences(mSelectionID + StatsEntry.SETTINGS, MODE_PRIVATE);
         int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0) + 1;
         totalInnings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
 
         Bundle args = getIntent().getExtras();
 
-        SharedPreferences gamePreferences = getSharedPreferences(selectionID + StatsEntry.GAME, MODE_PRIVATE);
+        SharedPreferences gamePreferences = getSharedPreferences(mSelectionID + StatsEntry.GAME, MODE_PRIVATE);
 
         boolean sortArgument = false;
 
@@ -139,7 +139,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
             awayTeamName = myTeamName;
             homeTeamName = "Home Team";
         }
-        myTeam = setTeam(selectionID);
+        myTeam = setTeam(mSelectionID);
         setTitle(awayTeamName + " @ " + homeTeamName);
 
         if (sortArgument) {
@@ -167,7 +167,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         teamText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                gotoLineupEditor(myTeamName, selectionID);
+                gotoLineupEditor(myTeamName, mSelectionID);
             }
         });
     }
@@ -200,6 +200,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         } else {
             onDeck = currentBatter.getFirestoreID();
         }
+        values.put(StatsEntry.COLUMN_LEAGUE_ID, mSelectionID);
         values.put(StatsEntry.COLUMN_ONDECK, onDeck);
         values.put(StatsEntry.COLUMN_TEAM, 0);
         values.put(StatsEntry.COLUMN_OUT, 0);
@@ -307,7 +308,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
 
     @Override
     protected void saveGameState() {
-        SharedPreferences gamePreferences = getSharedPreferences(selectionID + StatsEntry.GAME, MODE_PRIVATE);
+        SharedPreferences gamePreferences = getSharedPreferences(mSelectionID + StatsEntry.GAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = gamePreferences.edit();
         editor.putInt(KEY_GAMELOGINDEX, gameLogIndex);
         editor.putInt(KEY_HIGHESTINDEX, highestIndex);
@@ -460,14 +461,14 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         long updateTime = System.currentTimeMillis();
         transferStats(updateTime);
         if (isHome) {
-            sendTeamIntent(updateTime, selectionID, homeTeamRuns, awayTeamRuns);
-            sendBoxscoreIntent(updateTime, StatsEntry.COLUMN_AWAY_TEAM, selectionID, awayTeamRuns, homeTeamRuns);
+            sendTeamIntent(updateTime, mSelectionID, homeTeamRuns, awayTeamRuns);
+            sendBoxscoreIntent(updateTime, StatsEntry.COLUMN_AWAY_TEAM, mSelectionID, awayTeamRuns, homeTeamRuns);
         } else {
-            sendTeamIntent(updateTime, selectionID, awayTeamRuns, homeTeamRuns);
-            sendBoxscoreIntent(updateTime, selectionID, StatsEntry.COLUMN_HOME_TEAM, awayTeamRuns, homeTeamRuns);
+            sendTeamIntent(updateTime, mSelectionID, awayTeamRuns, homeTeamRuns);
+            sendBoxscoreIntent(updateTime, mSelectionID, StatsEntry.COLUMN_HOME_TEAM, awayTeamRuns, homeTeamRuns);
         }
         sendPlayersIntent(updateTime);
-        TimeStampUpdater.updateTimeStamps(this, selectionID, updateTime);
+        TimeStampUpdater.updateTimeStamps(this, mSelectionID, updateTime);
     }
 
     @Override
@@ -630,7 +631,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
 
     @Override
     protected void actionEditLineup() {
-        gotoLineupEditor(myTeamName, selectionID);
+        gotoLineupEditor(myTeamName, mSelectionID);
     }
 
     private void setLineupRVPosition() {

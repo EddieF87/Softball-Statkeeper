@@ -12,9 +12,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Map;
 
-import static xyz.sleekstats.softball.data.FirestoreHelper.LAST_UPDATE;
-import static xyz.sleekstats.softball.data.FirestoreHelper.LEAGUE_COLLECTION;
-import static xyz.sleekstats.softball.data.FirestoreHelper.UPDATE_SETTINGS;
+import static xyz.sleekstats.softball.data.FirestoreHelperService.LAST_UPDATE;
+import static xyz.sleekstats.softball.data.FirestoreHelperService.LEAGUE_COLLECTION;
+import static xyz.sleekstats.softball.data.FirestoreHelperService.UPDATE_SETTINGS;
 
 public class TimeStampUpdater {
 
@@ -91,10 +91,10 @@ public class TimeStampUpdater {
         String collection;
         switch (type) {
             case 0:
-                collection = FirestoreHelper.TEAMS_COLLECTION;
+                collection = FirestoreHelperService.TEAMS_COLLECTION;
                 break;
             case 1:
-                collection = FirestoreHelper.PLAYERS_COLLECTION;
+                collection = FirestoreHelperService.PLAYERS_COLLECTION;
                 break;
             default:
                 return;

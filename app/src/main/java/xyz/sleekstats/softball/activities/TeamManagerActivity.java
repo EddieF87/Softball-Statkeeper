@@ -14,10 +14,10 @@ import android.widget.Toast;
 
 import xyz.sleekstats.softball.MyApp;
 import xyz.sleekstats.softball.R;
+import xyz.sleekstats.softball.data.FirestoreHelperService;
 import xyz.sleekstats.softball.data.TimeStampUpdater;
 import xyz.sleekstats.softball.views.CustomViewPager;
 import xyz.sleekstats.softball.adapters.PlayerStatsAdapter;
-import xyz.sleekstats.softball.data.FirestoreHelper;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
 import xyz.sleekstats.softball.dialogs.AddNewPlayersDialog;
@@ -73,23 +73,27 @@ public class TeamManagerActivity extends ExportActivity
         tabLayout.setupWithViewPager(mViewPager);
 
 
-        Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, null, null, null, null);
-        if (cursor.moveToFirst()) {
+        String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] selectionArgs = new String[]{mTeamID};
+        Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, null, selection, selectionArgs, null);
+        if (cursor != null && cursor.moveToFirst()) {
             sendRetryGameLoadIntent();
             cursor.close();
             return;
         }
-        cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_TEAMS, null, null, null, null);
-        if (cursor.moveToFirst()) {
+        cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_TEAMS, null, selection, selectionArgs, null);
+        if (cursor != null && cursor.moveToFirst()) {
             sendRetryGameLoadIntent();
         }
-        cursor.close();
+        if (cursor != null) {
+            cursor.close();
+        }
     }
 
     private void sendRetryGameLoadIntent(){
-        Intent intent = new Intent(TeamManagerActivity.this, FirestoreHelper.class);
-        intent.putExtra(FirestoreHelper.STATKEEPER_ID, mTeamID);
-        intent.setAction(FirestoreHelper.INTENT_RETRY_GAME_LOAD);
+        Intent intent = new Intent(TeamManagerActivity.this, FirestoreHelperService.class);
+        intent.putExtra(FirestoreHelperService.STATKEEPER_ID, mTeamID);
+        intent.setAction(FirestoreHelperService.INTENT_RETRY_GAME_LOAD);
         startService(intent);
     }
 
@@ -107,12 +111,15 @@ public class TeamManagerActivity extends ExportActivity
             values.put(StatsEntry.COLUMN_GENDER, gender);
             values.put(StatsEntry.COLUMN_TEAM, teamName);
             values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, teamID);
+            values.put(StatsEntry.COLUMN_LEAGUE_ID, teamID);
             values.put(StatsEntry.COLUMN_ORDER, 99);
             values.put(StatsEntry.ADD, true);
             Uri uri = getContentResolver().insert(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, values);
             if (uri != null) {
-                Cursor cursor = getContentResolver().query(uri, null, null,
-                        null, null);
+                String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+                String[] selectionArgs = new String[]{mTeamID};
+                Cursor cursor = getContentResolver().query(uri, null, selection,
+                        selectionArgs, null);
                 if (cursor.moveToFirst()) {
                     players.add(new Player(cursor, false));
                 }

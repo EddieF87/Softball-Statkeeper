@@ -102,7 +102,7 @@
             android:name=".activities.LoadingActivity"
             android:screenOrientation="portrait" />
 
-        <service android:name=".data.FirestoreHelper" />
+        <service android:name=".data.FirestoreHelperService" />
 
         <activity android:name=".activities.GameRecapListActivity" />
         <activity android:name=".activities.GameRecapActivity" />

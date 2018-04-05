@@ -152,6 +152,7 @@ public class StatsDbHelper extends SQLiteOpenHelper {
                 "CREATE TABLE " + StatsEntry.SELECTIONS_TABLE_NAME + " (" +
                         StatsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         StatsEntry.COLUMN_FIRESTORE_ID + " TEXT NOT NULL, " +
+                        StatsEntry.COLUMN_LEAGUE_ID + " TEXT NOT NULL, " +
                         StatsEntry.COLUMN_NAME + " TEXT NOT NULL, " +
                         StatsEntry.TYPE + " INTEGER NOT NULL, " +
                         StatsEntry.LEVEL + " INTEGER NOT NULL" +

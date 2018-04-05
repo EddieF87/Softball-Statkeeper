@@ -224,8 +224,8 @@ DeleteConfirmationDialog.OnFragmentInteractionListener {
     @Override
     public void onDeletionChoice(boolean delete) {
         if(delete) {
-            String selection = StatsEntry.COLUMN_GAME_ID + "=?";
-            String[] selectionArgs = new String[]{String.valueOf(mGameID)};
+            String selection = StatsEntry.COLUMN_GAME_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+            String[] selectionArgs = new String[]{String.valueOf(mGameID), selectionID};
             int rowsDeleted = getContentResolver().delete(StatsEntry.CONTENT_URI_BOXSCORE_PLAYERS, selection, selectionArgs);
             if(rowsDeleted >= 0){
                 ContentValues values = new ContentValues();

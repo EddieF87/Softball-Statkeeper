@@ -163,8 +163,8 @@ public class LineupFragment extends Fragment {
                     mBench.clear();
                 }
 
-                String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=?";
-                String[] selectionArgs = new String[]{mTeamID};
+                String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+                String[] selectionArgs = new String[]{mTeamID, mSelectionID};
                 String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
                 Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS,
                         null, selection, selectionArgs, sortOrder);
@@ -348,8 +348,10 @@ public class LineupFragment extends Fragment {
             });
             continueGameButton.setVisibility(View.VISIBLE);
 
+            String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+            String[] selectionArgs = new String[]{mSelectionID};
             Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG,
-                    null, null, null, null);
+                    null, selection, selectionArgs, null);
             if (cursor.moveToLast()) {
                 int awayRuns = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_AWAY_RUNS);
                 int homeRuns = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_HOME_RUNS);
@@ -483,8 +485,10 @@ public class LineupFragment extends Fragment {
     }
 
     private void clearGameDB() {
-        getActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, null, null);
-        getActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, null, null);
+        String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] selectionArgs = new String[]{mSelectionID};
+        getActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, selection, selectionArgs);
+        getActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, selection, selectionArgs);
         SharedPreferences savedGamePreferences = getActivity().getSharedPreferences(mSelectionID + StatsEntry.GAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = savedGamePreferences.edit();
         editor.clear();
@@ -493,8 +497,8 @@ public class LineupFragment extends Fragment {
 
     private List<Player> getPreviousLineup(String teamID) {
 
-        String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=?";
-        String[] selectionArgs = new String[]{teamID};
+        String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] selectionArgs = new String[]{teamID, mSelectionID};
         Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEMP,
                 null, selection, selectionArgs, null);
 
@@ -511,8 +515,8 @@ public class LineupFragment extends Fragment {
 
         List<Player> lineup = getLineup();
 
-        String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=?";
-        String[] selectionArgs = new String[]{mTeamID};
+        String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] selectionArgs = new String[]{mTeamID, mSelectionID};
 
         ContentResolver contentResolver = getActivity().getContentResolver();
         contentResolver.delete(StatsEntry.CONTENT_URI_TEMP, selection, selectionArgs);
@@ -525,6 +529,7 @@ public class LineupFragment extends Fragment {
             String firestoreID = player.getFirestoreID();
 
             ContentValues values = new ContentValues();
+            values.put(StatsEntry.COLUMN_LEAGUE_ID, mSelectionID);
             values.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
             values.put(StatsEntry.COLUMN_PLAYERID, playerId);
             values.put(StatsEntry.COLUMN_NAME, playerName);
@@ -555,6 +560,7 @@ public class LineupFragment extends Fragment {
                 Player existingPlayer = previousLineup.get(i);
                 ContentValues values = new ContentValues();
 
+                values.put(StatsEntry.COLUMN_LEAGUE_ID, mSelectionID);
                 values.put(StatsEntry.COLUMN_FIRESTORE_ID, existingPlayer.getFirestoreID());
                 values.put(StatsEntry.COLUMN_PLAYERID, existingPlayer.getPlayerId());
                 values.put(StatsEntry.COLUMN_NAME, existingPlayer.getName());
@@ -607,6 +613,7 @@ public class LineupFragment extends Fragment {
             String firestoreID = player.getFirestoreID();
 
             ContentValues values = new ContentValues();
+            values.put(StatsEntry.COLUMN_LEAGUE_ID, mSelectionID);
             values.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
             values.put(StatsEntry.COLUMN_PLAYERID, playerId);
             values.put(StatsEntry.COLUMN_NAME, playerName);
@@ -655,8 +662,8 @@ public class LineupFragment extends Fragment {
     private ArrayList<Player> getLineup() {
         ArrayList<Player> lineup = new ArrayList<>();
         try {
-            String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=?";
-            String[] selectionArgs = new String[]{mTeamID};
+            String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+            String[] selectionArgs = new String[]{mTeamID, mSelectionID};
             String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
 
             Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS, null,

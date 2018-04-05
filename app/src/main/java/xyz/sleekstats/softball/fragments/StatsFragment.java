@@ -118,8 +118,10 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
                     startAdderButton.setVisibility(View.INVISIBLE);
 
                     if(mListener != null) {
+                        String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+                        String[] selectionArgs = new String[]{selectionID};
                         Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
-                                null, null, null, StatsEntry.COLUMN_NAME);
+                                null, selection, selectionArgs, StatsEntry.COLUMN_NAME);
                         ArrayList<Team> teams = new ArrayList<>();
                         while (cursor.moveToNext()) {
                             Team team = new Team(cursor);
@@ -149,9 +151,11 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         rootView.findViewById(R.id.bb_title).setOnClickListener(this);
         rootView.findViewById(R.id.game_title).setOnClickListener(this);
 
+        String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] selectionArgs = new String[]{selectionID};
         mCursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
                 new String[]{StatsEntry._ID, StatsEntry.COLUMN_NAME, StatsEntry.COLUMN_FIRESTORE_ID},
-                null, null, StatsEntry.COLUMN_NAME + " COLLATE NOCASE");
+                selection, selectionArgs, StatsEntry.COLUMN_NAME + " COLLATE NOCASE");
 
         teamsArray = new ArrayList<>();
         teamsArray.add(KEY_ALL_TEAMS);

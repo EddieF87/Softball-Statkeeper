@@ -38,11 +38,10 @@ import xyz.sleekstats.softball.activities.LeagueManagerActivity;
 import xyz.sleekstats.softball.activities.MainActivity;
 import xyz.sleekstats.softball.activities.PlayerManagerActivity;
 import xyz.sleekstats.softball.activities.PlayerPagerActivity;
-import xyz.sleekstats.softball.activities.TeamManagerActivity;
 import xyz.sleekstats.softball.activities.TeamPagerActivity;
 import xyz.sleekstats.softball.activities.UsersActivity;
 import xyz.sleekstats.softball.adapters.BoxScorePlayerCursorAdapter;
-import xyz.sleekstats.softball.data.FirestoreHelper;
+import xyz.sleekstats.softball.data.FirestoreHelperService;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
 import xyz.sleekstats.softball.data.TimeStampUpdater;
@@ -203,8 +202,8 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                     public void onClick(View view) {
                         if (mTeamFirestoreID != null) {
                             Intent intent;
-                            String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
-                            String[] selectionArgs = new String[]{mTeamFirestoreID};
+                            String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+                            String[] selectionArgs = new String[]{mTeamFirestoreID, mSelectionID};
                             if (mTeamFirestoreID.equals(StatsEntry.FREE_AGENT)) {
                                 intent = new Intent(getActivity(), TeamPagerActivity.class);
                                 intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
@@ -275,6 +274,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             }
         } else if (mSelectionType == MainPageSelection.TYPE_PLAYER) {
             ContentValues values = new ContentValues();
+            values.put(StatsEntry.COLUMN_LEAGUE_ID, mSelectionID);
             values.put(StatsEntry.COLUMN_NAME, playerName);
             getActivity().getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
             setPlayerManager();
@@ -339,12 +339,12 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onStop() {
         if(mPlayerLog != null){
-            Intent intent = new Intent(getActivity(), FirestoreHelper.class);
+            Intent intent = new Intent(getActivity(), FirestoreHelperService.class);
             intent.putExtra(StatsEntry.PLAYERS_TABLE_NAME, mPlayerLog);
-            intent.putExtra(FirestoreHelper.STATKEEPER_ID, mSelectionID);
+            intent.putExtra(FirestoreHelperService.STATKEEPER_ID, mSelectionID);
             intent.putExtra(StatsEntry.COLUMN_FIRESTORE_ID, mFirestoreID);
             intent.putExtra(TimeStampUpdater.UPDATE_TIME, System.currentTimeMillis());
-            intent.setAction(FirestoreHelper.INTENT_UPDATE_PLAYER);
+            intent.setAction(FirestoreHelperService.INTENT_UPDATE_PLAYER);
             getActivity().startService(intent);
             mPlayerLog = null;
         }
@@ -368,8 +368,8 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         BoxScorePlayerCursorAdapter adapter =
                 new BoxScorePlayerCursorAdapter(getActivity(), BoxScorePlayerCursorAdapter.KEY_PLAYER);
         gameStatsListView.setAdapter(adapter);
-        String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
-        String[] selectionArgs = new String[]{mFirestoreID};
+        String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] selectionArgs = new String[]{mFirestoreID, mSelectionID};
         String sortOrder = StatsEntry.COLUMN_GAME_ID + " DESC";
         Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_BOXSCORE_PLAYERS,
                 null, selection, selectionArgs, sortOrder);
@@ -411,9 +411,11 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                     return;
                 }
 
+                String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+                String[] selectionArgs = new String[]{mSelectionID};
                 String statEntry;
                 Cursor cursor = getActivity().getContentResolver().query(mCurrentPlayerUri,
-                        null, null, null, null);
+                        null, selection, selectionArgs, null);
                 if (cursor.moveToFirst()) {
                     switch (result) {
                         case RESULT_1B:
@@ -708,9 +710,11 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     private void changeTeamDialog() {
         ArrayList<Team> teams = new ArrayList<>();
 
+        String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] selectionArgs = new String[]{mSelectionID};
         String sortOrder = StatsEntry.COLUMN_NAME + " COLLATE NOCASE ASC";
         Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
-                null, null, null, sortOrder);
+                null, selection, selectionArgs, sortOrder);
 
         while (cursor.moveToNext()) {
             teams.add(new Team(cursor));
@@ -725,13 +729,13 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
 
     public void deletePlayer() {
         if (mCurrentPlayerUri != null) {
-            String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
-            String[] selectionArgs = new String[]{mFirestoreID};
+            String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+            String[] selectionArgs = new String[]{mFirestoreID, mSelectionID};
             int rowsDeleted = getActivity().getContentResolver().delete(mCurrentPlayerUri, selection, selectionArgs);
             if (rowsDeleted > 0) {
-                Intent intent = new Intent(getActivity(), FirestoreHelper.class);
-                intent.putExtra(FirestoreHelper.STATKEEPER_ID, mSelectionID);
-                intent.setAction(FirestoreHelper.INTENT_DELETE_PLAYER);
+                Intent intent = new Intent(getActivity(), FirestoreHelperService.class);
+                intent.putExtra(FirestoreHelperService.STATKEEPER_ID, mSelectionID);
+                intent.setAction(FirestoreHelperService.INTENT_DELETE_PLAYER);
                 intent.putExtra(StatsEntry.COLUMN_FIRESTORE_ID, mFirestoreID);
                 intent.putExtra(StatsEntry.TYPE, 1);
                 intent.putExtra(StatsEntry.COLUMN_NAME, playerName);

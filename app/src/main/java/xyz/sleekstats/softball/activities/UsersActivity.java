@@ -47,9 +47,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static xyz.sleekstats.softball.data.FirestoreHelper.LEAGUE_COLLECTION;
-import static xyz.sleekstats.softball.data.FirestoreHelper.REQUESTS;
-import static xyz.sleekstats.softball.data.FirestoreHelper.USERS;
+import static xyz.sleekstats.softball.data.FirestoreHelperService.LEAGUE_COLLECTION;
+import static xyz.sleekstats.softball.data.FirestoreHelperService.REQUESTS;
+import static xyz.sleekstats.softball.data.FirestoreHelperService.USERS;
 
 public class UsersActivity extends AppCompatActivity
         implements InviteUserDialog.OnFragmentInteractionListener,

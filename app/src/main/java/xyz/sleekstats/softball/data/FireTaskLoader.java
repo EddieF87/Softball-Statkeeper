@@ -14,7 +14,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.concurrent.ExecutionException;
 
-import static xyz.sleekstats.softball.data.FirestoreHelper.LEAGUE_COLLECTION;
+import static xyz.sleekstats.softball.data.FirestoreHelperService.LEAGUE_COLLECTION;
 
 /**
  * Created by Eddie on 3/9/2018.
@@ -40,6 +40,7 @@ public class FireTaskLoader extends android.support.v4.content.AsyncTaskLoader<Q
     public QuerySnapshot loadInBackground() {
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         String userId = mAuth.getCurrentUser().getUid();
+        Log.d("godzilla", "firetaskloader");
 
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
                 .setPersistenceEnabled(false)
@@ -50,6 +51,7 @@ public class FireTaskLoader extends android.support.v4.content.AsyncTaskLoader<Q
         try {
             firestore.setFirestoreSettings(settings);
         } catch (Exception e) {
+            Log.d("godzilla", "catch (Exception  " + e.toString());
             Log.e("zztop", e.toString());
         }
 
@@ -61,11 +63,15 @@ public class FireTaskLoader extends android.support.v4.content.AsyncTaskLoader<Q
             Tasks.await(task);
 
             if(task.isSuccessful()) {
+                Log.d("godzilla", "taskisSuccessful");
                 if(isLoadInBackgroundCanceled()) {
+                    Log.d("godzilla", "isLoadInBackgroundCanceled");
                     return null;
                 }
+                Log.d("godzilla", "taskisSuccessfultask.getResult");
                 return task.getResult();
             } else {
+                Log.d("godzilla", "taskFAIL");
                 return null;
             }
 
@@ -78,6 +84,7 @@ public class FireTaskLoader extends android.support.v4.content.AsyncTaskLoader<Q
 //
 //        while (!task.isComplete()) {
 //        }
+        Log.d("godzilla", "return null;");
         return null;
     }
 

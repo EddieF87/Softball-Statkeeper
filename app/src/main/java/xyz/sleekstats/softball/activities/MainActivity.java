@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
@@ -23,6 +25,7 @@ import android.util.SparseIntArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,6 +46,7 @@ import xyz.sleekstats.softball.dialogs.ContinueLoadDialog;
 import xyz.sleekstats.softball.dialogs.SelectionInfoDialog;
 import xyz.sleekstats.softball.objects.MainPageSelection;
 import xyz.sleekstats.softball.objects.StatKeepUser;
+
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -53,6 +57,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
@@ -69,14 +74,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static xyz.sleekstats.softball.data.FirestoreHelper.DELETION_COLLECTION;
-import static xyz.sleekstats.softball.data.FirestoreHelper.LEAGUE_COLLECTION;
-import static xyz.sleekstats.softball.data.FirestoreHelper.PLAYERS_COLLECTION;
-import static xyz.sleekstats.softball.data.FirestoreHelper.PLAYER_LOGS;
-import static xyz.sleekstats.softball.data.FirestoreHelper.REQUESTS;
-import static xyz.sleekstats.softball.data.FirestoreHelper.TEAMS_COLLECTION;
-import static xyz.sleekstats.softball.data.FirestoreHelper.TEAM_LOGS;
-import static xyz.sleekstats.softball.data.FirestoreHelper.USERS;
+import static xyz.sleekstats.softball.data.FirestoreHelperService.BOXSCORE_COLLECTION;
+import static xyz.sleekstats.softball.data.FirestoreHelperService.DELETION_COLLECTION;
+import static xyz.sleekstats.softball.data.FirestoreHelperService.LEAGUE_COLLECTION;
+import static xyz.sleekstats.softball.data.FirestoreHelperService.PLAYERS_COLLECTION;
+import static xyz.sleekstats.softball.data.FirestoreHelperService.PLAYER_LOGS;
+import static xyz.sleekstats.softball.data.FirestoreHelperService.REQUESTS;
+import static xyz.sleekstats.softball.data.FirestoreHelperService.TEAMS_COLLECTION;
+import static xyz.sleekstats.softball.data.FirestoreHelperService.TEAM_LOGS;
+import static xyz.sleekstats.softball.data.FirestoreHelperService.USERS;
 
 public class MainActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<QuerySnapshot>,
@@ -98,7 +104,7 @@ public class MainActivity extends AppCompatActivity
     private boolean visible;
 
     private RecyclerView mRecyclerView;
-    private TextView mErrorView;
+    private TextView mMsgView;
     private ProgressBar mProgressBar;
 
     private MainPageAdapter mainPageAdapter;
@@ -123,7 +129,7 @@ public class MainActivity extends AppCompatActivity
         mInviteList = getIntent().getParcelableArrayListExtra("mInviteList");
 
         mRecyclerView = findViewById(R.id.rv_main);
-        mErrorView = findViewById(R.id.error_rv_main);
+        mMsgView = findViewById(R.id.error_rv_main);
         mProgressBar = findViewById(R.id.progressBarMain);
 
         View playerV = findViewById(R.id.player_sk_card);
@@ -144,21 +150,17 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
+        mMsgView.setVisibility(View.GONE);
         authenticateUser();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mErrorView.setVisibility(View.GONE);
     }
 
     protected void authenticateUser() {
         mAuth = FirebaseAuth.getInstance();
         if (mAuth.getCurrentUser() != null) {
+            setProgressBarVisible();
             loadSelections();
             invalidateOptionsMenu();
-            if(mAcceptInviteDialog == null) {
+            if (mAcceptInviteDialog == null) {
                 checkInvite();
             }
         } else {
@@ -172,7 +174,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void checkInvite(){
+    private void checkInvite() {
         Log.d("xyxyx", "checkInvite");
         FirebaseDynamicLinks.getInstance()
                 .getDynamicLink(getIntent())
@@ -214,23 +216,23 @@ public class MainActivity extends AppCompatActivity
 
                         final MyApp myApp = (MyApp) getApplicationContext();
 
-                        if(mFirestore == null) {
+                        if (mFirestore == null) {
                             mFirestore = FirebaseFirestore.getInstance();
                         }
                         mFirestore.collection(LEAGUE_COLLECTION).document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                if(task.isSuccessful()) {
+                                if (task.isSuccessful()) {
                                     Log.d("xyxyx", "task.isSuccessful()");
                                     DocumentSnapshot documentSnapshot = task.getResult();
                                     Object levelObject = documentSnapshot.get(userID);
-                                    if(levelObject == null) {
+                                    if (levelObject == null) {
                                         openAcceptInviteDialog(id, name, type, 1);
                                         return;
                                     }
                                     int level = ((Long) levelObject).intValue();
                                     Log.d("xyxyx", "levelObject).intValue()" + level);
-                                    if(level < UsersActivity.LEVEL_REMOVE_USER && -level < UsersActivity.LEVEL_CREATOR) {
+                                    if (level < UsersActivity.LEVEL_REMOVE_USER && -level < UsersActivity.LEVEL_CREATOR) {
                                         level = -level;
                                         openAcceptInviteDialog(id, name, type, level);
                                         return;
@@ -252,10 +254,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void openAcceptInviteDialog(String id, String name, int type, int level) {
-        if(mInviteListDialogFragment != null) {
+        if (mInviteListDialogFragment != null) {
             mInviteListDialogFragment.dismissIfShowing();
         }
-        if(mContinueLoadDialogFragment != null) {
+        if (mContinueLoadDialogFragment != null) {
             mContinueLoadDialogFragment.dismissIfShowing();
         }
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -271,6 +273,8 @@ public class MainActivity extends AppCompatActivity
         if (requestCode == RC_SIGN_IN) {
             if (resultCode == RESULT_OK) {
 
+                setProgressBarVisible();
+
                 FirebaseUser currentUser = mAuth.getCurrentUser();
                 if (currentUser != null) {
                     final String email = currentUser.getEmail();
@@ -279,75 +283,80 @@ public class MainActivity extends AppCompatActivity
                     Map<String, Object> userInfo = new HashMap<>();
                     userInfo.put(StatsEntry.EMAIL, email);
 
-                    if(mFirestore == null) {
+                    if (mFirestore == null) {
                         mFirestore = FirebaseFirestore.getInstance();
                     }
 
                     mFirestore.collection(USERS).document(id).set(userInfo).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            if(email == null){return;}
+                            if (email == null) {
+                                return;
+                            }
                             mFirestore.collection(USERS).document(email).collection(REQUESTS).get()
                                     .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                    if(task.isSuccessful()) {
-                                        QuerySnapshot querySnapshot = task.getResult();
-                                        for (final DocumentSnapshot emailReqSnapshot : querySnapshot) {
+                                        @Override
+                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                            if (task.isSuccessful()) {
+                                                QuerySnapshot querySnapshot = task.getResult();
+                                                for (final DocumentSnapshot emailReqSnapshot : querySnapshot) {
 
-                                            final String statKeeper = emailReqSnapshot.getId();
-                                            final long level = emailReqSnapshot.getLong(StatsEntry.LEVEL);
+                                                    final String statKeeper = emailReqSnapshot.getId();
+                                                    final long level = emailReqSnapshot.getLong(StatsEntry.LEVEL);
 
-                                            final DocumentReference requestRef = mFirestore.collection(LEAGUE_COLLECTION).document(statKeeper).collection(REQUESTS).document(email);
-                                            requestRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                    if(task.isSuccessful()) {
+                                                    final DocumentReference requestRef = mFirestore.collection(LEAGUE_COLLECTION).document(statKeeper).collection(REQUESTS).document(email);
+                                                    requestRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                                            if (task.isSuccessful()) {
 
-                                                        DocumentReference statKeeperRef = mFirestore.collection(LEAGUE_COLLECTION).document(statKeeper);
-                                                        DocumentReference userRef = statKeeperRef.collection(USERS).document(id);
-                                                        DocumentReference emailRequestRef = emailReqSnapshot.getReference();
+                                                                DocumentReference statKeeperRef = mFirestore.collection(LEAGUE_COLLECTION).document(statKeeper);
+                                                                DocumentReference userRef = statKeeperRef.collection(USERS).document(id);
+                                                                DocumentReference emailRequestRef = emailReqSnapshot.getReference();
 
-                                                        Map<String, Object> updateUser = new HashMap<>();
-                                                        updateUser.put(StatsEntry.LEVEL, level);
-                                                        updateUser.put(StatsEntry.EMAIL, email);
+                                                                Map<String, Object> updateUser = new HashMap<>();
+                                                                updateUser.put(StatsEntry.LEVEL, level);
+                                                                updateUser.put(StatsEntry.EMAIL, email);
 
-                                                        Map<String, Object> updateStatKeeper = new HashMap<>();
-                                                        updateStatKeeper.put(id, level);
+                                                                Map<String, Object> updateStatKeeper = new HashMap<>();
+                                                                updateStatKeeper.put(id, level);
 
 
-                                                        WriteBatch writeBatch = mFirestore.batch();
-                                                        writeBatch.set(userRef, updateUser, SetOptions.merge());
-                                                        writeBatch.set(statKeeperRef, updateStatKeeper, SetOptions.merge());
-                                                        writeBatch.delete(requestRef);
-                                                        writeBatch.delete(emailRequestRef);
-
-                                                        writeBatch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                            @Override
-                                                            public void onSuccess(Void aVoid) {
-                                                                reloadSelections();
+                                                                WriteBatch writeBatch = mFirestore.batch();
+                                                                writeBatch.set(userRef, updateUser, SetOptions.merge());
+                                                                writeBatch.set(statKeeperRef, updateStatKeeper, SetOptions.merge());
+                                                                writeBatch.delete(requestRef);
+                                                                writeBatch.delete(emailRequestRef);
+                                                                writeBatch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                    @Override
+                                                                    public void onSuccess(Void aVoid) {
+                                                                        reloadSelections();
+                                                                    }
+                                                                });
                                                             }
-                                                        });
-                                                    }
+                                                        }
+                                                    });
                                                 }
-                                            });
+                                            }
                                         }
-                                    }
-                                }
-                            });
-                            reloadSelections();
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            reloadSelections();
-                        }
-                    });
-                }
+                                    });
+                        reloadSelections();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        reloadSelections();
+                    }
+                });
             }
+        } else {
+            mMsgView.setText(R.string.sign_in_to_start_text);
+            setMessageViewVisible();
         }
-        invalidateOptionsMenu();
     }
+
+    invalidateOptionsMenu();
+}
 
     private void loadSelections() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -363,15 +372,62 @@ public class MainActivity extends AppCompatActivity
         getSupportLoaderManager().restartLoader(MAIN_LOADER, null, this);
     }
 
+    private void setProgressBarVisible() {
+        mMsgView.setVisibility(View.GONE);
+        mProgressBar.setVisibility(View.VISIBLE);
+    }
+
+    private void setMessageViewVisible() {
+        mProgressBar.setVisibility(View.GONE);
+        mMsgView.setVisibility(View.VISIBLE);
+    }
+
     private void setViews() {
+        Log.d("godzilla", "setViews");
         if (mSelectionList.isEmpty()) {
-            mErrorView.setText(R.string.create_statkeeper);
-            mProgressBar.setVisibility(View.GONE);
-            mErrorView.setVisibility(View.VISIBLE);
-            mainPageAdapter = null;
-            if (!visible) {
-                shuffleCreateStatKeeperViewsVisibility();
+            Log.d("godzilla", "mSelectionList.isEmpty(");
+            mMsgView.setText(R.string.create_statkeeper);
+
+            if (mInviteList.isEmpty()) {
+                Log.d("godzilla", "mInviteList.isEmpty()");
+                final ArrayList<MainPageSelection> cacheList = loadFromCache();
+                if (!cacheList.isEmpty()) {
+                    Log.d("godzilla", "loadFromCache() == true");
+                    String text = "Unable to connect to SleekStats database.\nPlease check your connection and try again." +
+                            "\nAlternatively, try loading statkeepers from your local database.";
+                    mMsgView.setText(text);
+                    final Button sqlButton = findViewById(R.id.btn_sql_load);
+                    final Button retryButton = findViewById(R.id.btn_retry_load);
+                    sqlButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            mSelectionList = cacheList;
+                            sqlButton.setVisibility(View.GONE);
+                            retryButton.setVisibility(View.GONE);
+                            setProgressBarVisible();
+                            setViews();
+                        }
+                    });
+                    retryButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            sqlButton.setVisibility(View.GONE);
+                            retryButton.setVisibility(View.GONE);
+                            setProgressBarVisible();
+                            reloadSelections();
+                        }
+                    });
+                    sqlButton.setVisibility(View.VISIBLE);
+                    retryButton.setVisibility(View.VISIBLE);
+                }
+            } else {
+                mainPageAdapter = null;
+                if (!visible) {
+                    shuffleCreateStatKeeperViewsVisibility();
+                }
             }
+            setMessageViewVisible();
+
         } else {
             Collections.sort(mSelectionList, MainPageSelection.nameComparator());
             Collections.sort(mSelectionList, MainPageSelection.typeComparator());
@@ -391,10 +447,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void openInviteDialog() {
-        if(mAcceptInviteDialog != null) {
+        if (mAcceptInviteDialog != null) {
             return;
         }
-        if(mInviteListDialogFragment != null) {
+        if (mInviteListDialogFragment != null) {
             mInviteListDialogFragment.dismissIfShowing();
         }
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -445,15 +501,14 @@ public class MainActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_sign_in:
-                mErrorView.setText(R.string.error_with_loading);
-                mErrorView.setVisibility(View.GONE);
+                mMsgView.setVisibility(View.GONE);
                 mSelectionList = null;
                 mInviteList = null;
                 authenticateUser();
                 break;
             case R.id.action_sign_out:
-                mErrorView.setText(R.string.sign_in_to_start_text);
-                mErrorView.setVisibility(View.VISIBLE);
+                mMsgView.setText(R.string.sign_in_to_start_text);
+                mMsgView.setVisibility(View.VISIBLE);
                 getSupportLoaderManager().destroyLoader(MAIN_LOADER);
                 mSelectionList = null;
                 mInviteList = null;
@@ -479,6 +534,12 @@ public class MainActivity extends AppCompatActivity
     public void onClick(View view) {
         if (mAuth.getCurrentUser() == null) {
             Toast.makeText(MainActivity.this, "Please sign in first!", Toast.LENGTH_LONG).show();
+            return;
+        }
+        ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connManager.getActiveNetworkInfo();
+        if (networkInfo == null || !networkInfo.isConnected()) {
+            Toast.makeText(MainActivity.this, "Please connect to a network first!", Toast.LENGTH_LONG).show();
             return;
         }
         int type;
@@ -536,7 +597,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onInvitesSorted(List<MainPageSelection> list, SparseIntArray changes) {
-        if(mFirestore == null) {
+        if (mFirestore == null) {
             mFirestore = FirebaseFirestore.getInstance();
         }
         if (userID == null) {
@@ -599,7 +660,7 @@ public class MainActivity extends AppCompatActivity
 
     private void updateRV() {
         if (mSelectionList != null && !mSelectionList.isEmpty()) {
-            mErrorView.setVisibility(View.GONE);
+            mMsgView.setVisibility(View.GONE);
         }
         if (mainPageAdapter == null) {
             mainPageAdapter = new MainPageAdapter(mSelectionList, this);
@@ -607,7 +668,7 @@ public class MainActivity extends AppCompatActivity
                 mRecyclerView = findViewById(R.id.rv_main);
                 mRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this, LinearLayoutManager.VERTICAL, false));
                 mRecyclerView.setVisibility(View.VISIBLE);
-                mErrorView.setVisibility(View.INVISIBLE);
+                mMsgView.setVisibility(View.INVISIBLE);
             }
             mRecyclerView.setAdapter(mainPageAdapter);
         } else {
@@ -618,7 +679,8 @@ public class MainActivity extends AppCompatActivity
     private void insertSelectionToSQL(MainPageSelection mainPageSelection) {
         mSelectionList.add(mainPageSelection);
         ContentValues selectionValues = new ContentValues();
-        selectionValues.put(StatsEntry.COLUMN_FIRESTORE_ID, mainPageSelection.getId());
+        selectionValues.put(StatsEntry.COLUMN_FIRESTORE_ID, userID);
+        selectionValues.put(StatsEntry.COLUMN_LEAGUE_ID, mainPageSelection.getId());
         selectionValues.put(StatsEntry.COLUMN_NAME, mainPageSelection.getName());
         selectionValues.put(StatsEntry.TYPE, mainPageSelection.getType());
         selectionValues.put(StatsEntry.LEVEL, mainPageSelection.getLevel());
@@ -635,17 +697,18 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onDeleteConfirmed(final MainPageSelection mainPageSelection) {
-        mSelectionList.remove(mainPageSelection);
-        updateRV();
-        final String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
-        final String selectionID = mainPageSelection.getId();
-        String[] selectionArgs = new String[]{selectionID};
-        getContentResolver().delete(StatsEntry.CONTENT_URI_SELECTIONS, selection, selectionArgs);
         if (userID == null) {
             FirebaseUser currentUser = mAuth.getCurrentUser();
             userID = currentUser.getUid();
         }
-        if(mFirestore == null) {
+        mSelectionList.remove(mainPageSelection);
+        updateRV();
+        final String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        final String selectionID = mainPageSelection.getId();
+        String[] selectionArgs = new String[]{userID, selectionID};
+        getContentResolver().delete(StatsEntry.CONTENT_URI_SELECTIONS, selection, selectionArgs);
+
+        if (mFirestore == null) {
             mFirestore = FirebaseFirestore.getInstance();
         }
         final DocumentReference leagueDoc = mFirestore.collection(LEAGUE_COLLECTION).document(selectionID);
@@ -671,13 +734,11 @@ public class MainActivity extends AppCompatActivity
                                         QuerySnapshot querySnapshot = task.getResult();
                                         for (DocumentSnapshot documentSnapshot : querySnapshot) {
                                             DocumentReference documentReference = documentSnapshot.getReference();
-                                            documentReference.collection(PLAYER_LOGS).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                                            documentReference.collection(PLAYER_LOGS).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                                 @Override
-                                                public void onSuccess(QuerySnapshot querySnapshot) {
-                                                    for (DocumentSnapshot documentSnapshot : querySnapshot) {
-                                                        DocumentReference documentReference = documentSnapshot.getReference();
-                                                        batch.delete(documentReference);
-                                                    }
+                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                    deleteCollection(batch, task);
+
                                                 }
                                             });
                                             batch.delete(documentReference);
@@ -690,13 +751,11 @@ public class MainActivity extends AppCompatActivity
                                                 QuerySnapshot querySnapshot = task.getResult();
                                                 for (DocumentSnapshot documentSnapshot : querySnapshot) {
                                                     DocumentReference documentReference = documentSnapshot.getReference();
-                                                    documentReference.collection(TEAM_LOGS).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                                                    documentReference.collection(TEAM_LOGS).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                                         @Override
-                                                        public void onSuccess(QuerySnapshot querySnapshot) {
-                                                            for (DocumentSnapshot documentSnapshot : querySnapshot) {
-                                                                DocumentReference documentReference = documentSnapshot.getReference();
-                                                                batch.delete(documentReference);
-                                                            }
+                                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                            deleteCollection(batch, task);
+
                                                         }
                                                     });
                                                     batch.delete(documentReference);
@@ -705,24 +764,26 @@ public class MainActivity extends AppCompatActivity
                                             leagueDoc.collection(DELETION_COLLECTION).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                                 @Override
                                                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                    if (task.isSuccessful()) {
-                                                        QuerySnapshot querySnapshot = task.getResult();
-                                                        for (DocumentSnapshot documentSnapshot : querySnapshot) {
-                                                            DocumentReference documentReference = documentSnapshot.getReference();
-                                                            batch.delete(documentReference);
-                                                        }
-                                                    }
+                                                    deleteCollection(batch, task);
+
                                                     leagueDoc.collection(REQUESTS).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                                         @Override
                                                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                            if (task.isSuccessful()) {
-                                                                QuerySnapshot querySnapshot = task.getResult();
-                                                                for (DocumentSnapshot documentSnapshot : querySnapshot) {
-                                                                    DocumentReference documentReference = documentSnapshot.getReference();
-                                                                    batch.delete(documentReference);
+                                                            deleteCollection(batch, task);
+
+                                                            leagueDoc.collection(BOXSCORE_COLLECTION).get()
+                                                                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                                @Override
+                                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                                    deleteCollection(batch, task);
+                                                                    batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                        @Override
+                                                                        public void onSuccess(Void aVoid) {
+                                                                            reloadSelections();
+                                                                        }
+                                                                    });
                                                                 }
-                                                            }
-                                                            batch.commit();
+                                                            });
                                                         }
                                                     });
                                                 }
@@ -771,15 +832,24 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
+    private void deleteCollection(WriteBatch batch, Task<QuerySnapshot> task) {
+        if (task.isSuccessful()) {
+            QuerySnapshot querySnapshot = task.getResult();
+            for (final DocumentSnapshot documentSnapshot : querySnapshot) {
+                DocumentReference documentReference = documentSnapshot.getReference();
+                batch.delete(documentReference);
+            }
+        }
+    }
+
     @Override
     public Loader<QuerySnapshot> onCreateLoader(int id, Bundle args) {
+        Log.d("godzilla", "onCreateLoader");
         mFireTaskLoader = new FireTaskLoader(this);
-        mProgressBar.setVisibility(View.VISIBLE);
-        mErrorView.setVisibility(View.GONE);
+        setProgressBarVisible();
         mHandler.postDelayed(continueLoadRunnable, 20000);
         return mFireTaskLoader;
     }
-
 
 
     private void openContinueLoadDialog() {
@@ -794,13 +864,15 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onLoadFinished(android.support.v4.content.Loader<QuerySnapshot> loader, QuerySnapshot querySnapshot) {
+        Log.d("godzilla", "onLoadFinished");
         loadingFinished = true;
 
         if (mContinueLoadDialogFragment != null) {
             mHandler.post(dismissContinueLoadRunnable);
         }
 
-        if(mInviteList != null && mSelectionList != null) {
+        if (mInviteList != null && mSelectionList != null) {
+            Log.d("godzilla", "mInviteList != null && mSelectionList != null");
             setViews();
             return;
         }
@@ -818,9 +890,10 @@ public class MainActivity extends AppCompatActivity
         }
 
         if (querySnapshot == null) {
-            mProgressBar.setVisibility(View.GONE);
-            mErrorView.setVisibility(View.VISIBLE);
+            mMsgView.setText(R.string.error_with_loading);
+            setMessageViewVisible();
             loadSelections();
+            Log.d("godzilla", "querySnapshot == null");
             return;
         }
 
@@ -848,23 +921,41 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void loadChoice(boolean load) {
-        mErrorView.setVisibility(View.GONE);
+        mMsgView.setVisibility(View.GONE);
         if (load) {
             mFireTaskLoader.cancelLoadInBackground();
-            mInviteList = new ArrayList<>();
-            mSelectionList = new ArrayList<>();
-            Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_SELECTIONS,
-                    null, null, null, null);
-            while (cursor.moveToNext()) {
-                String id = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_FIRESTORE_ID);
-                String name = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_NAME);
-                int type = StatsContract.getColumnInt(cursor, StatsEntry.TYPE);
-                int level = StatsContract.getColumnInt(cursor, StatsEntry.LEVEL);
-                mSelectionList.add(new MainPageSelection(id, name, type, level));
+            mSelectionList = loadFromCache();
+            if (mSelectionList.isEmpty()) {
+                String errorText = "There are no statkeepers in your local database." +
+                        "\nPlease retry loading from the central database." +
+                        "\nIf you think there's an error, please contact me at sleekstats@gmail.com.";
+                mMsgView.setText(errorText);
+                setMessageViewVisible();
+            } else {
+                setViews();
             }
-            cursor.close();
-            setViews();
         }
+    }
+
+    private ArrayList<MainPageSelection> loadFromCache() {
+        ArrayList<MainPageSelection> cacheList = new ArrayList<>();
+        if (userID == null) {
+            userID = mAuth.getCurrentUser().getUid();
+        }
+        String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
+        String[] selectionArgs = new String[]{userID};
+
+        Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_SELECTIONS,
+                null, selection, selectionArgs, null);
+        while (cursor.moveToNext()) {
+            String id = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_LEAGUE_ID);
+            String name = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_NAME);
+            int type = StatsContract.getColumnInt(cursor, StatsEntry.TYPE);
+            int level = StatsContract.getColumnInt(cursor, StatsEntry.LEVEL);
+            cacheList.add(new MainPageSelection(id, name, type, level));
+        }
+        cursor.close();
+        return cacheList;
     }
 
     @Override
@@ -898,11 +989,10 @@ public class MainActivity extends AppCompatActivity
             Toast.makeText(MainActivity.this, R.string.please_enter_name_first, Toast.LENGTH_LONG).show();
             return;
         }
-        if(mRecyclerView != null) {
+        if (mRecyclerView != null) {
             mRecyclerView.setVisibility(View.INVISIBLE);
         }
-        mProgressBar.setVisibility(View.VISIBLE);
-        mErrorView.setVisibility(View.GONE);
+        setProgressBarVisible();
 
         addSelection(name, type, UsersActivity.LEVEL_CREATOR, null);
     }
@@ -937,7 +1027,7 @@ public class MainActivity extends AppCompatActivity
         final String userDisplayName = currentUser.getDisplayName();
 
         final Map<String, Object> firestoreLeagueMap = new HashMap<>();
-        if(mFirestore == null) {
+        if (mFirestore == null) {
             mFirestore = FirebaseFirestore.getInstance();
         }
         final DocumentReference statKeeperDocument;
@@ -985,10 +1075,12 @@ public class MainActivity extends AppCompatActivity
                                         ContentValues values = new ContentValues();
                                         values.put(StatsEntry.COLUMN_NAME, name);
                                         values.put(StatsEntry.ADD, true);
+                                        values.put(StatsEntry.COLUMN_LEAGUE_ID, selectionID);
                                         getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
                                     } else if (type == MainPageSelection.TYPE_PLAYER) {
                                         ContentValues values = new ContentValues();
                                         values.put(StatsEntry.COLUMN_NAME, name);
+                                        values.put(StatsEntry.COLUMN_LEAGUE_ID, selectionID);
                                         getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
                                     }
 
@@ -1085,7 +1177,7 @@ public class MainActivity extends AppCompatActivity
             }
         }
 
-        if(mFirestore == null) {
+        if (mFirestore == null) {
             mFirestore = FirebaseFirestore.getInstance();
         }
         mFirestore.collection(LEAGUE_COLLECTION)
@@ -1138,7 +1230,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onAcceptInvite(boolean accepted, String id, String name, int type, int level) {
-        if(accepted) {
+        if (accepted) {
             MyApp myApp = (MyApp) getApplicationContext();
             myApp.setCurrentSelection(new MainPageSelection(id, name, type, level));
             addSelection(name, type, level, id);
@@ -1146,21 +1238,22 @@ public class MainActivity extends AppCompatActivity
         mAcceptInviteDialog = null;
     }
 
-    private static class MyHandler extends Handler {
-        private final WeakReference<MainActivity> mActivity;
+private static class MyHandler extends Handler {
+    private final WeakReference<MainActivity> mActivity;
 
-        MyHandler(MainActivity activity) {
-            mActivity = new WeakReference<>(activity);
-        }
+    MyHandler(MainActivity activity) {
+        mActivity = new WeakReference<>(activity);
+    }
 
-        @Override
-        public void handleMessage(Message msg) {
-            MainActivity activity = mActivity.get();
-            if (activity != null) {
-                super.handleMessage(msg);
-            }
+    @Override
+    public void handleMessage(Message msg) {
+        MainActivity activity = mActivity.get();
+        if (activity != null) {
+            super.handleMessage(msg);
         }
     }
+
+}
 
     private final Runnable openInviteRunnable = new Runnable() {
         public void run() {

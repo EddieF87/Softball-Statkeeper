@@ -14,15 +14,15 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import xyz.sleekstats.softball.MyApp;
 import xyz.sleekstats.softball.R;
-import xyz.sleekstats.softball.data.FirestoreHelper;
+import xyz.sleekstats.softball.data.FirestoreHelperService;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
 import xyz.sleekstats.softball.data.TimeStampUpdater;
@@ -61,8 +61,7 @@ public class LeagueManagerActivity extends ExportActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pager);
 
-
-
+        Log.d("megaman", "LeagueManagerActivity onCreate");
         try {
             MyApp myApp = (MyApp) getApplicationContext();
             MainPageSelection mainPageSelection = myApp.getCurrentSelection();
@@ -84,25 +83,30 @@ public class LeagueManagerActivity extends ExportActivity
         TabLayout tabLayout = findViewById(R.id.my_tab_layout);
         tabLayout.setupWithViewPager(viewPager);
 
-        Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, null, null, null, null);
+        Log.d("megaman", "LeagueManagerActivity checkBackups");
+        String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] selectionArgs = new String[]{mLeagueID};
+        Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, null, selection, selectionArgs, null);
         if(cursor != null && cursor.moveToFirst()){
+            Log.d("megaman", "LeagueManagerActivity cursor != null");
             sendRetryGameLoadIntent();
             cursor.close();
             return;
         }
-        cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_TEAMS, null, null, null, null);
-        if(cursor != null) {
-           if (cursor.moveToFirst()) {
+        cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_TEAMS, null, selection, selectionArgs, null);
+        if(cursor != null && cursor.moveToFirst()) {
+            Log.d("megaman", "LeagueManagerActivity cursor != null");
                sendRetryGameLoadIntent();
-           }
-           cursor.close();
+        }
+        if (cursor != null) {
+            cursor.close();
         }
     }
 
     private void sendRetryGameLoadIntent(){
-        Intent intent = new Intent(LeagueManagerActivity.this, FirestoreHelper.class);
-        intent.putExtra(FirestoreHelper.STATKEEPER_ID, mLeagueID);
-        intent.setAction(FirestoreHelper.INTENT_RETRY_GAME_LOAD);
+        Intent intent = new Intent(LeagueManagerActivity.this, FirestoreHelperService.class);
+        intent.putExtra(FirestoreHelperService.STATKEEPER_ID, mLeagueID);
+        intent.setAction(FirestoreHelperService.INTENT_RETRY_GAME_LOAD);
         startService(intent);
     }
 
@@ -121,6 +125,7 @@ public class LeagueManagerActivity extends ExportActivity
         } else {
             ContentValues values = new ContentValues();
             values.put(StatsEntry.COLUMN_NAME, teamName);
+            values.put(StatsEntry.COLUMN_LEAGUE_ID, mLeagueID);
             values.put(StatsEntry.ADD, true);
             Uri teamUri = getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
 
@@ -129,7 +134,9 @@ public class LeagueManagerActivity extends ExportActivity
             }
             TimeStampUpdater.updateTimeStamps(LeagueManagerActivity.this, mLeagueID, System.currentTimeMillis());
 
-            Cursor cursor = getContentResolver().query(teamUri, new String[]{StatsEntry._ID, StatsEntry.COLUMN_FIRESTORE_ID}, null, null, null);
+            String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+            String[] selectionArgs = new String[]{mLeagueID};
+            Cursor cursor = getContentResolver().query(teamUri, new String[]{StatsEntry._ID, StatsEntry.COLUMN_FIRESTORE_ID}, selection, selectionArgs, null);
             if (cursor.moveToFirst()) {
                 int id = StatsContract.getColumnInt(cursor, StatsEntry._ID);
                 String firestoreID = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_FIRESTORE_ID);
@@ -204,8 +211,10 @@ public class LeagueManagerActivity extends ExportActivity
 
     @Override
     public void clearGameDB() {
-        getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, null, null);
-        getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, null, null);
+        String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] selectionArgs = new String[]{mLeagueID};
+        getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, selection, selectionArgs);
+        getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, selection, selectionArgs);
         SharedPreferences savedGamePreferences = getSharedPreferences(mLeagueID + StatsEntry.GAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = savedGamePreferences.edit();
         editor.clear();
@@ -221,6 +230,12 @@ public class LeagueManagerActivity extends ExportActivity
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         DialogFragment newFragment = GameSettingsDialog.newInstance(innings, genderSorter, mLeagueID, 0);
         newFragment.show(fragmentTransaction, "");
+    }
+
+    @Override
+    public void goToGameActivity() {
+        Intent intent = new Intent(LeagueManagerActivity.this, LeagueGameActivity.class);
+        startActivityForResult(intent, 0);
     }
 
     private class LeagueManagerPagerAdapter extends FragmentStatePagerAdapter {
@@ -291,6 +306,7 @@ public class LeagueManagerActivity extends ExportActivity
     @Override
     protected void onResume() {
         super.onResume();
+        Log.d("megaman", "LeagueManagerActivity onResume");
         SharedPreferences settingsPreferences = getSharedPreferences(mLeagueID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
         int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
         int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
@@ -326,6 +342,7 @@ public class LeagueManagerActivity extends ExportActivity
             values.put(StatsEntry.COLUMN_TEAM, team);
             values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, teamID);
             values.put(StatsEntry.ADD, true);
+            values.put(StatsEntry.COLUMN_LEAGUE_ID, mLeagueID);
             Uri uri = getContentResolver().insert(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, values);
             if (uri != null) {
                 update = true;
@@ -387,5 +404,20 @@ public class LeagueManagerActivity extends ExportActivity
                 return true;
         }
         return false;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d("megaman", "LeagueManagerActivity onActivityResult");
+        String text;
+        if(resultCode == 222) {
+            text = "GAME COMPLETE";
+        } else {
+            text = "ONGOING";
+        }
+
+        Toast.makeText(LeagueManagerActivity.this, text, Toast.LENGTH_LONG).show();
+
     }
 }

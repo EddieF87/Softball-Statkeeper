@@ -34,7 +34,7 @@ import xyz.sleekstats.softball.objects.PlayerLog;
 import xyz.sleekstats.softball.objects.Team;
 import xyz.sleekstats.softball.objects.TeamLog;
 
-import static xyz.sleekstats.softball.data.FirestoreHelper.*;
+import static xyz.sleekstats.softball.data.FirestoreHelperService.*;
 import static xyz.sleekstats.softball.data.StatsContract.StatsEntry;
 
 public class FirestoreStatkeeperSync implements Parcelable {
@@ -237,6 +237,7 @@ public class FirestoreStatkeeperSync implements Parcelable {
                                                         values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, player.getTeamfirestoreid());
                                                         values.put(StatsEntry.COLUMN_GENDER, player.getGender());
                                                         values.put(StatsEntry.COLUMN_FIRESTORE_ID, playerIdString);
+                                                        values.put(StatsEntry.COLUMN_LEAGUE_ID, mStatKeeperID);
                                                         mContext.getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
                                                     }
                                                     if (mListener != null) {
@@ -277,9 +278,9 @@ public class FirestoreStatkeeperSync implements Parcelable {
                             for (DocumentSnapshot document : querySnapshot) {
                                 String gameIDString = document.getId();
 
-                                String selection = StatsEntry.COLUMN_GAME_ID + "=?";
+                                String selection = StatsEntry.COLUMN_GAME_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
                                 Cursor cursor = mContext.getContentResolver().query(StatsEntry.CONTENT_URI_BOXSCORE_OVERVIEWS,
-                                        null, selection, new String[]{gameIDString}, null);
+                                        null, selection, new String[]{gameIDString, mStatKeeperID}, null);
 
                                 if (!cursor.moveToFirst()) {
                                     long gameID = Long.parseLong(gameIDString);
@@ -295,6 +296,7 @@ public class FirestoreStatkeeperSync implements Parcelable {
                                     values.put(StatsEntry.COLUMN_AWAY_RUNS, awayTeamRuns);
                                     values.put(StatsEntry.COLUMN_HOME_RUNS, homeTeamRuns);
                                     values.put(StatsEntry.COLUMN_LOCAL, 0);
+                                    values.put(StatsEntry.COLUMN_LEAGUE_ID, mStatKeeperID);
                                     mContext.getContentResolver().insert(StatsEntry.CONTENT_URI_BOXSCORE_OVERVIEWS, values);
                                 }
                                 cursor.close();
@@ -401,6 +403,7 @@ public class FirestoreStatkeeperSync implements Parcelable {
                                                         values.put(StatsEntry.SYNC, true);
                                                         values.put(StatsEntry.COLUMN_NAME, team.getName());
                                                         values.put(StatsEntry.COLUMN_FIRESTORE_ID, teamIdString);
+                                                        values.put(StatsEntry.COLUMN_LEAGUE_ID, mStatKeeperID);
                                                         mContext.getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
                                                     }
                                                     if (mListener != null) {
@@ -493,8 +496,8 @@ public class FirestoreStatkeeperSync implements Parcelable {
                 uri = StatsEntry.CONTENT_URI_PLAYERS;
             }
             String firestoreID = item.getFirestoreID();
-            String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
-            String[] selectionArgs = new String[]{firestoreID};
+            String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+            String[] selectionArgs = new String[]{firestoreID, mStatKeeperID};
             mContext.getContentResolver().delete(uri, selection, selectionArgs);
             if (keepGame && currentlyPlaying.contains(firestoreID)) {
                 clearGameDB();
@@ -540,8 +543,10 @@ public class FirestoreStatkeeperSync implements Parcelable {
 
 
     private void clearGameDB() {
-        mContext.getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, null, null);
-        mContext.getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, null, null);
+        String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] selectionArgs = new String[]{mStatKeeperID};
+        mContext.getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, selection, selectionArgs);
+        mContext.getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, selection, selectionArgs);
         SharedPreferences savedGamePreferences = mContext.getSharedPreferences(mStatKeeperID + StatsEntry.GAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = savedGamePreferences.edit();
         editor.clear();
@@ -551,8 +556,11 @@ public class FirestoreStatkeeperSync implements Parcelable {
     //OTHER
     private List<String> checkForCurrentGameInterference() {
         List<String> currentlyPlaying = new ArrayList<>();
+
+        String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] selectionArgs = new String[]{mStatKeeperID};
         Cursor cursor = mContext.getContentResolver().query(StatsEntry.CONTENT_URI_TEMP,
-                null, null, null, null);
+                null, selection, selectionArgs, null);
         while (cursor.moveToNext()) {
             String firestoreID = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_FIRESTORE_ID);
             currentlyPlaying.add(firestoreID);

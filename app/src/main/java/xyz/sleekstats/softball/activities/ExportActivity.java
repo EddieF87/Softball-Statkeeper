@@ -92,6 +92,8 @@ public abstract class ExportActivity extends AppCompatActivity {
 
         List<String[]> data = new ArrayList<>();
 
+        String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] selectionArgs = new String[]{};//todo
         Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
                 null, null, null, null);
 

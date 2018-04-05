@@ -95,8 +95,11 @@ public abstract class ObjectPagerActivity extends AppCompatActivity
             sortOrder = StatsEntry.COLUMN_NAME + " COLLATE NOCASE ASC";
         }
 
+        String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] selectionArgs = new String[]{mSelectionID};
+
         Cursor cursor = getContentResolver().query(uri, new String[]{StatsEntry._ID},
-                null, null, sortOrder);
+                selection, selectionArgs, sortOrder);
         while (cursor.moveToNext()) {
             int objectID = StatsContract.getColumnInt(cursor, StatsEntry._ID);
             objectIDs.add(objectID);
@@ -161,10 +164,13 @@ public abstract class ObjectPagerActivity extends AppCompatActivity
             values.put(StatsEntry.COLUMN_TEAM, teamName);
             values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, teamID);
             values.put(StatsEntry.ADD, true);
+            values.put(StatsEntry.COLUMN_LEAGUE_ID, mSelectionID);
             Uri uri = getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
             if (uri != null) {
-                Cursor cursor = getContentResolver().query(uri, null, null,
-                        null, null);
+                String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+                String[] selectionArgs = new String[]{mSelectionID};
+                Cursor cursor = getContentResolver().query(uri, null, selection,
+                        selectionArgs, null);
                 if (cursor.moveToFirst()) {
                     players.add(new Player(cursor, false));
                 }

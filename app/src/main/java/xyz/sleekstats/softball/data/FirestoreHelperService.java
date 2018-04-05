@@ -34,7 +34,7 @@ import java.util.Map;
  * Created by Eddie on 11/7/2017.
  */
 
-public class FirestoreHelper extends IntentService {
+public class FirestoreHelperService extends IntentService {
     public static final String LEAGUE_COLLECTION = "leagues";
     public static final String PLAYERS_COLLECTION = "players";
     public static final String TEAMS_COLLECTION = "teams";
@@ -61,16 +61,16 @@ public class FirestoreHelper extends IntentService {
     private long mUpdateTime;
     private FirebaseFirestore mFirestore;
 
-    public FirestoreHelper() {
-        super("FirestoreHelper");
+    public FirestoreHelperService() {
+        super("FirestoreHelperService");
     }
 
     public void addDeletion(final String firestoreID, final int type, final String name, final int gender, final String teamFireID) {
         if (mFirestore == null) {
             mFirestore = FirebaseFirestore.getInstance();
         }
-        mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION).document(statKeeperID)
-                .collection(FirestoreHelper.PLAYERS_COLLECTION).document(firestoreID)
+        mFirestore.collection(FirestoreHelperService.LEAGUE_COLLECTION).document(statKeeperID)
+                .collection(FirestoreHelperService.PLAYERS_COLLECTION).document(firestoreID)
                 .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
@@ -86,10 +86,10 @@ public class FirestoreHelper extends IntentService {
         if (mFirestore == null) {
             mFirestore = FirebaseFirestore.getInstance();
         }
-        CollectionReference playersCollection = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION).document(statKeeperID)
-                .collection(FirestoreHelper.PLAYERS_COLLECTION);
-        CollectionReference deletionCollection = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION).document(statKeeperID)
-                .collection(FirestoreHelper.DELETION_COLLECTION);
+        CollectionReference playersCollection = mFirestore.collection(FirestoreHelperService.LEAGUE_COLLECTION).document(statKeeperID)
+                .collection(FirestoreHelperService.PLAYERS_COLLECTION);
+        CollectionReference deletionCollection = mFirestore.collection(FirestoreHelperService.LEAGUE_COLLECTION).document(statKeeperID)
+                .collection(FirestoreHelperService.DELETION_COLLECTION);
 
         WriteBatch batch = mFirestore.batch();
 
@@ -116,8 +116,8 @@ public class FirestoreHelper extends IntentService {
             mFirestore = FirebaseFirestore.getInstance();
         }
 
-        DocumentReference deletionDoc = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION).document(leagueID)
-                .collection(FirestoreHelper.DELETION_COLLECTION).document(firestoreID);
+        DocumentReference deletionDoc = mFirestore.collection(FirestoreHelperService.LEAGUE_COLLECTION).document(leagueID)
+                .collection(FirestoreHelperService.DELETION_COLLECTION).document(firestoreID);
 
         Map<String, Object> deletion = new HashMap<>();
         long time = System.currentTimeMillis();
@@ -133,13 +133,15 @@ public class FirestoreHelper extends IntentService {
     }
 
     public void addPlayerStatsToDB() {
-        Log.d("zztop", "addPlayerStatsToDB");
+        Log.d("megaman", "addPlayerStatsToDB start");
+        Log.d("godzilla", "addPlayerStatsToDB start  " + mUpdateTime);
+
+        String selection = StatsEntry.COLUMN_GAME_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] selectionArgs = new String[]{String.valueOf(mUpdateTime), statKeeperID};
 
         Cursor backupPlayerCursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, null,
-                null, null, null);
-
+                selection, selectionArgs, null);
         WriteBatch playerBatch = mFirestore.batch();
-
 
         while (backupPlayerCursor.moveToNext()) {
 
@@ -169,20 +171,23 @@ public class FirestoreHelper extends IntentService {
             boxscoreValues.put(StatsEntry.COLUMN_BB, gameBB);
             boxscoreValues.put(StatsEntry.COLUMN_OUT, gameOuts);
             boxscoreValues.put(StatsEntry.COLUMN_SF, gameSF);
+            boxscoreValues.put(StatsEntry.COLUMN_LEAGUE_ID, statKeeperID);
             getContentResolver().insert(StatsEntry.CONTENT_URI_BOXSCORE_PLAYERS, boxscoreValues);
 
-            final DocumentReference playerRef = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION)
-                    .document(statKeeperID).collection(FirestoreHelper.PLAYERS_COLLECTION).document(firestoreID);
+            final DocumentReference playerRef = mFirestore.collection(FirestoreHelperService.LEAGUE_COLLECTION)
+                    .document(statKeeperID).collection(FirestoreHelperService.PLAYERS_COLLECTION).document(firestoreID);
 
             final DocumentReference playerLogRef =
-                    playerRef.collection(FirestoreHelper.PLAYER_LOGS).document(String.valueOf(mUpdateTime));
+                    playerRef.collection(FirestoreHelperService.PLAYER_LOGS).document(String.valueOf(mUpdateTime));
 
             PlayerLog playerLog = new PlayerLog(playerId, gameRBI, gameRun, game1b, game2b, game3b,
                     gameHR, gameOuts, gameBB, gameSF);
             playerBatch.set(playerLogRef, playerLog);
 
             Uri playerUri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_PLAYERS, playerId);
-            Cursor permanentPlayerCursor = getContentResolver().query(playerUri, null, null, null, null);
+            String qSelection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+            String[] qSelectionArgs = new String[]{statKeeperID};
+            Cursor permanentPlayerCursor = getContentResolver().query(playerUri, null, qSelection, qSelectionArgs, null);
             permanentPlayerCursor.moveToFirst();
 
             firestoreID = StatsContract.getColumnString(permanentPlayerCursor, StatsEntry.COLUMN_FIRESTORE_ID);
@@ -221,17 +226,27 @@ public class FirestoreHelper extends IntentService {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
+
                         getContentResolver().delete(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, null, null);
+                        Log.d("megaman", "addPlayerStatsToDB SUCCESS");
+                        Log.d("godzilla", "addPlayerStatsToDB SUCCESS  " + mUpdateTime);
                     }
-                });
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d("godzilla", "addPlayerStatsToDB FAILURE  " + mUpdateTime);
+            }
+        });
     }
 
     public void addTeamStatsToDB(final String teamFirestoreID, int teamRuns, int otherTeamRuns) {
+        Log.d("megaman", "addTeamStatsToDB start");
+        Log.d("godzilla", "addTeamStatsToDB start  " + mUpdateTime);
 
         WriteBatch teamBatch = mFirestore.batch();
 
-        String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
-        String[] selectionArgs = {teamFirestoreID};
+        String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        final String[] selectionArgs = {teamFirestoreID, statKeeperID};
         Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS, null,
                 selection, selectionArgs, null);
         cursor.moveToFirst();
@@ -242,9 +257,9 @@ public class FirestoreHelper extends IntentService {
         TeamLog teamLog = new TeamLog(teamId, teamRuns, otherTeamRuns);
         backupValues.put(StatsEntry.COLUMN_TEAM_ID, teamId);
 
-        final DocumentReference teamRef = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION)
-                .document(statKeeperID).collection(FirestoreHelper.TEAMS_COLLECTION).document(teamFirestoreID);
-        final DocumentReference teamLogRef = teamRef.collection(FirestoreHelper.TEAM_LOGS).document(String.valueOf(mUpdateTime));
+        final DocumentReference teamRef = mFirestore.collection(FirestoreHelperService.LEAGUE_COLLECTION)
+                .document(statKeeperID).collection(FirestoreHelperService.TEAMS_COLLECTION).document(teamFirestoreID);
+        final DocumentReference teamLogRef = teamRef.collection(FirestoreHelperService.TEAM_LOGS).document(String.valueOf(mUpdateTime));
 
         if (teamRuns > otherTeamRuns) {
             int newValue = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_WINS) + 1;
@@ -273,22 +288,39 @@ public class FirestoreHelper extends IntentService {
         cursor.close();
 
         values.put(StatsEntry.COLUMN_FIRESTORE_ID, teamFirestoreID);
-
+        backupValues.put(StatsEntry.COLUMN_FIRESTORE_ID, teamFirestoreID);
+        values.put(StatsEntry.COLUMN_LEAGUE_ID, statKeeperID);
+        backupValues.put(StatsEntry.COLUMN_LEAGUE_ID, statKeeperID);
         getContentResolver().update(StatsEntry.CONTENT_URI_TEAMS, values, selection, selectionArgs);
 
         teamBatch.update(teamRef, StatsEntry.UPDATE, mUpdateTime);
         teamBatch.set(teamLogRef, teamLog);
 
+        backupValues.put(StatsEntry.COLUMN_GAME_ID, mUpdateTime);
+        getContentResolver().insert(StatsEntry.CONTENT_URI_BACKUP_TEAMS, backupValues);
+
         teamBatch.commit().addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                getContentResolver().insert(StatsEntry.CONTENT_URI_BACKUP_TEAMS, backupValues);
+                Log.d("megaman", "addTeamStatsToDB FAILURE");
+                Log.d("godzilla", "addTeamStatsToDB FAILURE  " + mUpdateTime);
+            }
+        }).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                String selection = StatsEntry.COLUMN_GAME_ID + "=? AND " + StatsEntry.COLUMN_FIRESTORE_ID + "=? AND "
+                        + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+                String[] selectionArgs = new String[]{String.valueOf(mUpdateTime), teamFirestoreID, statKeeperID};
+                getContentResolver().delete(StatsEntry.CONTENT_URI_BACKUP_TEAMS, selection, selectionArgs);
+                Log.d("godzilla", "addTeamStatsToDB SUCCESS  " + mUpdateTime);
             }
         });
     }
 
     public void addBoxScoreToDB(final String awayID, String homeID, int awayRuns, int homeRuns) {
+        Log.d("megaman", "addBoxScoreToDB");
         final ContentValues boxscoreValues = new ContentValues();
+        boxscoreValues.put(StatsEntry.COLUMN_LEAGUE_ID, statKeeperID);
         boxscoreValues.put(StatsEntry.COLUMN_GAME_ID, mUpdateTime);
         boxscoreValues.put(StatsEntry.COLUMN_LOCAL, 1);
         boxscoreValues.put(StatsEntry.COLUMN_AWAY_TEAM, awayID);
@@ -302,15 +334,17 @@ public class FirestoreHelper extends IntentService {
         boxscoreMap.put(StatsEntry.COLUMN_HOME_TEAM, homeID);
         boxscoreMap.put(StatsEntry.COLUMN_AWAY_RUNS, awayRuns);
         boxscoreMap.put(StatsEntry.COLUMN_HOME_RUNS, homeRuns);
-        final DocumentReference boxscoreRef = mFirestore.collection(FirestoreHelper.LEAGUE_COLLECTION)
-                .document(statKeeperID).collection(FirestoreHelper.BOXSCORE_COLLECTION).document(String.valueOf(mUpdateTime));
+        final DocumentReference boxscoreRef = mFirestore.collection(FirestoreHelperService.LEAGUE_COLLECTION)
+                .document(statKeeperID).collection(FirestoreHelperService.BOXSCORE_COLLECTION).document(String.valueOf(mUpdateTime));
         boxscoreRef.set(boxscoreMap, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
                     boxscoreValues.put(StatsEntry.COLUMN_LOCAL, 1);
+                    Log.d("godzilla", "addBoxScoreToDB SUCCESS  " + mUpdateTime);
                 } else {
                     boxscoreValues.put(StatsEntry.COLUMN_LOCAL, 0);
+                    Log.d("godzilla", "addBoxScoreToDB FAILURE  " + mUpdateTime);
                 }
                 getContentResolver().insert(StatsEntry.CONTENT_URI_BOXSCORE_OVERVIEWS, boxscoreValues);
             }
@@ -321,12 +355,15 @@ public class FirestoreHelper extends IntentService {
     public void retryGameLogLoad() {
         MyApp myApp = (MyApp) getApplicationContext();
         String leagueID = myApp.getCurrentSelection().getId();
-        Log.d("zztop", "retryGameLogLoad");
+        Log.d("megaman", "retryGameLogLoad");
+        Log.d("godzilla", "retryGameLogLoad start  " + mUpdateTime);
 
         WriteBatch batch = mFirestore.batch();
 
+        String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] selectionArgs = new String[]{statKeeperID};
         Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_PLAYERS,
-                null, null, null, null);
+                null, selection, selectionArgs, null);
         while (cursor.moveToNext()) {
             String playerFirestoreID = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_FIRESTORE_ID);
             long gameID = StatsContract.getColumnLong(cursor, StatsEntry.COLUMN_GAME_ID);
@@ -347,11 +384,12 @@ public class FirestoreHelper extends IntentService {
             PlayerLog playerLog = new PlayerLog(playerId, gameRBI, gameRun, game1b, game2b, game3b, gameHR, gameOuts, gameBB, gameSF);
             batch.set(docRef, playerLog);
         }
-
         cursor.close();
 
+        String qSelection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] qSelectionArgs = new String[]{statKeeperID};
         cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_TEAMS, null,
-                null, null, null);
+                qSelection, qSelectionArgs, null);
         while (cursor.moveToNext()) {
             long gameID = StatsContract.getColumnLong(cursor, StatsEntry.COLUMN_GAME_ID);
             long teamId = StatsContract.getColumnLong(cursor, StatsEntry.COLUMN_TEAM_ID);
@@ -372,8 +410,17 @@ public class FirestoreHelper extends IntentService {
         batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                getContentResolver().delete(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, null, null);
-                getContentResolver().delete(StatsEntry.CONTENT_URI_BACKUP_TEAMS, null, null);
+                String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+                String[] selectionArgs = new String[]{statKeeperID};
+                getContentResolver().delete(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, selection, selectionArgs);
+                getContentResolver().delete(StatsEntry.CONTENT_URI_BACKUP_TEAMS, selection, selectionArgs);
+                Log.d("megaman", "retryGameLogLoad SUCCESS");
+                Log.d("godzilla", "retryGameLogLoad SUCCESS  " + mUpdateTime);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d("godzilla", "retryGameLogLoad FAILURE  " + mUpdateTime);
             }
         });
         cursor.close();
@@ -381,15 +428,15 @@ public class FirestoreHelper extends IntentService {
 
     public void updatePlayer(final String firestoreID, final PlayerLog playerLog){
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-        final DocumentReference keeperRef = firestore.collection(FirestoreHelper.LEAGUE_COLLECTION)
+        final DocumentReference keeperRef = firestore.collection(FirestoreHelperService.LEAGUE_COLLECTION)
                 .document(statKeeperID);
         keeperRef.update(LAST_UPDATE, mUpdateTime);
 
-        final DocumentReference playerRef = keeperRef.collection(FirestoreHelper.PLAYERS_COLLECTION)
+        final DocumentReference playerRef = keeperRef.collection(FirestoreHelperService.PLAYERS_COLLECTION)
                 .document(firestoreID);
         playerRef.update(StatsEntry.UPDATE, mUpdateTime);
 
-        final DocumentReference playerLogRef = playerRef.collection(FirestoreHelper.PLAYER_LOGS).document();
+        final DocumentReference playerLogRef = playerRef.collection(FirestoreHelperService.PLAYER_LOGS).document();
         playerLogRef.set(playerLog).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {

@@ -7,7 +7,7 @@ import android.os.Bundle;
 
 import xyz.sleekstats.softball.MyApp;
 import xyz.sleekstats.softball.R;
-import xyz.sleekstats.softball.data.FirestoreHelper;
+import xyz.sleekstats.softball.data.FirestoreHelperService;
 import xyz.sleekstats.softball.dialogs.EditNameDialog;
 import xyz.sleekstats.softball.fragments.PlayerFragment;
 import xyz.sleekstats.softball.objects.MainPageSelection;
@@ -68,7 +68,7 @@ public class PlayerManagerActivity extends ExportActivity
                     MyApp myApp = (MyApp) getApplicationContext();
                     MainPageSelection mainPageSelection = myApp.getCurrentSelection();
                     String playerID = mainPageSelection.getId();
-                    db.collection(FirestoreHelper.LEAGUE_COLLECTION).document(playerID).update("name", enteredText);
+                    db.collection(FirestoreHelperService.LEAGUE_COLLECTION).document(playerID).update("name", enteredText);
                 } catch (Exception e) {
                     Intent intent = new Intent(PlayerManagerActivity.this, MainActivity.class);
                     startActivity(intent);

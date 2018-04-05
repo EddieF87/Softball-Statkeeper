@@ -39,7 +39,7 @@ import xyz.sleekstats.softball.activities.SetLineupActivity;
 import xyz.sleekstats.softball.activities.TeamManagerActivity;
 import xyz.sleekstats.softball.activities.UsersActivity;
 import xyz.sleekstats.softball.adapters.PlayerStatsAdapter;
-import xyz.sleekstats.softball.data.FirestoreHelper;
+import xyz.sleekstats.softball.data.FirestoreHelperService;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
 import xyz.sleekstats.softball.data.TimeStampUpdater;
@@ -256,7 +256,7 @@ public class TeamFragment extends Fragment
 
         rv.setLayoutManager(new LinearLayoutManager(
                 getActivity(), LinearLayoutManager.VERTICAL, false));
-        mAdapter = new PlayerStatsAdapter(mPlayers, getActivity(), genderSorter);
+        mAdapter = new PlayerStatsAdapter(mPlayers, getActivity(), genderSorter, mSelectionID);
         rv.setAdapter(mAdapter);
     }
 
@@ -325,8 +325,8 @@ public class TeamFragment extends Fragment
             teamNameView.setText(teamName);
         }
 
-        String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=?";
-        String[] selectionArgs = new String[]{teamFirestoreID};
+        String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] selectionArgs = new String[]{teamFirestoreID, mSelectionID};
         String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
 
         cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS,
@@ -618,8 +618,8 @@ public class TeamFragment extends Fragment
 
     public void deleteTeam() {
         if (mCurrentTeamUri != null) {
-            String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
-            String[] selectionArgs = new String[]{teamFirestoreID};
+            String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+            String[] selectionArgs = new String[]{teamFirestoreID, mSelectionID};
             int rowsDeleted = getActivity().getContentResolver().delete(mCurrentTeamUri, selection, selectionArgs);
 
             if (rowsDeleted > 0) {
@@ -627,8 +627,8 @@ public class TeamFragment extends Fragment
                         Toast.LENGTH_SHORT).show();
                 long updateTime = System.currentTimeMillis();
 
-                Intent intent = new Intent(getActivity(), FirestoreHelper.class);
-                intent.putExtra(FirestoreHelper.STATKEEPER_ID, mSelectionID);
+                Intent intent = new Intent(getActivity(), FirestoreHelperService.class);
+                intent.putExtra(FirestoreHelperService.STATKEEPER_ID, mSelectionID);
                 intent.putExtra(TimeStampUpdater.UPDATE_TIME, updateTime);
 
                 intent.putExtra(StatsEntry.COLUMN_FIRESTORE_ID, teamFirestoreID);
@@ -637,7 +637,7 @@ public class TeamFragment extends Fragment
                 intent.putExtra(StatsEntry.COLUMN_GENDER, teamFirestoreID);
                 intent.putExtra(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, teamFirestoreID);
 
-                intent.setAction(FirestoreHelper.INTENT_DELETE_PLAYER);
+                intent.setAction(FirestoreHelperService.INTENT_DELETE_PLAYER);
                 getActivity().startService(intent);
             } else {
                 return;
@@ -649,7 +649,7 @@ public class TeamFragment extends Fragment
     public List<String> deletePlayers() {
         List<String> firestoreIDsToDelete = new ArrayList<>();
         ArrayList<Player> firestorePlayersToDelete = new ArrayList<>();
-        String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
+        String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
 
         int amountDeleted = 0;
         for (int i = 0; i < mPlayers.size(); i++) {
@@ -657,7 +657,7 @@ public class TeamFragment extends Fragment
             String firestoreID = player.getFirestoreID();
             String name = player.getName();
             int gender = player.getGender();
-            String[] selectionArgs = new String[]{firestoreID};
+            String[] selectionArgs = new String[]{firestoreID, mSelectionID};
             int deleted = getActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_PLAYERS, selection, selectionArgs);
             if(deleted > 0) {
                 mPlayers.remove(i);
@@ -669,12 +669,12 @@ public class TeamFragment extends Fragment
         }
         long updateTime = System.currentTimeMillis();
 
-        Intent intent = new Intent(getActivity(), FirestoreHelper.class);
-        intent.putExtra(FirestoreHelper.STATKEEPER_ID, mSelectionID);
+        Intent intent = new Intent(getActivity(), FirestoreHelperService.class);
+        intent.putExtra(FirestoreHelperService.STATKEEPER_ID, mSelectionID);
         intent.putExtra(TimeStampUpdater.UPDATE_TIME, updateTime);
 
-        intent.putParcelableArrayListExtra(FirestoreHelper.KEY_DELETE_PLAYERS, firestorePlayersToDelete);
-        intent.setAction(FirestoreHelper.INTENT_DELETE_PLAYERS);
+        intent.putParcelableArrayListExtra(FirestoreHelperService.KEY_DELETE_PLAYERS, firestorePlayersToDelete);
+        intent.setAction(FirestoreHelperService.INTENT_DELETE_PLAYERS);
         getActivity().startService(intent);
         TimeStampUpdater.updateTimeStamps(getActivity(), mSelectionID, updateTime);
 
@@ -695,9 +695,11 @@ public class TeamFragment extends Fragment
 
     public boolean updateTeamName(String newName) {
 
+        String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] selectionArgs = new String[]{mSelectionID};
         String[] projection = new String[]{StatsEntry.COLUMN_FIRESTORE_ID};
         Cursor cursor = getActivity().getContentResolver().query(mCurrentTeamUri,
-                projection, null, null, null);
+                projection, selection, selectionArgs, null);
         cursor.moveToFirst();
         String firestoreID = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_FIRESTORE_ID);
         cursor.close();

@@ -59,7 +59,6 @@
         app:layout_constraintEnd_toStartOf="@+id/guide_v2"
         app:layout_constraintStart_toStartOf="@+id/guide_v1"
         app:layout_constraintTop_toTopOf="@+id/infield"
-        android:elevation="36dp"
         tools:text="Cindy Ceasars" />
 
     <TextView
