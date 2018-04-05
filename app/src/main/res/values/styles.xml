@@ -118,11 +118,15 @@
         <item name="android:layout_height">44dp</item>
         <item name="android:scaleType">center</item>
         <item name="android:clickable">true</item>
-        <item name="android:src">@android:drawable/ic_input_add</item>
+    </style>
+
+    <style name="AddStatkeeperFABStyle" parent="FloatingActionButtonStyle">
+        <item name="android:src">@drawable/ic_add_black_18dp</item>
+        <item name="android:tint">@color/colorPrimaryDark</item>
     </style>
 
     <style name="AddPlayersFABStyle" parent="FloatingActionButtonStyle">
-        <item name="android:src">@drawable/ic_group_add_white_18dp</item>
+        <item name="android:src">@drawable/ic_group_add_white_24dp</item>
     </style>
 
     <style name="PlayerBoardStyle">

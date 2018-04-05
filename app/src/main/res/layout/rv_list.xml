@@ -8,5 +8,4 @@
     android:minHeight="350dp"
     android:layout_marginLeft="16dp"
     android:layout_marginRight="16dp"
-    android:padding="16dp"
-    app:layoutManager="LinearLayoutManager" />
+    android:padding="16dp"/>

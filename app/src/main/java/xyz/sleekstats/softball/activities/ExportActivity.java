@@ -16,6 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
 import xyz.sleekstats.softball.data.MyFileProvider;
+import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
 import xyz.sleekstats.softball.objects.Player;
 import xyz.sleekstats.softball.objects.Team;
@@ -24,6 +25,7 @@ import com.opencsv.CSVWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -34,14 +36,34 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 public abstract class ExportActivity extends AppCompatActivity {
 
-    private String leagueName;
+    private String emailSubject;
+    private long mGameID;
     private static final int PERMISSION_REQUEST_CODE = 200;
     private static final int KEY_TEAMS = 0;
     private static final int KEY_PLAYERS = 1;
     private final NumberFormat formatter = new DecimalFormat("#.000");
+    private static final int KEY_LEAGUE = 10;
+    private static final int KEY_BOXSCORE = 11;
+    private int exportType;
 
-    public void startExport(String name) {
-        leagueName = name;
+
+    public void startLeagueExport(String name) {
+        emailSubject = name;
+        exportType = KEY_LEAGUE;
+        if (!checkPermission()) {
+            tryExport();
+        } else {
+            if (checkPermission()) {
+                requestPermissionAndContinue();
+            } else {
+                tryExport();
+            }
+        }
+    }
+
+    public void startBoxscoreExport(long id) {
+        mGameID = id;
+        exportType = KEY_BOXSCORE;
         if (!checkPermission()) {
             tryExport();
         } else {
@@ -55,7 +77,11 @@ public abstract class ExportActivity extends AppCompatActivity {
 
     private void tryExport() {
         try {
-            export();
+            if(exportType == KEY_LEAGUE) {
+                exportLeague();
+            } else if (exportType == KEY_BOXSCORE){
+                exportBoxscore();
+            }
         } catch (IOException e) {
             Toast.makeText(ExportActivity.this, "FAILURE", Toast.LENGTH_LONG).show();
             e.printStackTrace();
@@ -110,6 +136,126 @@ public abstract class ExportActivity extends AppCompatActivity {
         return data;
     }
 
+    private List<String[]> gatherBoxscoreData() {
+
+        String dateString = DateFormat.getDateInstance(DateFormat.DATE_FIELD).format(mGameID);
+
+        List<String[]> data = new ArrayList<>();
+
+        String selection = StatsEntry.COLUMN_GAME_ID + "=?";
+        String[] selectionArgs = new String[] {String.valueOf(mGameID)};
+        Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BOXSCORE_OVERVIEWS,
+                null, selection, selectionArgs, null);
+
+        String awayTeamID;
+        String homeTeamID;
+        int awayRuns;
+        int homeRuns;
+        if (cursor.moveToFirst()){
+            awayTeamID = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_AWAY_TEAM);
+            homeTeamID = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_HOME_TEAM);
+            awayRuns = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_HOME_RUNS);
+            homeRuns = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_HOME_RUNS);
+        } else {
+            cursor.close();
+            return null;
+        }
+        String awayTeamName = null;
+        String homeTeamName = null;
+        selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
+        selectionArgs = new String[]{awayTeamID};
+        cursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
+                null, selection, selectionArgs, null);
+        if(cursor.moveToFirst()) {
+            awayTeamName = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_NAME);
+        }
+        selectionArgs = new String[]{homeTeamID};
+        cursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
+                null, selection, selectionArgs, null);
+        if(cursor.moveToFirst()) {
+            homeTeamName = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_NAME);
+        }
+        emailSubject = dateString + ":  " + awayTeamName + " " + awayRuns + " - " +  homeTeamName + " " + homeRuns;
+        data.add(new String[]{emailSubject});
+        data.add(new String[]{});
+        addToBoxscoreData(data, awayTeamID);
+        data.add(new String[]{});
+        addToBoxscoreData(data, homeTeamID);
+        if(data.size() <= 1) {
+            return null;
+        }
+        return data;
+
+    }
+
+    private void addToBoxscoreData(List<String[]> data, String teamID){
+
+        String[] titleArray = new String[]{
+                "Name", "AB", "R",
+                "H",  "RBI","HR",
+                "3B", "2B", "1B", "BB",
+                "SF", "Out"
+        };
+        data.add(titleArray);
+
+        String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=?";
+        String[] selectionArgs = new String[] {teamID};
+
+        Cursor playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI_BOXSCORE_PLAYERS,
+                null, selection, selectionArgs, null);
+
+        while (playerCursor.moveToNext()) {
+
+            String playerID = StatsContract.getColumnString(playerCursor, StatsEntry.COLUMN_FIRESTORE_ID);
+            int hr =  StatsContract.getColumnInt(playerCursor, StatsEntry.COLUMN_HR);
+            int tpl = StatsContract.getColumnInt(playerCursor, StatsEntry.COLUMN_3B);;
+            int dbl = StatsContract.getColumnInt(playerCursor, StatsEntry.COLUMN_2B);;
+            int sgl = StatsContract.getColumnInt(playerCursor, StatsEntry.COLUMN_1B);;
+            int bb =  StatsContract.getColumnInt(playerCursor, StatsEntry.COLUMN_BB);
+            int out = StatsContract.getColumnInt(playerCursor, StatsEntry.COLUMN_OUT);
+            int rbi = StatsContract.getColumnInt(playerCursor, StatsEntry.COLUMN_RBI);
+            int run = StatsContract.getColumnInt(playerCursor, StatsEntry.COLUMN_RUN);
+            int sf =  StatsContract.getColumnInt(playerCursor, StatsEntry.COLUMN_SF);
+
+            int hit = hr + tpl + dbl + sgl;
+            int ab =  hit + out;
+
+
+            String hitString = String.valueOf(hit);
+            String abString = String.valueOf(ab);
+            String hrString = String.valueOf(hr);
+            String tplString = String.valueOf(tpl);
+            String dblString = String.valueOf(dbl);
+            String sglString = String.valueOf(sgl);
+            String bbString = String.valueOf(bb);
+            String outString = String.valueOf(out);
+            String rbiString = String.valueOf(rbi);
+            String runString = String.valueOf(run);
+            String sfString = String.valueOf(sf);
+
+            String nameSelection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
+            String[] nameSelectionArgs = new String[] {playerID};
+            String[] nameProjection = new String[] {StatsEntry.COLUMN_NAME};
+
+            String nameString;
+            Cursor nameCursor = getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS,
+                    nameProjection, nameSelection, nameSelectionArgs, null);
+            if(nameCursor.moveToFirst()){
+                nameString = StatsContract.getColumnString(nameCursor, StatsEntry.COLUMN_NAME);
+            } else {
+                nameString = "";
+            }
+
+            String[] stringArray = new String[]{
+                    nameString, abString, runString,
+                    hitString, rbiString, hrString,
+                    tplString, dblString, sglString, bbString,
+                    sfString, outString
+            };
+            data.add(stringArray);
+        }
+        playerCursor.close();
+    }
 
     private List<String[]> gatherPlayerData() {
 
@@ -208,16 +354,16 @@ public abstract class ExportActivity extends AppCompatActivity {
     }
 
 
-    private void export() throws IOException {
+    private void exportLeague() throws IOException {
 
-        File exportDir = new File(Environment.getExternalStorageDirectory(), "test");
+        File exportDir = new File(Environment.getExternalStorageDirectory(), "sleekstats");
         if (!exportDir.exists()) {
             exportDir.mkdir();
         }
         ArrayList<Uri> uris = new ArrayList<>();
 
-        writeData(exportDir, KEY_TEAMS, uris);
-        writeData(exportDir, KEY_PLAYERS, uris);
+        writeLeagueData(exportDir, KEY_TEAMS, uris);
+        writeLeagueData(exportDir, KEY_PLAYERS, uris);
 
         Intent emailIntent = new Intent(Intent.ACTION_SEND_MULTIPLE);
 // set the type to 'email'
@@ -225,16 +371,46 @@ public abstract class ExportActivity extends AppCompatActivity {
 // the attachment
         emailIntent.putExtra(Intent.EXTRA_STREAM, uris);
 // the mail subject
-        if (leagueName == null) {
+        if (emailSubject == null) {
             return;
         }
-        emailIntent.putExtra(Intent.EXTRA_SUBJECT, leagueName + " Stats");
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, emailSubject + " Stats");
         emailIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
         startActivity(Intent.createChooser(emailIntent, "Send email..."));
     }
 
-    private void writeData(File exportDir, int key, ArrayList<Uri> uris) throws IOException {
+    private void exportBoxscore() throws IOException {
+
+        File exportDir = new File(Environment.getExternalStorageDirectory(), "sleekstats");
+        if (!exportDir.exists()) {
+            exportDir.mkdir();
+        }
+
+        File file = new File(exportDir, "boxscore.csv");
+        List<String[]> data = gatherBoxscoreData();
+        file.createNewFile();
+
+        CSVWriter csvWriter = new CSVWriter(new FileWriter(file));
+        csvWriter.writeAll(data);
+        csvWriter.close();
+
+        Uri path = MyFileProvider.getUriForFile(this,
+                this.getApplicationContext().getPackageName() + ".data.fileprovider", file);
+
+        Intent emailIntent = new Intent(Intent.ACTION_SEND );
+// set the type to 'email'
+        emailIntent.setType("vnd.android.cursor.dir/email");
+// the attachment
+        emailIntent.putExtra(Intent.EXTRA_STREAM, path);
+// the mail subject
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, emailSubject);
+        emailIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+        startActivity(Intent.createChooser(emailIntent, "Send email..."));
+    }
+
+    private void writeLeagueData(File exportDir, int key, ArrayList<Uri> uris) throws IOException {
         File file;
         List<String[]> data;
         if (key == KEY_PLAYERS) {

@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -89,23 +88,26 @@ public class GameRecapListActivity extends AppCompatActivity implements LoaderMa
         String selection = null;
         String sortOrder;
         String[] selectionArgs;
-        if(id == TEAM_NAME_LOADER) {
-            uri = StatsEntry.CONTENT_URI_TEAMS;
-            projection = new String[] {StatsEntry.COLUMN_FIRESTORE_ID, StatsEntry.COLUMN_NAME};
-            selectionArgs = null;
-            sortOrder = StatsEntry.COLUMN_NAME + " COLLATE NOCASE ASC";
-        } else if(id == GAME_RECAP_LOADER) {
-            if(mSelectionArg != null) {
-                selection = StatsEntry.COLUMN_AWAY_TEAM + "=? OR " + StatsEntry.COLUMN_HOME_TEAM + "=?";
-                selectionArgs = new String[]{mSelectionArg, mSelectionArg};
-            } else {
+        switch (id) {
+            case TEAM_NAME_LOADER:
+                uri = StatsEntry.CONTENT_URI_TEAMS;
+                projection = new String[]{StatsEntry.COLUMN_FIRESTORE_ID, StatsEntry.COLUMN_NAME};
                 selectionArgs = null;
-            }
-            sortOrder = StatsEntry.COLUMN_GAME_ID + " DESC";
-            uri = StatsEntry.CONTENT_URI_BOXSCORE_OVERVIEWS;
-            projection = null;
-        } else {
-            return null;
+                sortOrder = StatsEntry.COLUMN_NAME + " COLLATE NOCASE ASC";
+                break;
+            case GAME_RECAP_LOADER:
+                if (mSelectionArg != null) {
+                    selection = StatsEntry.COLUMN_AWAY_TEAM + "=? OR " + StatsEntry.COLUMN_HOME_TEAM + "=?";
+                    selectionArgs = new String[]{mSelectionArg, mSelectionArg};
+                } else {
+                    selectionArgs = null;
+                }
+                sortOrder = StatsEntry.COLUMN_GAME_ID + " DESC";
+                uri = StatsEntry.CONTENT_URI_BOXSCORE_OVERVIEWS;
+                projection = null;
+                break;
+            default:
+                return null;
         }
 
         return new CursorLoader(this, uri,

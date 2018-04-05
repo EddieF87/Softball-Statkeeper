@@ -18,9 +18,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -104,39 +101,12 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
 
         Bundle args = getArguments();
         leagueID = args.getString(MainPageSelection.KEY_SELECTION_ID);
     }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.menu_league, menu);
-    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.change_user_settings:
-                if(mListener != null) {
-                    mListener.goToUserSettings();
-                    return true;
-                }
-            case R.id.change_game_settings:
-                if(mListener != null) {
-                    mListener.goToGameSettings();
-                    return true;
-                }
-            case R.id.action_export_stats:
-                if(mListener != null) {
-                    mListener.onExport();
-                    return true;
-                }
-        }
-        return false;
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -484,36 +454,44 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         String teamName;
         String teamID;
         if (view == null) {
-            if (parent.getId() == R.id.awayteam_spinner) {
-                if (awayTeamName != null) {
-                    List<Player> playerList = getLineup(awayTeamID);
-                    updateRVs(rvAway, playerList);
-                } else {
-                    return;
-                }
-            } else if (parent.getId() == R.id.hometeam_spinner) {
-                if (homeTeamName != null) {
-                    List<Player> playerList = getLineup(homeTeamID);
-                    updateRVs(rvHome, playerList);
-                } else {
-                    return;
-                }
-            } else {
-                Toast.makeText(getActivity(), "onItemSelected error ", Toast.LENGTH_SHORT).show();
+            switch (parent.getId()) {
+                case R.id.awayteam_spinner:
+                    if (awayTeamName != null) {
+                        List<Player> playerList = getLineup(awayTeamID);
+                        updateRVs(rvAway, playerList);
+                    } else {
+                        return;
+                    }
+                    break;
+                case R.id.hometeam_spinner:
+                    if (homeTeamName != null) {
+                        List<Player> playerList = getLineup(homeTeamID);
+                        updateRVs(rvHome, playerList);
+                    } else {
+                        return;
+                    }
+                    break;
+                default:
+                    Toast.makeText(getActivity(), "onItemSelected error ", Toast.LENGTH_SHORT).show();
+                    break;
             }
             return;
         }
         TextView textView = (TextView) view;
         teamName = textView.getText().toString();
         teamID = mTeamMap.get(teamName);
-        if (parent.getId() == R.id.awayteam_spinner) {
-            awayTeamName = teamName;
-            awayTeamID = teamID;
-        } else if (parent.getId() == R.id.hometeam_spinner) {
-            homeTeamName = teamName;
-            homeTeamID = teamID;
-        } else {
-            Toast.makeText(getActivity(), "onItemSelected error ", Toast.LENGTH_SHORT).show();
+        switch (parent.getId()) {
+            case R.id.awayteam_spinner:
+                awayTeamName = teamName;
+                awayTeamID = teamID;
+                break;
+            case R.id.hometeam_spinner:
+                homeTeamName = teamName;
+                homeTeamID = teamID;
+                break;
+            default:
+                Toast.makeText(getActivity(), "onItemSelected error ", Toast.LENGTH_SHORT).show();
+                break;
         }
         List<Player> playerList = getLineup(teamID);
 
@@ -820,8 +798,6 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     }
 
     public interface OnFragmentInteractionListener {
-        void goToUserSettings();
-        void onExport();
         void clearGameDB();
         void goToGameSettings();
     }

@@ -4,7 +4,6 @@ import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.UriMatcher;
 import android.database.Cursor;
@@ -17,7 +16,6 @@ import android.widget.Toast;
 
 import xyz.sleekstats.softball.MyApp;
 import xyz.sleekstats.softball.R;
-import xyz.sleekstats.softball.activities.MainActivity;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
 import xyz.sleekstats.softball.objects.MainPageSelection;
 
@@ -623,6 +621,9 @@ public class StatsProvider extends ContentProvider {
                 selection = StatsEntry._ID + "=?";
                 selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
                 table = StatsEntry.GAME_TABLE_NAME;
+                break;
+            case BOXSCORE_OVERVIEWS:
+                table = StatsEntry.BOXSCORE_OVERVIEW_TABLE_NAME;
                 break;
             default:
                 throw new IllegalArgumentException("Update is not supported for " + uri);

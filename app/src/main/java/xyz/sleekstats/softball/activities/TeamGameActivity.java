@@ -221,7 +221,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         }
         try {
             setDisplays();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
     }
 

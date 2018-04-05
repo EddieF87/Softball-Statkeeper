@@ -75,7 +75,6 @@
         app:layout_constraintStart_toEndOf="@+id/tv_outs_title"
         app:layout_constraintTop_toBottomOf="@+id/tv_outs_title"
         app:srcCompat="@drawable/ic_add_circle_outline_black_18dp"
-        android:layout_marginLeft="8dp"
         android:contentDescription="@string/add_out_button" />
 
     <ImageView
@@ -89,7 +88,6 @@
         app:layout_constraintEnd_toStartOf="@+id/tv_outs_title"
         app:layout_constraintTop_toBottomOf="@+id/tv_outs_title"
         app:srcCompat="@drawable/ic_remove_circle_outline_black_18dp"
-        android:layout_marginRight="8dp"
         android:contentDescription="@string/remove_out_button" />
 
     <TextView
@@ -110,7 +108,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="32dp"
-        android:layout_marginLeft="48dp"
         android:layout_marginStart="48dp"
         android:layout_marginTop="24dp"
         android:text="@string/outs"

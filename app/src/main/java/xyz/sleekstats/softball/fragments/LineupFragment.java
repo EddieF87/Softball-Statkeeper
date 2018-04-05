@@ -33,6 +33,8 @@ import android.widget.Toast;
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.activities.BoxScoreActivity;
 import xyz.sleekstats.softball.activities.LeagueGameActivity;
+import xyz.sleekstats.softball.activities.LeagueManagerActivity;
+import xyz.sleekstats.softball.activities.MainActivity;
 import xyz.sleekstats.softball.activities.TeamGameActivity;
 import xyz.sleekstats.softball.activities.TeamManagerActivity;
 import xyz.sleekstats.softball.activities.UsersActivity;
@@ -736,6 +738,15 @@ public class LineupFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case android.R.id.home:
+                if(getActivity() instanceof TeamManagerActivity) {
+                    Intent intent = new Intent(getActivity(), MainActivity.class);
+                    startActivity(intent);
+                    getActivity().finish();
+                } else {
+                    super.onOptionsItemSelected(item);
+                }
+                return true;
             case R.id.change_user_settings:
                 Intent settingsIntent = new Intent(getActivity(), UsersActivity.class);
                 startActivity(settingsIntent);
@@ -747,7 +758,7 @@ public class LineupFragment extends Fragment {
                 Activity activity = getActivity();
                 if (activity instanceof TeamManagerActivity) {
                     TeamManagerActivity teamManagerActivity = (TeamManagerActivity) activity;
-                    teamManagerActivity.startExport(mTeamName);
+                    teamManagerActivity.startLeagueExport(mTeamName);
                     return true;
                 }
                 return false;

@@ -11,11 +11,9 @@
         android:id="@+id/name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:singleLine="true"
         android:layout_centerVertical="true"
-        android:layout_toLeftOf="@id/checkbox_delete"
         android:layout_toStartOf="@id/checkbox_delete"
         tools:text="tesssss" />
 
@@ -25,7 +23,6 @@
         android:layout_height="wrap_content"
 
         android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:layout_gravity="end"
         android:layout_marginEnd="16dp"

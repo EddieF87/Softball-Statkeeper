@@ -7,22 +7,21 @@
     android:background="@color/colorPrimary"
     android:paddingTop="4dp"
     android:paddingBottom="6dp"
+    android:elevation="4dp"
     >
 
     <TextView
         android:id="@+id/standings_name_title"
+        style="@style/StandingsTitleStyle"
         android:layout_width="0dp"
         android:layout_weight="100"
-        android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
         app:layout_goneMarginEnd="8dp"
         app:layout_goneMarginRight="8dp"
         android:maxLines="1"
         android:text="@string/team"
         android:gravity="center"
         android:textAlignment="center"
-        android:textSize="20sp"
         android:textStyle="bold"
 
         android:textColor="#FFFFFF"/>

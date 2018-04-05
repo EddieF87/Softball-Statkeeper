@@ -12,7 +12,6 @@
         style="@style/ScoreboardStyle"
         android:layout_width="0dp"
         android:layout_marginEnd="4dp"
-        android:layout_marginLeft="4dp"
         android:layout_marginStart="4dp"
         android:autoSizeMinTextSize="10sp"
         android:autoSizeTextType="uniform"
@@ -32,7 +31,6 @@
         style="@style/ScoreboardStyle"
         android:layout_width="0dp"
         android:layout_marginEnd="4dp"
-        android:layout_marginRight="4dp"
         android:layout_marginTop="8dp"
         android:autoSizeMinTextSize="12sp"
         android:autoSizeTextType="uniform"
@@ -56,7 +54,6 @@
         app:layout_constraintEnd_toStartOf="@+id/num_of_outs"
         app:layout_constraintTop_toTopOf="@+id/scoreboard"
         app:srcCompat="@android:drawable/arrow_up_float"
-        android:layout_marginRight="16dp"
         android:contentDescription="@string/top_of_inning" />
 
     <ImageView
@@ -85,7 +82,6 @@
     <TextView
         android:id="@+id/num_of_outs"
         style="@style/ScoreboardStyle"
-        android:layout_marginRight="4dp"
         android:layout_marginEnd="4dp"
         app:layout_constraintBottom_toBottomOf="@+id/inning"
         app:layout_constraintTop_toTopOf="@+id/inning"
@@ -95,7 +91,6 @@
     <TextView
         android:id="@+id/hrdisplay"
         style="@style/ScoreboardStyle"
-        android:layout_marginLeft="16dp"
         app:layout_constraintLeft_toRightOf="@+id/avgdisplay"
         app:layout_constraintTop_toTopOf="@+id/avgdisplay"
         tools:text="playerHR"
@@ -104,7 +99,6 @@
     <TextView
         android:id="@+id/rbidisplay"
         style="@style/ScoreboardStyle"
-        android:layout_marginLeft="16dp"
         app:layout_constraintLeft_toRightOf="@+id/hrdisplay"
         app:layout_constraintTop_toTopOf="@+id/hrdisplay"
         tools:text="playerRBI"
@@ -113,7 +107,6 @@
     <TextView
         android:id="@+id/rundisplay"
         style="@style/ScoreboardStyle"
-        android:layout_marginLeft="16dp"
         app:layout_constraintLeft_toRightOf="@+id/rbidisplay"
         app:layout_constraintTop_toTopOf="@+id/rbidisplay"
         tools:text="playerRuns"

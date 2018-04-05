@@ -17,8 +17,6 @@
         android:maxLines="1"
         android:paddingBottom="4dp"
         android:paddingEnd="10dp"
-        android:paddingLeft="8dp"
-        android:paddingRight="10dp"
         android:paddingStart="8dp"
         android:textAlignment="textStart"
         android:textSize="18sp"
@@ -31,8 +29,6 @@
         style="@style/StatsStyle"
         android:layout_width="50dp"
         android:paddingEnd="4dp"
-        android:paddingRight="4dp"
-        android:paddingLeft="0dp"
         android:paddingStart="0dp"
         android:textStyle="italic|bold"
         tools:text="AAA" />

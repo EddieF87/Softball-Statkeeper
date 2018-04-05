@@ -14,6 +14,9 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
@@ -182,15 +185,13 @@ public class LeagueManagerActivity extends ExportActivity
         }
     }
 
-    @Override
     public void goToUserSettings() {
         Intent settingsIntent = new Intent(LeagueManagerActivity.this, UsersActivity.class);
         startActivity(settingsIntent);
     }
 
-    @Override
     public void onExport() {
-        startExport(leagueName);
+        startLeagueExport(leagueName);
     }
 
     @Override
@@ -359,5 +360,32 @@ public class LeagueManagerActivity extends ExportActivity
         super.onBackPressed();
         Intent intent = new Intent(LeagueManagerActivity.this, MainActivity.class);
         startActivity(intent);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_league, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                    Intent intent = new Intent(LeagueManagerActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    finish();
+                    return true;
+            case R.id.change_user_settings:
+                goToUserSettings();
+                return true;
+            case R.id.change_game_settings:
+                goToGameSettings();
+                return true;
+            case R.id.action_export_stats:
+                onExport();
+                return true;
+        }
+        return false;
     }
 }

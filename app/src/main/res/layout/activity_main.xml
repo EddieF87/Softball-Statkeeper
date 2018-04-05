@@ -27,6 +27,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        android:elevation="8dp"
         tools:targetApi="o" />
 
     <FrameLayout
@@ -87,15 +88,14 @@
         android:background="@color/colorPrimary"
         android:maxLines="1"
         android:padding="8dp"
-        android:paddingLeft="32dp"
         android:paddingStart="32dp"
         android:paddingEnd="0dp"
-        android:paddingRight="0dp"
         android:text="@string/my_statkeepers"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
         android:textColor="@color/colorDefault"
         android:textSize="24sp"
         android:textStyle="bold|italic"
+        android:elevation="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/welcome_title" />
@@ -108,7 +108,6 @@
         android:autoSizeMinTextSize="18sp"
         android:autoSizeTextType="uniform"
         android:background="@color/colorPrimary"
-        android:drawableLeft="@drawable/ic_reorder_white_500_24dp"
         android:drawableStart="@drawable/ic_reorder_white_500_24dp"
         android:drawablePadding="8dp"
         android:maxLines="1"
@@ -117,6 +116,7 @@
         android:textColor="@color/colorDefault"
         android:textSize="24sp"
         android:textStyle="bold|italic"
+        android:elevation="8dp"
         app:layout_constraintBottom_toTopOf="@+id/player_sk_card"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

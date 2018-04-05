@@ -10,8 +10,6 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.app.AlertDialog;
 
-import java.util.List;
-
 import xyz.sleekstats.softball.R;
 
 /**

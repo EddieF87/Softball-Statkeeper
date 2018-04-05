@@ -23,7 +23,7 @@ import xyz.sleekstats.softball.objects.GameRecap;
 public class GameRecapRecyclerViewAdapter extends RecyclerView.Adapter<GameRecapRecyclerViewAdapter.RecapViewHolder> {
     private final List<GameRecap> recapList;
     private final Map<String, String> teamNameMap;
-    private Context mContext;
+    private final Context mContext;
 
     public GameRecapRecyclerViewAdapter(List<GameRecap> list, Map<String, String> map, Context context) {
         this.setHasStableIds(true);
@@ -113,7 +113,7 @@ public class GameRecapRecyclerViewAdapter extends RecyclerView.Adapter<GameRecap
         return position;
     }
 
-    public void goToRecap(){
+    public void goToPlay(){
 
     }
 

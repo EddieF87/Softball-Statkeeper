@@ -34,7 +34,9 @@ import android.widget.Toast;
 
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.activities.GameRecapListActivity;
+import xyz.sleekstats.softball.activities.MainActivity;
 import xyz.sleekstats.softball.activities.SetLineupActivity;
+import xyz.sleekstats.softball.activities.TeamManagerActivity;
 import xyz.sleekstats.softball.activities.UsersActivity;
 import xyz.sleekstats.softball.adapters.PlayerStatsAdapter;
 import xyz.sleekstats.softball.data.FirestoreHelper;
@@ -522,6 +524,16 @@ public class TeamFragment extends Fragment
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+
+            case android.R.id.home:
+                if(getActivity() instanceof TeamManagerActivity) {
+                    Intent intent = new Intent(getActivity(), MainActivity.class);
+                    startActivity(intent);
+                    getActivity().finish();
+                } else {
+                    super.onOptionsItemSelected(item);
+                }
+                return true;
 
             case R.id.action_change_name:
                 editNameDialog();

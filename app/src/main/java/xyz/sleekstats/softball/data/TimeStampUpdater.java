@@ -78,7 +78,7 @@ public class TimeStampUpdater {
         editor.apply();
     }
 
-    public static void updateCloudTimeStamp(long timestamp, String statKeeperID) {
+    private static void updateCloudTimeStamp(long timestamp, String statKeeperID) {
         DocumentReference leagueDoc = FirebaseFirestore.getInstance().collection(LEAGUE_COLLECTION).document(statKeeperID);
         leagueDoc.update(LAST_UPDATE, timestamp);
     }
@@ -89,12 +89,15 @@ public class TimeStampUpdater {
     public static void setUpdate(String firestoreID, int type, final String statKeeperID, final Context context, final long timeStamp) {
 
         String collection;
-        if (type == 0) {
-            collection = FirestoreHelper.TEAMS_COLLECTION;
-        } else if (type == 1) {
-            collection = FirestoreHelper.PLAYERS_COLLECTION;
-        } else {
-            return;
+        switch (type) {
+            case 0:
+                collection = FirestoreHelper.TEAMS_COLLECTION;
+                break;
+            case 1:
+                collection = FirestoreHelper.PLAYERS_COLLECTION;
+                break;
+            default:
+                return;
         }
 
         DocumentReference documentReference = FirebaseFirestore.getInstance().collection(LEAGUE_COLLECTION).document(statKeeperID)

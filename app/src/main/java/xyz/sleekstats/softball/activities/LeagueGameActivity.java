@@ -498,12 +498,15 @@ public class LeagueGameActivity extends GameActivity {
     protected List<Player> getTeamLineup() {
         int teamChoice = StatsContract.getColumnInt(gameCursor, StatsEntry.COLUMN_TEAM);
         List<Player> teamLineup;
-        if (teamChoice == 0) {
-            teamLineup = awayTeam;
-        } else if (teamChoice == 1) {
-            teamLineup = homeTeam;
-        } else {
-            return null;
+        switch (teamChoice) {
+            case 0:
+                teamLineup = awayTeam;
+                break;
+            case 1:
+                teamLineup = homeTeam;
+                break;
+            default:
+                return null;
         }
         return teamLineup;
     }

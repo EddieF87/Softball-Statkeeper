@@ -11,7 +11,6 @@ import android.os.Bundle;
 
 
 import xyz.sleekstats.softball.MyApp;
-import xyz.sleekstats.softball.data.FirestoreHelper;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
 import xyz.sleekstats.softball.data.TimeStampUpdater;
 import xyz.sleekstats.softball.dialogs.AddNewPlayersDialog;

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -48,6 +47,7 @@
         android:layout_height="6dp"
         android:layout_marginBottom="16dp"
         android:background="@color/colorPrimary"
+        android:elevation="4dp"
         app:layout_constraintBottom_toTopOf="@+id/item_team_adder"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
@@ -57,11 +57,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
-        android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
-        android:drawableLeft="@drawable/ic_group_add_white_18dp"
         android:drawablePadding="4dp"
-        android:drawableStart="@drawable/ic_group_add_white_18dp"
+        android:drawableStart="@drawable/ic_group_add_white_24dp"
         android:maxLines="2"
         android:text="@string/add_team_players"
         android:textSize="12sp"
@@ -75,7 +73,6 @@
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
         android:text="@string/waivers"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="@+id/item_team_adder"

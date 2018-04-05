@@ -236,57 +236,62 @@ public class TeamManagerActivity extends ExportActivity
             super.onActivityResult(requestCode, resultCode, data);
 
             if (requestCode == PlayerStatsAdapter.REQUEST_CODE) {
-                if (resultCode == RESULT_OK) {
-                    String deletedPlayer = data.getStringExtra(StatsEntry.DELETE);
-                    if (teamFragment != null) {
-                        teamFragment.removePlayerFromTeam(deletedPlayer);
-                    }
-                    if (lineupFragment != null) {
-                        List<String> players = new ArrayList<>();
-                        players.add(deletedPlayer);
-                        lineupFragment.removePlayers(players);
-                    }
-                } else if (resultCode == 17) {
-                    if (teamFragment != null) {
-                        String id = data.getStringExtra(StatsEntry.COLUMN_FIRESTORE_ID);
-                        int gender = data.getIntExtra(StatsEntry.COLUMN_GENDER, -1);
-
+                switch (resultCode) {
+                    case RESULT_OK:
+                        String deletedPlayer = data.getStringExtra(StatsEntry.DELETE);
                         if (teamFragment != null) {
-                            teamFragment.updatePlayerGender(gender, id);
+                            teamFragment.removePlayerFromTeam(deletedPlayer);
                         }
-
                         if (lineupFragment != null) {
-                            lineupFragment.updatePlayerGender(gender, id);
+                            List<String> players = new ArrayList<>();
+                            players.add(deletedPlayer);
+                            lineupFragment.removePlayers(players);
                         }
-                    }
-                } else if (resultCode == 18) {
-                    if (teamFragment != null) {
-                        String id = data.getStringExtra(StatsEntry.COLUMN_FIRESTORE_ID);
-                        String name = data.getStringExtra(StatsEntry.COLUMN_NAME);
-
+                        break;
+                    case 17:
                         if (teamFragment != null) {
-                            teamFragment.updatePlayerName(name, id);
-                        }
+                            String id = data.getStringExtra(StatsEntry.COLUMN_FIRESTORE_ID);
+                            int gender = data.getIntExtra(StatsEntry.COLUMN_GENDER, -1);
 
-                        if (lineupFragment != null) {
-                            lineupFragment.updatePlayerName(name, id);
-                        }
-                    }
-                } else if (resultCode == 19) {
-                    if (teamFragment != null) {
-                        String id = data.getStringExtra(StatsEntry.COLUMN_FIRESTORE_ID);
-                        String name = data.getStringExtra(StatsEntry.COLUMN_NAME);
+                            if (teamFragment != null) {
+                                teamFragment.updatePlayerGender(gender, id);
+                            }
 
+                            if (lineupFragment != null) {
+                                lineupFragment.updatePlayerGender(gender, id);
+                            }
+                        }
+                        break;
+                    case 18:
                         if (teamFragment != null) {
-                            teamFragment.updatePlayerName(name, id);
+                            String id = data.getStringExtra(StatsEntry.COLUMN_FIRESTORE_ID);
+                            String name = data.getStringExtra(StatsEntry.COLUMN_NAME);
+
+                            if (teamFragment != null) {
+                                teamFragment.updatePlayerName(name, id);
+                            }
+
+                            if (lineupFragment != null) {
+                                lineupFragment.updatePlayerName(name, id);
+                            }
+                        }
+                        break;
+                    case 19:
+                        if (teamFragment != null) {
+                            String id = data.getStringExtra(StatsEntry.COLUMN_FIRESTORE_ID);
+                            String name = data.getStringExtra(StatsEntry.COLUMN_NAME);
+
+                            if (teamFragment != null) {
+                                teamFragment.updatePlayerName(name, id);
+                            }
+
+                            if (lineupFragment != null) {
+                                lineupFragment.updatePlayerName(name, id);
+                            }
                         }
 
-                        if (lineupFragment != null) {
-                            lineupFragment.updatePlayerName(name, id);
-                        }
-                    }
 
-
+                        break;
                 }
             }
         } catch (Exception ex) {

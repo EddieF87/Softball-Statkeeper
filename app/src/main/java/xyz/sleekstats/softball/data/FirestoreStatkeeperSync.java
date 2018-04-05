@@ -47,7 +47,7 @@ public class FirestoreStatkeeperSync implements Parcelable {
     private onFirestoreSyncListener mListener;
 
     private Context mContext;
-    private FirebaseFirestore mFirestore;
+    private final FirebaseFirestore mFirestore;
 
 
     public FirestoreStatkeeperSync(Context context, String id) {

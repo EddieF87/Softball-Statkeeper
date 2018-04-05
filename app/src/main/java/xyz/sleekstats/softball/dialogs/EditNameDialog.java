@@ -13,7 +13,6 @@ import android.view.View;
 import android.widget.EditText;
 
 import xyz.sleekstats.softball.R;
-import xyz.sleekstats.softball.views.MyEditText;
 
 public class EditNameDialog extends DialogFragment {
 

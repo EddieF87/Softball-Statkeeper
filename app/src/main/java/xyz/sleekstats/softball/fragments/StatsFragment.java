@@ -14,9 +14,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -86,7 +83,6 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
         Bundle args = getArguments();
         if (args != null) {
             level = args.getInt(MainPageSelection.KEY_SELECTION_LEVEL);
@@ -181,36 +177,6 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         getLoaderManager().initLoader(STATS_LOADER, null, this);
 
         return rootView;
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        if (level >= UsersActivity.LEVEL_VIEW_WRITE) {
-            inflater.inflate(R.menu.menu_league, menu);
-        }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.change_user_settings:
-                if(mListener != null) {
-                    mListener.goToUserSettings();
-                }
-                return true;
-            case R.id.change_game_settings:
-                if(mListener != null) {
-                    mListener.goToGameSettings();
-                    return true;
-                }
-            case R.id.action_export_stats:
-                if(mListener != null) {
-                    mListener.onExport();
-                    return true;
-                }
-        }
-        return false;
     }
 
     private void updateStatsRV() {
@@ -477,9 +443,6 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
     }
 
     public interface OnFragmentInteractionListener {
-        void goToUserSettings();
-        void onExport();
         void startAdder(ArrayList<Team> teams);
-        void goToGameSettings();
     }
 }

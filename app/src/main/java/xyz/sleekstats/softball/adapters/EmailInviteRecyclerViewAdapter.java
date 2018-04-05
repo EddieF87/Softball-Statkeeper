@@ -12,7 +12,6 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import xyz.sleekstats.softball.R;
-import xyz.sleekstats.softball.views.MyEditText;
 
 import java.util.ArrayList;
 import java.util.HashSet;

@@ -161,4 +161,5 @@
     <string name="open_stat_manager">Open Stat Manager</string>
     <string name="edit">Edit</string>
     <string name="close_stat_manager">Close Stat Manager</string>
+    <string name="delete_recap">Delete</string>
 </resources>

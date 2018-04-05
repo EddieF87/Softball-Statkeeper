@@ -5,8 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingTop="8dp"
-    android:paddingEnd="8dp"
-    android:paddingRight="8dp">
+    android:paddingStart="0dp"
+    android:paddingEnd="8dp">
 
     <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/group1"
@@ -141,7 +141,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/textview_result_chosen"
         app:srcCompat="@drawable/ic_remove_circle_outline_black_18dp"
-        android:layout_marginRight="20dp"
         android:contentDescription="@string/subtract_result_button" />
 
     <ImageView
@@ -156,7 +155,6 @@
         app:layout_constraintStart_toEndOf="@+id/btn_subtract_result"
         app:layout_constraintTop_toTopOf="@+id/btn_subtract_result"
         app:srcCompat="@drawable/ic_add_circle_outline_black_18dp"
-        android:layout_marginLeft="20dp"
         android:contentDescription="@string/add_result_button" />
 
 </android.support.constraint.ConstraintLayout>

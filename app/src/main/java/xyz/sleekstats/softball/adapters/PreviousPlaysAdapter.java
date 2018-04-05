@@ -13,12 +13,11 @@ import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
 import xyz.sleekstats.softball.objects.PreviousPlay;
-import xyz.sleekstats.softball.objects.Team;
 
 public class PreviousPlaysAdapter extends RecyclerView.Adapter<PreviousPlaysAdapter.PlayViewHolder> {
 
-    private List<PreviousPlay> mPreviousPlays;
-    private Map<String, String> mPlayerNames;
+    private final List<PreviousPlay> mPreviousPlays;
+    private final Map<String, String> mPlayerNames;
 
     public PreviousPlaysAdapter(List<PreviousPlay> mPreviousPlays, Map<String, String> mPlayerNames) {
         this.setHasStableIds(true);
@@ -61,7 +60,21 @@ public class PreviousPlaysAdapter extends RecyclerView.Adapter<PreviousPlaysAdap
             } else {
                 sb = new StringBuilder("Top of the ");
             }
-            sb.append(newInning).append(" Inning");
+            String indicator;
+            switch (newInning) {
+                case 1:
+                    indicator = "st";
+                    break;
+                case 2:
+                    indicator = "nd";
+                    break;
+                case 3:
+                    indicator = "rd";
+                    break;
+                default:
+                    indicator = "th";
+            }
+            sb.append(newInning).append(indicator).append(" Inning");
             holder.mInningTextView.setText(sb.toString());
             holder.mInningTextView.setVisibility(View.VISIBLE);
 
@@ -219,14 +232,14 @@ public class PreviousPlaysAdapter extends RecyclerView.Adapter<PreviousPlaysAdap
 
     static class PlayViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView mPlayTextView;
-        private TextView mRunsTextView;
-        private TextView mInningTextView;
-        private TextView m1BTextView;
-        private TextView m2BTextView;
-        private TextView m3BTextView;
-        private TextView mScoreTextView;
-        private TextView mOutsTextView;
+        private final TextView mPlayTextView;
+        private final TextView mRunsTextView;
+        private final TextView mInningTextView;
+        private final TextView m1BTextView;
+        private final TextView m2BTextView;
+        private final TextView m3BTextView;
+        private final TextView mScoreTextView;
+        private final TextView mOutsTextView;
 
         public PlayViewHolder(View itemView) {
             super(itemView);

@@ -33,19 +33,12 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.SetOptions;
-import com.google.firebase.firestore.Transaction;
-
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.activities.LeagueManagerActivity;
+import xyz.sleekstats.softball.activities.MainActivity;
+import xyz.sleekstats.softball.activities.PlayerManagerActivity;
 import xyz.sleekstats.softball.activities.PlayerPagerActivity;
+import xyz.sleekstats.softball.activities.TeamManagerActivity;
 import xyz.sleekstats.softball.activities.TeamPagerActivity;
 import xyz.sleekstats.softball.activities.UsersActivity;
 import xyz.sleekstats.softball.adapters.BoxScorePlayerCursorAdapter;
@@ -602,6 +595,16 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case android.R.id.home:
+                if(getActivity() instanceof PlayerManagerActivity) {
+                    Intent intent = new Intent(getActivity(), MainActivity.class);
+                    startActivity(intent);
+                    getActivity().finish();
+                } else {
+                    super.onOptionsItemSelected(item);
+                }
+                return true;
+
             case R.id.action_change_name:
                 String titlePString = getResources().getString(R.string.edit_player_name);
                 String titleP = String.format(titlePString, playerName);

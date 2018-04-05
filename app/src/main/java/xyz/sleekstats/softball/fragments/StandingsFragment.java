@@ -16,9 +16,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -66,7 +63,6 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
         Bundle args = getArguments();
         if (args != null) {
             level = args.getInt(MainPageSelection.KEY_SELECTION_LEVEL);
@@ -146,41 +142,10 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
         }
     }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        if (level >= UsersActivity.LEVEL_VIEW_WRITE) {
-            inflater.inflate(R.menu.menu_league, menu);
-        }
-    }
-
     public void setAdderButtonVisible() {
         if (startAdderButton != null) {
             startAdderButton.setVisibility(View.VISIBLE);
         }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.change_user_settings:
-                if(mListener != null) {
-                    mListener.goToUserSettings();
-                    return true;
-                }
-            case R.id.change_game_settings:
-                if(mListener != null) {
-                    mListener.goToGameSettings();
-                    return true;
-                }
-                return true;
-            case R.id.action_export_stats:
-                if(mListener != null) {
-                    mListener.onExport();
-                    return true;
-                }
-        }
-        return false;
     }
 
     @Override
@@ -276,9 +241,6 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
     }
 
     public interface OnFragmentInteractionListener {
-        void goToUserSettings();
-        void onExport();
         void startAdder(ArrayList<Team> teams);
-        void goToGameSettings();
     }
 }

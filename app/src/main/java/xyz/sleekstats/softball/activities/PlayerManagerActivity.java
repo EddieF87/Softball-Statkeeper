@@ -92,7 +92,7 @@ public class PlayerManagerActivity extends ExportActivity
 
     @Override
     public void onExport(String name) {
-        startExport(name);
+        startLeagueExport(name);
     }
 
     @Override

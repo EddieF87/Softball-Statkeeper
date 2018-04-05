@@ -36,9 +36,7 @@
         android:background="@drawable/bg_white"
         android:paddingBottom="8dp"
         android:paddingStart="24dp"
-        android:paddingLeft="24dp"
         android:paddingEnd="0dp"
-        android:paddingRight="0dp"
         android:paddingTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -69,10 +67,7 @@
             android:id="@+id/boxscore_grid"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="12dp"
             android:layout_toEndOf="@id/top_team"
-            android:layout_toRightOf="@id/top_team"
             android:orientation="horizontal"
             android:layout_marginStart="30dp"
             android:layout_marginEnd="12dp" />
@@ -82,8 +77,7 @@
             layout="@layout/item_boxscore_score"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/boxscore_grid"
-            android:layout_toRightOf="@id/boxscore_grid" />
+            android:layout_toEndOf="@id/boxscore_grid" />
     </RelativeLayout>
 
     <LinearLayout
@@ -100,8 +94,7 @@
         app:layout_constraintEnd_toStartOf="@+id/linearLayoutHome"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/relativelayout_boxscore"
-        android:layout_marginRight="8dp">
+        app:layout_constraintTop_toBottomOf="@+id/relativelayout_boxscore">
 
         <include
             android:id="@+id/away_players_title"
@@ -128,8 +121,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/linearLayoutAway"
-        app:layout_constraintTop_toTopOf="@+id/linearLayoutAway"
-        android:layout_marginLeft="8dp">
+        app:layout_constraintTop_toTopOf="@+id/linearLayoutAway">
 
         <include
             android:id="@+id/home_players_title"

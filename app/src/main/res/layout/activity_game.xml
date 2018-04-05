@@ -56,8 +56,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/diamond"
             app:layout_constraintVertical_bias="0.2"
-            tools:visibility="visible"
-            android:layout_marginLeft="2dp" />
+            tools:visibility="visible"/>
 
         <TextView
             android:id="@+id/step2text"
@@ -73,8 +72,7 @@
             android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@+id/radio_group_results"
             app:layout_constraintStart_toStartOf="parent"
-            tools:visibility="visible"
-            android:layout_marginLeft="2dp" />
+            tools:visibility="visible" />
 
 
         <TextView
@@ -90,8 +88,7 @@
             android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@+id/radio_group_results"
             app:layout_constraintEnd_toEndOf="parent"
-            tools:visibility="visible"
-            android:layout_marginRight="8dp" />
+            tools:visibility="visible" />
 
         <TextView
             android:id="@+id/step4text"
@@ -121,19 +118,19 @@
             android:tint="@android:color/holo_red_dark"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/sb_table"
-            app:srcCompat="@android:drawable/ic_media_rew"
+            app:srcCompat="@drawable/ic_fast_rewind_black_36dp"
             android:contentDescription="@string/undo_button" />
+
         <ImageView
             android:id="@+id/btn_redo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="32dp"
-            android:layout_marginRight="32dp"
             android:tint="@android:color/holo_red_dark"
             app:layout_constraintBottom_toBottomOf="@+id/btn_undo"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/btn_undo"
-            app:srcCompat="@android:drawable/ic_media_ff"
+            app:srcCompat="@drawable/ic_fast_forward_black_36dp"
             android:contentDescription="@string/redo_button" />
 
         <com.google.android.gms.ads.AdView
@@ -184,11 +181,11 @@
                 android:paddingBottom="8dp"
                 android:paddingTop="8dp"
                 android:background="@drawable/custom_radio_button_bg"
-                android:textColor="@color/colorAccent"
-                android:drawableEnd="@android:drawable/ic_menu_edit"
-                android:drawableTint="@color/colorPrimary"
+                android:drawableEnd="@drawable/ic_mode_edit_black_18dp"
+                android:drawableTint="@color/colorAccent"
                 android:paddingEnd="4dp"
-                android:paddingStart="4dp"          />
+                android:paddingStart="4dp"
+                tools:targetApi="m" />
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/away_lineup"
@@ -207,11 +204,11 @@
                 android:paddingBottom="8dp"
                 android:paddingTop="8dp"
                 android:background="@drawable/custom_radio_button_bg"
-                android:textColor="@color/colorAccent"
-                android:drawableEnd="@android:drawable/ic_menu_edit"
+                android:drawableEnd="@drawable/ic_mode_edit_black_18dp"
                 android:drawableTint="@color/colorAccent"
                 android:paddingEnd="4dp"
-                android:paddingStart="4dp" />
+                android:paddingStart="4dp"
+                tools:targetApi="m" />
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/home_lineup"

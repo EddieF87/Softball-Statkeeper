@@ -23,7 +23,7 @@ import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
 
 public class BoxScorePlayerCursorAdapter extends CursorAdapter {
 
-    private int cursorKey;
+    private final int cursorKey;
     private Map<String, String> playerNames;
     public static final int KEY_CURRENT = 0;
     public static final int KEY_PLAYER = 1;
@@ -54,18 +54,22 @@ public class BoxScorePlayerCursorAdapter extends CursorAdapter {
             view.setBackground(null);
         }
         String name;
-        if(cursorKey == KEY_CURRENT) {
-            name = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_NAME);
-        } else if(cursorKey == KEY_RECAP) {
-            String nameID = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_FIRESTORE_ID);
-            if(playerNames.containsKey(nameID)) {
-                name = playerNames.get(nameID);
-            } else {
-                name = "(Ringer)";
-            }
-        } else {
-            long gameID = StatsContract.getColumnLong(cursor, StatsEntry.COLUMN_GAME_ID);
-            name = DateFormat.getDateInstance(DateFormat.DATE_FIELD).format(gameID);
+        switch (cursorKey) {
+            case KEY_CURRENT:
+                name = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_NAME);
+                break;
+            case KEY_RECAP:
+                String nameID = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_FIRESTORE_ID);
+                if (playerNames.containsKey(nameID)) {
+                    name = playerNames.get(nameID);
+                } else {
+                    name = "(Ringer)";
+                }
+                break;
+            default:
+                long gameID = StatsContract.getColumnLong(cursor, StatsEntry.COLUMN_GAME_ID);
+                name = DateFormat.getDateInstance(DateFormat.DATE_FIELD).format(gameID);
+                break;
         }
         int pRBI = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_RBI);
         int pRun = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_RUN);

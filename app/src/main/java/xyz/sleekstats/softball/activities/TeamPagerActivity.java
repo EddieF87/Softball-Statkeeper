@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 import xyz.sleekstats.softball.adapters.PlayerStatsAdapter;
-import xyz.sleekstats.softball.data.FirestoreHelper;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.TimeStampUpdater;
 import xyz.sleekstats.softball.fragments.TeamFragment;

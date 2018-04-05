@@ -1,21 +1,31 @@
 package xyz.sleekstats.softball.activities;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 
 import java.text.DateFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,11 +34,13 @@ import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.adapters.BoxScorePlayerCursorAdapter;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
-import xyz.sleekstats.softball.objects.GameRecap;
+import xyz.sleekstats.softball.dialogs.DeleteConfirmationDialog;
+import xyz.sleekstats.softball.dialogs.JoinOrCreateDialog;
 import xyz.sleekstats.softball.objects.MainPageSelection;
 
-public class GameRecapActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
-
+public class GameRecapActivity extends ExportActivity
+        implements LoaderManager.LoaderCallbacks<Cursor>,
+DeleteConfirmationDialog.OnFragmentInteractionListener {
 
     private final static int PLAYER_NAME_LOADER = 11;
     private final static int AWAY_LOADER = 12;
@@ -174,12 +186,53 @@ public class GameRecapActivity extends AppCompatActivity implements LoaderManage
                     getSupportLoaderManager().initLoader(AWAY_LOADER, null, this);
                     getSupportLoaderManager().initLoader(HOME_LOADER, null, this);
                 }
-
         }
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
 
+    }
+
+    private void openDeleteDialog(){
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        DialogFragment newFragment = DeleteConfirmationDialog.newInstance("this game recap");
+        newFragment.show(fragmentTransaction, "");
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_gamerecap, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_export_stats:
+                startBoxscoreExport(mGameID);
+                return true;
+            case R.id.action_delete_recap:
+                openDeleteDialog();
+                return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void onDeletionChoice(boolean delete) {
+        if(delete) {
+            String selection = StatsEntry.COLUMN_GAME_ID + "=?";
+            String[] selectionArgs = new String[]{String.valueOf(mGameID)};
+            int rowsDeleted = getContentResolver().delete(StatsEntry.CONTENT_URI_BOXSCORE_PLAYERS, selection, selectionArgs);
+            if(rowsDeleted >= 0){
+                ContentValues values = new ContentValues();
+                values.put(StatsEntry.COLUMN_LOCAL, 0);
+                getContentResolver().update(StatsEntry.CONTENT_URI_BOXSCORE_OVERVIEWS, values, selection, selectionArgs);
+                finish();
+            }
+        }
     }
 }

@@ -19,7 +19,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:elevation="8dp">
+        android:elevation="8dp"
+        tools:targetApi="lollipop">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -31,6 +32,7 @@
                 android:layout_height="wrap_content"
                 android:background="@color/colorPrimary"
                 android:orientation="horizontal"
+                android:elevation="4dp"
                 android:paddingBottom="4dp"
                 android:paddingTop="2dp">
 
@@ -39,8 +41,6 @@
                     style="@style/StatsTitleStyle"
                     android:layout_width="100dp"
                     android:paddingEnd="10dp"
-                    android:paddingLeft="8dp"
-                    android:paddingRight="10dp"
                     android:paddingStart="8dp"
                     android:text="@string/name" />
 
@@ -49,8 +49,6 @@
                     style="@style/StatsTitleStyle"
                     android:layout_width="50dp"
                     android:paddingEnd="4dp"
-                    android:paddingRight="4dp"
-                    android:paddingLeft="0dp"
                     android:paddingStart="0dp"
                     android:text="@string/team" />
 
@@ -160,12 +158,10 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="4dp"
         android:text="@string/add_team_players"
-        android:drawableLeft="@drawable/ic_group_add_white_18dp"
         android:drawablePadding="4dp"
-        android:drawableStart="@drawable/ic_group_add_white_18dp"
+        android:drawableStart="@drawable/ic_group_add_white_24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginLeft="20dp"
         android:layout_marginStart="20dp" />
 
     <Spinner
@@ -176,7 +172,6 @@
         android:layout_marginEnd="24dp"
         app:layout_constraintBottom_toBottomOf="@+id/item_team_adder"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/item_team_adder"
-        android:layout_marginRight="24dp" />
+        app:layout_constraintTop_toTopOf="@+id/item_team_adder" />
 
 </android.support.constraint.ConstraintLayout>

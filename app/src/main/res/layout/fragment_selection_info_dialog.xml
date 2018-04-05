@@ -26,8 +26,7 @@
         android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@+id/type_label"
         app:layout_constraintTop_toTopOf="@+id/type_label"
-        tools:text="League"
-        android:layout_marginLeft="8dp" />
+        tools:text="League" />
 
     <TextView
         android:id="@+id/level"
@@ -37,8 +36,7 @@
         android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@+id/level_label"
         app:layout_constraintTop_toTopOf="@+id/level_label"
-        tools:text="View/Manage "
-        android:layout_marginLeft="8dp" />
+        tools:text="View/Manage " />
 
     <TextView
         android:id="@+id/type_label"

@@ -29,8 +29,6 @@
         android:id="@+id/layout_lineup_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="8dp"
         android:background="@drawable/bg_green_top"
         android:descendantFocusability="beforeDescendants"
         android:focusableInTouchMode="true"
@@ -171,11 +169,9 @@
         android:id="@+id/radiobtns_away_or_home_team"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_toLeftOf="@id/btn_start_adder"
         android:layout_toStartOf="@id/btn_start_adder"
         android:orientation="horizontal"
         android:text="x"
@@ -212,12 +208,10 @@
         android:layout_width="36dp"
         android:layout_height="36dp"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="32dp"
         app:layout_constraintBottom_toTopOf="@+id/layout_settings"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginRight="32dp" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <FrameLayout
         android:layout_width="0dp"

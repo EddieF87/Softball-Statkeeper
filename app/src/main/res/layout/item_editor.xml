@@ -12,7 +12,9 @@
         android:layout_height="wrap_content"
         android:layout_weight="4"
         android:inputType="textPersonName"
-        android:text=""/>
+        android:text=""
+        android:contentDescription="name entry"
+        />
 
     <ToggleButton
         android:id="@+id/toggle_gender"

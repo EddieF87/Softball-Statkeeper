@@ -25,7 +25,6 @@
         app:layout_constraintStart_toStartOf="@id/guideline_titles"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Player  Name99999"
-        android:layout_marginRight="8dp"
         tools:targetApi="o" />
 
     <TextView
@@ -44,9 +43,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@id/player_name"
         app:layout_constraintTop_toBottomOf="@id/player_name"
-        tools:text="Playertope"
-        android:layout_marginRight="16dp"
-        android:layout_marginLeft="8dp"
+        tools:text="Playertopes"
         tools:targetApi="o" />
 
 
@@ -66,8 +63,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0"
         app:srcCompat="@drawable/img_batter"
-        android:layout_marginRight="8dp"
-        android:layout_marginLeft="16dp"
         android:contentDescription="@string/player" />
 
 

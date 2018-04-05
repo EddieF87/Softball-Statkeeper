@@ -21,7 +21,8 @@
         android:textStyle="bold"
         android:autoSizeTextType="uniform"
         android:autoSizeMinTextSize="10sp"
-        tools:text="Wiener Sniener" />
+        tools:text="Wiener Sniener"
+        tools:targetApi="o" />
 
     <TextView
         android:id="@+id/bs_ab"

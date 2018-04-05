@@ -26,10 +26,8 @@
                 android:id="@+id/name_text"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
                 android:paddingStart="@dimen/activity_horizontal_margin"
                 android:paddingEnd="6dp"
-                android:paddingRight="6dp"
                 android:layout_weight="1"
                 android:autoSizeMinTextSize="12sp"
                 android:autoSizeTextType="uniform"
@@ -49,7 +47,7 @@
                 android:paddingLeft="@dimen/activity_horizontal_margin"
                 android:paddingRight="@dimen/activity_horizontal_margin"
                 android:background="?android:attr/selectableItemBackground"
-                card_view:srcCompat="@android:drawable/ic_dialog_info"
+                card_view:srcCompat="@drawable/ic_info_black_36dp"
                 android:contentDescription="@string/info" />
 
         </LinearLayout>

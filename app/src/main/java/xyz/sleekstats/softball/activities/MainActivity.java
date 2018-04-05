@@ -386,7 +386,7 @@ public class MainActivity extends AppCompatActivity
             if (!mInviteList.isEmpty()) {
                 mHandler.post(openInviteRunnable);
             }
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
     }
 
@@ -768,7 +768,7 @@ public class MainActivity extends AppCompatActivity
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(MainActivity.this, "FAILLLL 1111111111", Toast.LENGTH_LONG).show();
             }
-        });;
+        });
     }
 
     @Override
@@ -1150,7 +1150,7 @@ public class MainActivity extends AppCompatActivity
         private final WeakReference<MainActivity> mActivity;
 
         MyHandler(MainActivity activity) {
-            mActivity = new WeakReference<MainActivity>(activity);
+            mActivity = new WeakReference<>(activity);
         }
 
         @Override
@@ -1162,19 +1162,19 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private Runnable openInviteRunnable = new Runnable() {
+    private final Runnable openInviteRunnable = new Runnable() {
         public void run() {
             openInviteDialog();
         }
     };
 
-    private Runnable continueLoadRunnable = new Runnable() {
+    private final Runnable continueLoadRunnable = new Runnable() {
         public void run() {
             openContinueLoadDialog();
         }
     };
 
-    private Runnable dismissContinueLoadRunnable = new Runnable() {
+    private final Runnable dismissContinueLoadRunnable = new Runnable() {
         public void run() {
             if (mContinueLoadDialogFragment != null) {
                 mContinueLoadDialogFragment.dismissIfShowing();

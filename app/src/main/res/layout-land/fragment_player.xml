@@ -27,7 +27,6 @@
         app:layout_constraintStart_toStartOf="@+id/guideline_titles"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Player  Name99999"
-        android:layout_marginRight="8dp"
         tools:targetApi="o" />
 
     <TextView
@@ -60,7 +59,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/img_batter"
-        android:layout_marginLeft="8dp"
         android:contentDescription="@string/player" />
 
 

@@ -43,8 +43,6 @@ import xyz.sleekstats.softball.objects.BaseLog;
 
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
 import xyz.sleekstats.softball.objects.Player;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -126,6 +124,7 @@ public abstract class GameActivity extends AppCompatActivity
     private boolean firstOccupied = false;
     private boolean secondOccupied = false;
     private boolean thirdOccupied = false;
+    private boolean mResetListeners = false;
     int totalInnings;
 
     static final String KEY_GAMELOGINDEX = "keyGameLogIndex";
@@ -139,6 +138,7 @@ public abstract class GameActivity extends AppCompatActivity
     private static final String DIALOG_FINISH = "DialogFinish";
 
     String selectionID;
+    Toast mCurrentToast;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -390,6 +390,8 @@ public abstract class GameActivity extends AppCompatActivity
     }
 
     private void setBaseListeners() {
+        if(!mResetListeners){return;}
+        Log.d("zztop", "setBaseListeners");
         if (firstDisplay.getText().toString().isEmpty()) {
             firstDisplay.setOnTouchListener(null);
             firstDisplay.setOnDragListener(new GameActivity.MyDragListener());
@@ -419,7 +421,9 @@ public abstract class GameActivity extends AppCompatActivity
             thirdDisplay.setOnDragListener(null);
             thirdOccupied = true;
         }
+        batterDisplay.setOnTouchListener(new GameActivity.MyTouchListener());
         homeDisplay.setOnDragListener(new GameActivity.MyDragListener());
+        mResetListeners = false;
     }
 
     void startGame() {
@@ -496,6 +500,17 @@ public abstract class GameActivity extends AppCompatActivity
         playEntered = false;
         batterMoved = false;
         inningChanged = 0;
+    }
+
+    void showToast(String text)
+    {
+        if(mCurrentToast == null)
+        {
+            mCurrentToast = Toast.makeText(this, text, Toast.LENGTH_SHORT);
+        }
+        mCurrentToast.setText(text);
+        mCurrentToast.setDuration(Toast.LENGTH_SHORT);
+        mCurrentToast.show();
     }
 
     void enterGameValues(BaseLog currentBaseLogEnd, int team,
@@ -751,7 +766,7 @@ public abstract class GameActivity extends AppCompatActivity
                 indicator = "th";
         }
         String inningString = topOrBottom + " of the " + inningNumber / 2 + indicator;
-        Toast.makeText(GameActivity.this, inningString, Toast.LENGTH_SHORT).show();
+        showToast(inningString);
     }
 
     void updatePlayerStats(String action, int n) {
@@ -909,6 +924,7 @@ public abstract class GameActivity extends AppCompatActivity
         }
         disableSubmitButton();
         disableResetButton();
+        mResetListeners = true;
         setBaseListeners();
         tempOuts = 0;
         tempRuns = 0;
@@ -1079,27 +1095,27 @@ public abstract class GameActivity extends AppCompatActivity
 
     @Override
     protected void onDestroy() {
-        batterDisplay.setOnTouchListener(null);
         firstDisplay.setOnDragListener(null);
         secondDisplay.setOnDragListener(null);
         thirdDisplay.setOnDragListener(null);
         homeDisplay.setOnDragListener(null);
         outTrash.setOnDragListener(null);
+        batterDisplay.setOnTouchListener(null);
         firstDisplay.setOnTouchListener(null);
         secondDisplay.setOnTouchListener(null);
         thirdDisplay.setOnTouchListener(null);
         homeDisplay.setOnTouchListener(null);
-        outTrash.setOnTouchListener(null);
         super.onDestroy();
     }
 
     protected abstract boolean isTopOfInning();
 
     class MyDragListener implements View.OnDragListener {
+
+
         @Override
         public boolean onDrag(View v, final DragEvent event) {
             int action = event.getAction();
-            Log.d("zztop", "onDrag" + action);
             TextView dropPoint = null;
             if (v.getId() != R.id.trash) {
                 dropPoint = (TextView) v;
@@ -1109,45 +1125,46 @@ public abstract class GameActivity extends AppCompatActivity
                 case DragEvent.ACTION_DRAG_STARTED:
                     Log.d("zztop", "ACTION_DRAG_STARTED");
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        if (v.getId() == R.id.home_display) {
-                            v.setBackground(getDrawable(R.drawable.img_home2));
-                        } else if (v.getId() == R.id.trash) {
-                            v.setBackground(getDrawable(R.drawable.img_base2));
-                        } else {
-                            v.setBackground(getDrawable(R.drawable.img_base2));
+                        switch (v.getId()) {
+                            case R.id.home_display:
+                                v.setBackground(getDrawable(R.drawable.img_home2));
+                                break;
+                            case R.id.trash:
+                                v.setBackground(getDrawable(R.drawable.img_base2));
+                                break;
+                            default:
+                                v.setBackground(getDrawable(R.drawable.img_base2));
+                                break;
                         }
                     }
                     break;
-                case DragEvent.ACTION_DRAG_ENTERED:
-                    Log.d("zztop", "ACTION_DRAG_ENTERED");
-                    break;
-                case DragEvent.ACTION_DRAG_EXITED:
-//                    v.setBackgroundColor(Color.TRANSPARENT);
-                    Log.d("zztop", "ACTION_DRAG_EXITED");
-                    break;
                 case DragEvent.ACTION_DROP:
+                    batterDisplay.setOnTouchListener(null);
+                    firstDisplay.setOnTouchListener(null);
+                    secondDisplay.setOnTouchListener(null);
+                    thirdDisplay.setOnTouchListener(null);
+                    homeDisplay.setOnTouchListener(null);
                     Log.d("zztop", "ACTION_DROP");
                     String movedPlayer = "";
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        if (v.getId() == R.id.home_display) {
-                            v.setBackground(getDrawable(R.drawable.img_home));
-                            Log.d("zztop", "v.setBackgroundResource(getDrawable(R.drawable.img_home))");
-                        } else if (v.getId() == R.id.trash) {
-                            v.setBackgroundResource(0);
-                            Log.d("zztop", "v.setBackgroundResource(0)");
-                        } else {
-                            v.setBackground(getDrawable(R.drawable.img_base));
-                            Log.d("zztop", "v.setBackground(getDrawable(R.drawable.img_base)");
+                        switch (v.getId()) {
+                            case R.id.home_display:
+                                v.setBackground(getDrawable(R.drawable.img_home));
+                                break;
+                            case R.id.trash:
+                                v.setBackgroundResource(0);
+                                break;
+                            default:
+                                v.setBackground(getDrawable(R.drawable.img_base));
+                                break;
                         }
                     }
                     if (v.getId() == R.id.trash) {
                         if (eventView instanceof TextView) {
-                            Log.d("zztop", "v.getId() == R.id.tras");
                             TextView draggedView = (TextView) eventView;
                             draggedView.setText(null);
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                                 draggedView.setForeground(null);
-                                Log.d("zztop", "draggedView.setForeground(null);");
                             }
 
                         } else {
@@ -1155,7 +1172,7 @@ public abstract class GameActivity extends AppCompatActivity
                             batterMoved = true;
                             if (playEntered) {
                                 enableSubmitButton();
-                                Log.d("zztop", "enableSubmitButton");
+//                                Log.d("zztop", "enableSubmitButton");
                             }
                         }
                         tempOuts++;
@@ -1188,71 +1205,67 @@ public abstract class GameActivity extends AppCompatActivity
                             }
                         }
                         dropPoint.setAlpha(1);
-                    }
-                    if (dropPoint == homeDisplay) {
-                        homeDisplay.bringToFront();
-                        if (eventView instanceof TextView) {
-                            if (undoRedo) {
-                                tempRunsLog.add(movedPlayer);
+
+                        if (dropPoint == homeDisplay) {
+                            homeDisplay.bringToFront();
+                            if (eventView instanceof TextView) {
+                                if (undoRedo) {
+                                    tempRunsLog.add(movedPlayer);
+                                } else {
+                                    currentRunsLog.add(movedPlayer);
+                                }
                             } else {
-                                currentRunsLog.add(movedPlayer);
+                                String currentBatterString = currentBatter.getName();
+                                if (undoRedo) {
+                                    tempRunsLog.add(currentBatterString);
+                                } else {
+                                    currentRunsLog.add(currentBatterString);
+                                }
                             }
-                        } else {
-                            String currentBatterString = currentBatter.getName();
-                            if (undoRedo) {
-                                tempRunsLog.add(currentBatterString);
+                            homeDisplay.setText(null);
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                homeDisplay.setForeground(null);
+                            }
+                            tempRuns++;
+                            String scoreString;
+                            if (isTopOfInning()) {
+                                scoreString = awayTeamName + " " + (awayTeamRuns + tempRuns) + "    "
+                                        + homeTeamName + " " + homeTeamRuns;
                             } else {
-                                currentRunsLog.add(currentBatterString);
+                                scoreString = awayTeamName + " " + awayTeamRuns + "    "
+                                        + homeTeamName + " " + (homeTeamRuns + tempRuns);
                             }
+                            scoreboard.setText(scoreString);
                         }
-                        homeDisplay.setText(null);
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            homeDisplay.setForeground(null);
-                        }
-                        tempRuns++;
-                        String scoreString;
-                        if (isTopOfInning()) {
-                            scoreString = awayTeamName + " " + (awayTeamRuns + tempRuns) + "    "
-                                    + homeTeamName + " " + homeTeamRuns;
-                        } else {
-                            scoreString = awayTeamName + " " + awayTeamRuns + "    "
-                                    + homeTeamName + " " + (homeTeamRuns + tempRuns);
-                        }
-                        scoreboard.setText(scoreString);
                     }
-                    Log.d("zztop", "enableResetButton");
                     enableResetButton();
-                    Log.d("zztop", "setBaseListeners");
-                    setBaseListeners();
-                    Log.d("zztop", "break");
+                    mResetListeners = true;
                     break;
                 case DragEvent.ACTION_DRAG_ENDED:
-                    Log.d("zztop", "ACTION_DRAG_ENDED");
+                    Log.d("zztop", "ACTION_DRAG_ENDED1");
                     View dragView = (View) event.getLocalState();
                     if(dragView != null) {
                         dragView.setAlpha(1f);
                         Log.d("zztop", "dragView != null");
                     } else {
                         Log.d("zztop", "dragView == NULLLLLLLLLLLLLL");
-
                     }
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         switch (v.getId()) {
                             case R.id.home_display:
                                 v.setBackground(getDrawable(R.drawable.img_home));
-                                Log.d("zztop", "v.setBackground(getDrawable(R.drawable.img_home))");
                                 break;
                             case R.id.trash:
                                 v.setBackgroundResource(0);
-                                Log.d("zztop", "v.setBackground(0)");
                                 break;
                             default:
                                 v.setBackground(getDrawable(R.drawable.img_base));
-                                Log.d("zztop", "v.setBackground(getDrawable(R.drawable.img_base");
                         }
                     }
-                    break;
-                case DragEvent.ACTION_DRAG_LOCATION:
+                    if(event.getResult()){
+                        setBaseListeners();
+                    }
+                    Log.d("zztop", "ACTION_DRAG_ENDED2");
                     break;
             }
             return true;
@@ -1260,10 +1273,13 @@ public abstract class GameActivity extends AppCompatActivity
     }
 
     final class MyTouchListener implements View.OnTouchListener {
+
         @Override
         public boolean onTouch(View view, MotionEvent event) {
+            Log.d("zztop", "onTouchonTouchonTouchonTouch");
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 setBaseListeners();
+
                 view.setAlpha(.1f);
                 switch (view.getId()) {
                     case R.id.batter:

@@ -5,7 +5,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
@@ -47,7 +46,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
 
     private final List<Player> players;
     private final int visibility;
-    private boolean isTeam = false;
+    private boolean isTeam;
     private boolean genderSettingsOff;
     private final Context mContext;
     private int colorMale;

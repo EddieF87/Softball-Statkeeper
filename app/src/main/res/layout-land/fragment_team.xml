@@ -37,7 +37,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
         android:layout_weight="1"
         android:autoSizeMinTextSize="12sp"
         android:autoSizeTextType="uniform"
@@ -54,7 +53,6 @@
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
         android:text="@string/games"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="@+id/teamName"
@@ -69,7 +67,6 @@
         android:layout_gravity="center_vertical"
         android:layout_marginBottom="4dp"
         android:layout_marginEnd="32dp"
-        android:layout_marginRight="32dp"
         android:layout_marginTop="4dp"
         android:layout_weight="1"
         app:layout_constraintBottom_toBottomOf="@+id/teamName"
@@ -102,7 +99,8 @@
             android:background="@drawable/bg_white"
             android:padding="6dp"
             android:scrollbarFadeDuration="500"
-            android:elevation="8dp">
+            android:elevation="8dp"
+            tools:targetApi="lollipop">
 
             <LinearLayout
                 android:layout_width="wrap_content"

@@ -10,16 +10,17 @@
         android:id="@+id/boxscore_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="4dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
         android:autoSizeMinTextSize="12sp"
         android:autoSizeTextType="uniform"
         android:gravity="center"
         android:maxLines="1"
         android:orientation="horizontal"
-        android:textSize="24sp"
+        android:textSize="18sp"
         android:textStyle="bold"
-        tools:text="Purptopes 2    Young Bucks 1"
-        tools:targetApi="o" />
+        tools:targetApi="o"
+        tools:text="Yellowstone Purptopes 2    Young Bucks 1" />
 
     <RelativeLayout
         android:id="@+id/relativelayout_boxscore"
@@ -40,7 +41,8 @@
             android:layout_marginTop="30dp"
             android:singleLine="true"
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            />
 
         <TextView
             android:id="@+id/bottom_team"
