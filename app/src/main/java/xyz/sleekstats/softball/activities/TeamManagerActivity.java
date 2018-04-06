@@ -1,14 +1,19 @@
 package xyz.sleekstats.softball.activities;
 
+import android.content.ComponentName;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.IBinder;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
@@ -45,6 +50,8 @@ public class TeamManagerActivity extends ExportActivity
     private int mLevel;
     private int mSelectionType;
     private String mTeamName;
+    private FirestoreHelperService mService;
+    private ServiceConnection mServiceConnection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -241,7 +248,7 @@ public class TeamManagerActivity extends ExportActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         try {
             super.onActivityResult(requestCode, resultCode, data);
-
+            Log.d("megaman", "teamManagerActivity onActivityResult" + resultCode);
             if (requestCode == PlayerStatsAdapter.REQUEST_CODE) {
                 switch (resultCode) {
                     case RESULT_OK:
@@ -300,11 +307,36 @@ public class TeamManagerActivity extends ExportActivity
 
                         break;
                 }
+            } else if(requestCode == GameActivity.REQUEST_CODE_GAME && resultCode == GameActivity.RESULT_CODE_GAME_FINISHED) {
+                Toast.makeText(TeamManagerActivity.this, "Saving game results.\nStats should be updated shortly.", Toast.LENGTH_SHORT).show();
+                Log.d("megaman", "LeagueManagerActivity onActivityResult  GAME COMPLETE" + requestCode + resultCode);
+            } else {
+                Log.d("megaman", "LeagueManagerActivity onActivityResult  GAME ONGOING" + requestCode + resultCode +
+                "\n requestCode == GameActivity.RESULT_CODE_GAME_FINISHED  = " + (requestCode == GameActivity.RESULT_CODE_GAME_FINISHED) +
+                        "\n resultCode == GameActivity.RESULT_CODE_GAME_FINISHED  = " + (resultCode == GameActivity.RESULT_CODE_GAME_FINISHED));
             }
         } catch (Exception ex) {
             Toast.makeText(TeamManagerActivity.this, ex.toString(),
                     Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void bindService() {
+        if(mServiceConnection == null) {
+            mServiceConnection = new ServiceConnection() {
+                @Override
+                public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+                    FirestoreHelperService.MyBinder mBinder = (FirestoreHelperService.MyBinder) iBinder;
+                    mService = mBinder.getService();
+                }
+
+                @Override
+                public void onServiceDisconnected(ComponentName componentName) {
+
+                }
+            };
+        }
+//        bindService(mService, mServiceConnection, Context.BIND_IMPORTANT);
     }
 
     @Override

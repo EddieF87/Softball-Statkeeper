@@ -123,21 +123,21 @@ DeleteConfirmationDialog.OnFragmentInteractionListener {
                     teamID = awayTeamID;
                 }
                 uri = StatsEntry.CONTENT_URI_BOXSCORE_PLAYERS;
-                selection = StatsEntry.COLUMN_GAME_ID + "=? AND " + StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=?";
-                selectionArgs = new String[]{String.valueOf(mGameID), teamID};
+                selection = StatsEntry.COLUMN_GAME_ID + "=? AND " + StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+                selectionArgs = new String[]{String.valueOf(mGameID), teamID, selectionID};
                 projection = null;
                 break;
             case HOME_LOADER:
                 uri = StatsEntry.CONTENT_URI_BOXSCORE_PLAYERS;
-                selection = StatsEntry.COLUMN_GAME_ID + "=? AND " + StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=?";
-                selectionArgs = new String[]{String.valueOf(mGameID), homeTeamID};
+                selection = StatsEntry.COLUMN_GAME_ID + "=? AND " + StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+                selectionArgs = new String[]{String.valueOf(mGameID), homeTeamID, selectionID};
                 projection = null;
                 break;
             case PLAYER_NAME_LOADER:
                 uri = StatsEntry.CONTENT_URI_PLAYERS;
                 projection = new String[]{StatsEntry.COLUMN_FIRESTORE_ID, StatsEntry.COLUMN_NAME};
-                selection = null;
-                selectionArgs = null;
+                selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+                selectionArgs = new String[]{selectionID};
                 break;
             default:
                 return null;

@@ -64,6 +64,8 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         }
     }
 
+
+
     @Override
     protected Bundle getBoxScoreBundle() {
         Bundle b = new Bundle();
@@ -139,6 +141,15 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
             awayTeamName = myTeamName;
             homeTeamName = "Home Team";
         }
+
+        scoreboardAwayName = findViewById(R.id.sb_away_name);
+        scoreboardHomeName = findViewById(R.id.sb_home_name);
+        scoreboardAwayScore = findViewById(R.id.sb_away_score);
+        scoreboardHomeScore = findViewById(R.id.sb_home_score);
+
+        scoreboardAwayName.setText(awayTeamName);
+        scoreboardHomeName.setText(homeTeamName);
+
         myTeam = setTeam(mSelectionID);
         setTitle(awayTeamName + " @ " + homeTeamName);
 
@@ -250,7 +261,9 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
             ContentResolver contentResolver = getContentResolver();
             int gameID = StatsContract.getColumnInt(gameCursor, StatsEntry._ID);
             Uri gameURI = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_GAMELOG, gameID);
-            contentResolver.update(gameURI, values, null, null);
+            String qSelection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+            String[] qSelectionArgs = new String[]{mSelectionID};
+            contentResolver.update(gameURI, values, qSelection, qSelectionArgs);
         }
         tempBatter = StatsContract.getColumnString(gameCursor, StatsEntry.COLUMN_BATTER);
         if (tempRunsLog == null) {
@@ -623,15 +636,16 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
     }
 
     @Override
-    protected void exitToManager() {
-        Intent exitIntent = new Intent(TeamGameActivity.this, TeamManagerActivity.class);
-        startActivity(exitIntent);
-        finish();
-    }
-
-    @Override
     protected void actionEditLineup() {
         gotoLineupEditor(myTeamName, mSelectionID);
+    }
+
+    protected void gotoLineupEditor(String teamName, String teamID) {
+        Intent editorIntent = new Intent(TeamGameActivity.this, SetLineupActivity.class);
+        editorIntent.putExtra("ingame", true);
+        editorIntent.putExtra("team_name", teamName);
+        editorIntent.putExtra("team_id", teamID);
+        startActivityForResult(editorIntent, REQUEST_CODE_EDIT);
     }
 
     private void setLineupRVPosition() {

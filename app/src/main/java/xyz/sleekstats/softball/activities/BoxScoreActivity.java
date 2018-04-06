@@ -77,7 +77,7 @@ public class BoxScoreActivity extends AppCompatActivity {
                         return BoxScoreFragment.newInstance(selectionID, selectionName, selectionType, awayTeamID, homeTeamID,
                                 awayTeamName, homeTeamName, totalInnings, awayTeamRuns, homeTeamRuns);
                     case 1:
-                        return PlayRecapFragment.newInstance(awayTeamID, homeTeamID, inningNumber);
+                        return PlayRecapFragment.newInstance(awayTeamID, homeTeamID, inningNumber, selectionID);
                 }
                 return null;
             }

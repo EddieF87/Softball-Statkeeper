@@ -91,9 +91,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             statSort = savedInstanceState.getInt(KEY_STAT_SORT, -1);
             teamFilter = savedInstanceState.getString(KEY_TEAM_FILTER);
@@ -191,7 +189,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
 
             statsRV.setLayoutManager(new LinearLayoutManager(
                     getActivity(), LinearLayoutManager.VERTICAL, false));
-            mAdapter = new PlayerStatsAdapter(mPlayers, getActivity(), genderSorter);
+            mAdapter = new PlayerStatsAdapter(mPlayers, getActivity(), genderSorter, selectionID);
             statsRV.setAdapter(mAdapter);
         } else {
             mAdapter.notifyDataSetChanged();
@@ -236,8 +234,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
     }
 
     @Override
-    public void onNothingSelected(AdapterView<?> parent) {
-    }
+    public void onNothingSelected(AdapterView<?> parent) { }
 
     @Override
     public void onClick(View v) {
@@ -252,14 +249,14 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         String[] selectionArgs;
 
         if (teamFilter != null && !teamFilter.equals(KEY_ALL_TEAMS)) {
-            selection = StatsEntry.COLUMN_TEAM + "=?";
-            selectionArgs = new String[]{teamFilter};
+            selection = StatsEntry.COLUMN_TEAM + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+            selectionArgs = new String[]{teamFilter, selectionID};
         } else if (genderFilter != null) {
-            selection = StatsEntry.COLUMN_GENDER + "=?";
-            selectionArgs = new String[]{String.valueOf(genderFilter)};
+            selection = StatsEntry.COLUMN_GENDER + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+            selectionArgs = new String[]{String.valueOf(genderFilter), selectionID};
         } else {
-            selection = null;
-            selectionArgs = null;
+            selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+            selectionArgs = new String[]{selectionID};
         }
 
         return new CursorLoader(

@@ -41,6 +41,7 @@ public class GameRecapListActivity extends AppCompatActivity implements LoaderMa
     private Map<String, String> mTeamNames;
     private Map<Integer, String> mSpinnerMap;
     private String mSelectionArg;
+    private String mStatKeeperID;
     private int mSelectionType;
     private static final String KEY_SELECTION_ARG = "keySelectionArg";
     private static final String KEY_ALL_TEAMS = "All Teams";
@@ -54,6 +55,7 @@ public class GameRecapListActivity extends AppCompatActivity implements LoaderMa
         try {
             MyApp myApp = (MyApp) getApplicationContext();
             MainPageSelection mainPageSelection = myApp.getCurrentSelection();
+            mStatKeeperID = mainPageSelection.getId();
             mSelectionType = mainPageSelection.getType();
         } catch (Exception e) {
             Intent intent = new Intent(GameRecapListActivity.this, MainActivity.class);
@@ -85,22 +87,22 @@ public class GameRecapListActivity extends AppCompatActivity implements LoaderMa
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         String[] projection;
         Uri uri;
-        String selection = null;
+        String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
         String sortOrder;
         String[] selectionArgs;
         switch (id) {
             case TEAM_NAME_LOADER:
                 uri = StatsEntry.CONTENT_URI_TEAMS;
                 projection = new String[]{StatsEntry.COLUMN_FIRESTORE_ID, StatsEntry.COLUMN_NAME};
-                selectionArgs = null;
+                selectionArgs = new String[]{mStatKeeperID};
                 sortOrder = StatsEntry.COLUMN_NAME + " COLLATE NOCASE ASC";
                 break;
             case GAME_RECAP_LOADER:
                 if (mSelectionArg != null) {
-                    selection = StatsEntry.COLUMN_AWAY_TEAM + "=? OR " + StatsEntry.COLUMN_HOME_TEAM + "=?";
-                    selectionArgs = new String[]{mSelectionArg, mSelectionArg};
+                    selection = StatsEntry.COLUMN_AWAY_TEAM + "=? OR " + StatsEntry.COLUMN_HOME_TEAM + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+                    selectionArgs = new String[]{mSelectionArg, mSelectionArg, mStatKeeperID};
                 } else {
-                    selectionArgs = null;
+                    selectionArgs = new String[]{mStatKeeperID};
                 }
                 sortOrder = StatsEntry.COLUMN_GAME_ID + " DESC";
                 uri = StatsEntry.CONTENT_URI_BOXSCORE_OVERVIEWS;

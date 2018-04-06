@@ -152,27 +152,27 @@ public class BoxScoreFragment extends Fragment implements LoaderManager.LoaderCa
         switch (id) {
             case AWAY_LOADER:
                 uri = StatsEntry.CONTENT_URI_TEMP;
-                selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=?";
+                selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
                 if(selectionType == MainPageSelection.TYPE_TEAM){
-                    selectionArgs = new String[]{selectionID};
+                    selectionArgs = new String[]{selectionID, selectionID};
                 } else {
-                    selectionArgs = new String[]{awayTeamID};
+                    selectionArgs = new String[]{awayTeamID, selectionID};
                 }
                 break;
             case HOME_LOADER:
                 uri = StatsEntry.CONTENT_URI_TEMP;
-                selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=?";
-                selectionArgs = new String[]{homeTeamID};
+                selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+                selectionArgs = new String[]{homeTeamID, selectionID};
                 break;
             case SCORE_LOADER:
                 uri = StatsEntry.CONTENT_URI_GAMELOG;
-                selection = null;
-                selectionArgs = null;
+                selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+                selectionArgs = new String[]{selectionID};
                 break;
             default:
                 uri = null;
                 selection = null;
-                selectionArgs = new String[]{};
+                selectionArgs = null;
         }
         return new CursorLoader(getActivity(),
                 uri,

@@ -285,19 +285,21 @@ public abstract class ObjectPagerActivity extends AppCompatActivity
     public void onTeamChosen(String playerFirestoreID, String teamName, String teamFirestoreID) {
         int pos = mViewPager.getCurrentItem();
 
-        String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
-        String[] selectionArgs = new String[]{playerFirestoreID};
+        if(mSelectionID == null) {
+            setLeagueInfo();
+        }
+
+        String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] selectionArgs = new String[]{playerFirestoreID, mSelectionID};
 
         ContentValues values = new ContentValues();
         values.put(StatsEntry.COLUMN_TEAM, teamName);
         values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, teamFirestoreID);
         values.put(StatsEntry.COLUMN_ORDER, 99);
         values.put(StatsEntry.COLUMN_FIRESTORE_ID, playerFirestoreID);
+        values.put(StatsEntry.COLUMN_LEAGUE_ID, mSelectionID);
         getContentResolver().update(StatsEntry.CONTENT_URI_PLAYERS, values, selection, selectionArgs);
 
-        if(mSelectionID == null) {
-            setLeagueInfo();
-        }
         TimeStampUpdater.setUpdate(playerFirestoreID, 1, mSelectionID, this, System.currentTimeMillis());
 
         if (mObjectType == KEY_TEAM_PAGER) {

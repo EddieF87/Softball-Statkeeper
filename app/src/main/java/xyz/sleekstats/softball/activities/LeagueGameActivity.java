@@ -54,8 +54,6 @@ public class LeagueGameActivity extends GameActivity {
     private RecyclerView awayLineupRV;
     private RecyclerView homeLineupRV;
 
-    private static final String KEY_AWAYTEAM = "keyAwayTeam";
-    private static final String KEY_HOMETEAM = "keyHomeTeam";
     private static final String KEY_AWAYTEAMNDEX = "keyAwayTeamIndex";
     private static final String KEY_HOMETEAMINDEX = "keyHomeTeamIndex";
 
@@ -66,9 +64,9 @@ public class LeagueGameActivity extends GameActivity {
 
         SharedPreferences gamePreferences = getSharedPreferences(mSelectionID + StatsEntry.GAME, MODE_PRIVATE);
         totalInnings = gamePreferences.getInt(KEY_TOTALINNINGS, 7);
-        awayTeamID = gamePreferences.getString(KEY_AWAYTEAM, "x");
+        awayTeamID = gamePreferences.getString(StatsEntry.COLUMN_AWAY_TEAM, "x");
         awayTeamName = getTeamNameFromFirestoreID(awayTeamID);
-        homeTeamID = gamePreferences.getString(KEY_HOMETEAM, "y");
+        homeTeamID = gamePreferences.getString(StatsEntry.COLUMN_HOME_TEAM, "y");
         homeTeamName = getTeamNameFromFirestoreID(homeTeamID);
         int genderSorter = gamePreferences.getInt(KEY_FEMALEORDER, 0);
         int sortArgument = gamePreferences.getInt(KEY_GENDERSORT, 0);
@@ -93,6 +91,13 @@ public class LeagueGameActivity extends GameActivity {
         homeLineupAdapter = new MatchupAdapter(homeTeam, this, genderSorter + 1);
         homeLineupRV.setAdapter(homeLineupAdapter);
 
+        scoreboardAwayName = findViewById(R.id.sb_away_name);
+        scoreboardHomeName = findViewById(R.id.sb_home_name);
+        scoreboardAwayScore = findViewById(R.id.sb_away_score);
+        scoreboardHomeScore = findViewById(R.id.sb_home_score);
+
+        scoreboardAwayName.setText(awayTeamName);
+        scoreboardHomeName.setText(homeTeamName);
         TextView awayText = findViewById(R.id.away_text);
         TextView homeText = findViewById(R.id.home_text);
         awayText.setText(awayTeamName);
@@ -239,7 +244,10 @@ public class LeagueGameActivity extends GameActivity {
             ContentResolver contentResolver = getContentResolver();
             int gameID = StatsContract.getColumnInt(gameCursor, StatsEntry._ID);
             Uri gameURI = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_GAMELOG, gameID);
-            contentResolver.update(gameURI, values, null, null);
+
+            String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+            String[] selectionArgs = new String[]{mSelectionID};
+            contentResolver.update(gameURI, values, selection, selectionArgs);
         }
         tempBatter = StatsContract.getColumnString(gameCursor, StatsEntry.COLUMN_BATTER);
         if (tempRunsLog == null) {
@@ -283,7 +291,14 @@ public class LeagueGameActivity extends GameActivity {
         });
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
+    }
 
+    protected void gotoLineupEditor(String teamName, String teamID) {
+        Intent editorIntent = new Intent(LeagueGameActivity.this, SetLineupActivity.class);
+        editorIntent.putExtra("ingame", true);
+        editorIntent.putExtra("team_name", teamName);
+        editorIntent.putExtra("team_id", teamID);
+        startActivityForResult(editorIntent, REQUEST_CODE_EDIT);
     }
 
     @Override
@@ -342,16 +357,6 @@ public class LeagueGameActivity extends GameActivity {
         editor.putBoolean(KEY_UNDOREDO, undoRedo);
         editor.putBoolean(KEY_REDOENDSGAME, redoEndsGame);
         editor.apply();
-    }
-
-    @Override
-    protected void exitToManager() {
-//        Intent exitIntent = new Intent(LeagueGameActivity.this, LeagueManagerActivity.class);
-        Intent exitIntent = new Intent();
-        setResult(222, exitIntent);
-//        startActivity(exitIntent);
-        Log.d("megaman", "exitToManager");
-        finish();
     }
 
     @Override

@@ -7,37 +7,108 @@
     android:background="#000"
     android:padding="4dp">
 
-    <TextView
-        android:id="@+id/scoreboard"
-        style="@style/ScoreboardStyle"
+    <RelativeLayout
+        android:id="@+id/sb_away"
         android:layout_width="0dp"
-        android:layout_marginEnd="4dp"
-        android:layout_marginStart="4dp"
-        android:autoSizeMinTextSize="10sp"
-        android:autoSizeTextType="uniform"
-        android:gravity="start"
-        android:maxLines="1"
-        android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-        app:layout_constraintEnd_toStartOf="@+id/inning_top_arrow"
-        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toStartOf="@id/sb_home"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:targetApi="o"
-        tools:text="Fayatteville Juggernauts 5  Home Team 10" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/sb_away_name"
+            style="@style/ScoreboardStyle"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_marginEnd="4dp"
+            android:layout_toStartOf="@id/sb_away_score"
+            android:gravity="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+            android:textSize="14sp"
+            android:autoSizeTextType="uniform"
+            android:autoSizeMinTextSize="10sp"
+            tools:targetApi="o"
+            tools:text="123456789101112131415" />
+
+        <TextView
+            android:id="@+id/sb_away_score"
+            style="@style/ScoreboardStyle"
+            android:layout_width="18dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:autoSizeTextType="uniform"
+            android:autoSizeMinTextSize="10sp"
+            android:textSize="14sp"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+            tools:targetApi="o"
+            tools:text="55" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/sb_home"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toStartOf="@+id/inning_top_arrow"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toEndOf="@+id/sb_away"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/sb_home_name"
+            style="@style/ScoreboardStyle"
+
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_marginEnd="4dp"
+            android:layout_toStartOf="@id/sb_home_score"
+            android:gravity="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+            android:textSize="14sp"
+            android:autoSizeTextType="uniform"
+            android:autoSizeMinTextSize="10sp"
+            tools:targetApi="o"
+            tools:text="12341" />
+
+        <TextView
+            android:id="@+id/sb_home_score"
+            style="@style/ScoreboardStyle"
+            android:layout_width="18dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:textSize="14sp"
+            android:autoSizeMinTextSize="10sp"
+            android:autoSizeTextType="uniform"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+            tools:targetApi="o"
+            tools:text="55" />
+
+    </RelativeLayout>
 
     <TextView
         android:id="@+id/nowbatting"
         style="@style/ScoreboardStyle"
         android:layout_width="0dp"
         android:layout_marginEnd="4dp"
+        android:layout_marginStart="4dp"
         android:layout_marginTop="8dp"
         android:maxLines="1"
         android:singleLine="true"
         android:text="@string/nowbatting"
         android:textAppearance="@style/TextAppearance.AppCompat.Headline"
         app:layout_constraintEnd_toStartOf="@+id/inning_bottom_arrow"
-        app:layout_constraintStart_toStartOf="@+id/scoreboard"
-        app:layout_constraintTop_toBottomOf="@+id/scoreboard"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sb_away"
         tools:targetApi="o"
         tools:text="at bat: gggggggggggggd" />
 
@@ -46,29 +117,29 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
+        android:contentDescription="@string/top_of_inning"
         android:tint="#FFD600"
         app:layout_constraintEnd_toStartOf="@+id/num_of_outs"
-        app:layout_constraintTop_toTopOf="@+id/scoreboard"
-        app:srcCompat="@android:drawable/arrow_up_float"
-        android:contentDescription="@string/top_of_inning" />
+        app:layout_constraintTop_toTopOf="@+id/sb_away"
+        app:srcCompat="@android:drawable/arrow_up_float" />
 
     <ImageView
         android:id="@+id/inning_bottom_arrow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="2dp"
         android:background="#00000000"
+        android:contentDescription="@string/bottom_of_inning"
         android:tint="@color/cardview_dark_background"
         app:layout_constraintLeft_toLeftOf="@+id/inning"
         app:layout_constraintRight_toRightOf="@+id/inning"
         app:layout_constraintTop_toBottomOf="@+id/inning"
-        app:srcCompat="@android:drawable/arrow_down_float"
-        android:contentDescription="@string/bottom_of_inning" />
+        app:srcCompat="@android:drawable/arrow_down_float" />
 
     <TextView
         android:id="@+id/inning"
         style="@style/ScoreboardStyle"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="2dp"
         android:textStyle="bold"
         app:layout_constraintLeft_toLeftOf="@+id/inning_top_arrow"
         app:layout_constraintRight_toRightOf="@+id/inning_top_arrow"
@@ -80,40 +151,40 @@
         style="@style/ScoreboardStyle"
         android:layout_marginEnd="4dp"
         app:layout_constraintBottom_toBottomOf="@+id/inning"
-        app:layout_constraintTop_toTopOf="@+id/inning"
         app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/inning"
         tools:text="0 outs" />
 
     <TextView
         android:id="@+id/hrdisplay"
         style="@style/ScoreboardStyle"
+        android:layout_marginStart="12dp"
         app:layout_constraintLeft_toRightOf="@+id/avgdisplay"
         app:layout_constraintTop_toTopOf="@+id/avgdisplay"
-        tools:text="playerHR"
-        android:layout_marginStart="16dp" />
+        tools:text="playerHR" />
 
     <TextView
         android:id="@+id/rbidisplay"
         style="@style/ScoreboardStyle"
+        android:layout_marginStart="12dp"
         app:layout_constraintLeft_toRightOf="@+id/hrdisplay"
         app:layout_constraintTop_toTopOf="@+id/hrdisplay"
-        tools:text="playerRBI"
-        android:layout_marginStart="16dp" />
+        tools:text="playerRBI" />
 
     <TextView
         android:id="@+id/rundisplay"
         style="@style/ScoreboardStyle"
+        android:layout_marginStart="12dp"
         app:layout_constraintLeft_toRightOf="@+id/rbidisplay"
         app:layout_constraintTop_toTopOf="@+id/rbidisplay"
-        tools:text="playerRuns"
-        android:layout_marginStart="16dp" />
+        tools:text="playerRuns" />
 
     <TextView
         android:id="@+id/avgdisplay"
         style="@style/ScoreboardStyle"
-        android:layout_marginTop="8dp"
-        app:layout_constraintLeft_toLeftOf="@+id/nowbatting"
-        app:layout_constraintTop_toBottomOf="@+id/nowbatting"
+        android:layout_marginTop="4dp"
+        app:layout_constraintStart_toStartOf="@+id/nowbatting"
+        app:layout_constraintTop_toBottomOf="@+id/inning_bottom_arrow"
         tools:text=".XXX" />
 
 </android.support.constraint.ConstraintLayout>

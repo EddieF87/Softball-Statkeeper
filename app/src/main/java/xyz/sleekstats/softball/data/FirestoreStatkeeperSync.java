@@ -43,6 +43,8 @@ public class FirestoreStatkeeperSync implements Parcelable {
     private int teamssofar;
 //    private int boxscoresofar;
     private String mStatKeeperID;
+    private String mStatKeeperName;
+    private int mStatKeeperType;
 
     private onFirestoreSyncListener mListener;
 
@@ -109,6 +111,8 @@ public class FirestoreStatkeeperSync implements Parcelable {
             try {
                 MyApp myApp = (MyApp) mContext.getApplicationContext();
                 mStatKeeperID = myApp.getCurrentSelection().getId();
+                mStatKeeperName = myApp.getCurrentSelection().getName();
+                mStatKeeperType = myApp.getCurrentSelection().getType();
             } catch (Exception e) {
                 return;
             }
@@ -215,6 +219,7 @@ public class FirestoreStatkeeperSync implements Parcelable {
                                                     values.put(StatsEntry.COLUMN_NAME, player.getName());
                                                     values.put(StatsEntry.COLUMN_TEAM, player.getTeam());
                                                     values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, player.getTeamfirestoreid());
+                                                    values.put(StatsEntry.COLUMN_LEAGUE_ID, mStatKeeperID);
                                                     values.put(StatsEntry.COLUMN_1B, player.getSingles());
                                                     values.put(StatsEntry.COLUMN_2B, player.getDoubles());
                                                     values.put(StatsEntry.COLUMN_3B, player.getTriples());
@@ -225,10 +230,10 @@ public class FirestoreStatkeeperSync implements Parcelable {
                                                     values.put(StatsEntry.COLUMN_OUT, player.getOuts());
                                                     values.put(StatsEntry.COLUMN_SF, player.getSacFlies());
                                                     values.put(StatsEntry.COLUMN_G, player.getGames());
-                                                    String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
+                                                    String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
 
                                                     int rowsUpdated = mContext.getContentResolver().update(StatsEntry.CONTENT_URI_PLAYERS,
-                                                            values, selection, new String[]{playerIdString});
+                                                            values, selection, new String[]{playerIdString, mStatKeeperID});
 
                                                     if (rowsUpdated < 1) {
                                                         values.put(StatsEntry.SYNC, true);
@@ -388,22 +393,23 @@ public class FirestoreStatkeeperSync implements Parcelable {
                                                     }
 
                                                     ContentValues values = new ContentValues();
+                                                    values.put(StatsEntry.COLUMN_LEAGUE_ID, mStatKeeperID);
                                                     values.put(StatsContract.StatsEntry.COLUMN_NAME, team.getName());
                                                     values.put(StatsContract.StatsEntry.COLUMN_WINS, team.getWins());
                                                     values.put(StatsContract.StatsEntry.COLUMN_LOSSES, team.getLosses());
                                                     values.put(StatsContract.StatsEntry.COLUMN_TIES, team.getTies());
                                                     values.put(StatsContract.StatsEntry.COLUMN_RUNSFOR, team.getTotalRunsScored());
                                                     values.put(StatsEntry.COLUMN_RUNSAGAINST, team.getTotalRunsAllowed());
-                                                    String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
+                                                    String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
 
                                                     int rowsUpdated = mContext.getContentResolver().update(StatsEntry.CONTENT_URI_TEAMS,
-                                                            values, selection, new String[]{teamIdString});
+                                                            values, selection, new String[]{teamIdString, mStatKeeperID});
 
                                                     if (rowsUpdated < 1) {
                                                         values.put(StatsEntry.SYNC, true);
-                                                        values.put(StatsEntry.COLUMN_NAME, team.getName());
                                                         values.put(StatsEntry.COLUMN_FIRESTORE_ID, teamIdString);
-                                                        values.put(StatsEntry.COLUMN_LEAGUE_ID, mStatKeeperID);
+                                                        values.put(StatsEntry.TYPE, mStatKeeperType);
+                                                        values.put(StatsEntry.COLUMN_LEAGUE, mStatKeeperName);
                                                         mContext.getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
                                                     }
                                                     if (mListener != null) {
@@ -569,8 +575,8 @@ public class FirestoreStatkeeperSync implements Parcelable {
         if (!currentlyPlaying.isEmpty()) {
             SharedPreferences gamePreferences
                     = mContext.getSharedPreferences(mStatKeeperID + StatsEntry.GAME, Context.MODE_PRIVATE);
-            String awayID = gamePreferences.getString("keyAwayTeam", null);
-            String homeID = gamePreferences.getString("keyHomeTeam", null);
+            String awayID = gamePreferences.getString(StatsEntry.COLUMN_AWAY_TEAM, null);
+            String homeID = gamePreferences.getString(StatsEntry.COLUMN_HOME_TEAM, null);
             currentlyPlaying.add(awayID);
             currentlyPlaying.add(homeID);
         }

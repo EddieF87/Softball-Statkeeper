@@ -32,6 +32,7 @@ import android.widget.Toast;
 
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.activities.BoxScoreActivity;
+import xyz.sleekstats.softball.activities.GameActivity;
 import xyz.sleekstats.softball.activities.LeagueGameActivity;
 import xyz.sleekstats.softball.activities.LeagueManagerActivity;
 import xyz.sleekstats.softball.activities.MainActivity;
@@ -246,13 +247,12 @@ public class LineupFragment extends Fragment {
     private void onSubmitEdit() {
         if (isLineupOK()) {
             setNewLineupToTempDB(getPreviousLineup(mTeamID));
-            Intent intent;
             SharedPreferences gamePreferences = getActivity().getSharedPreferences(mSelectionID + StatsEntry.GAME, Context.MODE_PRIVATE);
 
             SharedPreferences.Editor editor = gamePreferences.edit();
             if (mType == MainPageSelection.TYPE_LEAGUE) {
-                String awayTeam = gamePreferences.getString("keyAwayTeam", null);
-                String homeTeam = gamePreferences.getString("keyHomeTeam", null);
+                String awayTeam = gamePreferences.getString(StatsEntry.COLUMN_AWAY_TEAM, null);
+                String homeTeam = gamePreferences.getString(StatsEntry.COLUMN_HOME_TEAM, null);
                 int sortArgument = gamePreferences.getInt(KEY_GENDERSORT, 0);
 
                 switch (sortArgument) {
@@ -276,16 +276,14 @@ public class LineupFragment extends Fragment {
                         }
                         break;
                 }
-
-                intent = new Intent(getActivity(), LeagueGameActivity.class);
                 editor.putInt(KEY_GENDERSORT, sortArgument);
             } else {
-                intent = new Intent(getActivity(), TeamGameActivity.class);
                 editor.putBoolean(KEY_GENDERSORT, false);
             }
             editor.apply();
-            intent.putExtra("edited", true);
-            startActivity(intent);
+            getActivity().setResult(GameActivity.RESULT_CODE_EDITED);
+//            intent.putExtra("edited", true);
+//            startActivity(intent);
             getActivity().finish();
         }
     }
@@ -343,7 +341,7 @@ public class LineupFragment extends Fragment {
                 @Override
                 public void onClick(View view) {
                     Intent intent = new Intent(getActivity(), TeamGameActivity.class);
-                    startActivity(intent);
+                    getActivity().startActivityForResult(intent, GameActivity.REQUEST_CODE_GAME);
                 }
             });
             continueGameButton.setVisibility(View.VISIBLE);
@@ -458,7 +456,7 @@ public class LineupFragment extends Fragment {
         Intent intent = new Intent(getActivity(), TeamGameActivity.class);
         intent.putExtra("isHome", isHome);
         intent.putExtra("sortArgument", sortLineup);
-        startActivity(intent);
+        getActivity().startActivityForResult(intent, GameActivity.REQUEST_CODE_GAME);
     }
 
 
@@ -695,7 +693,7 @@ public class LineupFragment extends Fragment {
     }
 
     private int updateAndSubmitLineup() {
-        String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
+        String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
         String[] selectionArgs;
 
         int i = 1;
@@ -704,9 +702,10 @@ public class LineupFragment extends Fragment {
             Pair<Long, Player> pair = (Pair<Long, Player>) playerObject;
             Player player = pair.second;
             String playerfireID = player.getFirestoreID();
-            selectionArgs = new String[]{playerfireID};
+            selectionArgs = new String[]{playerfireID, mSelectionID};
             ContentValues values = new ContentValues();
             values.put(StatsEntry.COLUMN_ORDER, i);
+            values.put(StatsEntry.COLUMN_LEAGUE_ID, mSelectionID);
             getActivity().getContentResolver().update(StatsEntry.CONTENT_URI_PLAYERS, values,
                     selection, selectionArgs);
             i++;
@@ -718,9 +717,10 @@ public class LineupFragment extends Fragment {
             Pair<Long, Player> pair = (Pair<Long, Player>) playerObject;
             Player player = pair.second;
             String playerfireID = player.getFirestoreID();
-            selectionArgs = new String[]{playerfireID};
+            selectionArgs = new String[]{playerfireID, mSelectionID};
             ContentValues values = new ContentValues();
             values.put(StatsContract.StatsEntry.COLUMN_ORDER, i);
+            values.put(StatsEntry.COLUMN_LEAGUE_ID, mSelectionID);
             getActivity().getContentResolver().update(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, values,
                     selection, selectionArgs);
         }

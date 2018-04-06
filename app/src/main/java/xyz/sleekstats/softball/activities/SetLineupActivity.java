@@ -72,7 +72,7 @@ public class SetLineupActivity extends SingleFragmentActivity
                 continue;
             }
             int gender = genders.get(i);
-            values.put(StatsEntry.COLUMN_LEAGUE_ID, mTeamID);
+            values.put(StatsEntry.COLUMN_LEAGUE_ID, mSelectionID);
             values.put(StatsEntry.COLUMN_NAME, name);
             values.put(StatsEntry.COLUMN_GENDER, gender);
             values.put(StatsEntry.COLUMN_TEAM, team);
@@ -119,8 +119,8 @@ public class SetLineupActivity extends SingleFragmentActivity
 
         SharedPreferences.Editor editor = gamePreferences.edit();
         if (mType == MainPageSelection.TYPE_LEAGUE) {
-            String awayTeam = gamePreferences.getString("keyAwayTeam", null);
-            String homeTeam = gamePreferences.getString("keyHomeTeam", null);
+            String awayTeam = gamePreferences.getString(StatsEntry.COLUMN_AWAY_TEAM, null);
+            String homeTeam = gamePreferences.getString(StatsEntry.COLUMN_HOME_TEAM, null);
             int sortArgument = gamePreferences.getInt(KEY_GENDERSORT, 0);
 
             switch (sortArgument) {

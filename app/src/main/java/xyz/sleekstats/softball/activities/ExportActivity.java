@@ -15,9 +15,11 @@ import android.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
+import xyz.sleekstats.softball.MyApp;
 import xyz.sleekstats.softball.data.MyFileProvider;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
+import xyz.sleekstats.softball.objects.MainPageSelection;
 import xyz.sleekstats.softball.objects.Player;
 import xyz.sleekstats.softball.objects.Team;
 import com.opencsv.CSVWriter;
@@ -37,6 +39,7 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 public abstract class ExportActivity extends AppCompatActivity {
 
     private String emailSubject;
+    private String mStatKeeperID;
     private long mGameID;
     private static final int PERMISSION_REQUEST_CODE = 200;
     private static final int KEY_TEAMS = 0;
@@ -77,13 +80,16 @@ public abstract class ExportActivity extends AppCompatActivity {
 
     private void tryExport() {
         try {
+            MyApp myApp = (MyApp) getApplicationContext();
+            MainPageSelection mainPageSelection = myApp.getCurrentSelection();
+            mStatKeeperID = mainPageSelection.getId();
             if(exportType == KEY_LEAGUE) {
                 exportLeague();
             } else if (exportType == KEY_BOXSCORE){
                 exportBoxscore();
             }
         } catch (IOException e) {
-            Toast.makeText(ExportActivity.this, "FAILURE", Toast.LENGTH_LONG).show();
+            Toast.makeText(ExportActivity.this, "ERROR WITH EXPORT", Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
     }
@@ -93,9 +99,9 @@ public abstract class ExportActivity extends AppCompatActivity {
         List<String[]> data = new ArrayList<>();
 
         String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
-        String[] selectionArgs = new String[]{};//todo
+        String[] selectionArgs = new String[]{mStatKeeperID};
         Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
-                null, null, null, null);
+                null, selection, selectionArgs, null);
 
         String[] titleArray = new String[]{
                 "Name", "Win %",
@@ -144,8 +150,8 @@ public abstract class ExportActivity extends AppCompatActivity {
 
         List<String[]> data = new ArrayList<>();
 
-        String selection = StatsEntry.COLUMN_GAME_ID + "=?";
-        String[] selectionArgs = new String[] {String.valueOf(mGameID)};
+        String selection = StatsEntry.COLUMN_GAME_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] selectionArgs = new String[] {String.valueOf(mGameID), mStatKeeperID};
         Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BOXSCORE_OVERVIEWS,
                 null, selection, selectionArgs, null);
 
@@ -164,14 +170,14 @@ public abstract class ExportActivity extends AppCompatActivity {
         }
         String awayTeamName = null;
         String homeTeamName = null;
-        selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
-        selectionArgs = new String[]{awayTeamID};
+        selection = StatsEntry.COLUMN_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        selectionArgs = new String[]{awayTeamID, mStatKeeperID};
         cursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
                 null, selection, selectionArgs, null);
         if(cursor.moveToFirst()) {
             awayTeamName = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_NAME);
         }
-        selectionArgs = new String[]{homeTeamID};
+        selectionArgs = new String[]{homeTeamID, mStatKeeperID};
         cursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
                 null, selection, selectionArgs, null);
         if(cursor.moveToFirst()) {
@@ -200,8 +206,8 @@ public abstract class ExportActivity extends AppCompatActivity {
         };
         data.add(titleArray);
 
-        String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=?";
-        String[] selectionArgs = new String[] {teamID};
+        String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] selectionArgs = new String[] {teamID, mStatKeeperID};
 
         Cursor playerCursor = getContentResolver().query(StatsEntry.CONTENT_URI_BOXSCORE_PLAYERS,
                 null, selection, selectionArgs, null);
@@ -235,8 +241,8 @@ public abstract class ExportActivity extends AppCompatActivity {
             String runString = String.valueOf(run);
             String sfString = String.valueOf(sf);
 
-            String nameSelection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
-            String[] nameSelectionArgs = new String[] {playerID};
+            String nameSelection = StatsEntry.COLUMN_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+            String[] nameSelectionArgs = new String[] {playerID, mStatKeeperID};
             String[] nameProjection = new String[] {StatsEntry.COLUMN_NAME};
 
             String nameString;
@@ -263,8 +269,10 @@ public abstract class ExportActivity extends AppCompatActivity {
 
         List<String[]> data = new ArrayList<>();
 
+        String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] selectionArgs = new String[]{mStatKeeperID};
         Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS,
-                null, null, null, null);
+                null, selection, selectionArgs, null);
 
         String[] titleArray = new String[]{
                 "Name", "Team", "G", "AB",

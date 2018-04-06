@@ -6,6 +6,8 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Binder;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -136,8 +138,8 @@ public class FirestoreHelperService extends IntentService {
         Log.d("megaman", "addPlayerStatsToDB start");
         Log.d("godzilla", "addPlayerStatsToDB start  " + mUpdateTime);
 
-        String selection = StatsEntry.COLUMN_GAME_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
-        String[] selectionArgs = new String[]{String.valueOf(mUpdateTime), statKeeperID};
+        final String selection = StatsEntry.COLUMN_GAME_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        final String[] selectionArgs = new String[]{String.valueOf(mUpdateTime), statKeeperID};
 
         Cursor backupPlayerCursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, null,
                 selection, selectionArgs, null);
@@ -204,6 +206,7 @@ public class FirestoreHelperService extends IntentService {
             permanentPlayerCursor.close();
 
             ContentValues values = new ContentValues();
+            values.put(StatsEntry.COLUMN_LEAGUE_ID, statKeeperID);
             values.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
             values.put(StatsEntry.COLUMN_1B, p1b + game1b);
             values.put(StatsEntry.COLUMN_2B, p2b + game2b);
@@ -216,7 +219,7 @@ public class FirestoreHelperService extends IntentService {
             values.put(StatsEntry.COLUMN_SF, pSF + gameSF);
             values.put(StatsEntry.COLUMN_G, pGames + 1);
             Log.d("zztop", firestoreID + "  hr: " + gameHR);
-            getContentResolver().update(playerUri, values, null, null);
+            getContentResolver().update(playerUri, values, qSelection, qSelectionArgs);
 
             playerBatch.update(playerRef, StatsEntry.UPDATE, mUpdateTime);
         }
@@ -227,7 +230,7 @@ public class FirestoreHelperService extends IntentService {
                     @Override
                     public void onSuccess(Void aVoid) {
 
-                        getContentResolver().delete(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, null, null);
+                        getContentResolver().delete(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, selection, selectionArgs);
                         Log.d("megaman", "addPlayerStatsToDB SUCCESS");
                         Log.d("godzilla", "addPlayerStatsToDB SUCCESS  " + mUpdateTime);
                     }
@@ -441,6 +444,7 @@ public class FirestoreHelperService extends IntentService {
             @Override
             public void onFailure(@NonNull Exception e) {
                 ContentValues values = new ContentValues();
+                values.put(StatsEntry.COLUMN_LEAGUE_ID, statKeeperID);
                 values.put(StatsEntry.COLUMN_BB, - playerLog.getWalks());
                 values.put(StatsEntry.COLUMN_1B, - playerLog.getSingles());
                 values.put(StatsEntry.COLUMN_2B, - playerLog.getDoubles());
@@ -451,8 +455,8 @@ public class FirestoreHelperService extends IntentService {
                 values.put(StatsEntry.COLUMN_RBI, - playerLog.getRbi());
                 values.put(StatsEntry.COLUMN_RUN, - playerLog.getRuns());
 
-                String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
-                String[] selectionArgs = new String[]{firestoreID};
+                String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+                String[] selectionArgs = new String[]{firestoreID, statKeeperID};
                 getContentResolver().update(StatsEntry.CONTENT_URI_PLAYERS, values, selection, selectionArgs);
             }
         });
@@ -521,4 +525,23 @@ public class FirestoreHelperService extends IntentService {
                 break;
         }
     }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return super.onBind(intent);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
+    public class MyBinder extends Binder{
+        public FirestoreHelperService getService(){
+            return FirestoreHelperService.this;
+        }
+    }
+
+    private MyBinder mBinder = new MyBinder();
 }

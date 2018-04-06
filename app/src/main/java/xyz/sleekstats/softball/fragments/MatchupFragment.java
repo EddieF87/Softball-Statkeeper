@@ -210,8 +210,8 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                 SharedPreferences gamePreferences =
                         getActivity().getSharedPreferences(leagueID + StatsEntry.GAME, Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = gamePreferences.edit();
-                editor.putString("keyAwayTeam", awayTeamID);
-                editor.putString("keyHomeTeam", homeTeamID);
+                editor.putString(StatsEntry.COLUMN_AWAY_TEAM, awayTeamID);
+                editor.putString(StatsEntry.COLUMN_HOME_TEAM, homeTeamID);
                 editor.putInt("keyTotalInnings", innings);
                 editor.putInt("keyGenderSort", sortArgument);
                 editor.putInt("keyFemaleOrder", genderSorter);
@@ -263,8 +263,8 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         final int inningNumber = savedGamePreferences.getInt("keyInningNumber", 2);
         int inningDisplay = inningNumber / 2;
         final int totalInnings = savedGamePreferences.getInt("keyTotalInnings", 7);
-        final String awayID = savedGamePreferences.getString("keyAwayTeam", "");
-        final String homeID = savedGamePreferences.getString("keyHomeTeam", "");
+        final String awayID = savedGamePreferences.getString(StatsEntry.COLUMN_AWAY_TEAM, "");
+        final String homeID = savedGamePreferences.getString(StatsEntry.COLUMN_HOME_TEAM, "");
         final String awayTeamName = getTeamNameFromFirestoreID(awayID);
         final String homeTeamName = getTeamNameFromFirestoreID(homeID);
         if(awayTeamName == null || homeTeamName == null) {
@@ -628,7 +628,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     private ArrayList<Player> getLineup(String teamID) {
         ArrayList<Player> lineupList = new ArrayList<>();
         List<Player> benchList = new ArrayList<>();
-        try {//todo
+        try {
             String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
             String[] selectionArgs = new String[]{teamID, leagueID};
             String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
@@ -654,7 +654,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
 
     private void getBench(String teamID) {
         List<Player> benchList = new ArrayList<>();
-        try {//todo
+        try {
             String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_ORDER + ">? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
             String[] selectionArgs = new String[]{teamID, String.valueOf(49), leagueID};
 
@@ -735,12 +735,14 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] selectionArgs = new String[]{leagueID};
         String[] projection = new String[]{StatsContract.StatsEntry._ID,
                 StatsEntry.COLUMN_NAME, StatsEntry.COLUMN_FIRESTORE_ID};
         String sortOrder = StatsEntry.COLUMN_NAME + " COLLATE NOCASE";
 
         return new CursorLoader(getActivity(), StatsContract.StatsEntry.CONTENT_URI_TEAMS,
-                projection, null, null, sortOrder);
+                projection, selection, selectionArgs, sortOrder);
     }
 
     @Override

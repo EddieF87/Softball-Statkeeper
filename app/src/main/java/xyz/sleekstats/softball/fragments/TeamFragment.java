@@ -274,12 +274,15 @@ public class TeamFragment extends Fragment
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
-        String selection = null;
-        String[] selectionArgs = null;
+        String selection;
+        String[] selectionArgs;
 
         if (waivers) {
-            selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
-            selectionArgs = new String[]{StatsEntry.FREE_AGENT};
+            selection = StatsEntry.COLUMN_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+            selectionArgs = new String[]{StatsEntry.FREE_AGENT, mSelectionID};
+        } else {
+            selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+            selectionArgs = new String[]{mSelectionID};
         }
 
         return new CursorLoader(
@@ -707,9 +710,12 @@ public class TeamFragment extends Fragment
         ContentValues contentValues = new ContentValues();
         contentValues.put(StatsEntry.COLUMN_NAME, newName);
         contentValues.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
+        contentValues.put(StatsEntry.COLUMN_LEAGUE_ID, mSelectionID);
 
+        String qSelection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] qSelectionArgs = new String[]{mSelectionID};
         int rowsUpdated = getActivity().getContentResolver().update(mCurrentTeamUri,
-                contentValues, null, null);
+                contentValues, qSelection, qSelectionArgs);
         if (rowsUpdated > 0) {
             teamName = newName;
             updatePlayersTeam(teamName);
@@ -727,6 +733,7 @@ public class TeamFragment extends Fragment
             long playerID = player.getPlayerId();
             String firestoreID = player.getFirestoreID();
 
+            contentValues.put(StatsEntry.COLUMN_LEAGUE_ID, mSelectionID);
             contentValues.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
             contentValues.put(StatsEntry.COLUMN_TEAM, team);
 
@@ -735,7 +742,9 @@ public class TeamFragment extends Fragment
             }
 
             Uri playerURI = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_PLAYERS, playerID);
-            getActivity().getContentResolver().update(playerURI, contentValues, null, null);
+            String qSelection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+            String[] qSelectionArgs = new String[]{mSelectionID};
+            getActivity().getContentResolver().update(playerURI, contentValues, qSelection, qSelectionArgs);
 
             TimeStampUpdater.setUpdate(firestoreID, 1, mSelectionID, getActivity(), updateTime);
         }

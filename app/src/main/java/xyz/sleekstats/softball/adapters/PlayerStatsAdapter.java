@@ -195,11 +195,14 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
                 }
                 cursor.close();
                 ContentValues values = new ContentValues();
+                values.put(StatsEntry.COLUMN_LEAGUE_ID, statKeeperID);
                 values.put(StatsEntry.COLUMN_FIRESTORE_ID, player.getFirestoreID());
                 values.put(StatsEntry.COLUMN_TEAM, team);
                 long id = player.getPlayerId();
                 Uri playerUri = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_PLAYERS, id);
-                context.getContentResolver().update(playerUri, values, null, null);
+                String qSelection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+                String[] qSelectionArgs = new String[]{statKeeperID};
+                context.getContentResolver().update(playerUri, values, qSelection, qSelectionArgs);
             }
             if (teamfirestoreid == null || teamfirestoreid.equals(StatsEntry.FREE_AGENT)) {
                 teamabv = "FA";

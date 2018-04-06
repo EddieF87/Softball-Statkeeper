@@ -40,6 +40,7 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
     private OnFragmentInteractionListener mListener;
     private static final int STANDINGS_LOADER = 3;
     private int level;
+    private String mLeagueID;
     private StandingsAdapter mAdapter;
     private ArrayList<Team> mTeams;
     private TextView colorView;
@@ -51,11 +52,12 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
         // Required empty public constructor
     }
 
-    public static StandingsFragment newInstance(int level, String name) {
+    public static StandingsFragment newInstance(String id, int level, String name) {
         Bundle args = new Bundle();
         StandingsFragment fragment = new StandingsFragment();
         args.putInt(MainPageSelection.KEY_SELECTION_LEVEL, level);
         args.putString(MainPageSelection.KEY_SELECTION_NAME, name);
+        args.putString(MainPageSelection.KEY_SELECTION_ID, id);
         fragment.setArguments(args);
         return fragment;
     }
@@ -66,6 +68,7 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
         Bundle args = getArguments();
         if (args != null) {
             level = args.getInt(MainPageSelection.KEY_SELECTION_LEVEL);
+            mLeagueID = args.getString(MainPageSelection.KEY_SELECTION_ID);
         }
     }
 
@@ -150,12 +153,14 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] selectionArgs = new String[]{mLeagueID};
         return new CursorLoader(
                 getActivity(),
                 StatsEntry.CONTENT_URI_TEAMS,
                 null,
-                null,
-                null,
+                selection,
+                selectionArgs,
                 null
         );
     }

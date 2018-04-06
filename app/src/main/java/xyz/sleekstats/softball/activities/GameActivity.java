@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -58,7 +59,10 @@ public abstract class GameActivity extends AppCompatActivity
     Cursor gameCursor;
     private static final String TAG = "UNDOREDOFIX";
 
-    private TextView scoreboard;
+    TextView scoreboardAwayName;
+    TextView scoreboardHomeName;
+    TextView scoreboardAwayScore;
+    TextView scoreboardHomeScore;
     TextView nowBatting;
     TextView outsDisplay;
     TextView avgDisplay;
@@ -136,6 +140,10 @@ public abstract class GameActivity extends AppCompatActivity
     static final String KEY_UNDOREDO = "keyUndoRedo";
     static final String KEY_REDOENDSGAME = "redoEndsGame";
     private static final String DIALOG_FINISH = "DialogFinish";
+    public static final int RESULT_CODE_GAME_FINISHED = 222;
+    public static final int REQUEST_CODE_GAME = 111;
+    public static final int RESULT_CODE_EDITED = 444;
+    public static final int REQUEST_CODE_EDIT = 333;
 
     String mSelectionID;
     Toast mCurrentToast;
@@ -148,13 +156,14 @@ public abstract class GameActivity extends AppCompatActivity
         getSelectionData();
         setCustomViews();
         setViews();
+        Log.d("megaman", "game onCreate");
 
         String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
         String[] selectionArgs = new String[]{mSelectionID};
-        Log.d(TAG, "ONCREATE");
         gameCursor = getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG, null,
                 selection, selectionArgs, null);
         if (gameCursor.moveToFirst()) {
+            Log.d("megaman", "ameCursor.moveToFirst");
             loadGamePreferences();
             Bundle args = getIntent().getExtras();
             if (args != null) {
@@ -183,8 +192,6 @@ public abstract class GameActivity extends AppCompatActivity
 //                .build();
 //        adView.loadAd(adRequest);
 
-
-        scoreboard = findViewById(R.id.scoreboard);
         nowBatting = findViewById(R.id.nowbatting);
         outsDisplay = findViewById(R.id.num_of_outs);
         avgDisplay = findViewById(R.id.avgdisplay);
@@ -260,10 +267,9 @@ public abstract class GameActivity extends AppCompatActivity
     protected abstract void setCustomViews();
 
     ArrayList<Player> setTeam(String teamID) {
-        String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=?";
-        String[] selectionArgs = new String[]{teamID};
+        String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] selectionArgs = new String[]{teamID, mSelectionID};
         String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
-//todo
         Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEMP, null,
                 selection, selectionArgs, sortOrder);
 
@@ -578,8 +584,7 @@ public abstract class GameActivity extends AppCompatActivity
 
         deleteTempData();
 
-        setResult(222);
-        exitToManager();
+        sendResultToMgr();
     }
 
     protected void transferStats(long gameID){
@@ -670,8 +675,8 @@ public abstract class GameActivity extends AppCompatActivity
     }
 
     private Player getPlayerFromCursor(Uri uri, String playerFirestoreID) {
-        String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";//todo
-        String[] selectionArgs = {playerFirestoreID};
+        String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] selectionArgs = {playerFirestoreID, mSelectionID};
         Cursor cursor = getContentResolver().query(uri, null,
                 selection, selectionArgs, null);
         cursor.moveToFirst();
@@ -741,20 +746,30 @@ public abstract class GameActivity extends AppCompatActivity
 
 
     void setScoreDisplay() {
-        String scoreString = awayTeamName + " " + awayTeamRuns + "    " + homeTeamName + " " + homeTeamRuns;
-        scoreboard.setText(scoreString);
+        scoreboardAwayScore.setText(String.valueOf(awayTeamRuns));
+        scoreboardHomeScore.setText(String.valueOf(homeTeamRuns));
     }
 
     void setInningDisplay() {
         String topOrBottom;
+        int scoreboardColor = ContextCompat.getColor(this, R.color.colorScoreboard);
+        int atBatColor = ContextCompat.getColor(this, R.color.colorHighlight);
         if (inningNumber % 2 == 0) {
-            inningTopArrow.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.color_arrow));
+            inningTopArrow.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.colorScoreboard));
             inningBottomArrow.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.cardview_dark_background));
             topOrBottom = "Top";
+            scoreboardAwayName.setTextColor(atBatColor);
+            scoreboardAwayScore.setTextColor(atBatColor);
+            scoreboardHomeName.setTextColor(scoreboardColor);
+            scoreboardHomeScore.setTextColor(scoreboardColor);
         } else {
             inningTopArrow.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.cardview_dark_background));
-            inningBottomArrow.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.color_arrow));
+            inningBottomArrow.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.colorScoreboard));
             topOrBottom = "Bottom";
+            scoreboardAwayName.setTextColor(scoreboardColor);
+            scoreboardAwayScore.setTextColor(scoreboardColor);
+            scoreboardHomeName.setTextColor(atBatColor);
+            scoreboardHomeScore.setTextColor(atBatColor);
         }
         inningDisplay.setText(String.valueOf(inningNumber / 2));
 
@@ -790,8 +805,8 @@ public abstract class GameActivity extends AppCompatActivity
             }
             playerFirestoreID = currentBatter.getFirestoreID();
         }
-        String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";//todo
-        String[] selectionArgs = {playerFirestoreID};
+        String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] selectionArgs = {playerFirestoreID, mSelectionID};
         Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEMP,
                 null, selection, selectionArgs, null);
         cursor.moveToFirst();
@@ -856,8 +871,8 @@ public abstract class GameActivity extends AppCompatActivity
 
 
     private void updatePlayerRuns(String player, int n) {
-        String selection = StatsEntry.COLUMN_NAME + "=?";//todo
-        String[] selectionArgs = {player};
+        String selection = StatsEntry.COLUMN_NAME + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] selectionArgs = {player, mSelectionID};
         Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEMP, null,
                 selection, selectionArgs, null
         );
@@ -980,8 +995,6 @@ public abstract class GameActivity extends AppCompatActivity
                 selection, selectionArgs, null);
         gameCursor.moveToPosition(gameLogIndex);
         int id = StatsContract.getColumnInt(gameCursor, StatsEntry._ID);
-        String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
-        String[] selectionArgs = new String[]{mSelectionID};
         Uri toDelete = ContentUris.withAppendedId(StatsEntry.CONTENT_URI_GAMELOG, id);
         getContentResolver().delete(toDelete, selection, selectionArgs);
         undoRedo = false;
@@ -1243,13 +1256,12 @@ public abstract class GameActivity extends AppCompatActivity
                             tempRuns++;
                             String scoreString;
                             if (isTopOfInning()) {
-                                scoreString = awayTeamName + " " + (awayTeamRuns + tempRuns) + "    "
-                                        + homeTeamName + " " + homeTeamRuns;
+                                scoreString = String.valueOf(awayTeamRuns + tempRuns);
+                                scoreboardAwayScore.setText(scoreString);
                             } else {
-                                scoreString = awayTeamName + " " + awayTeamRuns + "    "
-                                        + homeTeamName + " " + (homeTeamRuns + tempRuns);
+                                scoreString = String.valueOf(homeTeamRuns + tempRuns);
+                                scoreboardHomeScore.setText(scoreString);
                             }
-                            scoreboard.setText(scoreString);
                         }
                     }
                     enableResetButton();
@@ -1353,14 +1365,7 @@ public abstract class GameActivity extends AppCompatActivity
         return true;
     }
 
-    void gotoLineupEditor(String teamName, String teamID) {
-        Intent editorIntent = new Intent(GameActivity.this, SetLineupActivity.class);
-        editorIntent.putExtra("ingame", true);
-        editorIntent.putExtra("team_name", teamName);
-        editorIntent.putExtra("team_id", teamID);
-        startActivity(editorIntent);
-        finish();
-    }
+    protected abstract void gotoLineupEditor(String teamName, String teamID);
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -1420,7 +1425,7 @@ public abstract class GameActivity extends AppCompatActivity
             editor.clear();
             editor.apply();
         }
-        exitToManager();
+        finish();
     }
 
     private void deleteTempData(){
@@ -1430,7 +1435,12 @@ public abstract class GameActivity extends AppCompatActivity
         getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, selection, selectionArgs);
     }
 
-    protected abstract void exitToManager();
+    void sendResultToMgr() {
+        Intent exitIntent = new Intent();
+        setResult(RESULT_CODE_GAME_FINISHED, exitIntent);
+        Log.d("megaman", "sendResultToMgr");
+        finish();
+    }
 
     protected abstract void actionEditLineup();
 
@@ -1491,8 +1501,8 @@ public abstract class GameActivity extends AppCompatActivity
 
 
     String getTeamNameFromFirestoreID(String firestoreID) {
-        String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";//todo
-        String[] selectionArgs = new String[]{firestoreID};
+        String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] selectionArgs = new String[]{firestoreID, mSelectionID};
         String[] projection = new String[]{StatsEntry.COLUMN_NAME};
 
         Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
@@ -1518,6 +1528,34 @@ public abstract class GameActivity extends AppCompatActivity
         } else {
             finalInning = false;
             redoEndsGame = false;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d("megaman", "game onActivityResult");
+        if(requestCode == REQUEST_CODE_EDIT) {
+            Log.d("megaman", "requestCode == REQUEST_CODE_EDIT");
+            String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+            String[] selectionArgs = new String[]{mSelectionID};
+            gameCursor = getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG, null,
+                    selection, selectionArgs, null);
+            gameCursor.moveToFirst();
+            if (resultCode == RESULT_CODE_EDITED) {
+                Log.d("megaman", "resultCode == RESULT_CODE_EDITED");
+                getSelectionData();
+                setCustomViews();
+                setViews();
+                if(undoRedo) {
+                    deleteGameLogs();
+                    highestIndex = gameLogIndex;
+                    invalidateOptionsMenu();
+                    setUndoRedo();
+                }
+                resumeGame();
+                Toast.makeText(GameActivity.this, "Lineups have been edited.", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }

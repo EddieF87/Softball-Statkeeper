@@ -25,6 +25,7 @@ import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.adapters.PreviousPlaysAdapter;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
+import xyz.sleekstats.softball.objects.MainPageSelection;
 import xyz.sleekstats.softball.objects.PreviousPlay;
 
 public class PlayRecapFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -33,17 +34,19 @@ public class PlayRecapFragment extends Fragment implements LoaderManager.LoaderC
     private PreviousPlaysAdapter mAdapter;
     private List<PreviousPlay> mPreviousPlays;
     private Map<String, String> mPlayerNames;
+    private String mStatKeeperID;
     private String awayTeamID;
     private String homeTeamID;
     private int inningNumber;
     private static final int PLAYER_NAMES_LOADER = 5;
     private static final int PLAYS_LOADER = 6;
 
-    public static PlayRecapFragment newInstance(String awayTeamID, String homeTeamID, int inningNumber) {
+    public static PlayRecapFragment newInstance(String awayTeamID, String homeTeamID, int inningNumber, String statKeeperID) {
         Bundle args = new Bundle();
-        args.putString("awayTeamID", awayTeamID);
-        args.putString("homeTeamID", homeTeamID);
-        args.putInt("inningNumber", inningNumber);
+        args.putString(StatsEntry.COLUMN_AWAY_TEAM, awayTeamID);
+        args.putString(StatsEntry.COLUMN_HOME_TEAM, homeTeamID);
+        args.putInt(StatsEntry.INNINGS, inningNumber);
+        args.putString(MainPageSelection.KEY_SELECTION_ID, statKeeperID);
         PlayRecapFragment fragment = new PlayRecapFragment();
         fragment.setArguments(args);
         return fragment;
@@ -53,9 +56,10 @@ public class PlayRecapFragment extends Fragment implements LoaderManager.LoaderC
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
-        this.awayTeamID = args.getString("awayTeamID", null);
-        this.homeTeamID = args.getString("homeTeamID", null);
-        this.inningNumber = args.getInt("inningNumber", 0);
+        this.awayTeamID = args.getString(StatsEntry.COLUMN_AWAY_TEAM, null);
+        this.homeTeamID = args.getString(StatsEntry.COLUMN_HOME_TEAM, null);
+        this.inningNumber = args.getInt(StatsEntry.INNINGS, 0);
+        this.mStatKeeperID = args.getString(MainPageSelection.KEY_SELECTION_ID);
     }
 
     @Nullable
@@ -92,16 +96,16 @@ public class PlayRecapFragment extends Fragment implements LoaderManager.LoaderC
                     selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=?";
                     selectionArgs = new String[]{awayTeamID};
                 } else {
-                    selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=? OR " + StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=?";
-                    selectionArgs = new String[]{awayTeamID, homeTeamID};
+                    selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=? OR " + StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+                    selectionArgs = new String[]{awayTeamID, homeTeamID, mStatKeeperID};
                 }
                 projection = new String[]{StatsEntry.COLUMN_FIRESTORE_ID, StatsEntry.COLUMN_NAME};
                 sortOrder = null;
                 break;
             case PLAYS_LOADER:
                 uri = StatsEntry.CONTENT_URI_GAMELOG;
-                selection = null;
-                selectionArgs = null;
+                selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+                selectionArgs = new String[]{mStatKeeperID};
                 projection = null;
                 sortOrder = StatsEntry._ID + " DESC";
                 break;

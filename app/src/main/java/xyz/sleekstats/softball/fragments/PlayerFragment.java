@@ -156,12 +156,14 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] selectionArgs = new String[]{mSelectionID};
         return new CursorLoader(
                 getActivity(),
                 mCurrentPlayerUri,
                 null,
-                null,
-                null,
+                selection,
+                selectionArgs,
                 null
         );
     }
@@ -458,8 +460,13 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                         values.put(StatsEntry.COLUMN_FIRESTORE_ID, mFirestoreID);
                     }
                     values.put(statEntry, resultCount);
+                    values.put(StatsEntry.COLUMN_LEAGUE_ID, mSelectionID);
+
+                    String qSelection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+                    String[] qSelectionArgs = new String[]{mSelectionID};
+
                     getActivity().getContentResolver().update(mCurrentPlayerUri,
-                            values, null, null);
+                            values, qSelection, qSelectionArgs);
                 }
                 cursor.close();
 
@@ -633,7 +640,11 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(StatsEntry.COLUMN_GENDER, gender);
                 contentValues.put(StatsEntry.COLUMN_FIRESTORE_ID, mFirestoreID);
-                int rowsUpdated = getActivity().getContentResolver().update(mCurrentPlayerUri, contentValues, null, null);
+                contentValues.put(StatsEntry.COLUMN_LEAGUE_ID, mSelectionID);
+
+                String qSelection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+                String[] qSelectionArgs = new String[]{mSelectionID};
+                int rowsUpdated = getActivity().getContentResolver().update(mCurrentPlayerUri, contentValues, qSelection, qSelectionArgs);
                 if (rowsUpdated > 0) {
                     TimeStampUpdater.updateTimeStamps(getActivity(), mSelectionID, System.currentTimeMillis());
                 }
@@ -761,6 +772,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         ContentValues contentValues = new ContentValues();
         contentValues.put(StatsEntry.COLUMN_NAME, playerName);
         contentValues.put(StatsEntry.COLUMN_FIRESTORE_ID, mFirestoreID);
+        contentValues.put(StatsEntry.COLUMN_LEAGUE_ID, mSelectionID);
 
         int rowsUpdated = getActivity().getContentResolver().update(mCurrentPlayerUri, contentValues, null, null);
         return rowsUpdated > 0;
@@ -771,8 +783,11 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         ContentValues contentValues = new ContentValues();
         contentValues.put(StatsEntry.COLUMN_TEAM, team);
         contentValues.put(StatsEntry.COLUMN_FIRESTORE_ID, mFirestoreID);
+        contentValues.put(StatsEntry.COLUMN_LEAGUE_ID, mSelectionID);
 
-        getActivity().getContentResolver().update(mCurrentPlayerUri, contentValues, null, null);
+        String qSelection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] qSelectionArgs = new String[]{mSelectionID};
+        getActivity().getContentResolver().update(mCurrentPlayerUri, contentValues, qSelection, qSelectionArgs);
     }
 
     private boolean levelAuthorized(int level) {

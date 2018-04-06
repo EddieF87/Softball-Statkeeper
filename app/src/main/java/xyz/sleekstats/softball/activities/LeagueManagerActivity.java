@@ -1,11 +1,19 @@
 package xyz.sleekstats.softball.activities;
 
+import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.IBinder;
+import android.os.IInterface;
+import android.os.Parcel;
+import android.os.RemoteException;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -36,6 +44,7 @@ import xyz.sleekstats.softball.fragments.StatsFragment;
 import xyz.sleekstats.softball.objects.MainPageSelection;
 import xyz.sleekstats.softball.objects.Team;
 
+import java.io.FileDescriptor;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -127,6 +136,8 @@ public class LeagueManagerActivity extends ExportActivity
             values.put(StatsEntry.COLUMN_NAME, teamName);
             values.put(StatsEntry.COLUMN_LEAGUE_ID, mLeagueID);
             values.put(StatsEntry.ADD, true);
+            values.put(StatsEntry.TYPE, MainPageSelection.TYPE_LEAGUE);
+            values.put(StatsEntry.COLUMN_LEAGUE, leagueName);
             Uri teamUri = getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
 
             if (teamUri == null) {
@@ -235,7 +246,7 @@ public class LeagueManagerActivity extends ExportActivity
     @Override
     public void goToGameActivity() {
         Intent intent = new Intent(LeagueManagerActivity.this, LeagueGameActivity.class);
-        startActivityForResult(intent, 0);
+        startActivityForResult(intent, GameActivity.REQUEST_CODE_GAME);
     }
 
     private class LeagueManagerPagerAdapter extends FragmentStatePagerAdapter {
@@ -248,7 +259,7 @@ public class LeagueManagerActivity extends ExportActivity
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return StandingsFragment.newInstance(level, leagueName);
+                    return StandingsFragment.newInstance(mLeagueID, level, leagueName);
                 case 1:
                     return StatsFragment.newInstance(mLeagueID, level, leagueName);
                 case 2:
@@ -406,18 +417,33 @@ public class LeagueManagerActivity extends ExportActivity
         return false;
     }
 
+    private ServiceConnection mServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+
+        }
+    };
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d("megaman", "LeagueManagerActivity onActivityResult");
-        String text;
-        if(resultCode == 222) {
-            text = "GAME COMPLETE";
+        Log.d("megaman", "LeagueManagerActivity onActivityResult" + requestCode + resultCode);
+
+        if(requestCode == GameActivity.REQUEST_CODE_GAME && resultCode == GameActivity.RESULT_CODE_GAME_FINISHED) {
+            Toast.makeText(LeagueManagerActivity.this, "Saving game results.\nStats should be updated shortly.", Toast.LENGTH_SHORT).show();
+            Log.d("megaman", "LeagueManagerActivity onActivityResult  GAME COMPLETE" + requestCode + resultCode);
+
+
+
+
         } else {
-            text = "ONGOING";
+            Log.d("megaman", "LeagueManagerActivity onActivityResult  GAME ONGOING" + requestCode + resultCode);
         }
-
-        Toast.makeText(LeagueManagerActivity.this, text, Toast.LENGTH_LONG).show();
-
     }
+
 }

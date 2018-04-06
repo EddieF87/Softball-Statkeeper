@@ -389,10 +389,7 @@ public class MainActivity extends AppCompatActivity
             mMsgView.setText(R.string.create_statkeeper);
 
             if (mInviteList.isEmpty()) {
-                Log.d("godzilla", "mInviteList.isEmpty()");
-                final ArrayList<MainPageSelection> cacheList = loadFromCache();
-                if (!cacheList.isEmpty()) {
-                    Log.d("godzilla", "loadFromCache() == true");
+                if (loadFromCache()) {
                     String text = "Unable to connect to SleekStats database.\nPlease check your connection and try again." +
                             "\nAlternatively, try loading statkeepers from your local database.";
                     mMsgView.setText(text);
@@ -401,10 +398,10 @@ public class MainActivity extends AppCompatActivity
                     sqlButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            mSelectionList = cacheList;
                             sqlButton.setVisibility(View.GONE);
                             retryButton.setVisibility(View.GONE);
                             setProgressBarVisible();
+//                            loadFromCache();
                             setViews();
                         }
                     });
@@ -419,14 +416,14 @@ public class MainActivity extends AppCompatActivity
                     });
                     sqlButton.setVisibility(View.VISIBLE);
                     retryButton.setVisibility(View.VISIBLE);
+                } else {
+                    mainPageAdapter = null;
+                    if (!visible) {
+                        shuffleCreateStatKeeperViewsVisibility();
+                    }
                 }
-            } else {
-                mainPageAdapter = null;
-                if (!visible) {
-                    shuffleCreateStatKeeperViewsVisibility();
-                }
+                setMessageViewVisible();
             }
-            setMessageViewVisible();
 
         } else {
             Collections.sort(mSelectionList, MainPageSelection.nameComparator());
@@ -444,6 +441,7 @@ public class MainActivity extends AppCompatActivity
             }
         } catch (Exception ignored) {
         }
+
     }
 
     private void openInviteDialog() {
@@ -703,9 +701,9 @@ public class MainActivity extends AppCompatActivity
         }
         mSelectionList.remove(mainPageSelection);
         updateRV();
-        final String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        final String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
         final String selectionID = mainPageSelection.getId();
-        String[] selectionArgs = new String[]{userID, selectionID};
+        String[] selectionArgs = new String[]{selectionID};
         getContentResolver().delete(StatsEntry.CONTENT_URI_SELECTIONS, selection, selectionArgs);
 
         if (mFirestore == null) {
@@ -924,21 +922,20 @@ public class MainActivity extends AppCompatActivity
         mMsgView.setVisibility(View.GONE);
         if (load) {
             mFireTaskLoader.cancelLoadInBackground();
-            mSelectionList = loadFromCache();
-            if (mSelectionList.isEmpty()) {
+            if (loadFromCache()) {
+                setViews();
+            } else {
                 String errorText = "There are no statkeepers in your local database." +
                         "\nPlease retry loading from the central database." +
                         "\nIf you think there's an error, please contact me at sleekstats@gmail.com.";
                 mMsgView.setText(errorText);
                 setMessageViewVisible();
-            } else {
-                setViews();
             }
         }
     }
 
-    private ArrayList<MainPageSelection> loadFromCache() {
-        ArrayList<MainPageSelection> cacheList = new ArrayList<>();
+    private boolean loadFromCache() {
+        mSelectionList = new ArrayList<>();
         if (userID == null) {
             userID = mAuth.getCurrentUser().getUid();
         }
@@ -952,10 +949,10 @@ public class MainActivity extends AppCompatActivity
             String name = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_NAME);
             int type = StatsContract.getColumnInt(cursor, StatsEntry.TYPE);
             int level = StatsContract.getColumnInt(cursor, StatsEntry.LEVEL);
-            cacheList.add(new MainPageSelection(id, name, type, level));
+            mSelectionList.add(new MainPageSelection(id, name, type, level));
         }
         cursor.close();
-        return cacheList;
+        return !mSelectionList.isEmpty();
     }
 
     @Override
@@ -1076,6 +1073,8 @@ public class MainActivity extends AppCompatActivity
                                         values.put(StatsEntry.COLUMN_NAME, name);
                                         values.put(StatsEntry.ADD, true);
                                         values.put(StatsEntry.COLUMN_LEAGUE_ID, selectionID);
+                                        values.put(StatsEntry.TYPE, type);
+                                        values.put(StatsEntry.COLUMN_LEAGUE, name);
                                         getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
                                     } else if (type == MainPageSelection.TYPE_PLAYER) {
                                         ContentValues values = new ContentValues();
@@ -1136,10 +1135,6 @@ public class MainActivity extends AppCompatActivity
                 text = "Incorrect code entered.";
                 break;
 
-            case 2:
-                text = "You have not filled in the details.";
-                break;
-
             case 3:
                 text = "You are attempting to join a Team with a League Code!";
                 break;
@@ -1163,10 +1158,15 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onSubmitCode(final String fullText, final int type) {
         if (fullText.isEmpty()) {
-            postMessage(2);
+            postMessage(1);
             return;
         }
+
         String[] splitCode = fullText.split("-");
+        if(splitCode.length < 2) {
+            postMessage(1);
+            return;
+        }
         final String idText = splitCode[0];
         final String codeText = splitCode[1];
 
