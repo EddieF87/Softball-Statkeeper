@@ -1,26 +1,25 @@
 package xyz.sleekstats.softball.activities;
 
-import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Handler;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import xyz.sleekstats.softball.MyApp;
 import xyz.sleekstats.softball.R;
-import xyz.sleekstats.softball.data.FirestoreHelperService;
+import xyz.sleekstats.softball.data.FirestoreUpdateService;
 import xyz.sleekstats.softball.data.GameUpdateIntentMaker;
+import xyz.sleekstats.softball.data.MySyncResultReceiver;
 import xyz.sleekstats.softball.data.TimeStampUpdater;
 import xyz.sleekstats.softball.views.CustomViewPager;
 import xyz.sleekstats.softball.adapters.PlayerStatsAdapter;
@@ -43,7 +42,8 @@ public class TeamManagerActivity extends ExportActivity
         implements AddNewPlayersDialog.OnListFragmentInteractionListener,
         GameSettingsDialog.OnFragmentInteractionListener,
         RemoveAllPlayersDialog.OnFragmentInteractionListener,
-        EditNameDialog.OnFragmentInteractionListener {
+        EditNameDialog.OnFragmentInteractionListener,
+        MySyncResultReceiver.Receiver {
 
     private LineupFragment lineupFragment;
     private TeamFragment teamFragment;
@@ -51,6 +51,7 @@ public class TeamManagerActivity extends ExportActivity
     private int mLevel;
     private int mSelectionType;
     private String mTeamName;
+    private MySyncResultReceiver mReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,12 +101,14 @@ public class TeamManagerActivity extends ExportActivity
         }
     }
 
-    private void sendRetryGameLoadIntent(){
-        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, new IntentFilter(StatsEntry.UPDATE));
+    private void sendRetryGameLoadIntent() {
+        mReceiver = new MySyncResultReceiver(new Handler());
+        mReceiver.setReceiver(this);
 
-        Intent intent = new Intent(TeamManagerActivity.this, FirestoreHelperService.class);
-        intent.putExtra(FirestoreHelperService.STATKEEPER_ID, mTeamID);
-        intent.setAction(FirestoreHelperService.INTENT_RETRY_GAME_LOAD);
+        Intent intent = new Intent(TeamManagerActivity.this, FirestoreUpdateService.class);
+        intent.putExtra(StatsEntry.UPDATE, mReceiver);
+        intent.putExtra(FirestoreUpdateService.STATKEEPER_ID, mTeamID);
+        intent.setAction(FirestoreUpdateService.INTENT_RETRY_GAME_LOAD);
         startService(intent);
     }
 
@@ -312,14 +315,9 @@ public class TeamManagerActivity extends ExportActivity
 
                         break;
                 }
-            } else if(requestCode == GameActivity.REQUEST_CODE_GAME && resultCode == GameActivity.RESULT_CODE_GAME_FINISHED) {
-//                Toast.makeText(TeamManagerActivity.this, "Saving game results.\nStats should be updated shortly.", Toast.LENGTH_SHORT).show();
+            } else if (requestCode == GameActivity.REQUEST_CODE_GAME && resultCode == GameActivity.RESULT_CODE_GAME_FINISHED) {
                 Log.d("megaman", "LeagueManagerActivity onActivityResult  GAME COMPLETE" + requestCode + resultCode);
                 updateStats(data);
-            } else {
-                Log.d("megaman", "LeagueManagerActivity onActivityResult  GAME ONGOING" + requestCode + resultCode +
-                "\n requestCode == GameActivity.RESULT_CODE_GAME_FINISHED  = " + (requestCode == GameActivity.RESULT_CODE_GAME_FINISHED) +
-                        "\n resultCode == GameActivity.RESULT_CODE_GAME_FINISHED  = " + (resultCode == GameActivity.RESULT_CODE_GAME_FINISHED));
             }
         } catch (Exception ex) {
             Toast.makeText(TeamManagerActivity.this, ex.toString(),
@@ -328,10 +326,9 @@ public class TeamManagerActivity extends ExportActivity
     }
 
 
+    private void updateStats(Intent data) {
 
-    private void updateStats (Intent data) {
-
-        if(mTeamID == null) {
+        if (mTeamID == null) {
             getStatKeeperData();
         }
         long updateTime = System.currentTimeMillis();
@@ -344,10 +341,10 @@ public class TeamManagerActivity extends ExportActivity
 
         int awayTeamRuns;
         int homeTeamRuns;
-        if(awayID.equals(StatsEntry.COLUMN_AWAY_TEAM)) {
+        if (awayID.equals(StatsEntry.COLUMN_AWAY_TEAM)) {
             awayTeamRuns = theirRuns;
             homeTeamRuns = myRuns;
-        } else if(homeID.equals(StatsEntry.COLUMN_HOME_TEAM)) {
+        } else if (homeID.equals(StatsEntry.COLUMN_HOME_TEAM)) {
             awayTeamRuns = myRuns;
             homeTeamRuns = theirRuns;
         } else {
@@ -355,71 +352,78 @@ public class TeamManagerActivity extends ExportActivity
             return;
         }
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, new IntentFilter(StatsEntry.UPDATE));
+        mReceiver = new MySyncResultReceiver(new Handler());
+        mReceiver.setReceiver(this);
+
         Context context = TeamManagerActivity.this;
-        startService(GameUpdateIntentMaker.getTransferIntent(context, updateTime, mTeamID));
-        startService(GameUpdateIntentMaker.getTeamIntent(context, updateTime, mTeamID, myRuns, theirRuns, mTeamID));
-        startService(GameUpdateIntentMaker.getPlayersIntent(context, updateTime, mTeamID));
-        startService(GameUpdateIntentMaker.getBoxscoreIntent(context, updateTime, awayID, homeID, awayTeamRuns, homeTeamRuns, mTeamID));
+        startService(GameUpdateIntentMaker.getTransferIntent(context, updateTime, mTeamID, null, myRuns, theirRuns, mTeamID, mReceiver));
+        startService(GameUpdateIntentMaker.getTeamIntent(context, updateTime, mTeamID, myRuns, theirRuns, mTeamID, mReceiver));
+        startService(GameUpdateIntentMaker.getPlayersIntent(context, updateTime, mTeamID, mReceiver));
+        startService(GameUpdateIntentMaker.getBoxscoreIntent(context, updateTime, awayID, homeID, awayTeamRuns, homeTeamRuns, mTeamID, mReceiver));
+
         TimeStampUpdater.updateTimeStamps(this, mTeamID, updateTime);
     }
 
-    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        private int localUpdate = 4;
-        private int firestoreUpdate = 3;
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            int msg = intent.getIntExtra(StatsEntry.UPDATE, 0);
-            switch (msg) {
-                case FirestoreHelperService.MSG_UPDATE_SUCCESS:
-                    localUpdate--;
-                    break;
-
-                case FirestoreHelperService.MSG_FIRESTORE_SUCCESS:
-                    firestoreUpdate--;
-                    break;
-
-                case FirestoreHelperService.MSG_FIRESTORE_FAILURE:
-                    Toast.makeText(TeamManagerActivity.this, R.string.cloud_fail, Toast.LENGTH_LONG).show();
-                    break;
-
-                case FirestoreHelperService.MSG_RETRY_SUCCESS:
-                    Toast.makeText(TeamManagerActivity.this, R.string.stat_update_success, Toast.LENGTH_LONG).show();
-                    break;
-
-                case FirestoreHelperService.MSG_RETRY_FAILURE:
-                    Toast.makeText(TeamManagerActivity.this, getString(R.string.cloud_fail) +
-                            "\nIf the problem persists, please contact me at sleekstats@gmail.com", Toast.LENGTH_LONG).show();
-                    break;
-            }
-
-            boolean localUpdateFinish = localUpdate < 1;
-            boolean firestoreUpdateFinish = firestoreUpdate < 1;
-            if(localUpdateFinish) {
-                localUpdate = 4;
-                Toast.makeText(TeamManagerActivity.this, R.string.stat_update_success, Toast.LENGTH_SHORT).show();
-                Log.d("megaman", "TOAST UPDATE");
-                if(teamFragment != null) {
-                    teamFragment.reloadStats();
-                }
-            }
-            if(firestoreUpdateFinish) {
-                firestoreUpdate = 3;
-                Toast.makeText(TeamManagerActivity.this, "Stats have been uploaded to cloud!", Toast.LENGTH_SHORT).show();
-                Log.d("megaman", "TOAST UPDATE");
-            }
-            if(localUpdateFinish && firestoreUpdateFinish) {
-                LocalBroadcastManager.getInstance(TeamManagerActivity.this).unregisterReceiver(mReceiver);
-            }
-            Log.d("megaman", "receiver got msg: " + msg);
-        }
-    };
+    private int localUpdate = 4;
+    private int firestoreUpdate = 3;
 
     @Override
-    protected void onDestroy() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
-        super.onDestroy();
+    public void onReceiveResult(int resultCode, Bundle resultData) {
+
+        switch (resultCode) {
+            case FirestoreUpdateService.MSG_UPDATE_SUCCESS:
+                localUpdate--;
+                break;
+
+            case FirestoreUpdateService.MSG_FIRESTORE_SUCCESS:
+                firestoreUpdate--;
+                break;
+
+
+            case FirestoreUpdateService.MSG_TRANSFER_SUCCESS:
+                localUpdate--;
+                break;
+
+            case FirestoreUpdateService.MSG_RETRY_SUCCESS:
+                Toast.makeText(TeamManagerActivity.this, R.string.stat_update_success, Toast.LENGTH_LONG).show();
+                break;
+
+            case FirestoreUpdateService.MSG_FIRESTORE_FAILURE:
+                Toast.makeText(TeamManagerActivity.this, R.string.cloud_fail, Toast.LENGTH_LONG).show();
+                break;
+
+            case FirestoreUpdateService.MSG_RETRY_FAILURE:
+                Toast.makeText(TeamManagerActivity.this, getString(R.string.cloud_fail) +
+                        "\nIf the problem persists, please contact me at sleekstats@gmail.com", Toast.LENGTH_LONG).show();
+                break;
+
+            case FirestoreUpdateService.MSG_TRANSFER_FAILURE:
+                Toast.makeText(TeamManagerActivity.this, getString(R.string.cloud_fail) +
+                        "\nIf the problem persists, please contact me at sleekstats@gmail.com", Toast.LENGTH_LONG).show();
+                break;
+        }
+
+        boolean localUpdateFinish = localUpdate < 1;
+        boolean firestoreUpdateFinish = firestoreUpdate < 1;
+        if (localUpdateFinish) {
+            localUpdate = 4;
+            Toast.makeText(TeamManagerActivity.this, R.string.stat_update_success, Toast.LENGTH_SHORT).show();
+            Log.d("megaman", "TOAST UPDATE");
+            if (teamFragment != null) {
+                teamFragment.reloadStats();
+            }
+        }
+        if (firestoreUpdateFinish) {
+            firestoreUpdate = 3;
+            Toast.makeText(TeamManagerActivity.this, "Stats have been uploaded to cloud!", Toast.LENGTH_SHORT).show();
+            Log.d("megaman", "TOAST UPDATE");
+        }
+        if (localUpdateFinish && firestoreUpdateFinish) {
+            if(mReceiver != null){
+                mReceiver.setReceiver(null);
+            }
+        }
+        Log.d("megaman", "receiver got msg: " + resultCode);
     }
 
     @Override
@@ -427,8 +431,9 @@ public class TeamManagerActivity extends ExportActivity
         super.onBackPressed();
         Intent intent = new Intent(TeamManagerActivity.this, MainActivity.class);
         startActivity(intent);
+        if(mReceiver != null){
+            mReceiver.setReceiver(null);
+        }
         finish();
     }
-
-    //todo fix teammanager service etc
 }

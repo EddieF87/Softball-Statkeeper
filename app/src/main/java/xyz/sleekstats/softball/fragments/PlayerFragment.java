@@ -41,7 +41,7 @@ import xyz.sleekstats.softball.activities.PlayerPagerActivity;
 import xyz.sleekstats.softball.activities.TeamPagerActivity;
 import xyz.sleekstats.softball.activities.UsersActivity;
 import xyz.sleekstats.softball.adapters.BoxScorePlayerCursorAdapter;
-import xyz.sleekstats.softball.data.FirestoreHelperService;
+import xyz.sleekstats.softball.data.FirestoreUpdateService;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
 import xyz.sleekstats.softball.data.TimeStampUpdater;
@@ -342,12 +342,12 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onStop() {
         if(mPlayerLog != null){
-            Intent intent = new Intent(getActivity(), FirestoreHelperService.class);
+            Intent intent = new Intent(getActivity(), FirestoreUpdateService.class);
             intent.putExtra(StatsEntry.PLAYERS_TABLE_NAME, mPlayerLog);
-            intent.putExtra(FirestoreHelperService.STATKEEPER_ID, mSelectionID);
+            intent.putExtra(FirestoreUpdateService.STATKEEPER_ID, mSelectionID);
             intent.putExtra(StatsEntry.COLUMN_FIRESTORE_ID, mFirestoreID);
             intent.putExtra(TimeStampUpdater.UPDATE_TIME, System.currentTimeMillis());
-            intent.setAction(FirestoreHelperService.INTENT_UPDATE_PLAYER);
+            intent.setAction(FirestoreUpdateService.INTENT_UPDATE_PLAYER);
             getActivity().startService(intent);
             mPlayerLog = null;
         }
@@ -745,9 +745,9 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             String[] selectionArgs = new String[]{mFirestoreID, mSelectionID};
             int rowsDeleted = getActivity().getContentResolver().delete(mCurrentPlayerUri, selection, selectionArgs);
             if (rowsDeleted > 0) {
-                Intent intent = new Intent(getActivity(), FirestoreHelperService.class);
-                intent.putExtra(FirestoreHelperService.STATKEEPER_ID, mSelectionID);
-                intent.setAction(FirestoreHelperService.INTENT_DELETE_PLAYER);
+                Intent intent = new Intent(getActivity(), FirestoreUpdateService.class);
+                intent.putExtra(FirestoreUpdateService.STATKEEPER_ID, mSelectionID);
+                intent.setAction(FirestoreUpdateService.INTENT_DELETE_PLAYER);
                 intent.putExtra(StatsEntry.COLUMN_FIRESTORE_ID, mFirestoreID);
                 intent.putExtra(StatsEntry.TYPE, 1);
                 intent.putExtra(StatsEntry.COLUMN_NAME, playerName);

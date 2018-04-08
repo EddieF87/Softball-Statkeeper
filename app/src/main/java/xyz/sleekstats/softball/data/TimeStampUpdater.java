@@ -12,9 +12,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Map;
 
-import static xyz.sleekstats.softball.data.FirestoreHelperService.LAST_UPDATE;
-import static xyz.sleekstats.softball.data.FirestoreHelperService.LEAGUE_COLLECTION;
-import static xyz.sleekstats.softball.data.FirestoreHelperService.UPDATE_SETTINGS;
+import static xyz.sleekstats.softball.data.FirestoreUpdateService.LAST_UPDATE;
+import static xyz.sleekstats.softball.data.FirestoreUpdateService.LEAGUE_COLLECTION;
+import static xyz.sleekstats.softball.data.FirestoreUpdateService.UPDATE_SETTINGS;
 
 public class TimeStampUpdater {
 
@@ -27,8 +27,8 @@ public class TimeStampUpdater {
 
     public static long getLocalTimeStamp(Context context, String statKeeperID) {
         SharedPreferences updatePreferences = context.getSharedPreferences(statKeeperID + UPDATE_SETTINGS, Context.MODE_PRIVATE);
-        return 0;
-//                updatePreferences.getLong(LAST_UPDATE, 0);
+//        return 0;
+        return updatePreferences.getLong(LAST_UPDATE, 0);
     }
 
     public static void setLocalTimeStamp(long time, Context context, String statKeeperID) {
@@ -92,10 +92,10 @@ public class TimeStampUpdater {
         String collection;
         switch (type) {
             case 0:
-                collection = FirestoreHelperService.TEAMS_COLLECTION;
+                collection = FirestoreUpdateService.TEAMS_COLLECTION;
                 break;
             case 1:
-                collection = FirestoreHelperService.PLAYERS_COLLECTION;
+                collection = FirestoreUpdateService.PLAYERS_COLLECTION;
                 break;
             default:
                 return;

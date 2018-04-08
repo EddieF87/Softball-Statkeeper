@@ -84,6 +84,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     private String leagueID;
     private int innings;
     private int genderSorter;
+    private boolean gameUpdating;
 
     public MatchupFragment() {
         // Required empty public constructor

@@ -20,6 +20,7 @@ import xyz.sleekstats.softball.MyApp;
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.adapters.UserListAdapter;
 import xyz.sleekstats.softball.data.StatsContract;
+import xyz.sleekstats.softball.dialogs.AccessGuideDialog;
 import xyz.sleekstats.softball.dialogs.CancelLoadDialog;
 import xyz.sleekstats.softball.dialogs.EmailInviteDialog;
 import xyz.sleekstats.softball.dialogs.InviteUserDialog;
@@ -47,9 +48,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static xyz.sleekstats.softball.data.FirestoreHelperService.LEAGUE_COLLECTION;
-import static xyz.sleekstats.softball.data.FirestoreHelperService.REQUESTS;
-import static xyz.sleekstats.softball.data.FirestoreHelperService.USERS;
+import static xyz.sleekstats.softball.data.FirestoreUpdateService.LEAGUE_COLLECTION;
+import static xyz.sleekstats.softball.data.FirestoreUpdateService.REQUESTS;
+import static xyz.sleekstats.softball.data.FirestoreUpdateService.USERS;
 
 public class UsersActivity extends AppCompatActivity
         implements InviteUserDialog.OnFragmentInteractionListener,
@@ -159,6 +160,16 @@ CancelLoadDialog.OnListFragmentInteractionListener,
                         }
                     }
                 });
+        TextView accessGuide = findViewById(R.id.set_access_levels);
+        accessGuide.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                DialogFragment newFragment = new AccessGuideDialog();
+                newFragment.show(fragmentTransaction, "");
+            }
+        });
     }
 
     private void updateRV() {

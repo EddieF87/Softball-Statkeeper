@@ -73,4 +73,36 @@
         android:max="4"
         android:progress="1" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="8dp"
+        android:orientation="horizontal"
+        >
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="3"
+            android:layout_height="match_parent"
+            android:text="In-game help:"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="24sp"
+            />
+
+        <ToggleButton
+            android:id="@+id/toggle_help"
+            style="@style/RadioButtonStyle"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:textStyle="bold"
+            android:textOn="On"
+            android:textOff="Off"
+            android:checked="true"
+            />
+
+    </LinearLayout>
+
 </LinearLayout>

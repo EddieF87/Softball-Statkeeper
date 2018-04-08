@@ -39,7 +39,7 @@ import xyz.sleekstats.softball.activities.SetLineupActivity;
 import xyz.sleekstats.softball.activities.TeamManagerActivity;
 import xyz.sleekstats.softball.activities.UsersActivity;
 import xyz.sleekstats.softball.adapters.PlayerStatsAdapter;
-import xyz.sleekstats.softball.data.FirestoreHelperService;
+import xyz.sleekstats.softball.data.FirestoreUpdateService;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
 import xyz.sleekstats.softball.data.TimeStampUpdater;
@@ -579,9 +579,10 @@ public class TeamFragment extends Fragment
                         .getSharedPreferences(mSelectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
                 int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
                 int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
+                boolean gameHelp = settingsPreferences.getBoolean(StatsEntry.HELP, true);
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                DialogFragment newFragment = GameSettingsDialog.newInstance(innings, genderSorter, mSelectionID, 0);
+                DialogFragment newFragment = GameSettingsDialog.newInstance(innings, genderSorter, mSelectionID, 0, gameHelp);
                 newFragment.show(fragmentTransaction, "");
                 return true;
         }
@@ -634,8 +635,8 @@ public class TeamFragment extends Fragment
                         Toast.LENGTH_SHORT).show();
                 long updateTime = System.currentTimeMillis();
 
-                Intent intent = new Intent(getActivity(), FirestoreHelperService.class);
-                intent.putExtra(FirestoreHelperService.STATKEEPER_ID, mSelectionID);
+                Intent intent = new Intent(getActivity(), FirestoreUpdateService.class);
+                intent.putExtra(FirestoreUpdateService.STATKEEPER_ID, mSelectionID);
                 intent.putExtra(TimeStampUpdater.UPDATE_TIME, updateTime);
 
                 intent.putExtra(StatsEntry.COLUMN_FIRESTORE_ID, teamFirestoreID);
@@ -644,7 +645,7 @@ public class TeamFragment extends Fragment
                 intent.putExtra(StatsEntry.COLUMN_GENDER, teamFirestoreID);
                 intent.putExtra(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, teamFirestoreID);
 
-                intent.setAction(FirestoreHelperService.INTENT_DELETE_PLAYER);
+                intent.setAction(FirestoreUpdateService.INTENT_DELETE_PLAYER);
                 getActivity().startService(intent);
             } else {
                 return;
@@ -676,12 +677,12 @@ public class TeamFragment extends Fragment
         }
         long updateTime = System.currentTimeMillis();
 
-        Intent intent = new Intent(getActivity(), FirestoreHelperService.class);
-        intent.putExtra(FirestoreHelperService.STATKEEPER_ID, mSelectionID);
+        Intent intent = new Intent(getActivity(), FirestoreUpdateService.class);
+        intent.putExtra(FirestoreUpdateService.STATKEEPER_ID, mSelectionID);
         intent.putExtra(TimeStampUpdater.UPDATE_TIME, updateTime);
 
-        intent.putParcelableArrayListExtra(FirestoreHelperService.KEY_DELETE_PLAYERS, firestorePlayersToDelete);
-        intent.setAction(FirestoreHelperService.INTENT_DELETE_PLAYERS);
+        intent.putParcelableArrayListExtra(FirestoreUpdateService.KEY_DELETE_PLAYERS, firestorePlayersToDelete);
+        intent.setAction(FirestoreUpdateService.INTENT_DELETE_PLAYERS);
         getActivity().startService(intent);
         TimeStampUpdater.updateTimeStamps(getActivity(), mSelectionID, updateTime);
 

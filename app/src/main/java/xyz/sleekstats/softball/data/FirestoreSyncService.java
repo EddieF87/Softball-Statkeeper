@@ -1,18 +1,16 @@
 package xyz.sleekstats.softball.data;
 
 import android.app.IntentService;
-import android.app.Service;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Parcel;
-import android.os.Parcelable;
+import android.os.Bundle;
+import android.os.ResultReceiver;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -32,7 +30,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import xyz.sleekstats.softball.MyApp;
 import xyz.sleekstats.softball.activities.UsersActivity;
 import xyz.sleekstats.softball.objects.ItemMarkedForDeletion;
 import xyz.sleekstats.softball.objects.Player;
@@ -40,10 +37,10 @@ import xyz.sleekstats.softball.objects.PlayerLog;
 import xyz.sleekstats.softball.objects.Team;
 import xyz.sleekstats.softball.objects.TeamLog;
 
-import static xyz.sleekstats.softball.data.FirestoreHelperService.*;
+import static xyz.sleekstats.softball.data.FirestoreUpdateService.*;
 import static xyz.sleekstats.softball.data.StatsContract.StatsEntry;
 
-public class FirestoreStatkeeperSync extends IntentService {
+public class FirestoreSyncService extends IntentService {
 
     private int playersofar;
     private int teamssofar;
@@ -59,23 +56,27 @@ public class FirestoreStatkeeperSync extends IntentService {
     public static final String INTENT_UPDATE_TEAMS = "teamupdate";
     public static final String INTENT_UPDATE_BOXSCORES = "boxscoreupdate";
     public static final String INTENT_DELETION_CHECK = "deletioncheck";
+    public static final String INTENT_DELETE_ITEMS = "deleteitems";
+    public static final String INTENT_SAVE_ITEMS = "saveitems";
+    public static final String INTENT_UPDATE_TIME = "updatetime";
+
     public static final String KEY_MAX = "progressmax";
 
-    public static final int MSG_GO_TO_STATKEEPER = 1;
     public static final int MSG_ERROR = -1;
+    public static final int MSG_START_UPDATE = 1;
+    public static final int MSG_PLAYER_UPDATED = 2;
+    public static final int MSG_TEAM_UPDATED = 3;
+    public static final int MSG_BOXSCORE_UPDATED = 4;
+    public static final int MSG_PLAYER_MAX = 5;
+    public static final int MSG_TEAM_MAX = 6;
+    public static final int MSG_BOXSCORE_MAX = 7;
+    public static final int MSG_OPEN_DELETION_DIALOG = 8;
+    public static final int MSG_GO_TO_STATKEEPER = 9;
 
+    private ResultReceiver mReceiver;
 
-    public static final int MSG_START_UPDATE = 435;
-    public static final int MSG_PLAYER_UPDATED = 5;
-    public static final int MSG_TEAM_UPDATED = 6;
-    public static final int MSG_BOXSCORE_UPDATED = 101;
-    public static final int MSG_PLAYER_MAX = 7;
-    public static final int MSG_TEAM_MAX = 8;
-    public static final int MSG_BOXSCORE_MAX = 9;
-    public static final int MSG_OPEN_DELETION_DIALOG = 200;
-
-    public FirestoreStatkeeperSync() {
-        super("FirestoreStatkeeperSync");
+    public FirestoreSyncService() {
+        super("FirestoreSyncService");
     }
 
     @Override
@@ -83,50 +84,89 @@ public class FirestoreStatkeeperSync extends IntentService {
         Log.d("openmike", "onHandleIntent");
         mFirestore = FirebaseFirestore.getInstance();
         this.mStatKeeperID = intent.getStringExtra(StatsEntry.COLUMN_LEAGUE_ID);
+        mReceiver = intent.getParcelableExtra(StatsEntry.SYNC);
+
         String action = intent.getAction();
         if (action == null) {
             return;
         }
         long localTimeStamp = TimeStampUpdater.getLocalTimeStamp(this, mStatKeeperID);
+        ArrayList<ItemMarkedForDeletion> items;
 
         switch (action) {
             case INTENT_CHECK_UPDATE:
                 checkForUpdate();
                 Log.d("openmike", "receive INTENT_CHECK_UPDATE");
-                break;
+                return;
+
             case INTENT_UPDATE_PLAYERS:
                 updatePlayers(localTimeStamp);
                 Log.d("openmike", "receive INTENT_UPDATE_PLAYERS");
-                break;
-            case INTENT_UPDATE_TEAMS:
+                return;
+
+                case INTENT_UPDATE_TEAMS:
                 updateTeams(localTimeStamp);
                 Log.d("openmike", "receive INTENT_UPDATE_TEAMS");
-                break;
+                return;
+
             case INTENT_UPDATE_BOXSCORES:
                 updateBoxscores(localTimeStamp);
                 Log.d("openmike", "receive INTENT_UPDATE_BOXSCORES");
+                return;
+
+            case INTENT_UPDATE_TIME:
+                updateAfterSync();
+                Log.d("openmike", "receive INTENT_UPDATE_TIME");
                 break;
+
+            case INTENT_DELETION_CHECK:
+                int level = intent.getIntExtra(StatsEntry.LEVEL, 0);
+                deletionCheck(level);
+                Log.d("openmike", "receive INTENT_DELETION_CHECK");
+                return;
+
+            case INTENT_DELETE_ITEMS:
+                items = intent.getParcelableArrayListExtra(StatsEntry.DELETE);
+                deleteItems(items);
+                Log.d("openmike", "receive INTENT_DELETE_ITEMS");
+                return;
+
+            case INTENT_SAVE_ITEMS:
+                items = intent.getParcelableArrayListExtra(StatsEntry.DELETE);
+                saveItems(items);
+                Log.d("openmike", "receive INTENT_SAVE_ITEMS");
+                return;
         }
     }
 
 
     private void sndMsg(int msg){
-        Log.d("openmike", "Broadcasting message: " + msg);
-        Intent intent = new Intent(StatsEntry.SYNC);
-        // You can also include some extra data.
-        intent.putExtra(StatsEntry.SYNC, msg);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        Log.d("megaman", "Broadcasting message: " + msg);
+//        Intent intent = new Intent(StatsEntry.SYNC);
+//        // You can also include some extra data.
+//        intent.putExtra(StatsEntry.SYNC, msg);
+//        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        mReceiver.send(msg, null);
     }
 
     private void sndMax(int msg, int max){
         Log.d("megaman", "Broadcasting message");
-        Intent intent = new Intent(StatsEntry.SYNC);
-        // You can also include some extra data.
-        intent.putExtra(StatsEntry.SYNC, msg);
-        intent.putExtra(FirestoreStatkeeperSync.KEY_MAX, max);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+//        Intent intent = new Intent(StatsEntry.SYNC);
+//        // You can also include some extra data.
+//        intent.putExtra(StatsEntry.SYNC, msg);
+//        intent.putExtra(FirestoreSyncService.KEY_MAX, max);
+//        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        Bundle b = new Bundle();
+        b.putInt(FirestoreSyncService.KEY_MAX, max);
+        mReceiver.send(msg, b);
     }
 
+    private void sndDeletions(int msg, ArrayList<ItemMarkedForDeletion> list){
+        Log.d("megaman", "Broadcasting message");
+        Bundle b = new Bundle();
+        b.putParcelableArrayList(StatsEntry.DELETE, list);
+        mReceiver.send(msg, b);
+    }
     //SYNC CHECK
 
     public void checkForUpdate() {
@@ -489,7 +529,7 @@ public class FirestoreStatkeeperSync extends IntentService {
                         if (level > UsersActivity.LEVEL_VIEW_WRITE) {
                             Collections.sort(itemMarkedForDeletionList, ItemMarkedForDeletion.nameComparator());
                             Collections.sort(itemMarkedForDeletionList, ItemMarkedForDeletion.typeComparator());
-                            sndMsg(MSG_OPEN_DELETION_DIALOG);
+                            sndDeletions(MSG_OPEN_DELETION_DIALOG, itemMarkedForDeletionList);
                         } else {
                             deleteItems(itemMarkedForDeletionList);
                             sndMsg(MSG_GO_TO_STATKEEPER);

@@ -1,20 +1,18 @@
 package xyz.sleekstats.softball.activities;
 
-import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Handler;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,8 +23,9 @@ import android.widget.Toast;
 
 import xyz.sleekstats.softball.MyApp;
 import xyz.sleekstats.softball.R;
-import xyz.sleekstats.softball.data.FirestoreHelperService;
+import xyz.sleekstats.softball.data.FirestoreUpdateService;
 import xyz.sleekstats.softball.data.GameUpdateIntentMaker;
+import xyz.sleekstats.softball.data.MySyncResultReceiver;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
 import xyz.sleekstats.softball.data.TimeStampUpdater;
@@ -50,7 +49,8 @@ public class LeagueManagerActivity extends ExportActivity
         ChangeTeamDialog.OnFragmentInteractionListener,
         MatchupFragment.OnFragmentInteractionListener,
         StandingsFragment.OnFragmentInteractionListener,
-        StatsFragment.OnFragmentInteractionListener {
+        StatsFragment.OnFragmentInteractionListener,
+MySyncResultReceiver.Receiver{
 
     private StandingsFragment standingsFragment;
     private StatsFragment statsFragment;
@@ -60,6 +60,10 @@ public class LeagueManagerActivity extends ExportActivity
     private int level;
     private String leagueName;
     private boolean gameUpdating;
+    private MySyncResultReceiver mReceiver;
+
+    private int localUpdate = 5;
+    private int firestoreUpdate = 4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,11 +124,13 @@ public class LeagueManagerActivity extends ExportActivity
 
 
     private void sendRetryGameLoadIntent(){
-        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, new IntentFilter(StatsEntry.UPDATE));
-
-        Intent intent = new Intent(LeagueManagerActivity.this, FirestoreHelperService.class);
-        intent.putExtra(FirestoreHelperService.STATKEEPER_ID, mLeagueID);
-        intent.setAction(FirestoreHelperService.INTENT_RETRY_GAME_LOAD);
+//        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, new IntentFilter(StatsEntry.UPDATE));
+        mReceiver = new MySyncResultReceiver(new Handler());
+        mReceiver.setReceiver(this);
+        Intent intent = new Intent(LeagueManagerActivity.this, FirestoreUpdateService.class);
+        intent.putExtra(FirestoreUpdateService.STATKEEPER_ID, mLeagueID);
+        intent.putExtra(StatsEntry.UPDATE, mReceiver);
+        intent.setAction(FirestoreUpdateService.INTENT_RETRY_GAME_LOAD);
         startService(intent);
     }
 
@@ -246,9 +252,10 @@ public class LeagueManagerActivity extends ExportActivity
         SharedPreferences settingsPreferences = getSharedPreferences(mLeagueID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
         int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
         int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
+        boolean gameHelp = settingsPreferences.getBoolean(StatsEntry.HELP, true);
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = GameSettingsDialog.newInstance(innings, genderSorter, mLeagueID, 0);
+        DialogFragment newFragment = GameSettingsDialog.newInstance(innings, genderSorter, mLeagueID, 0, gameHelp);
         newFragment.show(fragmentTransaction, "");
     }
 
@@ -256,6 +263,67 @@ public class LeagueManagerActivity extends ExportActivity
     public void goToGameActivity() {
         Intent intent = new Intent(LeagueManagerActivity.this, LeagueGameActivity.class);
         startActivityForResult(intent, GameActivity.REQUEST_CODE_GAME);
+    }
+
+    @Override
+    public void onReceiveResult(int resultCode, Bundle resultData) {
+
+        switch (resultCode) {
+            case FirestoreUpdateService.MSG_UPDATE_SUCCESS:
+                localUpdate--;
+                break;
+
+            case FirestoreUpdateService.MSG_FIRESTORE_SUCCESS:
+                firestoreUpdate--;
+                break;
+
+            case FirestoreUpdateService.MSG_TRANSFER_SUCCESS:
+                localUpdate--;
+                if(matchupFragment != null) {
+                    matchupFragment.setPostGameLayout(true);
+                }
+                break;
+
+            case FirestoreUpdateService.MSG_FIRESTORE_FAILURE:
+                Toast.makeText(LeagueManagerActivity.this, R.string.cloud_fail, Toast.LENGTH_LONG).show();
+                break;
+
+            case FirestoreUpdateService.MSG_RETRY_SUCCESS:
+                Toast.makeText(LeagueManagerActivity.this, R.string.stat_update_success, Toast.LENGTH_LONG).show();
+                break;
+
+            case FirestoreUpdateService.MSG_RETRY_FAILURE:
+                Toast.makeText(LeagueManagerActivity.this, getString(R.string.cloud_fail) +
+                        "\nIf the problem persists, please contact me at sleekstats@gmail.com", Toast.LENGTH_LONG).show();
+                break;
+        }
+        boolean localUpdateFinish = localUpdate < 1;
+        boolean firestoreUpdateFinish = firestoreUpdate < 1;
+
+        if(localUpdateFinish) {
+            localUpdate = 5;
+            if(standingsFragment != null) {
+                standingsFragment.reloadStandings();
+            }
+            if(statsFragment != null) {
+                statsFragment.reloadStats();
+            }
+            Toast.makeText(LeagueManagerActivity.this, R.string.stat_update_success, Toast.LENGTH_SHORT).show();
+            gameUpdating = false;
+            Log.d("uupdat", "localUpdateFinish gameUpdating = " + gameUpdating);
+        }
+        if(firestoreUpdateFinish) {
+            firestoreUpdate = 4;
+            Toast.makeText(LeagueManagerActivity.this, "Stats have been uploaded to cloud!", Toast.LENGTH_SHORT).show();
+            Log.d("megaman", "TOAST UPDATE");
+        }
+        if(localUpdateFinish && firestoreUpdateFinish) {
+//            LocalBroadcastManager.getInstance(LeagueManagerActivity.this).unregisterReceiver(mReceiver);
+            if(mReceiver != null){
+                mReceiver.setReceiver(null);
+            }
+        }
+        Log.d("megaman", "receiver got msg: " + resultCode);
     }
 
     private class LeagueManagerPagerAdapter extends FragmentStatePagerAdapter {
@@ -460,83 +528,29 @@ public class LeagueManagerActivity extends ExportActivity
         int awayTeamRuns = data.getIntExtra(StatsEntry.COLUMN_AWAY_RUNS, -1);
         int homeTeamRuns = data.getIntExtra(StatsEntry.COLUMN_HOME_RUNS, -1);
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, new IntentFilter(StatsEntry.UPDATE));
+//        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, new IntentFilter(StatsEntry.UPDATE));
+        mReceiver = new MySyncResultReceiver(new Handler());
+        mReceiver.setReceiver(this);
+
         Context context = LeagueManagerActivity.this;
-        startService(GameUpdateIntentMaker.getTransferIntent(context, updateTime, mLeagueID));
-        startService(GameUpdateIntentMaker.getTeamIntent(context, updateTime, awayID, awayTeamRuns, homeTeamRuns, mLeagueID));
-        startService(GameUpdateIntentMaker.getTeamIntent(context, updateTime, homeID, homeTeamRuns, awayTeamRuns, mLeagueID));
-        startService(GameUpdateIntentMaker.getPlayersIntent(context, updateTime, mLeagueID));
-        startService(GameUpdateIntentMaker.getBoxscoreIntent(context, updateTime, awayID, homeID, awayTeamRuns, homeTeamRuns, mLeagueID));
+        startService(GameUpdateIntentMaker.getTransferIntent(context, updateTime, awayID, homeID, awayTeamRuns, homeTeamRuns, mLeagueID, mReceiver));
+        startService(GameUpdateIntentMaker.getTeamIntent(context, updateTime, awayID, awayTeamRuns, homeTeamRuns, mLeagueID, mReceiver));
+        startService(GameUpdateIntentMaker.getTeamIntent(context, updateTime, homeID, homeTeamRuns, awayTeamRuns, mLeagueID, mReceiver));
+        startService(GameUpdateIntentMaker.getPlayersIntent(context, updateTime, mLeagueID, mReceiver));
+        startService(GameUpdateIntentMaker.getBoxscoreIntent(context, updateTime, awayID, homeID, awayTeamRuns, homeTeamRuns, mLeagueID, mReceiver));
         TimeStampUpdater.updateTimeStamps(this, mLeagueID, updateTime);
     }
 
-    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        private int localUpdate = 5;
-        private int firestoreUpdate = 4;
 
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            int msg = intent.getIntExtra(StatsEntry.UPDATE, 0);
-            switch (msg) {
-                case FirestoreHelperService.MSG_UPDATE_SUCCESS:
-                    localUpdate--;
-                    break;
 
-                case FirestoreHelperService.MSG_FIRESTORE_SUCCESS:
-                    firestoreUpdate--;
-                    break;
-
-                case FirestoreHelperService.MSG_TRANSFER_SUCCESS:
-                    localUpdate--;
-                    if(matchupFragment != null) {
-                        matchupFragment.setPostGameLayout(true);
-                    }
-                    break;
-
-                case FirestoreHelperService.MSG_FIRESTORE_FAILURE:
-                    Toast.makeText(LeagueManagerActivity.this, R.string.cloud_fail, Toast.LENGTH_LONG).show();
-                    break;
-
-                case FirestoreHelperService.MSG_RETRY_SUCCESS:
-                    Toast.makeText(LeagueManagerActivity.this, R.string.stat_update_success, Toast.LENGTH_LONG).show();
-                    break;
-
-                case FirestoreHelperService.MSG_RETRY_FAILURE:
-                    Toast.makeText(LeagueManagerActivity.this, getString(R.string.cloud_fail) +
-                            "\nIf the problem persists, please contact me at sleekstats@gmail.com", Toast.LENGTH_LONG).show();
-                    break;
-            }
-            boolean localUpdateFinish = localUpdate < 1;
-            boolean firestoreUpdateFinish = firestoreUpdate < 1;
-
-            if(localUpdateFinish) {
-                localUpdate = 5;
-                 if(standingsFragment != null) {
-                    standingsFragment.reloadStandings();
-                }
-                if(statsFragment != null) {
-                    statsFragment.reloadStats();
-                }
-                Toast.makeText(LeagueManagerActivity.this, R.string.stat_update_success, Toast.LENGTH_SHORT).show();
-                gameUpdating = false;
-                Log.d("uupdat", "localUpdateFinish gameUpdating = " + gameUpdating);
-            }
-            if(firestoreUpdateFinish) {
-                firestoreUpdate = 4;
-                Toast.makeText(LeagueManagerActivity.this, "Stats have been uploaded to cloud!", Toast.LENGTH_SHORT).show();
-                Log.d("megaman", "TOAST UPDATE");
-            }
-            if(localUpdateFinish && firestoreUpdateFinish) {
-                LocalBroadcastManager.getInstance(LeagueManagerActivity.this).unregisterReceiver(mReceiver);
-            }
-            Log.d("megaman", "receiver got msg: " + msg);
-        }
-    };
 
     @Override
     protected void onStop() {
         super.onStop();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
+//        LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
+        if(mReceiver != null) {
+            mReceiver.setReceiver(null);
+        }
         Log.d("uupdat", "onStop gameUpdating = " + gameUpdating);
     }
 
@@ -544,7 +558,11 @@ public class LeagueManagerActivity extends ExportActivity
     protected void onStart() {
         super.onStart();
         if(gameUpdating) {
-            LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, new IntentFilter(StatsEntry.UPDATE));
+//            LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, new IntentFilter(StatsEntry.UPDATE));
+            if(mReceiver == null) {
+                mReceiver = new MySyncResultReceiver(new Handler());
+            }
+            mReceiver.setReceiver(this);
         }
         Log.d("uupdat", "onStart gameUpdating = " + gameUpdating);
     }

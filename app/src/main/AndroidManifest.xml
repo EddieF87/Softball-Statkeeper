@@ -100,10 +100,11 @@
 
         <activity
             android:name=".activities.LoadingActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            />
 
-        <service android:name=".data.FirestoreHelperService" />
-        <service android:name=".data.FirestoreStatkeeperSync" />
+        <service android:name=".data.FirestoreUpdateService" />
+        <service android:name=".data.FirestoreSyncService" />
 
         <activity android:name=".activities.GameRecapListActivity" />
         <activity android:name=".activities.GameRecapActivity" />

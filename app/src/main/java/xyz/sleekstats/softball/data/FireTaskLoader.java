@@ -14,7 +14,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.concurrent.ExecutionException;
 
-import static xyz.sleekstats.softball.data.FirestoreHelperService.LEAGUE_COLLECTION;
+import static xyz.sleekstats.softball.data.FirestoreUpdateService.LEAGUE_COLLECTION;
 
 /**
  * Created by Eddie on 3/9/2018.

@@ -14,9 +14,11 @@ import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.data.StatsContract;
@@ -31,17 +33,19 @@ public class GameSettingsDialog extends DialogFragment {
     private int inningNumber;
     private TextView mGenderDisplay;
     private TextView mInningDisplay;
+    private boolean gameHelp;
 
     public GameSettingsDialog() {
         // Required empty public constructor
     }
 
-    public static GameSettingsDialog newInstance(int innings, int genderSortArg, String selectionID, int currentInning) {
+    public static GameSettingsDialog newInstance(int innings, int genderSortArg, String selectionID, int currentInning, boolean helpArg) {
 
         Bundle args = new Bundle();
         GameSettingsDialog fragment = new GameSettingsDialog();
         args.putInt(StatsContract.StatsEntry.INNINGS, innings);
         args.putInt(StatsContract.StatsEntry.COLUMN_GENDER, genderSortArg);
+        args.putBoolean(StatsContract.StatsEntry.HELP, helpArg);
         args.putString("mSelectionID", selectionID);
         args.putInt("inningNumber", currentInning);
         fragment.setArguments(args);
@@ -57,6 +61,7 @@ public class GameSettingsDialog extends DialogFragment {
             genderSorter = args.getInt(StatsContract.StatsEntry.COLUMN_GENDER);
             mSelectionID = args.getString("mSelectionID");
             inningNumber = args.getInt("inningNumber") / 2;
+            gameHelp = args.getBoolean(StatsContract.StatsEntry.HELP);
         }
     }
 
@@ -74,11 +79,6 @@ public class GameSettingsDialog extends DialogFragment {
             v.findViewById(R.id.gender_sort_seekbar).setVisibility(View.GONE);
             v.findViewById(R.id.gender_sort_textview).setVisibility(View.GONE);
             v.findViewById(R.id.gender_sort_title).setVisibility(View.GONE);
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//                inningSeekBar.setMin((inningNumber / 2) - 1);
-//                inningSeekBar.setScrollBarStyle(View.SCROLLBARS_OUTSIDE_OVERLAY);
-//            }
-
         }
 
 
@@ -108,17 +108,23 @@ public class GameSettingsDialog extends DialogFragment {
             public void onStopTrackingTouch(SeekBar seekBar) {}
         });
 
+        ToggleButton toggleButton = v.findViewById(R.id.toggle_help);
+        toggleButton.setChecked(gameHelp);
+        toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
+                gameHelp = checked;
+            }
+        });
+
+
+
         final AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
                 .setView(v)
                 .setTitle(R.string.game_settings)
                 .setPositiveButton(R.string.save, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-//                        innings = inningSeekBar.getProgress() + 1;
-//                        if(innings < inningNumber) {
-//                            return;
-//                        }
-//                        genderSorter = genderSeekBar.getProgress();
-//                        onButtonPressed();
+
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -174,6 +180,7 @@ public class GameSettingsDialog extends DialogFragment {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt(StatsContract.StatsEntry.INNINGS, innings);
         editor.putInt(StatsContract.StatsEntry.COLUMN_GENDER, genderSorter);
+        editor.putBoolean(StatsContract.StatsEntry.HELP, gameHelp);
         editor.apply();
         if (mListener != null) {
             mListener.onGameSettingsChanged(innings, genderSorter);

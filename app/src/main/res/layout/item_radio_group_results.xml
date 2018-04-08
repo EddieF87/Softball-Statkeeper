@@ -19,27 +19,27 @@
 
         <RadioButton
             android:id="@+id/single_rb"
-            style="@style/RadioButtonStyle"
+            style="@style/ResultsButtonStyle"
             android:text="@string/_1b" />
 
         <RadioButton
             android:id="@+id/dbl_rb"
-            style="@style/RadioButtonStyle"
+            style="@style/ResultsButtonStyle"
             android:text="@string/_2b" />
 
         <RadioButton
             android:id="@+id/triple_rb"
-            style="@style/RadioButtonStyle"
+            style="@style/ResultsButtonStyle"
             android:text="@string/_3b" />
 
         <RadioButton
             android:id="@+id/hr_rb"
-            style="@style/RadioButtonStyle"
+            style="@style/ResultsButtonStyle"
             android:text="@string/hr" />
 
         <RadioButton
             android:id="@+id/bb_rb"
-            style="@style/RadioButtonStyle"
+            style="@style/ResultsButtonStyle"
             android:text="@string/bb" />
 
     </RadioGroup>
@@ -58,22 +58,22 @@
 
         <RadioButton
             android:id="@+id/out_rb"
-            style="@style/RadioButtonStyle"
+            style="@style/ResultsButtonStyle"
             android:text="@string/out" />
 
         <RadioButton
             android:id="@+id/fc_rb"
-            style="@style/RadioButtonStyle"
+            style="@style/ResultsButtonStyle"
             android:text="@string/fc" />
 
         <RadioButton
             android:id="@+id/sf_rb"
-            style="@style/RadioButtonStyle"
+            style="@style/ResultsButtonStyle"
             android:text="@string/sf" />
 
         <RadioButton
             android:id="@+id/sacbunt_rb"
-            style="@style/RadioButtonStyle"
+            style="@style/ResultsButtonStyle"
             android:maxLines="2"
             android:paddingBottom="2dp"
             android:paddingTop="2dp"
@@ -82,7 +82,7 @@
 
         <RadioButton
             android:id="@+id/error_rb"
-            style="@style/RadioButtonStyle"
+            style="@style/ResultsButtonStyle"
             android:maxLines="3"
             android:paddingBottom="2dp"
             android:paddingTop="2dp"

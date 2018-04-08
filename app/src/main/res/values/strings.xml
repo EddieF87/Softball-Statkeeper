@@ -166,4 +166,8 @@
     <string name="check_connection">Please make sure you have a working data connection.</string>
     <string name="cloud_error">Cloud database error!</string>
     <string name="cloud_fail">Cloud database error! Please make sure you have a working data connection.</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="set_gender_lineup_alt">Lineup Requirements</string>
 </resources>

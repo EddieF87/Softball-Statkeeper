@@ -20,11 +20,11 @@ import java.util.List;
 
 public class DeletionCheckRecyclerViewAdapter  extends RecyclerView.Adapter<DeletionCheckRecyclerViewAdapter.DeletionViewHolder> {
 
-    private final List<ItemMarkedForDeletion> mItems;
-    private final List<ItemMarkedForDeletion> mDeleteList;
-    private final List<ItemMarkedForDeletion> mSaveList;
+    private final ArrayList<ItemMarkedForDeletion> mItems;
+    private final ArrayList<ItemMarkedForDeletion> mDeleteList;
+    private final ArrayList<ItemMarkedForDeletion> mSaveList;
 
-    public DeletionCheckRecyclerViewAdapter(List<ItemMarkedForDeletion> items) {
+    public DeletionCheckRecyclerViewAdapter(ArrayList<ItemMarkedForDeletion> items) {
         super();
         this.setHasStableIds(true);
         mItems = items;
@@ -95,11 +95,11 @@ public class DeletionCheckRecyclerViewAdapter  extends RecyclerView.Adapter<Dele
         }
     }
 
-    public List<ItemMarkedForDeletion> getDeleteList() {
+    public ArrayList<ItemMarkedForDeletion> getDeleteList() {
         return mDeleteList;
     }
 
-    public List<ItemMarkedForDeletion> getSaveList() {
+    public ArrayList<ItemMarkedForDeletion> getSaveList() {
         return mSaveList;
     }
 }

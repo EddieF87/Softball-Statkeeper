@@ -107,6 +107,7 @@ public class StatsContract {
         public static final String EMAIL = "email";
         public static final String LEVEL = "level";
         public static final String FREE_AGENT = "Free Agent";
+        public static final String HELP = "help";
         public static final String COLUMN_GAME_ID = "gameID";
         public static final String COLUMN_AWAY_TEAM = "Away";
         public static final String COLUMN_HOME_TEAM = "Home";

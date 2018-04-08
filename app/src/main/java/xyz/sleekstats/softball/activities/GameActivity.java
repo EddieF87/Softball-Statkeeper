@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -33,9 +32,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import xyz.sleekstats.softball.R;
-import xyz.sleekstats.softball.data.FirestoreHelperService;
 import xyz.sleekstats.softball.data.StatsContract;
-import xyz.sleekstats.softball.data.TimeStampUpdater;
 import xyz.sleekstats.softball.dialogs.EndOfGameDialog;
 import xyz.sleekstats.softball.dialogs.FinishGameConfirmationDialog;
 import xyz.sleekstats.softball.dialogs.GameSettingsDialog;
@@ -117,6 +114,7 @@ public abstract class GameActivity extends AppCompatActivity
     ArrayList<String> tempRunsLog;
 
     int gameLogIndex = 0;
+    int lowestIndex = 0;
     int highestIndex = 0;
     boolean undoRedo = false;
 
@@ -132,6 +130,7 @@ public abstract class GameActivity extends AppCompatActivity
     int totalInnings;
 
     static final String KEY_GAMELOGINDEX = "keyGameLogIndex";
+    static final String KEY_LOWESTINDEX = "keyLowestIndex";
     static final String KEY_HIGHESTINDEX = "keyHighestIndex";
     static final String KEY_GENDERSORT = "keyGenderSort";
     static final String KEY_FEMALEORDER = "keyFemaleOrder";
@@ -149,6 +148,7 @@ public abstract class GameActivity extends AppCompatActivity
     Toast mCurrentToast;
     MyTouchListener myTouchListener = new MyTouchListener();
     MyDragListener myDragListener = new MyDragListener();
+    private boolean gameHelp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -1353,7 +1353,7 @@ public abstract class GameActivity extends AppCompatActivity
                 int genderSorter = 0;
                 FragmentManager fragmentManager = getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                DialogFragment newFragment = GameSettingsDialog.newInstance(innings, genderSorter, mSelectionID, inningNumber);
+                DialogFragment newFragment = GameSettingsDialog.newInstance(innings, genderSorter, mSelectionID, inningNumber, gameHelp);
                 newFragment.show(fragmentTransaction, "");
                 break;
             case R.id.action_exit_game:
@@ -1411,7 +1411,7 @@ public abstract class GameActivity extends AppCompatActivity
     }
 
     void setUndoButton() {
-        boolean undo = gameLogIndex > 0;
+        boolean undo = gameLogIndex > lowestIndex;
         undoButton.setClickable(undo);
         if (undo) {
             undoButton.setAlpha(1f);
@@ -1431,12 +1431,14 @@ public abstract class GameActivity extends AppCompatActivity
         }
     }
 
+    //warning dialog
+
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem undoItem = menu.findItem(R.id.action_undo_play);
         MenuItem redoItem = menu.findItem(R.id.action_redo_play);
 
-        boolean undo = gameLogIndex > 0;
+        boolean undo = gameLogIndex > lowestIndex;
         boolean redo = gameLogIndex < highestIndex;
 
         undoItem.setVisible(undo);
@@ -1505,6 +1507,7 @@ public abstract class GameActivity extends AppCompatActivity
             gameCursor.moveToFirst();
             if (resultCode == RESULT_CODE_EDITED) {
                 Log.d("megaman", "resultCode == RESULT_CODE_EDITED");
+                lowestIndex = gameLogIndex;
                 getSelectionData();
                 setCustomViews();
                 setViews();

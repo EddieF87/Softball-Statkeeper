@@ -45,7 +45,7 @@ public class DeletionCheckDialog extends DialogFragment {
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
         if (args != null) {
-            List<ItemMarkedForDeletion> mDeleteList = args.getParcelableArrayList(KEY_DELETIONS);
+            ArrayList<ItemMarkedForDeletion> mDeleteList = args.getParcelableArrayList(KEY_DELETIONS);
             mAdapter = new DeletionCheckRecyclerViewAdapter(mDeleteList);
         }
     }
@@ -87,8 +87,8 @@ public class DeletionCheckDialog extends DialogFragment {
 
     private void onButtonPressed() {
         if (mListener != null) {
-            List<ItemMarkedForDeletion> deleteList = mAdapter.getDeleteList();
-            List<ItemMarkedForDeletion> saveList = mAdapter.getSaveList();
+            ArrayList<ItemMarkedForDeletion> deleteList = mAdapter.getDeleteList();
+            ArrayList<ItemMarkedForDeletion> saveList = mAdapter.getSaveList();
             mListener.onDeletePlayersListener(deleteList, saveList);
         }
     }
@@ -125,7 +125,7 @@ public class DeletionCheckDialog extends DialogFragment {
     }
 
     public interface OnListFragmentInteractionListener {
-        void onDeletePlayersListener(List<ItemMarkedForDeletion> items, List<ItemMarkedForDeletion> saveList);
+        void onDeletePlayersListener(ArrayList<ItemMarkedForDeletion> items, ArrayList<ItemMarkedForDeletion> saveList);
         void onCancel();
     }
 }

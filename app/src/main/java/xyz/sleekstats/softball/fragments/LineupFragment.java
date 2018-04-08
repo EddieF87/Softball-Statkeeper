@@ -786,9 +786,10 @@ public class LineupFragment extends Fragment {
                 .getSharedPreferences(mSelectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
         int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
         int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
+        boolean gameHelp = settingsPreferences.getBoolean(StatsEntry.HELP, true);
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = GameSettingsDialog.newInstance(innings, genderSorter, mSelectionID, 0);
+        DialogFragment newFragment = GameSettingsDialog.newInstance(innings, genderSorter, mSelectionID, 0, gameHelp);
         newFragment.show(fragmentTransaction, "");
     }
 

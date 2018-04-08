@@ -165,6 +165,7 @@ public class LeagueGameActivity extends GameActivity {
                 = getSharedPreferences(mSelectionID + StatsEntry.GAME, MODE_PRIVATE);
         gameLogIndex = gamePreferences.getInt(KEY_GAMELOGINDEX, 0);
         highestIndex = gamePreferences.getInt(KEY_HIGHESTINDEX, 0);
+        lowestIndex = gamePreferences.getInt(KEY_LOWESTINDEX, 0);
         inningNumber = gamePreferences.getInt(KEY_INNINGNUMBER, 2);
         totalInnings = gamePreferences.getInt(KEY_TOTALINNINGS, 7);
         awayTeamIndex = gamePreferences.getInt(KEY_AWAYTEAMNDEX, 0);
@@ -350,6 +351,7 @@ public class LeagueGameActivity extends GameActivity {
         SharedPreferences gamePreferences = getSharedPreferences(mSelectionID + StatsEntry.GAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = gamePreferences.edit();
         editor.putInt(KEY_GAMELOGINDEX, gameLogIndex);
+        editor.putInt(KEY_LOWESTINDEX, lowestIndex);
         editor.putInt(KEY_HIGHESTINDEX, highestIndex);
         editor.putInt(KEY_INNINGNUMBER, inningNumber);
         editor.putInt(KEY_AWAYTEAMNDEX, awayTeamIndex);
@@ -415,7 +417,7 @@ public class LeagueGameActivity extends GameActivity {
     @Override
     protected void undoPlay() {
         String undoResult;
-        if (gameLogIndex > 0) {
+        if (gameLogIndex > lowestIndex) {
             undoResult = getUndoPlayResult();
             String ondeckbt;
             if(currentBatter == null) {

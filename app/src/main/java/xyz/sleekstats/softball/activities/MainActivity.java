@@ -57,7 +57,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
@@ -74,15 +73,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static xyz.sleekstats.softball.data.FirestoreHelperService.BOXSCORE_COLLECTION;
-import static xyz.sleekstats.softball.data.FirestoreHelperService.DELETION_COLLECTION;
-import static xyz.sleekstats.softball.data.FirestoreHelperService.LEAGUE_COLLECTION;
-import static xyz.sleekstats.softball.data.FirestoreHelperService.PLAYERS_COLLECTION;
-import static xyz.sleekstats.softball.data.FirestoreHelperService.PLAYER_LOGS;
-import static xyz.sleekstats.softball.data.FirestoreHelperService.REQUESTS;
-import static xyz.sleekstats.softball.data.FirestoreHelperService.TEAMS_COLLECTION;
-import static xyz.sleekstats.softball.data.FirestoreHelperService.TEAM_LOGS;
-import static xyz.sleekstats.softball.data.FirestoreHelperService.USERS;
+import static xyz.sleekstats.softball.data.FirestoreUpdateService.BOXSCORE_COLLECTION;
+import static xyz.sleekstats.softball.data.FirestoreUpdateService.DELETION_COLLECTION;
+import static xyz.sleekstats.softball.data.FirestoreUpdateService.LEAGUE_COLLECTION;
+import static xyz.sleekstats.softball.data.FirestoreUpdateService.PLAYERS_COLLECTION;
+import static xyz.sleekstats.softball.data.FirestoreUpdateService.PLAYER_LOGS;
+import static xyz.sleekstats.softball.data.FirestoreUpdateService.REQUESTS;
+import static xyz.sleekstats.softball.data.FirestoreUpdateService.TEAMS_COLLECTION;
+import static xyz.sleekstats.softball.data.FirestoreUpdateService.TEAM_LOGS;
+import static xyz.sleekstats.softball.data.FirestoreUpdateService.USERS;
 
 public class MainActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<QuerySnapshot>,
