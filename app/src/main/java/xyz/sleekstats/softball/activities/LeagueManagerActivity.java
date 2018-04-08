@@ -296,6 +296,14 @@ MySyncResultReceiver.Receiver{
                 Toast.makeText(LeagueManagerActivity.this, getString(R.string.cloud_fail) +
                         "\nIf the problem persists, please contact me at sleekstats@gmail.com", Toast.LENGTH_LONG).show();
                 break;
+
+            case FirestoreUpdateService.MSG_TRANSFER_FAILURE:
+                Toast.makeText(LeagueManagerActivity.this, "Error transferring stats.\nPlease try again.", Toast.LENGTH_LONG).show();
+                localUpdate = 999;
+                if(matchupFragment != null) {
+                    matchupFragment.onTransferError();
+                }
+                break;
         }
         boolean localUpdateFinish = localUpdate < 1;
         boolean firestoreUpdateFinish = firestoreUpdate < 1;

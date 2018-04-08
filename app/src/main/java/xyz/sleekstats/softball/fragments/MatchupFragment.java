@@ -30,7 +30,6 @@ import android.widget.Toast;
 
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.activities.BoxScoreActivity;
-import xyz.sleekstats.softball.activities.LeagueGameActivity;
 import xyz.sleekstats.softball.activities.SetLineupActivity;
 import xyz.sleekstats.softball.adapters.MatchupAdapter;
 import xyz.sleekstats.softball.views.VerticalTextView;
@@ -84,7 +83,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     private String leagueID;
     private int innings;
     private int genderSorter;
-    private boolean gameUpdating;
+    private boolean postGameUpdate;
 
     public MatchupFragment() {
         // Required empty public constructor
@@ -243,6 +242,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     }
 
     public void setPostGameLayout(boolean clickable){
+        postGameUpdate = !clickable;
         View view = getView();
         if(view == null) {return;}
         view.findViewById(R.id.start_game).setClickable(clickable);
@@ -251,6 +251,18 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
             gameSummaryView = view.findViewById(R.id.current_game_view);
         }
         gameSummaryView.setVisibility(View.GONE);
+    }
+
+    public void onTransferError() {
+        postGameUpdate = false;
+        View view = getView();
+        if(view == null) {return;}
+        view.findViewById(R.id.start_game).setClickable(true);
+        view.findViewById(R.id.continue_game).setVisibility(View.VISIBLE);
+        if(gameSummaryView == null) {
+            gameSummaryView = view.findViewById(R.id.current_game_view);
+        }
+        gameSummaryView.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -276,7 +288,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         String[] selectionArgs = new String[]{leagueID};
         Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG,
                 null, selection, selectionArgs, null);
-        if (cursor.moveToLast()) {
+        if (!postGameUpdate && cursor.moveToLast()) {
             continueGameButton.setVisibility(View.VISIBLE);
             gameSummaryView.setVisibility(View.VISIBLE);
             int awayRuns = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_AWAY_RUNS);
@@ -754,6 +766,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         super.onSaveInstanceState(outState);
         outState.putString(StatsEntry.COLUMN_AWAY_TEAM, awayTeamID);
         outState.putString(StatsEntry.COLUMN_HOME_TEAM, homeTeamID);
+        outState.putBoolean(StatsEntry.UPDATE, postGameUpdate);
     }
 
     @Override
@@ -762,6 +775,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         if (savedInstanceState != null) {
             awayTeamID = savedInstanceState.getString(StatsEntry.COLUMN_AWAY_TEAM);
             homeTeamID = savedInstanceState.getString(StatsEntry.COLUMN_HOME_TEAM);
+            postGameUpdate = savedInstanceState.getBoolean(StatsEntry.UPDATE, false);
         }
     }
 

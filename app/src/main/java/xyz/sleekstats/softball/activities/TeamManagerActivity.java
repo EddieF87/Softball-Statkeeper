@@ -379,9 +379,11 @@ public class TeamManagerActivity extends ExportActivity
                 firestoreUpdate--;
                 break;
 
-
             case FirestoreUpdateService.MSG_TRANSFER_SUCCESS:
                 localUpdate--;
+                if(lineupFragment != null) {
+                    lineupFragment.setPostGameLayout(true);
+                }
                 break;
 
             case FirestoreUpdateService.MSG_RETRY_SUCCESS:
@@ -398,8 +400,11 @@ public class TeamManagerActivity extends ExportActivity
                 break;
 
             case FirestoreUpdateService.MSG_TRANSFER_FAILURE:
-                Toast.makeText(TeamManagerActivity.this, getString(R.string.cloud_fail) +
-                        "\nIf the problem persists, please contact me at sleekstats@gmail.com", Toast.LENGTH_LONG).show();
+                Toast.makeText(TeamManagerActivity.this, "Error transferring stats.\nPlease try again.", Toast.LENGTH_LONG).show();
+                localUpdate = 999;
+                if(lineupFragment != null) {
+                    lineupFragment.onTransferError();
+                }
                 break;
         }
 

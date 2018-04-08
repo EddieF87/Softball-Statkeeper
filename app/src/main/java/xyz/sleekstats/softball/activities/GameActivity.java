@@ -435,33 +435,37 @@ public abstract class GameActivity extends AppCompatActivity
     }
 
     void startGame() {
-        step1View = findViewById(R.id.step1text);
-        step2View = findViewById(R.id.step2text);
-        step3View = findViewById(R.id.step3text);
-        step4View = findViewById(R.id.step4text);
-        step1View.setVisibility(View.VISIBLE);
-        step2View.setVisibility(View.VISIBLE);
-        step3View.setVisibility(View.VISIBLE);
-        step4View.setVisibility(View.VISIBLE);
-        submitPlay.setOnClickListener(null);
+        SharedPreferences sharedPreferences = getSharedPreferences(mSelectionID + StatsContract.StatsEntry.SETTINGS, Context.MODE_PRIVATE);
+        gameHelp = sharedPreferences.getBoolean(StatsEntry.HELP, true);
+        if (gameHelp) {
+            step1View = findViewById(R.id.step1text);
+            step2View = findViewById(R.id.step2text);
+            step3View = findViewById(R.id.step3text);
+            step4View = findViewById(R.id.step4text);
+            step1View.setVisibility(View.VISIBLE);
+            step2View.setVisibility(View.VISIBLE);
+            step3View.setVisibility(View.VISIBLE);
+            step4View.setVisibility(View.VISIBLE);
+            submitPlay.setOnClickListener(null);
 
-        submitPlay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                step1View.setVisibility(View.GONE);
-                step2View.setVisibility(View.GONE);
-                step3View.setVisibility(View.GONE);
-                step4View.setVisibility(View.GONE);
-                onSubmit();
-                submitPlay.setOnClickListener(null);
-                submitPlay.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        onSubmit();
-                    }
-                });
-            }
-        });
+            submitPlay.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    step1View.setVisibility(View.GONE);
+                    step2View.setVisibility(View.GONE);
+                    step3View.setVisibility(View.GONE);
+                    step4View.setVisibility(View.GONE);
+                    onSubmit();
+                    submitPlay.setOnClickListener(null);
+                    submitPlay.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            onSubmit();
+                        }
+                    });
+                }
+            });
+        }
     }
 
     protected abstract void resumeGame();

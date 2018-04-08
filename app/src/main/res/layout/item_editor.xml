@@ -13,6 +13,7 @@
         android:layout_weight="4"
         android:inputType="textPersonName"
         android:text=""
+        android:maxLength="20"
         android:contentDescription="name entry"
         />
 

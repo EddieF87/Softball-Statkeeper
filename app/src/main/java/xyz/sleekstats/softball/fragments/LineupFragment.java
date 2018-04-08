@@ -70,6 +70,7 @@ public class LineupFragment extends Fragment {
     private int mType;
     private String mSelectionID;
     private boolean inGame;
+    private boolean postGameUpdate;
 
     private static final String KEY_TEAM_NAME = "team_name";
     private static final String KEY_TEAM_ID = "team_id";
@@ -224,6 +225,31 @@ public class LineupFragment extends Fragment {
         return rootView;
     }
 
+
+    public void setPostGameLayout(boolean clickable){
+        postGameUpdate = !clickable;
+        View view = getView();
+        if(view == null) {return;}
+        view.findViewById(R.id.lineup_submit).setClickable(clickable);
+        view.findViewById(R.id.continue_game).setVisibility(View.GONE);
+        if(gameSummaryView == null) {
+            gameSummaryView = view.findViewById(R.id.current_game_view);
+        }
+        gameSummaryView.setVisibility(View.GONE);
+    }
+
+    public void onTransferError() {
+        postGameUpdate = false;
+        View view = getView();
+        if(view == null) {return;}
+        view.findViewById(R.id.lineup_submit).setClickable(true);
+        view.findViewById(R.id.continue_game).setVisibility(View.VISIBLE);
+        if(gameSummaryView == null) {
+            gameSummaryView = view.findViewById(R.id.current_game_view);
+        }
+        gameSummaryView.setVisibility(View.VISIBLE);
+    }
+
     private void resetBoardView(){
         if(mBoardView == null) {return;}
         mBoardView.clearBoard();
@@ -350,13 +376,13 @@ public class LineupFragment extends Fragment {
                     continueGameButton.setClickable(true);
                 }
             });
-            continueGameButton.setVisibility(View.VISIBLE);
+//            continueGameButton.setVisibility(View.VISIBLE);
 
             String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
             String[] selectionArgs = new String[]{mSelectionID};
             Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG,
                     null, selection, selectionArgs, null);
-            if (cursor.moveToLast()) {
+            if (!postGameUpdate && cursor.moveToLast()) {
                 int awayRuns = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_AWAY_RUNS);
                 int homeRuns = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_HOME_RUNS);
                 setGameSummaryView(awayRuns, homeRuns);

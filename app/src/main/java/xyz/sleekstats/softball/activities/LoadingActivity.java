@@ -21,6 +21,7 @@ import xyz.sleekstats.softball.data.FirestoreSyncService;
 import xyz.sleekstats.softball.data.MySyncResultReceiver;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
 import xyz.sleekstats.softball.dialogs.DeletionCheckDialog;
+import xyz.sleekstats.softball.dialogs.NoConnectionDialog;
 import xyz.sleekstats.softball.objects.ItemMarkedForDeletion;
 import xyz.sleekstats.softball.objects.MainPageSelection;
 
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 
 public class LoadingActivity extends AppCompatActivity
         implements DeletionCheckDialog.OnListFragmentInteractionListener,
+        NoConnectionDialog.OnFragmentInteractionListener,
         MySyncResultReceiver.Receiver {
 
     private int mStatKeeperType;
@@ -54,26 +56,26 @@ public class LoadingActivity extends AppCompatActivity
         loadTitle = findViewById(R.id.load_title);
         loadProgressBar = findViewById(R.id.load_bar);
 
+        getStatKeeperData();
+
+        checkConnection();
+
+    }
+
+    private void getStatKeeperData() {
         try {
             MyApp myApp = (MyApp) getApplicationContext();
             MainPageSelection mainPageSelection = myApp.getCurrentSelection();
             mStatKeeperType = mainPageSelection.getType();
             mStatKeeperID = mainPageSelection.getId();
-            String mStatKeeperName = mainPageSelection.getName();
+//            String mStatKeeperName = mainPageSelection.getName();
             mLevel = mainPageSelection.getLevel();
         } catch (Exception e) {
-            Intent intent = new Intent(LoadingActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
+            goToMain();
         }
+    }
 
-        if (savedInstanceState != null) {
-            Log.d("openmike1", "savedInstanceState != null");
-            return;
-        } else {
-            Log.d("openmike1", "savedInstanceState == null");
-        }
-
+    private void checkConnection() {
         ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connManager.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
@@ -86,13 +88,15 @@ public class LoadingActivity extends AppCompatActivity
             setAndSendIntent(FirestoreSyncService.INTENT_CHECK_UPDATE);
             Log.d("openmike", "send checkUpdateIntent");
         } else {
-            //todo dialog
-            Log.d("godzilla", "loading");
-            proceedToNext();
+            openNoConnectionDialog();
         }
-
     }
 
+    private void openNoConnectionDialog(){
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        DialogFragment newFragment = new NoConnectionDialog();
+        fragmentManager.beginTransaction().add(newFragment, null).commitAllowingStateLoss();
+    }
 
     private void setAndSendIntent(String action) {
         Intent serviceIntent = new Intent(LoadingActivity.this, FirestoreSyncService.class);
@@ -132,7 +136,7 @@ public class LoadingActivity extends AppCompatActivity
             default:
                 return;
         }
-        if(mReceiver != null) {
+        if (mReceiver != null) {
             mReceiver.setReceiver(null);
         }
         startActivity(intent);
@@ -194,9 +198,13 @@ public class LoadingActivity extends AppCompatActivity
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        if(mReceiver != null) {
+        if (mReceiver != null) {
             mReceiver.setReceiver(null);
         }
+        goToMain();
+    }
+
+    private void goToMain() {
         Intent intent = new Intent(LoadingActivity.this, MainActivity.class);
         startActivity(intent);
         finish();
@@ -285,6 +293,23 @@ public class LoadingActivity extends AppCompatActivity
         if (maxBoxscores < 1) {
             maxBoxscores = 999;
             onDeletionCheck();
+        }
+    }
+
+    @Override
+    public void onNoConnectionChoice(int choice) {
+        switch (choice) {
+            case NoConnectionDialog.RETRY:
+                checkConnection();
+                break;
+
+            case NoConnectionDialog.LOAD:
+                proceedToNext();
+                break;
+
+            case NoConnectionDialog.CANCEL:
+                goToMain();
+                break;
         }
     }
 }

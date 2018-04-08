@@ -79,6 +79,7 @@ public class GameSettingsDialog extends DialogFragment {
             v.findViewById(R.id.gender_sort_seekbar).setVisibility(View.GONE);
             v.findViewById(R.id.gender_sort_textview).setVisibility(View.GONE);
             v.findViewById(R.id.gender_sort_title).setVisibility(View.GONE);
+            v.findViewById(R.id.gamehelp_layout).setVisibility(View.GONE);
         }
 
 
@@ -176,7 +177,7 @@ public class GameSettingsDialog extends DialogFragment {
 
 
     private void onButtonPressed() {
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(mSelectionID + StatsContract.StatsEntry.SETTINGS, 0);
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences(mSelectionID + StatsContract.StatsEntry.SETTINGS, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt(StatsContract.StatsEntry.INNINGS, innings);
         editor.putInt(StatsContract.StatsEntry.COLUMN_GENDER, genderSorter);
