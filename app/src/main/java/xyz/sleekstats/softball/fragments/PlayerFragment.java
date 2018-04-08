@@ -113,8 +113,9 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         return fragment;
     }
 
-    public static PlayerFragment newInstance(String playerName) {
+    public static PlayerFragment newInstance(String playerID, String playerName) {
         Bundle args = new Bundle();
+        args.putString(MainPageSelection.KEY_SELECTION_ID, playerID);
         args.putInt(MainPageSelection.KEY_SELECTION_TYPE, MainPageSelection.TYPE_PLAYER);
         args.putInt(MainPageSelection.KEY_SELECTION_LEVEL, 5);
         args.putString(MainPageSelection.KEY_SELECTION_NAME, playerName);
@@ -133,6 +134,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         }
 
         Bundle args = getArguments();
+        mSelectionID = args.getString(MainPageSelection.KEY_SELECTION_ID);
         mSelectionType = args.getInt(MainPageSelection.KEY_SELECTION_TYPE);
         mLevel = args.getInt(MainPageSelection.KEY_SELECTION_LEVEL);
         if (mSelectionType == MainPageSelection.TYPE_PLAYER) {
@@ -142,7 +144,6 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             String uriString = args.getString(KEY_PLAYER_URI);
             mCurrentPlayerUri = Uri.parse(uriString);
             Log.d("zztop", "URI " + mCurrentPlayerUri);
-            mSelectionID = args.getString(MainPageSelection.KEY_SELECTION_ID);
         }
     }
 

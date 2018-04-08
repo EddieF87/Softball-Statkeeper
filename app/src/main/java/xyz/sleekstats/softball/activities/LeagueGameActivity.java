@@ -399,17 +399,18 @@ public class LeagueGameActivity extends GameActivity {
         return false;
     }
 
-    @Override
-    protected void firestoreUpdate() {
-        Log.d("megaman", "firestoreUpdate");
-        long updateTime = System.currentTimeMillis();
-        transferStats(updateTime);
-        sendTeamIntent(updateTime, awayTeamID, awayTeamRuns, homeTeamRuns);
-        sendTeamIntent(updateTime, homeTeamID, homeTeamRuns, awayTeamRuns);
-        sendPlayersIntent(updateTime);
-        sendBoxscoreIntent(updateTime, awayTeamID, homeTeamID, awayTeamRuns, homeTeamRuns);
-        TimeStampUpdater.updateTimeStamps(this, mSelectionID, updateTime);
+    protected void sendResultToMgr() {
+
+        Intent exitIntent = new Intent();
+        exitIntent.putExtra(StatsEntry.COLUMN_AWAY_TEAM, awayTeamID);
+        exitIntent.putExtra(StatsEntry.COLUMN_HOME_TEAM, homeTeamID);
+        exitIntent.putExtra(StatsEntry.COLUMN_AWAY_RUNS, awayTeamRuns);
+        exitIntent.putExtra(StatsEntry.COLUMN_HOME_RUNS, homeTeamRuns);
+        Log.d("megaman", "sendResultToMgr");
+        setResult(RESULT_CODE_GAME_FINISHED, exitIntent);
+        finish();
     }
+
 
     @Override
     protected void undoPlay() {

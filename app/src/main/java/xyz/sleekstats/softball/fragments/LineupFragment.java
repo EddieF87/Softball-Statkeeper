@@ -117,15 +117,17 @@ public class LineupFragment extends Fragment {
                              Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_lineup, container, false);
 
-        Button lineupSubmitButton = rootView.findViewById(R.id.lineup_submit);
+        final Button lineupSubmitButton = rootView.findViewById(R.id.lineup_submit);
         lineupSubmitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                lineupSubmitButton.setClickable(false);
                 if (inGame) {
                     onSubmitEdit();
                 } else {
                     onSubmitLineup();
                 }
+                lineupSubmitButton.setClickable(true);
             }
         });
 
@@ -311,16 +313,18 @@ public class LineupFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        Button continueGameButton = getView().findViewById(R.id.continue_game);
+        final Button continueGameButton = getView().findViewById(R.id.continue_game);
         gameSummaryView = getView().findViewById(R.id.current_game_view);
         inningsView = getView().findViewById(R.id.innings_view);
         View radioButtonGroup = getView().findViewById(R.id.radiobtns_away_or_home_team);
         orderView = getView().findViewById(R.id.gender_lineup_view);
-        LinearLayout settingsLayout = getView().findViewById(R.id.layout_settings);
+        final LinearLayout settingsLayout = getView().findViewById(R.id.layout_settings);
         settingsLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                settingsLayout.setClickable(false);
                 openGameSettingsDialog();
+                settingsLayout.setClickable(true);
             }
         });
 
@@ -340,8 +344,10 @@ public class LineupFragment extends Fragment {
             continueGameButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    continueGameButton.setClickable(false);
                     Intent intent = new Intent(getActivity(), TeamGameActivity.class);
                     getActivity().startActivityForResult(intent, GameActivity.REQUEST_CODE_GAME);
+                    continueGameButton.setClickable(true);
                 }
             });
             continueGameButton.setVisibility(View.VISIBLE);
@@ -434,6 +440,7 @@ public class LineupFragment extends Fragment {
         gameSummaryView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                gameSummaryView.setClickable(false);
                 Intent intent = new Intent(getActivity(), BoxScoreActivity.class);
                 Bundle b = new Bundle();
                 b.putString("awayTeamName", finalAwayTeamName);
@@ -446,6 +453,7 @@ public class LineupFragment extends Fragment {
                 b.putInt("homeTeamRuns", homeRuns);
                 intent.putExtras(b);
                 startActivity(intent);
+                gameSummaryView.setClickable(true);
 
             }
         });

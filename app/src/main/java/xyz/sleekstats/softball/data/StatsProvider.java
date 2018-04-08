@@ -257,6 +257,7 @@ public class StatsProvider extends ContentProvider {
                 table = StatsEntry.TEAMS_TABLE_NAME;
                 if (values.containsKey(StatsEntry.SYNC)) {
                     values.remove(StatsEntry.SYNC);
+                    values.remove(StatsEntry.TYPE);
                     break;
                 }
                 mFirestore = FirebaseFirestore.getInstance();

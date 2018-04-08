@@ -449,6 +449,10 @@ public class TeamFragment extends Fragment
         opsView.setText(opsString);
     }
 
+    public void reloadStats() {
+        getLoaderManager().restartLoader(EXISTING_TEAM_LOADER, null,this);
+    }
+
     private double convertAVG(int hits, int atbats) {
         if (atbats == 0) {
             return .000;

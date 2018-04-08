@@ -184,6 +184,10 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
         }
     }
 
+    public void reloadStandings() {
+        getLoaderManager().restartLoader(STANDINGS_LOADER, null, this);
+    }
+
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
     }

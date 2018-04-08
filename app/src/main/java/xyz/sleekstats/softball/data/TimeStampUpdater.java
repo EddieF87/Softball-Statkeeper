@@ -27,7 +27,8 @@ public class TimeStampUpdater {
 
     public static long getLocalTimeStamp(Context context, String statKeeperID) {
         SharedPreferences updatePreferences = context.getSharedPreferences(statKeeperID + UPDATE_SETTINGS, Context.MODE_PRIVATE);
-        return updatePreferences.getLong(LAST_UPDATE, 0);
+        return 0;
+//                updatePreferences.getLong(LAST_UPDATE, 0);
     }
 
     public static void setLocalTimeStamp(long time, Context context, String statKeeperID) {

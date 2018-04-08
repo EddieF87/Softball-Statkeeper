@@ -124,22 +124,25 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         orderView = rootView.findViewById(R.id.gender_lineup_view);
 
 
-        LinearLayout settingsLayout = rootView.findViewById(R.id.layout_settings);
+        final LinearLayout settingsLayout = rootView.findViewById(R.id.layout_settings);
         settingsLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                settingsLayout.setClickable(false);
                 if(mListener != null) {
                     mListener.goToGameSettings();
                 }
+                settingsLayout.setClickable(true);
             }
         });
         setGameSettings();
 
-        VerticalTextView editAwayLineup = rootView.findViewById(R.id.away_lineup_editor);
-        VerticalTextView editHomeLineup = rootView.findViewById(R.id.home_lineup_editor);
+        final VerticalTextView editAwayLineup = rootView.findViewById(R.id.away_lineup_editor);
+        final VerticalTextView editHomeLineup = rootView.findViewById(R.id.home_lineup_editor);
         editAwayLineup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                editAwayLineup.setClickable(false);
                 if (awayTeamID == null) {
                     return;
                 }
@@ -150,11 +153,13 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                 b.putBoolean("ingame", false);
                 intent.putExtras(b);
                 startActivityForResult(intent, LINEUP_REQUEST);
+                editAwayLineup.setClickable(true);
             }
         });
         editHomeLineup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                editHomeLineup.setClickable(false);
                 if (homeTeamID == null) {
                     return;
                 }
@@ -165,34 +170,42 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                 b.putBoolean("ingame", false);
                 intent.putExtras(b);
                 startActivityForResult(intent, LINEUP_REQUEST);
+                editHomeLineup.setClickable(true);
             }
         });
 
-        Button startGame = rootView.findViewById(R.id.start_game);
+        final Button startGame = rootView.findViewById(R.id.start_game);
         startGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                startGame.setClickable(false);
                 if (awayTeamName == null || homeTeamName == null) {
                     Toast.makeText(getActivity(), R.string.add_teams_text,
                             Toast.LENGTH_SHORT).show();
+                    startGame.setClickable(true);
                     return;
                 }
                 if (awayTeamName.equals(homeTeamName)) {
                     Toast.makeText(getActivity(), R.string.choose_diff_teams_text, Toast.LENGTH_SHORT).show();
+                    startGame.setClickable(true);
                     return;
                 }
                 if (awayPlayersCount < 4) {
                     Toast.makeText(getActivity(), "Add more players to " + awayTeamName + " lineup first.", Toast.LENGTH_SHORT).show();
+                    startGame.setClickable(true);
                     return;
                 }
                 if (homePlayersCount < 4) {
                     Toast.makeText(getActivity(), "Add more players to " + homeTeamName + " lineup first.", Toast.LENGTH_SHORT).show();
+                    startGame.setClickable(true);
                     return;
                 }
                 if(mListener != null) {
+                    startGame.setClickable(true);
                     mListener.clearGameDB();
                 }
                 if (setLineupsToDB()) {
+                    startGame.setClickable(true);
                     return;
                 }
 
@@ -217,6 +230,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                 editor.putInt("keyFemaleOrder", genderSorter);
                 editor.apply();
 
+                startGame.setClickable(true);
                 if(mListener != null) {
                     mListener.goToGameActivity();
                 }
@@ -227,16 +241,33 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         return rootView;
     }
 
+    public void setPostGameLayout(boolean clickable){
+        View view = getView();
+        if(view == null) {return;}
+        view.findViewById(R.id.start_game).setClickable(clickable);
+        view.findViewById(R.id.continue_game).setVisibility(View.GONE);
+        if(gameSummaryView == null) {
+            gameSummaryView = view.findViewById(R.id.current_game_view);
+        }
+        gameSummaryView.setVisibility(View.GONE);
+    }
+
     @Override
     public void onResume() {
         super.onResume();
-        Button continueGameButton = getView().findViewById(R.id.continue_game);
+
+        //todo fix service / buttons showing etc
+
+
+        final Button continueGameButton = getView().findViewById(R.id.continue_game);
         continueGameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                continueGameButton.setClickable(false);
                 if(mListener != null) {
                     mListener.goToGameActivity();
                 }
+                continueGameButton.setClickable(true);
             }
         });
 
@@ -277,6 +308,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         gameSummaryView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                gameSummaryView.setClickable(false);
                 Intent intent = new Intent(getActivity(), BoxScoreActivity.class);
                 Bundle b = new Bundle();
                 b.putString("awayTeamName", awayTeamName);
@@ -290,7 +322,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                 b.putInt("homeTeamRuns", homeRuns);
                 intent.putExtras(b);
                 startActivity(intent);
-
+                gameSummaryView.setClickable(true);
             }
         });
     }

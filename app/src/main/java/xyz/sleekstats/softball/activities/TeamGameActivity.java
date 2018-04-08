@@ -469,19 +469,27 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         otherTeamOutsView.setText(String.valueOf(gameOuts));
     }
 
-    @Override
-    protected void firestoreUpdate() {
-        long updateTime = System.currentTimeMillis();
-        transferStats(updateTime);
-        if (isHome) {
-            sendTeamIntent(updateTime, mSelectionID, homeTeamRuns, awayTeamRuns);
-            sendBoxscoreIntent(updateTime, StatsEntry.COLUMN_AWAY_TEAM, mSelectionID, awayTeamRuns, homeTeamRuns);
+    protected void sendResultToMgr() {
+        int myRuns;
+        int theirRuns;
+        Intent exitIntent = new Intent();
+
+        if(isHome){
+            exitIntent.putExtra(StatsEntry.COLUMN_HOME_TEAM, mSelectionID);
+            exitIntent.putExtra(StatsEntry.COLUMN_AWAY_TEAM, StatsEntry.COLUMN_AWAY_TEAM);
+            myRuns = homeTeamRuns;
+            theirRuns = awayTeamRuns;
         } else {
-            sendTeamIntent(updateTime, mSelectionID, awayTeamRuns, homeTeamRuns);
-            sendBoxscoreIntent(updateTime, mSelectionID, StatsEntry.COLUMN_HOME_TEAM, awayTeamRuns, homeTeamRuns);
+            exitIntent.putExtra(StatsEntry.COLUMN_AWAY_TEAM, mSelectionID);
+            exitIntent.putExtra(StatsEntry.COLUMN_HOME_TEAM, StatsEntry.COLUMN_HOME_TEAM);
+            myRuns = awayTeamRuns;
+            theirRuns = homeTeamRuns;
         }
-        sendPlayersIntent(updateTime);
-        TimeStampUpdater.updateTimeStamps(this, mSelectionID, updateTime);
+        exitIntent.putExtra(StatsEntry.COLUMN_RUNSFOR, myRuns);
+        exitIntent.putExtra(StatsEntry.COLUMN_RUNSAGAINST, theirRuns);
+        Log.d("megaman", "sendResultToMgr");
+        setResult(RESULT_CODE_GAME_FINISHED, exitIntent);
+        finish();
     }
 
     @Override

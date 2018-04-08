@@ -580,9 +580,9 @@ public abstract class GameActivity extends AppCompatActivity
 
     private void endGame() {
         Log.d("megaman", "endGame");
-        firestoreUpdate();
+//        firestoreUpdate();
 
-        deleteTempData();
+//        deleteTempData();
 
         sendResultToMgr();
     }
@@ -625,40 +625,6 @@ public abstract class GameActivity extends AppCompatActivity
             backupValues.put(StatsEntry.COLUMN_SF, gameSF);
             getContentResolver().insert(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, backupValues);
         }
-    }
-
-    protected abstract void firestoreUpdate();
-
-    void sendPlayersIntent(long updateTime) {
-        Log.d("zztop", "sendPlayersIntent");
-        Intent playersIntent = new Intent(GameActivity.this, FirestoreHelperService.class);
-        playersIntent.setAction(FirestoreHelperService.INTENT_ADD_PLAYER_STATS);
-        playersIntent.putExtra(FirestoreHelperService.STATKEEPER_ID, mSelectionID);
-        playersIntent.putExtra(TimeStampUpdater.UPDATE_TIME, updateTime);
-        startService(playersIntent);
-    }
-
-    void sendTeamIntent(long updateTime, String teamID, int runsFor, int runsAgainst) {
-        Intent teamIntent = new Intent(GameActivity.this, FirestoreHelperService.class);
-        teamIntent.setAction(FirestoreHelperService.INTENT_ADD_TEAM_STATS);
-        teamIntent.putExtra(FirestoreHelperService.STATKEEPER_ID, mSelectionID);
-        teamIntent.putExtra(TimeStampUpdater.UPDATE_TIME, updateTime);
-        teamIntent.putExtra(StatsEntry.COLUMN_FIRESTORE_ID, teamID);
-        teamIntent.putExtra(StatsEntry.COLUMN_RUNSFOR, runsFor);
-        teamIntent.putExtra(StatsEntry.COLUMN_RUNSAGAINST, runsAgainst);
-        startService(teamIntent);
-    }
-
-    void sendBoxscoreIntent(long updateTime, String awayID, String homeID,  int awayRuns, int homeRuns) {
-        Intent teamIntent = new Intent(GameActivity.this, FirestoreHelperService.class);
-        teamIntent.setAction(FirestoreHelperService.INTENT_ADD_BOXSCORE);
-        teamIntent.putExtra(FirestoreHelperService.STATKEEPER_ID, mSelectionID);
-        teamIntent.putExtra(TimeStampUpdater.UPDATE_TIME, updateTime);
-        teamIntent.putExtra(StatsEntry.COLUMN_AWAY_TEAM, awayID);
-        teamIntent.putExtra(StatsEntry.COLUMN_HOME_TEAM, homeID);
-        teamIntent.putExtra(StatsEntry.COLUMN_AWAY_RUNS, awayRuns);
-        teamIntent.putExtra(StatsEntry.COLUMN_HOME_RUNS, homeRuns);
-        startService(teamIntent);
     }
 
     void showFinishGameDialog() {
@@ -1435,12 +1401,7 @@ public abstract class GameActivity extends AppCompatActivity
         getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, selection, selectionArgs);
     }
 
-    void sendResultToMgr() {
-        Intent exitIntent = new Intent();
-        setResult(RESULT_CODE_GAME_FINISHED, exitIntent);
-        Log.d("megaman", "sendResultToMgr");
-        finish();
-    }
+    protected abstract void sendResultToMgr();
 
     protected abstract void actionEditLineup();
 

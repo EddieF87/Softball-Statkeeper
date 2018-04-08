@@ -42,8 +42,9 @@ public class PlayerManagerActivity extends ExportActivity
         try {
             MyApp myApp = (MyApp) getApplicationContext();
             MainPageSelection mainPageSelection = myApp.getCurrentSelection();
+            String playerID = mainPageSelection.getId();
             String playerName = mainPageSelection.getName();
-            playerFragment = PlayerFragment.newInstance(playerName);
+            playerFragment = PlayerFragment.newInstance(playerID, playerName);
         } catch (Exception e) {
             Intent intent = new Intent(PlayerManagerActivity.this, MainActivity.class);
             startActivity(intent);
@@ -100,5 +101,6 @@ public class PlayerManagerActivity extends ExportActivity
         super.onBackPressed();
         Intent intent = new Intent(PlayerManagerActivity.this, MainActivity.class);
         startActivity(intent);
+        finish();
     }
 }

@@ -125,8 +125,8 @@ public class MainActivity extends AppCompatActivity
 
         MobileAds.initialize(this, "ca-app-pub-5443559095909539~1574171209");
 
-        mSelectionList = getIntent().getParcelableArrayListExtra("mSelectionList");
-        mInviteList = getIntent().getParcelableArrayListExtra("mInviteList");
+//        mSelectionList = getIntent().getParcelableArrayListExtra("mSelectionList");
+//        mInviteList = getIntent().getParcelableArrayListExtra("mInviteList");
 
         mRecyclerView = findViewById(R.id.rv_main);
         mMsgView = findViewById(R.id.error_rv_main);
@@ -151,6 +151,9 @@ public class MainActivity extends AppCompatActivity
     protected void onStart() {
         super.onStart();
         mMsgView.setVisibility(View.GONE);
+//        mSelectionList = getIntent().getParcelableArrayListExtra("mSelectionList");
+//        mInviteList = getIntent().getParcelableArrayListExtra("mInviteList");
+        loadingFinished = true;
         authenticateUser();
     }
 
@@ -967,14 +970,6 @@ public class MainActivity extends AppCompatActivity
         if (mainPageAdapter != null) {
             mainPageAdapter = null;
         }
-    }
-
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        mSelectionList = getIntent().getParcelableArrayListExtra("mSelectionList");
-        mInviteList = getIntent().getParcelableArrayListExtra("mInviteList");
-        loadingFinished = true;
     }
 
     @Override

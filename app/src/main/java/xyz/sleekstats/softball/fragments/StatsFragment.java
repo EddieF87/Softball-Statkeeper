@@ -228,9 +228,13 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
             } else if (teamFilter == null || !teamFilter.equals(newFilter)) {
                 genderFilter = null;
                 teamFilter = newFilter;
-                getLoaderManager().restartLoader(STATS_LOADER, null, this);
+                reloadStats();
             }
         }
+    }
+
+    public void reloadStats() {
+        getLoaderManager().restartLoader(STATS_LOADER, null, this);
     }
 
     @Override

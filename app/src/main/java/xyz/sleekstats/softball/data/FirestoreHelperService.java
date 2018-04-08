@@ -10,6 +10,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import xyz.sleekstats.softball.MyApp;
@@ -58,6 +59,15 @@ public class FirestoreHelperService extends IntentService {
     public static final String INTENT_DELETE_PLAYERS = "deleteList";
     public static final String INTENT_RETRY_GAME_LOAD = "retry";
     public static final String INTENT_ADD_BOXSCORE = "boxScore";
+    public static final String INTENT_TRANSFER_STATS = "transfer";
+
+    public static final int MSG_RETRY_FAILURE = -2;
+    public static final int MSG_FIRESTORE_FAILURE = -1;
+    public static final int MSG_FIRESTORE_SUCCESS = 1;
+    public static final int MSG_UPDATE_SUCCESS = 2;
+    public static final int MSG_RETRY_SUCCESS = 3;
+    public static final int MSG_TRANSFER_SUCCESS = 4;
+
 
     private String statKeeperID;
     private long mUpdateTime;
@@ -229,6 +239,7 @@ public class FirestoreHelperService extends IntentService {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
+                        sndMsg(MSG_FIRESTORE_SUCCESS);
 
                         getContentResolver().delete(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, selection, selectionArgs);
                         Log.d("megaman", "addPlayerStatsToDB SUCCESS");
@@ -237,9 +248,11 @@ public class FirestoreHelperService extends IntentService {
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
+                sndMsg(MSG_FIRESTORE_FAILURE);
                 Log.d("godzilla", "addPlayerStatsToDB FAILURE  " + mUpdateTime);
             }
         });
+        sndMsg(MSG_UPDATE_SUCCESS);
     }
 
     public void addTeamStatsToDB(final String teamFirestoreID, int teamRuns, int otherTeamRuns) {
@@ -307,6 +320,7 @@ public class FirestoreHelperService extends IntentService {
             public void onFailure(@NonNull Exception e) {
                 Log.d("megaman", "addTeamStatsToDB FAILURE");
                 Log.d("godzilla", "addTeamStatsToDB FAILURE  " + mUpdateTime);
+                sndMsg(MSG_FIRESTORE_FAILURE);
             }
         }).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
@@ -316,8 +330,10 @@ public class FirestoreHelperService extends IntentService {
                 String[] selectionArgs = new String[]{String.valueOf(mUpdateTime), teamFirestoreID, statKeeperID};
                 getContentResolver().delete(StatsEntry.CONTENT_URI_BACKUP_TEAMS, selection, selectionArgs);
                 Log.d("godzilla", "addTeamStatsToDB SUCCESS  " + mUpdateTime);
+                sndMsg(MSG_FIRESTORE_SUCCESS);
             }
         });
+        sndMsg(MSG_UPDATE_SUCCESS);
     }
 
     public void addBoxScoreToDB(final String awayID, String homeID, int awayRuns, int homeRuns) {
@@ -344,14 +360,17 @@ public class FirestoreHelperService extends IntentService {
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
                     boxscoreValues.put(StatsEntry.COLUMN_LOCAL, 1);
+                    sndMsg(MSG_FIRESTORE_SUCCESS);
                     Log.d("godzilla", "addBoxScoreToDB SUCCESS  " + mUpdateTime);
                 } else {
                     boxscoreValues.put(StatsEntry.COLUMN_LOCAL, 0);
                     Log.d("godzilla", "addBoxScoreToDB FAILURE  " + mUpdateTime);
+                    sndMsg(MSG_FIRESTORE_FAILURE);
                 }
                 getContentResolver().insert(StatsEntry.CONTENT_URI_BOXSCORE_OVERVIEWS, boxscoreValues);
             }
         });
+        sndMsg(MSG_UPDATE_SUCCESS);
     }
 
 
@@ -419,10 +438,12 @@ public class FirestoreHelperService extends IntentService {
                 getContentResolver().delete(StatsEntry.CONTENT_URI_BACKUP_TEAMS, selection, selectionArgs);
                 Log.d("megaman", "retryGameLogLoad SUCCESS");
                 Log.d("godzilla", "retryGameLogLoad SUCCESS  " + mUpdateTime);
+                sndMsg(MSG_RETRY_SUCCESS);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
+                sndMsg(MSG_RETRY_FAILURE);
                 Log.d("godzilla", "retryGameLogLoad FAILURE  " + mUpdateTime);
             }
         });
@@ -462,6 +483,60 @@ public class FirestoreHelperService extends IntentService {
         });
     }
 
+    protected void transferStats(){
+        Log.d("megaman", "transferStats start");
+        String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] selectionArgs = new String[]{statKeeperID};
+        Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEMP, null,
+                selection, selectionArgs, null);
+        while (cursor.moveToNext()) {
+            Log.d("zztop", "player backup");
+
+            String playerFirestoreID = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_FIRESTORE_ID);
+            String teamFirestoreID = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_TEAM_FIRESTORE_ID);
+            int playerId = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_PLAYERID);
+            int game1b = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_1B);
+            int game2b = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_2B);
+            int game3b = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_3B);
+            int gameHR = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_HR);
+            int gameRBI = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_RBI);
+            int gameRun = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_RUN);
+            int gameBB = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_BB);
+            int gameOuts = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_OUT);
+            int gameSF = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_SF);
+
+            ContentValues backupValues = new ContentValues();
+            backupValues.put(StatsEntry.COLUMN_LEAGUE_ID, statKeeperID);
+            backupValues.put(StatsEntry.COLUMN_GAME_ID, mUpdateTime);
+            backupValues.put(StatsEntry.COLUMN_FIRESTORE_ID, playerFirestoreID);
+            backupValues.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, teamFirestoreID);
+            backupValues.put(StatsEntry.COLUMN_PLAYERID, playerId);
+            backupValues.put(StatsEntry.COLUMN_1B, game1b);
+            backupValues.put(StatsEntry.COLUMN_2B, game2b);
+            backupValues.put(StatsEntry.COLUMN_3B, game3b);
+            backupValues.put(StatsEntry.COLUMN_HR, gameHR);
+            backupValues.put(StatsEntry.COLUMN_RUN, gameRun);
+            backupValues.put(StatsEntry.COLUMN_RBI, gameRBI);
+            backupValues.put(StatsEntry.COLUMN_BB, gameBB);
+            backupValues.put(StatsEntry.COLUMN_OUT, gameOuts);
+            backupValues.put(StatsEntry.COLUMN_SF, gameSF);
+            getContentResolver().insert(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, backupValues);
+        }
+
+        getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, selection, selectionArgs);
+        getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, selection, selectionArgs);
+        sndMsg(MSG_TRANSFER_SUCCESS);
+        Log.d("megaman", "transferStats end");
+    }
+
+    private void sndMsg(int msg){
+        Log.d("megaman", "Broadcasting message");
+        Intent intent = new Intent(StatsEntry.UPDATE);
+        // You can also include some extra data.
+        intent.putExtra(StatsEntry.UPDATE, msg);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
@@ -480,6 +555,10 @@ public class FirestoreHelperService extends IntentService {
 
         String firestoreID;
         switch (action) {
+            case INTENT_TRANSFER_STATS:
+                transferStats();
+                break;
+
             case INTENT_ADD_PLAYER_STATS:
                 Log.d("zztop", "addPlayerStatsToDB");
                 addPlayerStatsToDB();
@@ -525,23 +604,4 @@ public class FirestoreHelperService extends IntentService {
                 break;
         }
     }
-
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return super.onBind(intent);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
-
-    public class MyBinder extends Binder{
-        public FirestoreHelperService getService(){
-            return FirestoreHelperService.this;
-        }
-    }
-
-    private MyBinder mBinder = new MyBinder();
 }
