@@ -2,6 +2,8 @@ package xyz.sleekstats.softball.activities;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
@@ -24,6 +26,7 @@ import xyz.sleekstats.softball.dialogs.AccessGuideDialog;
 import xyz.sleekstats.softball.dialogs.CancelLoadDialog;
 import xyz.sleekstats.softball.dialogs.EmailInviteDialog;
 import xyz.sleekstats.softball.dialogs.InviteUserDialog;
+import xyz.sleekstats.softball.dialogs.RetryUserLoadDialog;
 import xyz.sleekstats.softball.objects.MainPageSelection;
 import xyz.sleekstats.softball.objects.StatKeepUser;
 
@@ -31,6 +34,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.dynamiclinks.DynamicLink;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.ShortDynamicLink;
@@ -38,10 +42,12 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -55,7 +61,8 @@ import static xyz.sleekstats.softball.data.FirestoreUpdateService.USERS;
 public class UsersActivity extends AppCompatActivity
         implements InviteUserDialog.OnFragmentInteractionListener,
         EmailInviteDialog.OnListFragmentInteractionListener,
-CancelLoadDialog.OnListFragmentInteractionListener,
+        CancelLoadDialog.OnListFragmentInteractionListener,
+RetryUserLoadDialog.OnFragmentInteractionListener,
         UserListAdapter.AdapterListener {
 
     private static final String SAVED_MAP = "map";
@@ -89,6 +96,8 @@ CancelLoadDialog.OnListFragmentInteractionListener,
     private CancelLoadDialog mCancelLoadDialog;
     boolean loadingUri;
 
+    private final UsersActivity.MyHandler mHandler = new UsersActivity.MyHandler(this);
+
     private FirebaseFirestore firestore;
 
     @Override
@@ -118,7 +127,6 @@ CancelLoadDialog.OnListFragmentInteractionListener,
             finish();
         }
 
-
         firestore = FirebaseFirestore.getInstance();
 
         if (savedInstanceState != null) {
@@ -129,17 +137,47 @@ CancelLoadDialog.OnListFragmentInteractionListener,
             return;
         }
 
-        firestore.collection(LEAGUE_COLLECTION).document(mSelectionID).collection(USERS)
-                .get()
+        TextView accessGuide = findViewById(R.id.set_access_levels);
+        if(mLevel > LEVEL_VIEW_WRITE) {
+            accessGuide.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    FragmentManager fragmentManager = getSupportFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    DialogFragment newFragment = new AccessGuideDialog();
+                    newFragment.show(fragmentTransaction, "");
+                }
+            });
+        } else {
+            accessGuide.setVisibility(View.GONE);
+        }
+        startQuery();
+    }
+
+    private void startQuery(){
+        final String myEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        Query userCollection;
+        if (mLevel > LEVEL_VIEW_WRITE) {
+            userCollection = firestore.collection(LEAGUE_COLLECTION).document(mSelectionID).collection(USERS);
+        } else {
+            Button emailButton = findViewById(R.id.btn_email);
+            emailButton.setText("Email Head Admin");
+            userCollection = firestore.collection(LEAGUE_COLLECTION).document(mSelectionID).collection(USERS).whereGreaterThan(StatsContract.StatsEntry.LEVEL, LEVEL_ADMIN);
+        }
+        mHandler.postDelayed(retryLoadRunnable, 20000);
+        userCollection.get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        mHandler.removeCallbacks(retryLoadRunnable);
+
                         mProgressBar.setVisibility(View.GONE);
                         if (task.isSuccessful()) {
                             mRecyclerView.setVisibility(View.VISIBLE);
                             mOriginalLevelsMap = new HashMap<>();
                             mUserList = new ArrayList<>();
 
+                            boolean myEmailSet = false;
                             for (DocumentSnapshot document : task.getResult()) {
 
                                 StatKeepUser statKeepUser = document.toObject(StatKeepUser.class);
@@ -150,26 +188,45 @@ CancelLoadDialog.OnListFragmentInteractionListener,
                                     mCreator = statKeepUser;
                                     setCreator(statKeepUser);
                                 } else if (level > 0 && level < LEVEL_CREATOR) {
-                                    mOriginalLevelsMap.put(statKeepUser.getEmail(), statKeepUser.getLevel());
-                                    mUserList.add(statKeepUser);
+                                    if (myEmail.equals(statKeepUser.getEmail())) {
+                                        myEmailSet = true;
+                                    } else {
+                                        mOriginalLevelsMap.put(statKeepUser.getEmail(), statKeepUser.getLevel());
+                                        mUserList.add(statKeepUser);
+                                    }
                                 }
+                            }
+                            if(mLevel < LEVEL_ADMIN){
+                                myEmailSet = true;
+                            }
+                            if(myEmailSet) {
+                                String levelString;
+                                switch (mLevel) {
+                                    case 1:
+                                        levelString = getString(R.string.view_only);
+                                        break;
+                                    case 2:
+                                        levelString = getString(R.string.view_manage);
+                                        break;
+                                    case 3:
+                                        levelString = getString(R.string.admin);
+                                        break;
+                                    default:
+                                        levelString = getString(R.string.error);
+                                }
+                                TextView myView = findViewById(R.id.my_access_level);
+                                String myAccess = myEmail + ":  " + levelString;
+                                myView.setText(myAccess);
+                                myView.setVisibility(View.VISIBLE);
                             }
                             Collections.sort(mUserList, StatKeepUser.levelComparator());
                             updateRV();
                             setButtons();
+                        } else {
+                            openRetryDialog();
                         }
                     }
                 });
-        TextView accessGuide = findViewById(R.id.set_access_levels);
-        accessGuide.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                DialogFragment newFragment = new AccessGuideDialog();
-                newFragment.show(fragmentTransaction, "");
-            }
-        });
     }
 
     private void updateRV() {
@@ -256,6 +313,8 @@ CancelLoadDialog.OnListFragmentInteractionListener,
             @Override
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(getApplicationContext(), "Changes failed!", Toast.LENGTH_SHORT).show();
+                mProgressBar.setVisibility(View.GONE);
+                mRecyclerView.setVisibility(View.VISIBLE);
             }
         });
         resetChanges(null);
@@ -294,6 +353,7 @@ CancelLoadDialog.OnListFragmentInteractionListener,
             String user = statKeepUser.getEmail();
             users.add(user);
         }
+        users.add(mCreator.getEmail());
 
         String[] emailList = new String[userSize];
         emailList = users.toArray(emailList);
@@ -368,7 +428,7 @@ CancelLoadDialog.OnListFragmentInteractionListener,
 
         Uri dynamicLinkUri = dynamicLink.getUri();
 
-        Task<ShortDynamicLink> shortLinkTask = FirebaseDynamicLinks.getInstance().createDynamicLink()
+        FirebaseDynamicLinks.getInstance().createDynamicLink()
                 .setLongLink(dynamicLinkUri)
                 .buildShortDynamicLink()
                 .addOnCompleteListener(this, new OnCompleteListener<ShortDynamicLink>() {
@@ -398,15 +458,6 @@ CancelLoadDialog.OnListFragmentInteractionListener,
                 });
         mProgressBar.setVisibility(View.VISIBLE);
         loadingUri = true;
-//        Intent msgIntent = new Intent(Intent.ACTION_SEND);
-//        msgIntent.setType("text/plain");
-//        msgIntent.putExtra(Intent.EXTRA_TEXT, "You're invited to view the stats & standings for "
-//                + mSelectionName + "!\n\nTo join follow these simple steps:" + dynamicLinkUri +
-//                "\n\n    1. Log on to the StatKeeper app: " + "https://play.google.com/store/apps/details?id=xyz.sleekstats.softball" +
-//                "\n\n    2. Click on \"Join " + selectionType + "\"" +
-//                "\n\n    3. Enter the following code: " + mSelectionID + "-" + codeText);
-//
-//        startActivity(Intent.createChooser(msgIntent, "Message invite code to friends!"));
     }
 
 
@@ -430,10 +481,7 @@ CancelLoadDialog.OnListFragmentInteractionListener,
         Intent msgIntent = new Intent(Intent.ACTION_SEND);
         msgIntent.setType("text/plain");
         msgIntent.putExtra(Intent.EXTRA_TEXT, "You're invited to view the stats & standings for "
-                + mSelectionName + "!\n\nTo join follow these simple steps:" + shortLink +
-                "\n\n    1. Log on to the StatKeeper app: " + "https://play.google.com/store/apps/details?id=xyz.sleekstats.softball" +
-                "\n\n    2. Click on \"Join " + selectionType + "\"" +
-                "\n\n    3. Enter the following code: " + mSelectionID + "-" + codeText);
+                + mSelectionName + "!\n\nJoin here: " + shortLink);
 
         startActivity(Intent.createChooser(msgIntent, "Send View-Link to friends!"));
     }
@@ -521,5 +569,47 @@ CancelLoadDialog.OnListFragmentInteractionListener,
     public void onCancelLoad() {
         loadingUri = false;
         onBackPressed();
+    }
+
+    @Override
+    public void onRetryChoice(boolean choice) {
+        if(choice) {
+            startQuery();
+        } else {
+            finish();
+        }
+    }
+
+    private static class MyHandler extends Handler {
+        private final WeakReference<UsersActivity> mActivity;
+        MyHandler(UsersActivity activity) {
+            mActivity = new WeakReference<>(activity);
+        }
+        @Override
+        public void handleMessage(Message msg) {
+            UsersActivity activity = mActivity.get();
+            if (activity != null) {
+                super.handleMessage(msg);
+            }
+        }
+    }
+
+    private final Runnable retryLoadRunnable = new Runnable() {
+        public void run() {
+            openRetryDialog();
+        }
+    };
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mHandler.removeCallbacks(retryLoadRunnable);
+    }
+
+    private void openRetryDialog() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        DialogFragment newFragment = new RetryUserLoadDialog();
+        newFragment.show(fragmentTransaction, "");
     }
 }

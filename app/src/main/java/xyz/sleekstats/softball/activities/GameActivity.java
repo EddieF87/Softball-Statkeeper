@@ -641,6 +641,7 @@ public abstract class GameActivity extends AppCompatActivity
         fragmentTransaction.addToBackStack(null);
 
         DialogFragment newFragment = EndOfGameDialog.newInstance(homeTeamName, awayTeamName, homeTeamRuns, awayTeamRuns);
+        newFragment.setCancelable(false);
         newFragment.show(fragmentTransaction, DIALOG_FINISH);
     }
 
@@ -1455,6 +1456,7 @@ public abstract class GameActivity extends AppCompatActivity
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         DialogFragment newFragment = FinishGameConfirmationDialog.newInstance();
+        newFragment.setCancelable(false);
         newFragment.show(fragmentTransaction, "");
     }
 

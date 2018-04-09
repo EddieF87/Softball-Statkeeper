@@ -10,8 +10,8 @@
         android:id="@+id/team_header"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginStart="4dp"
         android:layout_marginTop="8dp"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
@@ -29,16 +29,16 @@
             android:autoSizeTextType="uniform"
             android:maxLines="1"
             android:textAlignment="center"
-            android:textSize="48sp"
-            tools:text="teambitres"
-            tools:targetApi="o" />
+            android:textSize="30sp"
+            tools:targetApi="o"
+            tools:text="abcdefghijklmnopqrst" />
 
         <TextView
             android:id="@+id/teamRecord"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
+            android:layout_marginLeft="6dp"
+            android:layout_marginRight="6dp"
             android:layout_marginTop="8dp"
             android:layout_weight="1"
             android:autoSizeMinTextSize="12sp"

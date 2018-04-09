@@ -40,5 +40,10 @@
         android:title="@string/game_settings"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/action_export_stats"
+        android:title="@string/export_stats"
+        android:visible="false"
+        app:showAsAction="never" />
 
 </menu>

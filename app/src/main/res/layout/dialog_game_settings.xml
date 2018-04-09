@@ -8,25 +8,25 @@
         android:id="@+id/innings_title"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="8dp"
         android:layout_weight="1"
         android:autoSizeMinTextSize="12sp"
         android:autoSizeTextType="uniform"
         android:gravity="center"
         android:text="@string/Innings"
-        android:textSize="18sp"
+        android:textSize="14sp"
+        android:textStyle="bold"
         tools:targetApi="o" />
 
     <TextView
-        android:layout_marginTop="8dp"
         android:id="@+id/innings_textview"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="2dp"
         android:layout_weight="1"
-        android:gravity="center"
-        android:textSize="24sp"
         android:autoSizeMinTextSize="12sp"
         android:autoSizeTextType="uniform"
+        android:gravity="center"
+        android:textSize="12sp"
         tools:targetApi="o" />
 
     <SeekBar
@@ -42,26 +42,27 @@
         android:id="@+id/gender_sort_title"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         android:layout_weight="1"
         android:autoSizeMinTextSize="12sp"
         android:autoSizeTextType="uniform"
         android:gravity="center"
         android:text="@string/set_gender_lineup"
-        android:textSize="18sp"
+        android:textSize="14sp"
+        android:textStyle="bold"
         tools:targetApi="o" />
 
     <TextView
-        android:layout_marginTop="8dp"
         android:id="@+id/gender_sort_textview"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="2dp"
         android:layout_weight="1"
-        android:gravity="center"
-        android:textColor="@color/male"
-        android:textSize="24sp"
         android:autoSizeMinTextSize="12sp"
         android:autoSizeTextType="uniform"
+        android:gravity="center"
+        android:textColor="@color/male"
+        android:textSize="12sp"
         tools:targetApi="o" />
 
     <SeekBar
@@ -76,33 +77,31 @@
     <LinearLayout
         android:id="@+id/gamehelp_layout"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="8dp"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
-        >
+        android:padding="4dp">
 
         <TextView
             android:layout_width="0dp"
-            android:layout_weight="3"
-            android:layout_height="match_parent"
-            android:text="In-game help:"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_weight="3"
             android:gravity="center"
-            android:textSize="24sp"
-            />
+            android:text="In-game help:"
+            android:textSize="18sp" />
 
         <ToggleButton
             android:id="@+id/toggle_help"
             style="@style/RadioButtonStyle"
             android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_height="match_parent"
-            android:textStyle="bold"
-            android:textOn="On"
-            android:textOff="Off"
             android:checked="true"
-            />
+            android:paddingBottom="0dp"
+            android:paddingTop="0dp"
+            android:textOff="Off"
+            android:textOn="On"
+            android:textStyle="bold" />
 
     </LinearLayout>
 

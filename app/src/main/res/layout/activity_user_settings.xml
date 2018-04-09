@@ -70,22 +70,37 @@
     </RelativeLayout>
 
     <TextView
+        android:id="@+id/my_access_level"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/admin_layout"
+        android:visibility="gone"
+        tools:text="My Access Level: VIEW ONLY"
+        />
+
+    <TextView
         android:id="@+id/set_access_levels"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:background="@drawable/border"
         android:drawableEnd="@drawable/ic_info_black_36dp"
         android:drawablePadding="16dp"
+        android:paddingStart="8dp"
+        android:paddingEnd="16dp"
         android:drawableTint="@color/colorAccent"
         android:gravity="center"
-        android:text="Set User Access Levels"
+        android:text="Set User Access"
         android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/admin_layout" />
+        app:layout_constraintTop_toBottomOf="@id/my_access_level" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_users"
@@ -179,7 +194,7 @@
         android:drawableStart="@drawable/fui_ic_mail_white_24dp"
         android:text="@string/email_users"
         android:onClick="sendEmailUpdate"
-        android:visibility="invisible"  tools:visibility="visible"
+        tools:visibility="visible"
         app:layout_constraintBottom_toBottomOf="@+id/btn_start_adder"
         app:layout_constraintEnd_toStartOf="@+id/btn_start_adder"
         app:layout_constraintStart_toStartOf="parent"

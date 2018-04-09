@@ -525,6 +525,7 @@ public class TeamFragment extends Fragment
         } else if (mSelectionType == MainPageSelection.TYPE_TEAM) {
             menu.findItem(R.id.action_edit_lineup).setVisible(false);
             menu.findItem(R.id.action_delete_team).setVisible(false);
+            menu.findItem(R.id.action_export_stats).setVisible(true);
         }
     }
 
@@ -584,6 +585,10 @@ public class TeamFragment extends Fragment
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 DialogFragment newFragment = GameSettingsDialog.newInstance(innings, genderSorter, mSelectionID, 0, gameHelp);
                 newFragment.show(fragmentTransaction, "");
+                return true;
+
+            case R.id.action_export_stats:
+                showDeleteConfirmationDialog();
                 return true;
         }
         return super.onOptionsItemSelected(item);

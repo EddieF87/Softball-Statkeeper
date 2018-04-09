@@ -111,4 +111,5 @@ public class EndOfGameDialog extends DialogFragment {
         alertDialog.show();
         return alertDialog;
     }
+
 }

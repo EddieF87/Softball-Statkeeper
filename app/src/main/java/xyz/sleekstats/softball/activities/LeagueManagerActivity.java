@@ -57,7 +57,7 @@ MySyncResultReceiver.Receiver{
     private MatchupFragment matchupFragment;
 
     private String mLeagueID;
-    private int level;
+    private int mLevel;
     private String leagueName;
     private boolean gameUpdating;
     private MySyncResultReceiver mReceiver;
@@ -113,7 +113,7 @@ MySyncResultReceiver.Receiver{
             MainPageSelection mainPageSelection = myApp.getCurrentSelection();
             leagueName = mainPageSelection.getName();
             mLeagueID = mainPageSelection.getId();
-            level = mainPageSelection.getLevel();
+            mLevel = mainPageSelection.getLevel();
             setTitle(leagueName + " (League)");
         } catch (Exception e) {
             Intent intent = new Intent(LeagueManagerActivity.this, MainActivity.class);
@@ -344,11 +344,11 @@ MySyncResultReceiver.Receiver{
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return StandingsFragment.newInstance(mLeagueID, level, leagueName);
+                    return StandingsFragment.newInstance(mLeagueID, mLevel, leagueName);
                 case 1:
-                    return StatsFragment.newInstance(mLeagueID, level, leagueName);
+                    return StatsFragment.newInstance(mLeagueID, mLevel, leagueName);
                 case 2:
-                    if (level < UsersActivity.LEVEL_VIEW_WRITE) {
+                    if (!levelAuthorized(UsersActivity.LEVEL_VIEW_WRITE)) {
                         return null;
                     }
                     return MatchupFragment.newInstance(mLeagueID, leagueName);
@@ -373,7 +373,7 @@ MySyncResultReceiver.Receiver{
 
         @Override
         public int getCount() {
-            if (level < UsersActivity.LEVEL_VIEW_WRITE) {
+            if (!levelAuthorized(UsersActivity.LEVEL_VIEW_WRITE)) {
                 return 2;
             }
             return 3;
@@ -482,6 +482,18 @@ MySyncResultReceiver.Receiver{
         return true;
     }
 
+    private boolean levelAuthorized (int level) {
+        return mLevel >= level;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if (!levelAuthorized(UsersActivity.LEVEL_VIEW_WRITE)) {
+            menu.findItem(R.id.change_game_settings).setVisible(false);
+        }
+        return true;
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -580,6 +592,4 @@ MySyncResultReceiver.Receiver{
         super.onSaveInstanceState(outState);
         outState.putBoolean(StatsEntry.UPDATE, gameUpdating);
     }
-    //todo fix lgmanager service etc
-
 }

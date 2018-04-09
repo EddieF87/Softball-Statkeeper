@@ -269,9 +269,6 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     public void onResume() {
         super.onResume();
 
-        //todo fix service / buttons showing etc
-
-
         final Button continueGameButton = getView().findViewById(R.id.continue_game);
         continueGameButton.setOnClickListener(new View.OnClickListener() {
             @Override

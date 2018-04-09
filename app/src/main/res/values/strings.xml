@@ -169,4 +169,6 @@
     <string name="retry">Retry</string>
     <string name="no_data_connection">No Data Connection</string>
     <string name="connection_warning">You can load from cache, but a data connection is recommended in order to ensure stats are up to date.</string>
+    <string name="unable_to_connect">Unable to Connect to Database</string>
+    <string name="check_connection_and_retry">Please check your data connection and try again.</string>
 </resources>

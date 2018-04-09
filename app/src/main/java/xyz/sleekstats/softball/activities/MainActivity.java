@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity
     private ContinueLoadDialog mContinueLoadDialogFragment;
     private InviteListDialog mInviteListDialogFragment;
     private AcceptInviteDialog mAcceptInviteDialog;
-    private boolean loadingFinished;
+//    private boolean loadingFinished;
 
     private final MyHandler mHandler = new MyHandler(this);
 
@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity
         mMsgView.setVisibility(View.GONE);
 //        mSelectionList = getIntent().getParcelableArrayListExtra("mSelectionList");
 //        mInviteList = getIntent().getParcelableArrayListExtra("mInviteList");
-        loadingFinished = true;
+//        loadingFinished = true;
         authenticateUser();
     }
 
@@ -190,10 +190,8 @@ public class MainActivity extends AppCompatActivity
                         if (pendingDynamicLinkData != null) {
                             deepLink = pendingDynamicLinkData.getLink();
                         } else {
-                            Log.d("xyxyx", "pendingDynamicLinkData == null");
                             return;
                         }
-                        Log.d("xyxyx", "uri: " + deepLink.toString());
 
                         String path = deepLink.getPath();
                         Log.d("xyxyx", "path: " + path);
@@ -333,6 +331,9 @@ public class MainActivity extends AppCompatActivity
                                                                     @Override
                                                                     public void onSuccess(Void aVoid) {
                                                                         reloadSelections();
+                                                                        if (mAcceptInviteDialog == null) {
+                                                                            checkInvite();
+                                                                        }
                                                                     }
                                                                 });
                                                             }
@@ -348,6 +349,9 @@ public class MainActivity extends AppCompatActivity
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         reloadSelections();
+                        if (mAcceptInviteDialog == null) {
+                            checkInvite();
+                        }
                     }
                 });
             }
@@ -853,7 +857,7 @@ public class MainActivity extends AppCompatActivity
 
 
     private void openContinueLoadDialog() {
-        if (loadingFinished || mAcceptInviteDialog != null) {
+        if (mAcceptInviteDialog != null) {
             return;
         }
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -865,10 +869,12 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onLoadFinished(android.support.v4.content.Loader<QuerySnapshot> loader, QuerySnapshot querySnapshot) {
         Log.d("godzilla", "onLoadFinished");
-        loadingFinished = true;
+//        loadingFinished = true;
 
         if (mContinueLoadDialogFragment != null) {
             mHandler.post(dismissContinueLoadRunnable);
+        } else {
+            mHandler.removeCallbacks(continueLoadRunnable);
         }
 
         if (mInviteList != null && mSelectionList != null) {
@@ -901,7 +907,12 @@ public class MainActivity extends AppCompatActivity
             int level = documentSnapshot.getLong(userID).intValue();
             String selectionID = documentSnapshot.getId();
             String name = documentSnapshot.getString(StatsEntry.COLUMN_NAME);
-            int type = documentSnapshot.getLong(StatsEntry.TYPE).intValue();
+            int type;
+            if(name == null || documentSnapshot.getLong(StatsEntry.TYPE) == null) {
+                continue;
+            } else {
+                type = documentSnapshot.getLong(StatsEntry.TYPE).intValue();
+            }
             MainPageSelection mainPageSelection = new MainPageSelection(
                     selectionID, name, type, level);
             if (level < 0) {
@@ -1018,6 +1029,9 @@ public class MainActivity extends AppCompatActivity
         final String userDisplayName = currentUser.getDisplayName();
 
         final Map<String, Object> firestoreLeagueMap = new HashMap<>();
+
+        firestoreLeagueMap.put(userID, level);
+
         if (mFirestore == null) {
             mFirestore = FirebaseFirestore.getInstance();
         }
@@ -1028,75 +1042,93 @@ public class MainActivity extends AppCompatActivity
             firestoreLeagueMap.put(StatsEntry.COLUMN_NAME, name);
             firestoreLeagueMap.put(StatsEntry.TYPE, type);
             firestoreLeagueMap.put("creator", null);
+
+            statKeeperDocument.set(firestoreLeagueMap, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    onSuccessfulStatKeeperUpdate(intent, statKeeperDocument, level, userEmail, userDisplayName,
+                            statKeeperID, name, type);
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.d("xyxyx", "first fail");
+                }
+            });
         } else {
             statKeeperDocument = mFirestore.collection(LEAGUE_COLLECTION).document(statKeeperID);
+            statKeeperDocument.update(firestoreLeagueMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    onSuccessfulStatKeeperUpdate(intent, statKeeperDocument, level, userEmail, userDisplayName,
+                            statKeeperID, name, type);
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(MainActivity.this, "This league no longer exists! :(", Toast.LENGTH_LONG).show();
+                }
+            });
         }
 
-        firestoreLeagueMap.put(userID, level);
-        Log.d("xyxyx", userID + "   " + level + "  " + statKeeperID);
-        statKeeperDocument.set(firestoreLeagueMap, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Log.d("xyxyx", "first sucess");
-                Map<String, Object> firestoreUserMap = new HashMap<>();
-                firestoreUserMap.put(StatsEntry.LEVEL, level);
-                firestoreUserMap.put(StatsEntry.EMAIL, userEmail);
-                firestoreUserMap.put(StatsEntry.COLUMN_NAME, userDisplayName);
-                Log.d("xyxyx", "second attempt: " + level + userEmail + userDisplayName + userID);
+    }
 
-                statKeeperDocument.collection(USERS).document(userID).set(firestoreUserMap)
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Log.d("xyxyx", "second success");
-                                Toast.makeText(MainActivity.this, "OK WORKING SO FAR....", Toast.LENGTH_SHORT).show();
+    private void onSuccessfulStatKeeperUpdate(final Intent intent, final DocumentReference statKeeperDocument,
+                                              final int level, String userEmail, String userDisplayName,
+                                              final String statKeeperID, final String name, final int type) {
+        Log.d("xyxyx", "first sucess");
+        Map<String, Object> firestoreUserMap = new HashMap<>();
+        firestoreUserMap.put(StatsEntry.LEVEL, level);
+        firestoreUserMap.put(StatsEntry.EMAIL, userEmail);
+        firestoreUserMap.put(StatsEntry.COLUMN_NAME, userDisplayName);
+        Log.d("xyxyx", "second attempt: " + level + userEmail + userDisplayName + userID);
 
-                                MyApp myApp = (MyApp) getApplicationContext();
-                                String selectionID = statKeeperDocument.getId();
-                                MainPageSelection mainPageSelection = new MainPageSelection(selectionID, name, type, level);
-                                myApp.setCurrentSelection(mainPageSelection);
-                                insertSelectionToSQL(mainPageSelection);
-
-                                if (statKeeperID == null) {
-                                    Map<String, Object> creator = new HashMap<>();
-                                    creator.put("creator", userID);
-                                    statKeeperDocument.update(creator);
-
-                                    if (type == MainPageSelection.TYPE_TEAM) {
-                                        ContentValues values = new ContentValues();
-                                        values.put(StatsEntry.COLUMN_NAME, name);
-                                        values.put(StatsEntry.ADD, true);
-                                        values.put(StatsEntry.COLUMN_LEAGUE_ID, selectionID);
-                                        values.put(StatsEntry.TYPE, type);
-                                        values.put(StatsEntry.COLUMN_LEAGUE, name);
-                                        getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
-                                    } else if (type == MainPageSelection.TYPE_PLAYER) {
-                                        ContentValues values = new ContentValues();
-                                        values.put(StatsEntry.COLUMN_NAME, name);
-                                        values.put(StatsEntry.COLUMN_LEAGUE_ID, selectionID);
-                                        getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
-                                    }
-
-                                    DocumentReference requestDocument = mFirestore.collection(LEAGUE_COLLECTION)
-                                            .document(selectionID).collection(REQUESTS).document();
-                                    StatKeepUser statKeepUser = new StatKeepUser(REQUESTS, name, String.valueOf(type), UsersActivity.LEVEL_VIEW_ONLY - 100);
-                                    requestDocument.set(statKeepUser, SetOptions.merge());
-                                }
-                                startActivity(intent);
-                                finish();
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
+        statKeeperDocument.collection(USERS).document(userID).set(firestoreUserMap)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.d("xyxyx", "second fail");
-                        Toast.makeText(MainActivity.this, "Firebase error! Try again!", Toast.LENGTH_SHORT).show();
+                    public void onSuccess(Void aVoid) {
+                        Log.d("xyxyx", "second success");
+                        Toast.makeText(MainActivity.this, "OK WORKING SO FAR....", Toast.LENGTH_SHORT).show();
+
+                        MyApp myApp = (MyApp) getApplicationContext();
+                        String selectionID = statKeeperDocument.getId();
+                        MainPageSelection mainPageSelection = new MainPageSelection(selectionID, name, type, level);
+                        myApp.setCurrentSelection(mainPageSelection);
+                        insertSelectionToSQL(mainPageSelection);
+
+                        if (statKeeperID == null) {
+                            Map<String, Object> creator = new HashMap<>();
+                            creator.put("creator", userID);
+                            statKeeperDocument.update(creator);
+
+                            if (type == MainPageSelection.TYPE_TEAM) {
+                                ContentValues values = new ContentValues();
+                                values.put(StatsEntry.COLUMN_NAME, name);
+                                values.put(StatsEntry.ADD, true);
+                                values.put(StatsEntry.COLUMN_LEAGUE_ID, selectionID);
+                                values.put(StatsEntry.TYPE, type);
+                                values.put(StatsEntry.COLUMN_LEAGUE, name);
+                                getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
+                            } else if (type == MainPageSelection.TYPE_PLAYER) {
+                                ContentValues values = new ContentValues();
+                                values.put(StatsEntry.COLUMN_NAME, name);
+                                values.put(StatsEntry.COLUMN_LEAGUE_ID, selectionID);
+                                getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
+                            }
+
+                            DocumentReference requestDocument = mFirestore.collection(LEAGUE_COLLECTION)
+                                    .document(selectionID).collection(REQUESTS).document();
+                            StatKeepUser statKeepUser = new StatKeepUser(REQUESTS, name, String.valueOf(type), UsersActivity.LEVEL_VIEW_ONLY - 100);
+                            requestDocument.set(statKeepUser, SetOptions.merge());
+                        }
+                        startActivity(intent);
+                        finish();
                     }
-                });
-            }
-        }).addOnFailureListener(new OnFailureListener() {
+                }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Log.d("xyxyx", "first fail");
+                Log.d("xyxyx", "second fail");
+                Toast.makeText(MainActivity.this, "Firebase error! Try again!", Toast.LENGTH_SHORT).show();
             }
         });
     }

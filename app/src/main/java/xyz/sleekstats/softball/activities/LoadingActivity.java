@@ -95,6 +95,7 @@ public class LoadingActivity extends AppCompatActivity
     private void openNoConnectionDialog(){
         FragmentManager fragmentManager = getSupportFragmentManager();
         DialogFragment newFragment = new NoConnectionDialog();
+        newFragment.setCancelable(false);
         fragmentManager.beginTransaction().add(newFragment, null).commitAllowingStateLoss();
     }
 
