@@ -8,6 +8,7 @@ import static xyz.sleekstats.softball.data.StatsContract.getColumnInt;
 import static xyz.sleekstats.softball.data.StatsContract.getColumnLong;
 import static xyz.sleekstats.softball.data.StatsContract.getColumnString;
 
+@SuppressWarnings("unused")
 public class GameRecap {
 
     private long gameID;

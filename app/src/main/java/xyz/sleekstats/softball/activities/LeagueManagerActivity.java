@@ -15,7 +15,6 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
@@ -69,10 +68,8 @@ MySyncResultReceiver.Receiver{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pager);
-        Log.d("megaman", "LeagueManagerActivity onCreate");
         if(savedInstanceState != null){
             gameUpdating = savedInstanceState.getBoolean(StatsEntry.UPDATE, false);
-            Log.d("uupdat", "savedInstanceState gameUpdating = " + gameUpdating);
         }
         getStatKeeperData();
 
@@ -84,21 +81,18 @@ MySyncResultReceiver.Receiver{
         TabLayout tabLayout = findViewById(R.id.my_tab_layout);
         tabLayout.setupWithViewPager(viewPager);
 
-        Log.d("megaman", "LeagueManagerActivity checkBackups");
         String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
         String[] selectionArgs = new String[]{mLeagueID};
 
         if(!gameUpdating) {
             Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, null, selection, selectionArgs, null);
             if (cursor != null && cursor.moveToFirst()) {
-                Log.d("megaman", "LeagueManagerActivity cursor != null");
                 sendRetryGameLoadIntent();
                 cursor.close();
                 return;
             }
             cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_TEAMS, null, selection, selectionArgs, null);
             if (cursor != null && cursor.moveToFirst()) {
-                Log.d("megaman", "LeagueManagerActivity cursor != null");
                 sendRetryGameLoadIntent();
             }
             if (cursor != null) {
@@ -218,12 +212,12 @@ MySyncResultReceiver.Receiver{
         }
     }
 
-    public void goToUserSettings() {
+    private void goToUserSettings() {
         Intent settingsIntent = new Intent(LeagueManagerActivity.this, UsersActivity.class);
         startActivity(settingsIntent);
     }
 
-    public void onExport() {
+    private void onExport() {
         startLeagueExport(leagueName);
     }
 
@@ -318,12 +312,10 @@ MySyncResultReceiver.Receiver{
             }
             Toast.makeText(LeagueManagerActivity.this, R.string.stat_update_success, Toast.LENGTH_SHORT).show();
             gameUpdating = false;
-            Log.d("uupdat", "localUpdateFinish gameUpdating = " + gameUpdating);
         }
         if(firestoreUpdateFinish) {
             firestoreUpdate = 4;
             Toast.makeText(LeagueManagerActivity.this, "Stats have been uploaded to cloud!", Toast.LENGTH_SHORT).show();
-            Log.d("megaman", "TOAST UPDATE");
         }
         if(localUpdateFinish && firestoreUpdateFinish) {
 //            LocalBroadcastManager.getInstance(LeagueManagerActivity.this).unregisterReceiver(mReceiver);
@@ -331,7 +323,6 @@ MySyncResultReceiver.Receiver{
                 mReceiver.setReceiver(null);
             }
         }
-        Log.d("megaman", "receiver got msg: " + resultCode);
     }
 
     private class LeagueManagerPagerAdapter extends FragmentStatePagerAdapter {
@@ -348,7 +339,7 @@ MySyncResultReceiver.Receiver{
                 case 1:
                     return StatsFragment.newInstance(mLeagueID, mLevel, leagueName);
                 case 2:
-                    if (!levelAuthorized(UsersActivity.LEVEL_VIEW_WRITE)) {
+                    if (levelUnauthorized()) {
                         return null;
                     }
                     return MatchupFragment.newInstance(mLeagueID, leagueName);
@@ -373,7 +364,7 @@ MySyncResultReceiver.Receiver{
 
         @Override
         public int getCount() {
-            if (!levelAuthorized(UsersActivity.LEVEL_VIEW_WRITE)) {
+            if (levelUnauthorized()) {
                 return 2;
             }
             return 3;
@@ -402,7 +393,6 @@ MySyncResultReceiver.Receiver{
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d("megaman", "LeagueManagerActivity onResume");
         SharedPreferences settingsPreferences = getSharedPreferences(mLeagueID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
         int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
         int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
@@ -482,13 +472,13 @@ MySyncResultReceiver.Receiver{
         return true;
     }
 
-    private boolean levelAuthorized (int level) {
-        return mLevel >= level;
+    private boolean levelUnauthorized() {
+        return mLevel < UsersActivity.LEVEL_VIEW_WRITE;
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        if (!levelAuthorized(UsersActivity.LEVEL_VIEW_WRITE)) {
+        if (levelUnauthorized()) {
             menu.findItem(R.id.change_game_settings).setVisible(false);
         }
         return true;
@@ -519,16 +509,9 @@ MySyncResultReceiver.Receiver{
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        Log.d("megaman", "LeagueManagerActivity onActivityResult" + requestCode + resultCode);
-
         if(requestCode == GameActivity.REQUEST_CODE_GAME && resultCode == GameActivity.RESULT_CODE_GAME_FINISHED) {
-            Log.d("megaman", "LeagueManagerActivity onActivityResult  GAME COMPLETE" + requestCode + resultCode);
             gameUpdating = true;
-            Log.d("uupdat", "onActivityResult gameUpdating = " + gameUpdating);
-
             updateStats(data);
-        } else {
-            Log.d("megaman", "LeagueManagerActivity onActivityResult  GAME ONGOING" + requestCode + resultCode);
         }
     }
 
@@ -571,7 +554,6 @@ MySyncResultReceiver.Receiver{
         if(mReceiver != null) {
             mReceiver.setReceiver(null);
         }
-        Log.d("uupdat", "onStop gameUpdating = " + gameUpdating);
     }
 
     @Override
@@ -584,7 +566,6 @@ MySyncResultReceiver.Receiver{
             }
             mReceiver.setReceiver(this);
         }
-        Log.d("uupdat", "onStart gameUpdating = " + gameUpdating);
     }
 
     @Override

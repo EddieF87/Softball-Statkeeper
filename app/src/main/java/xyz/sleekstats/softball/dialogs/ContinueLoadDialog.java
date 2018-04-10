@@ -54,7 +54,7 @@ public class ContinueLoadDialog extends DialogFragment {
 
         myDialog = new AlertDialog.Builder(getActivity())
                 .setTitle("Accessing database: Please Wait!")
-                .setMessage(R.string.load_from_cache)
+                .setMessage(R.string.load_from_cache_desc)
                 .setPositiveButton(R.string.load, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         onButtonPressed(true);

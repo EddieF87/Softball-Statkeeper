@@ -9,6 +9,7 @@ import java.util.Comparator;
  * Created by Eddie on 12/3/2017.
  */
 
+@SuppressWarnings("unused")
 public class StatKeepUser implements Parcelable {
 
     private String id;

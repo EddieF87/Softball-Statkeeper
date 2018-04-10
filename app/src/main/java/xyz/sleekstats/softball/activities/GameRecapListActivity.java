@@ -10,7 +10,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -36,7 +35,6 @@ public class GameRecapListActivity extends AppCompatActivity implements LoaderMa
     private GameRecapRecyclerViewAdapter mAdapter;
     private RecyclerView mRecyclerView;
     private Spinner mTeamSpinner;
-    private ArrayAdapter<String> mSpinnerAdapter;
     private List<GameRecap> mGameRecaps;
     private Map<String, String> mTeamNames;
     private Map<Integer, String> mSpinnerMap;
@@ -50,7 +48,6 @@ public class GameRecapListActivity extends AppCompatActivity implements LoaderMa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game_recap_list);
-        Log.d("zztop", "        super.onCreate(savedInstanceState);\n");
 
         try {
             MyApp myApp = (MyApp) getApplicationContext();
@@ -142,7 +139,7 @@ public class GameRecapListActivity extends AppCompatActivity implements LoaderMa
                 i++;
             }
             if(mSelectionType != MainPageSelection.TYPE_TEAM) {
-                mSpinnerAdapter = new ArrayAdapter<>(this,
+                ArrayAdapter<String> mSpinnerAdapter = new ArrayAdapter<>(this,
                         R.layout.spinner_layout, teamsArray);
                 mTeamSpinner.setAdapter(mSpinnerAdapter);
                 if(mSelectionArg != null) {

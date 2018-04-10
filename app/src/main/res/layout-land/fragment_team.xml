@@ -15,8 +15,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_weight="4"
@@ -25,11 +23,12 @@
         android:maxLines="1"
         android:textAlignment="center"
         android:textSize="30sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@+id/teamRecord"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:targetApi="o"
-        tools:text="teambitres" />
+        tools:text="abcdefghijklmnopqrst" />
 
     <TextView
         android:id="@+id/teamRecord"
@@ -74,7 +73,6 @@
         app:layout_constraintTop_toTopOf="@+id/teamName" />
 
     <FrameLayout
-        android:id="@+id/frameLayout2"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginBottom="8dp"

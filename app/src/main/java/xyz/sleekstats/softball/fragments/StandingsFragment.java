@@ -175,10 +175,12 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
         data.moveToPosition(-1);
         while (data.moveToNext()) {
             mTeams.add(new Team(data));
+
         }
         if(mTeams.isEmpty()) {
             setRVVisibility(false);
         } else {
+            Collections.sort(mTeams, Team.winpctComparator());
             setRVVisibility(true);
             updateStandingsRV();
         }

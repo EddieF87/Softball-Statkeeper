@@ -113,9 +113,9 @@ public class GameRecapRecyclerViewAdapter extends RecyclerView.Adapter<GameRecap
         return position;
     }
 
-    public void goToPlay(){
-
-    }
+//    public void goToPlay(){
+//
+//    }
 
     static class RecapViewHolder extends RecyclerView.ViewHolder {
         final FrameLayout mFrameLayout;

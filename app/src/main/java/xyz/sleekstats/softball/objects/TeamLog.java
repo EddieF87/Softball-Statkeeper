@@ -4,6 +4,7 @@ package xyz.sleekstats.softball.objects;
  * Created by Eddie on 11/3/2017.
  */
 
+@SuppressWarnings("unused")
 public class TeamLog {
 
     private long id;

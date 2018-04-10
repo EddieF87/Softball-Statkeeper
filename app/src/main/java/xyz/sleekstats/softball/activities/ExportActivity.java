@@ -64,7 +64,7 @@ public abstract class ExportActivity extends AppCompatActivity {
         }
     }
 
-    public void startBoxscoreExport(long id) {
+    void startBoxscoreExport(long id) {
         mGameID = id;
         exportType = KEY_BOXSCORE;
         if (!checkPermission()) {
@@ -216,9 +216,9 @@ public abstract class ExportActivity extends AppCompatActivity {
 
             String playerID = StatsContract.getColumnString(playerCursor, StatsEntry.COLUMN_FIRESTORE_ID);
             int hr =  StatsContract.getColumnInt(playerCursor, StatsEntry.COLUMN_HR);
-            int tpl = StatsContract.getColumnInt(playerCursor, StatsEntry.COLUMN_3B);;
-            int dbl = StatsContract.getColumnInt(playerCursor, StatsEntry.COLUMN_2B);;
-            int sgl = StatsContract.getColumnInt(playerCursor, StatsEntry.COLUMN_1B);;
+            int tpl = StatsContract.getColumnInt(playerCursor, StatsEntry.COLUMN_3B);
+            int dbl = StatsContract.getColumnInt(playerCursor, StatsEntry.COLUMN_2B);
+            int sgl = StatsContract.getColumnInt(playerCursor, StatsEntry.COLUMN_1B);
             int bb =  StatsContract.getColumnInt(playerCursor, StatsEntry.COLUMN_BB);
             int out = StatsContract.getColumnInt(playerCursor, StatsEntry.COLUMN_OUT);
             int rbi = StatsContract.getColumnInt(playerCursor, StatsEntry.COLUMN_RBI);

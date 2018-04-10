@@ -2,7 +2,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:baselineAligned="false">
 
     <LinearLayout
         android:layout_width="0dp"
@@ -11,7 +12,6 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/innings_title"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginTop="8dp"
@@ -83,20 +83,22 @@
 
     <LinearLayout
         android:layout_width="0dp"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
         android:orientation="vertical"
         android:padding="8dp"
         android:gravity="center"
+        android:layout_gravity="center"
         >
 
         <TextView
+            android:id="@+id/help_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginBottom="8dp"
             android:gravity="center"
-            android:text="In-game help"
+            android:text="@string/in_game_help"
             android:textSize="18sp" />
 
         <ToggleButton
@@ -106,12 +108,11 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             android:layout_marginStart="16dp"
-            android:layout_weight="0"
             android:checked="true"
             android:paddingBottom="0dp"
             android:paddingTop="0dp"
-            android:textOff="Off"
-            android:textOn="On"
+            android:textOff="@string/OFF"
+            android:textOn="@string/ON"
             android:textSize="14sp"
             android:textStyle="bold" />
 

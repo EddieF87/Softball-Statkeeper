@@ -4,14 +4,12 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,11 +17,6 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import com.firebase.ui.auth.AuthUI;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 
 import java.text.DateFormat;
 import java.util.HashMap;
@@ -35,7 +28,6 @@ import xyz.sleekstats.softball.adapters.BoxScorePlayerCursorAdapter;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
 import xyz.sleekstats.softball.dialogs.DeleteConfirmationDialog;
-import xyz.sleekstats.softball.dialogs.JoinOrCreateDialog;
 import xyz.sleekstats.softball.objects.MainPageSelection;
 
 public class GameRecapActivity extends ExportActivity
@@ -45,7 +37,6 @@ DeleteConfirmationDialog.OnFragmentInteractionListener {
     private final static int PLAYER_NAME_LOADER = 11;
     private final static int AWAY_LOADER = 12;
     private final static int HOME_LOADER = 13;
-    private Map<String, String> mPlayerNames;
     private BoxScorePlayerCursorAdapter awayAdapter;
     private BoxScorePlayerCursorAdapter homeAdapter;
     private long mGameID;
@@ -158,7 +149,7 @@ DeleteConfirmationDialog.OnFragmentInteractionListener {
                 homeAdapter.swapCursor(data);
                 break;
             case PLAYER_NAME_LOADER:
-                mPlayerNames = new HashMap<>();
+                Map<String, String> mPlayerNames = new HashMap<>();
                 while (data.moveToNext()) {
                     String teamID = StatsContract.getColumnString(data, StatsEntry.COLUMN_FIRESTORE_ID);
                     String teamName = StatsContract.getColumnString(data, StatsEntry.COLUMN_NAME);

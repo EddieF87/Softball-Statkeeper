@@ -1,5 +1,6 @@
 package xyz.sleekstats.softball.dialogs;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -57,7 +58,7 @@ public class EditNameDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_edit_name, null);
+        @SuppressLint("InflateParams") View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_edit_name, null);
         mEditText = view.findViewById(R.id.username);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());

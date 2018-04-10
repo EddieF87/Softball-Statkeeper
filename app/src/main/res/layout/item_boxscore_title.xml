@@ -30,57 +30,46 @@
         tools:targetApi="o" />
 
     <TextView
-        android:id="@+id/bs_ab_title"
         style="@style/BoxScoreTitleStyle"
         android:text="@string/ab"/>
 
     <TextView
-        android:id="@+id/bs_run_title"
         style="@style/BoxScoreTitleStyle"
         android:text="@string/r" />
 
     <TextView
-        android:id="@+id/bs_hit_title"
         style="@style/BoxScoreTitleStyle"
         android:text="@string/h" />
 
     <TextView
-        android:id="@+id/bs_rbi_title"
         style="@style/BoxScoreTitleStyle"
         android:text="@string/rbi" />
 
     <TextView
-        android:id="@+id/bs_hr_title"
         style="@style/BoxScoreTitleStyle"
         android:text="@string/hr" />
 
     <TextView
-        android:id="@+id/bs_tpl_title"
         style="@style/BoxScoreTitleStyle"
         android:text="@string/_3b" />
 
     <TextView
-        android:id="@+id/bs_dbl_title"
         style="@style/BoxScoreTitleStyle"
         android:text="@string/_2b" />
 
     <TextView
-        android:id="@+id/bs_sgl_title"
         style="@style/BoxScoreTitleStyle"
         android:text="@string/_1b" />
 
     <TextView
-        android:id="@+id/bs_bb_title"
         style="@style/BoxScoreTitleStyle"
         android:text="@string/bb" />
 
     <TextView
-        android:id="@+id/bs_sf_title"
         style="@style/BoxScoreTitleStyle"
         android:text="@string/sf" />
 
     <TextView
-        android:id="@+id/bs_out_title"
         style="@style/BoxScoreTitleStyle"
         android:text="@string/out" />
 </LinearLayout>

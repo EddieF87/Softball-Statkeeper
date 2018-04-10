@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/spinnerTarget"
     style="@style/SpinnerMatchup"
-    android:drawableEnd="@drawable/ic_reorder_white_500_24dp" />
+    android:drawableEnd="@drawable/ic_reorder_white_500_24dp"
+    android:textSize="18sp" />

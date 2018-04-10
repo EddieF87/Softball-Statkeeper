@@ -114,7 +114,7 @@ public class MyLineupAdapter extends DragItemAdapter<Pair<Long, Player>, MyLineu
     class ViewHolder extends DragItemAdapter.ViewHolder  {
         final TextView mText;
 
-        public ViewHolder(final View itemView) {
+        ViewHolder(final View itemView) {
             super(itemView, mGrabHandleId, mDragOnLongPress);
             mText = itemView.findViewById(R.id.lineup_text);
         }

@@ -234,6 +234,8 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
     }
 
     public void reloadStats() {
+        teamFilter = KEY_ALL_TEAMS;
+        genderFilter = null;
         getLoaderManager().restartLoader(STATS_LOADER, null, this);
     }
 

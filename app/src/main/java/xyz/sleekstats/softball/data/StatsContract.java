@@ -22,6 +22,7 @@ public class StatsContract {
     public static final String PATH_BOXSCORE_PLAYERS = "boxscoreplayers";
     public static final String PATH_BOXSCORE_OVERVIEWS = "boxscoreoverviews";
 
+    @SuppressWarnings("unused")
     public StatsContract() {
     }
 

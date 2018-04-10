@@ -74,12 +74,16 @@
             android:parentActivityName=".activities.TeamManagerActivity"
             android:screenOrientation="portrait" />
         <activity android:name=".activities.TeamPagerActivity" />
-        <activity android:name=".activities.PlayerPagerActivity" />
+        <activity android:name=".activities.PlayerPagerActivity"
+            android:theme="@style/WhiteTheme"
+            />
         <activity
             android:name=".activities.TeamManagerActivity"
             android:launchMode="singleTask"
             android:parentActivityName=".activities.MainActivity" />
-        <activity android:name=".activities.PlayerManagerActivity" />
+        <activity android:name=".activities.PlayerManagerActivity"
+            android:theme="@style/WhiteTheme"
+            />
         <activity
             android:name=".activities.UsersActivity"
             android:screenOrientation="portrait" />

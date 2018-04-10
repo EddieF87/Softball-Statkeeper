@@ -12,7 +12,6 @@ import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.objects.ItemMarkedForDeletion;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Eddie on 2/2/2018.

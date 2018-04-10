@@ -11,7 +11,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
@@ -256,7 +255,6 @@ public class TeamManagerActivity extends ExportActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         try {
             super.onActivityResult(requestCode, resultCode, data);
-            Log.d("megaman", "teamManagerActivity onActivityResult" + resultCode);
             if (requestCode == PlayerStatsAdapter.REQUEST_CODE) {
                 switch (resultCode) {
                     case RESULT_OK:
@@ -316,7 +314,6 @@ public class TeamManagerActivity extends ExportActivity
                         break;
                 }
             } else if (requestCode == GameActivity.REQUEST_CODE_GAME && resultCode == GameActivity.RESULT_CODE_GAME_FINISHED) {
-                Log.d("megaman", "LeagueManagerActivity onActivityResult  GAME COMPLETE" + requestCode + resultCode);
                 updateStats(data);
             }
         } catch (Exception ex) {
@@ -413,7 +410,6 @@ public class TeamManagerActivity extends ExportActivity
         if (localUpdateFinish) {
             localUpdate = 4;
             Toast.makeText(TeamManagerActivity.this, R.string.stat_update_success, Toast.LENGTH_SHORT).show();
-            Log.d("megaman", "TOAST UPDATE");
             if (teamFragment != null) {
                 teamFragment.reloadStats();
             }
@@ -421,14 +417,12 @@ public class TeamManagerActivity extends ExportActivity
         if (firestoreUpdateFinish) {
             firestoreUpdate = 3;
             Toast.makeText(TeamManagerActivity.this, "Stats have been uploaded to cloud!", Toast.LENGTH_SHORT).show();
-            Log.d("megaman", "TOAST UPDATE");
         }
         if (localUpdateFinish && firestoreUpdateFinish) {
             if(mReceiver != null){
                 mReceiver.setReceiver(null);
             }
         }
-        Log.d("megaman", "receiver got msg: " + resultCode);
     }
 
     @Override

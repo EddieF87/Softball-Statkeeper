@@ -2,7 +2,6 @@ package xyz.sleekstats.softball.data;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 public final class GameUpdateIntentMaker {
 

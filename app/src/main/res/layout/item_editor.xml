@@ -25,8 +25,8 @@
         android:textStyle="bold"
         android:background="@drawable/genderselector"
         android:textColor="@color/colorDefault"
-        android:textOff="M"
-        android:textOn="F"
+        android:textOff="@string/m"
+        android:textOn="@string/f"
         />
 
 </LinearLayout>

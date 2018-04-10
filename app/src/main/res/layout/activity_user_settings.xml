@@ -95,12 +95,13 @@
         android:paddingEnd="16dp"
         android:drawableTint="@color/colorAccent"
         android:gravity="center"
-        android:text="Set User Access"
+        android:text="@string/set_user_access"
         android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/my_access_level" />
+        app:layout_constraintTop_toBottomOf="@id/my_access_level"
+        tools:targetApi="m" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv_users"

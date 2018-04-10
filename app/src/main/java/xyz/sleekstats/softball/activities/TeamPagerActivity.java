@@ -1,8 +1,6 @@
 package xyz.sleekstats.softball.activities;
 
 import android.content.Intent;
-import android.support.annotation.Nullable;
-import android.os.Bundle;
 import android.widget.Toast;
 
 import xyz.sleekstats.softball.adapters.PlayerStatsAdapter;
@@ -11,11 +9,6 @@ import xyz.sleekstats.softball.data.TimeStampUpdater;
 import xyz.sleekstats.softball.fragments.TeamFragment;
 
 public class TeamPagerActivity extends ObjectPagerActivity {
-
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
 
     @Override
     protected void onStart() {

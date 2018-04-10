@@ -20,6 +20,7 @@ import static xyz.sleekstats.softball.data.StatsContract.getColumnString;
  *
  * @author Eddie
  */
+@SuppressWarnings("unused")
 public class Team implements Parcelable {
 
     private long teamId;

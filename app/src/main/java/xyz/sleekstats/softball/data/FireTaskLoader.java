@@ -40,7 +40,6 @@ public class FireTaskLoader extends android.support.v4.content.AsyncTaskLoader<Q
     public QuerySnapshot loadInBackground() {
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         String userId = mAuth.getCurrentUser().getUid();
-        Log.d("godzilla", "firetaskloader");
 
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
                 .setPersistenceEnabled(false)
@@ -51,8 +50,7 @@ public class FireTaskLoader extends android.support.v4.content.AsyncTaskLoader<Q
         try {
             firestore.setFirestoreSettings(settings);
         } catch (Exception e) {
-            Log.d("godzilla", "catch (Exception  " + e.toString());
-            Log.e("zztop", e.toString());
+            Log.e("errorlog", e.toString());
         }
 
         Task<QuerySnapshot> task;
@@ -63,15 +61,11 @@ public class FireTaskLoader extends android.support.v4.content.AsyncTaskLoader<Q
             Tasks.await(task);
 
             if(task.isSuccessful()) {
-                Log.d("godzilla", "taskisSuccessful");
                 if(isLoadInBackgroundCanceled()) {
-                    Log.d("godzilla", "isLoadInBackgroundCanceled");
                     return null;
                 }
-                Log.d("godzilla", "taskisSuccessfultask.getResult");
                 return task.getResult();
             } else {
-                Log.d("godzilla", "taskFAIL");
                 return null;
             }
 
@@ -81,10 +75,6 @@ public class FireTaskLoader extends android.support.v4.content.AsyncTaskLoader<Q
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-//
-//        while (!task.isComplete()) {
-//        }
-        Log.d("godzilla", "return null;");
         return null;
     }
 

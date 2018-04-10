@@ -72,6 +72,7 @@
     <string name="lineup">Lineup</string>
     <string name="submit_lineup">Submit Lineup</string>
     <string name="OFF">OFF</string>
+    <string name="ON">ON</string>
     <string name="Innings">Innings</string>
     <string name="set_gender_lineup">Lineup Gender Requirements</string>
     <string name="game_settings">Game Settings</string>
@@ -94,7 +95,7 @@
     <string name="rs">RS</string>
     <string name="winpct">Win%</string>
     <string name="exit_game">Exit Game</string>
-    <string name="load_from_cache">If you can\'t wait, you can load from cache, but some stats may be incomplete!</string>
+    <string name="load_from_cache_desc">If you can\'t wait, you can load from cache, but some stats may be incomplete!</string>
     <string name="load">Load</string>
     <string name="back">Back</string>
     <string name="edit_gender">Edit Gender</string>
@@ -102,13 +103,10 @@
     <string name="create_statkeeper">Welcome to SleekStats-Softball.\n\nKeep stats for a player, team, or entire league!\n\nPlease create a new StatKeeper!</string>
     <string name="creator">Creator</string>
     <string name="create_a_new_statkeeper">Create a new StatKeeper!</string>
-    <string name="keep_stats_for_a_player_team_or_entire_league">Keep stats for a player, team, or entire league!</string>
     <string name="error_with_loading">Error with loading</string>
     <string name="welcome_to_statkeeper">SleekStats Softball</string>
     <string name="my_statkeepers">My StatKeepers</string>
     <string name="please_enter_name_first">Please enter a name first!</string>
-    <string name="create">Create</string>
-    <string name="join">Join</string>
     <string name="add_team_players">Add Team/Players</string>
     <string name="step_2_choose_at_bat_result">Step 2: Choose at bat result</string>
     <string name="step_3_submit_play">Step 3: Submit play</string>
@@ -130,7 +128,6 @@
     <string name="email_users">Email Users</string>
     <string name="created_by">Created By</string>
     <string name="invite_friends">Invite Friends!</string>
-    <string name="statkeeper_code">StatKeeper Code:</string>
     <string name="undo_button">Undo Button</string>
     <string name="redo_button">Redo Button</string>
     <string name="infield">Infield</string>
@@ -144,7 +141,6 @@
     <string name="add_result_button">add result button</string>
     <string name="top_of_inning">top of inning</string>
     <string name="bottom_of_inning">bottom of inning</string>
-    <string name="enter_statkeeper_code">Enter StatKeeper Code</string>
     <string name="choose_diff_teams_text">Please choose different teams.</string>
     <string name="sign_in_to_start_text">Welcome to SleekStats-Softball.\n\nKeep stats for a player, team, or entire league!\n\nPLEASE SIGN IN!</string>
     <string name="total">Total</string>
@@ -152,23 +148,28 @@
     <string name="sac_bunt">Sac Bunt</string>
     <string name="runs">Runs Scored</string>
     <string name="asset_statements" translatable="false">[{\n  \"relation\": [\"delegate_permission/common.handle_all_urls\"],\n  \"target\": {\n    \"namespace\": \"web\",\n    \"site\": \"https://seekstats.xyz\",\n  }\n}]</string>
-    <string name="reload">Re-Upload</string>
     <string name="change_game_length">Set Innings</string>
     <string name="accept">Accept</string>
     <string name="games">Games</string>
-    <string name="game_edit">Game:</string>
-    <string name="player_edit">Player:</string>
     <string name="open_stat_manager">Open Stat Manager</string>
-    <string name="edit">Edit</string>
     <string name="close_stat_manager">Close Stat Manager</string>
     <string name="delete_recap">Delete</string>
     <string name="stat_update_success">Stats have been successfully updated.</string>
-    <string name="check_connection">Please make sure you have a working data connection.</string>
-    <string name="cloud_error">Cloud database error!</string>
     <string name="cloud_fail">Cloud database error! Please make sure you have a working data connection.</string>
     <string name="retry">Retry</string>
     <string name="no_data_connection">No Data Connection</string>
     <string name="connection_warning">You can load from cache, but a data connection is recommended in order to ensure stats are up to date.</string>
     <string name="unable_to_connect">Unable to Connect to Database</string>
     <string name="check_connection_and_retry">Please check your data connection and try again.</string>
+    <string name="type_">Type:</string>
+    <string name="level_">Level:</string>
+    <string name="in_game_help_">In-game help:</string>
+    <string name="set_user_access">Set User Access</string>
+    <string name="retry_load">Retry Load</string>
+    <string name="load_from_cache">Load from Cache</string>
+    <string name="in_game_help">In-game help</string>
+    <string name="item">Item</string>
+    <string name="delete_">Delete?</string>
+    <string name="m">M</string>
+    <string name="f">F</string>
 </resources>

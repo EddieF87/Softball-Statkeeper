@@ -16,7 +16,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -24,7 +23,6 @@ import xyz.sleekstats.softball.MyApp;
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.adapters.MatchupAdapter;
 import xyz.sleekstats.softball.data.StatsContract;
-import xyz.sleekstats.softball.data.TimeStampUpdater;
 import xyz.sleekstats.softball.objects.BaseLog;
 
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
@@ -39,7 +37,6 @@ import java.util.List;
  */
 public class LeagueGameActivity extends GameActivity {
 
-    private static final String TAG = "undoredofix";
     private List<Player> awayTeam;
     private List<Player> homeTeam;
     private String awayTeamID;
@@ -199,7 +196,6 @@ public class LeagueGameActivity extends GameActivity {
         values.put(StatsEntry.INNINGS, inningNumber);
         values.put(StatsEntry.COLUMN_LEAGUE_ID, mSelectionID);
         getContentResolver().insert(StatsEntry.CONTENT_URI_GAMELOG, values);
-        Log.d(TAG, gameLogIndex +  " " + values.toString());
 
         setLineupRVPosition(false);
 
@@ -306,7 +302,6 @@ public class LeagueGameActivity extends GameActivity {
     protected void updateGameLogs() {
         String previousBatterID = currentBatter.getFirestoreID();
         currentBatter = currentTeam.get(getIndex());
-        Log.d("xxx", "updateGameLogs: " + currentBatter.getName());
 
         BaseLog currentBaseLogEnd = new BaseLog(currentTeam, currentBatter, firstDisplay.getText().toString(),
                 secondDisplay.getText().toString(), thirdDisplay.getText().toString(),
@@ -322,10 +317,8 @@ public class LeagueGameActivity extends GameActivity {
         int team;
         if (currentTeam == awayTeam) {
             team = 0;
-            Log.d("xxx", "team = 0;");
         } else {
             team = 1;
-            Log.d("xxx", "team = 1;");
         }
 
         String onDeck = currentBatter.getFirestoreID();
@@ -408,7 +401,6 @@ public class LeagueGameActivity extends GameActivity {
         exitIntent.putExtra(StatsEntry.COLUMN_HOME_TEAM, homeTeamID);
         exitIntent.putExtra(StatsEntry.COLUMN_AWAY_RUNS, awayTeamRuns);
         exitIntent.putExtra(StatsEntry.COLUMN_HOME_RUNS, homeTeamRuns);
-        Log.d("megaman", "sendResultToMgr");
         setResult(RESULT_CODE_GAME_FINISHED, exitIntent);
         finish();
     }
@@ -419,15 +411,6 @@ public class LeagueGameActivity extends GameActivity {
         String undoResult;
         if (gameLogIndex > lowestIndex) {
             undoResult = getUndoPlayResult();
-            String ondeckbt;
-            if(currentBatter == null) {
-                ondeckbt = "null";
-            } else {
-                ondeckbt = currentBatter.getFirestoreID();
-            }
-            Log.d(TAG, gameLogIndex + " UNDO=" + undoResult + "   " + StatsEntry.COLUMN_BATTER
-                    + "= " + tempBatter + "  " + StatsEntry.COLUMN_ONDECK + "  " + ondeckbt +
-                    "   innchanged?" + (inningChanged == 1));
             if (inningChanged == 1) {
                 inningNumber--;
                 setInningDisplay();
@@ -463,15 +446,6 @@ public class LeagueGameActivity extends GameActivity {
         if(redoResult == null) {
             return;
         }
-        String ondeckbt;
-        if(currentBatter == null) {
-            ondeckbt = "null";
-        } else {
-            ondeckbt = currentBatter.getFirestoreID();
-        }
-        Log.d(TAG, gameLogIndex + " REDO=" + redoResult + "   " + StatsEntry.COLUMN_BATTER
-                + "= " + tempBatter + "  " + StatsEntry.COLUMN_ONDECK + "  " + ondeckbt +
-                "   innchanged?" + (inningChanged == 1));
         currentTeam = currentBaseLogStart.getTeam();
         if (inningChanged == 1) {
             inningNumber++;

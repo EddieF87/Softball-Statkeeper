@@ -1,5 +1,6 @@
 package xyz.sleekstats.softball.activities;
 
+import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -17,7 +18,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.DragEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -54,7 +54,6 @@ public abstract class GameActivity extends AppCompatActivity
         GameSettingsDialog.OnFragmentInteractionListener {
 
     Cursor gameCursor;
-    private static final String TAG = "UNDOREDOFIX";
 
     TextView scoreboardAwayName;
     TextView scoreboardHomeName;
@@ -142,12 +141,12 @@ public abstract class GameActivity extends AppCompatActivity
     public static final int RESULT_CODE_GAME_FINISHED = 222;
     public static final int REQUEST_CODE_GAME = 111;
     public static final int RESULT_CODE_EDITED = 444;
-    public static final int REQUEST_CODE_EDIT = 333;
+    static final int REQUEST_CODE_EDIT = 333;
 
     String mSelectionID;
-    Toast mCurrentToast;
-    MyTouchListener myTouchListener = new MyTouchListener();
-    MyDragListener myDragListener = new MyDragListener();
+    private Toast mCurrentToast;
+    private final MyTouchListener myTouchListener = new MyTouchListener();
+    private final MyDragListener myDragListener = new MyDragListener();
     private boolean gameHelp;
 
     @Override
@@ -156,14 +155,12 @@ public abstract class GameActivity extends AppCompatActivity
         getSelectionData();
         setCustomViews();
         setViews();
-        Log.d("megaman", "game onCreate");
 
         String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
         String[] selectionArgs = new String[]{mSelectionID};
         gameCursor = getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG, null,
                 selection, selectionArgs, null);
         if (gameCursor.moveToFirst()) {
-            Log.d("megaman", "ameCursor.moveToFirst");
             loadGamePreferences();
             Bundle args = getIntent().getExtras();
             if (args != null) {
@@ -400,7 +397,6 @@ public abstract class GameActivity extends AppCompatActivity
     }
 
     private void setBaseListeners() {
-        Log.d("zztop", "setBaseListeners");
         if (firstDisplay.getText().toString().isEmpty()) {
             firstDisplay.setOnTouchListener(null);
             firstDisplay.setOnDragListener(myDragListener);
@@ -514,10 +510,10 @@ public abstract class GameActivity extends AppCompatActivity
         inningChanged = 0;
     }
 
-    void showToast(String text)
+    @SuppressLint("ShowToast")
+    private void showToast(String text)
     {
-        if(mCurrentToast == null)
-        {
+        if(mCurrentToast == null) {
             mCurrentToast = Toast.makeText(this, text, Toast.LENGTH_SHORT);
         }
         mCurrentToast.setText(text);
@@ -541,7 +537,6 @@ public abstract class GameActivity extends AppCompatActivity
         values.put(StatsEntry.COLUMN_INNING_CHANGED, inningChanged);
         values.put(StatsEntry.INNINGS, inningNumber);
         values.put(StatsEntry.COLUMN_OUT, gameOuts);
-        Log.d(TAG, gameLogIndex +  " " + values.toString());
         values.put(StatsEntry.COLUMN_1B, first);
         values.put(StatsEntry.COLUMN_2B, second);
         values.put(StatsEntry.COLUMN_3B, third);
@@ -583,52 +578,7 @@ public abstract class GameActivity extends AppCompatActivity
 
 
     private void endGame() {
-        Log.d("megaman", "endGame");
-//        firestoreUpdate();
-
-//        deleteTempData();
-
         sendResultToMgr();
-    }
-
-    protected void transferStats(long gameID){
-        String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
-        String[] selectionArgs = new String[]{mSelectionID};
-        Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEMP, null,
-                selection, selectionArgs, null);
-        while (cursor.moveToNext()) {
-            Log.d("zztop", "player backup");
-
-            String playerFirestoreID = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_FIRESTORE_ID);
-            String teamFirestoreID = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_TEAM_FIRESTORE_ID);
-            int playerId = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_PLAYERID);
-            int game1b = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_1B);
-            int game2b = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_2B);
-            int game3b = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_3B);
-            int gameHR = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_HR);
-            int gameRBI = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_RBI);
-            int gameRun = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_RUN);
-            int gameBB = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_BB);
-            int gameOuts = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_OUT);
-            int gameSF = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_SF);
-
-            ContentValues backupValues = new ContentValues();
-            backupValues.put(StatsEntry.COLUMN_LEAGUE_ID, mSelectionID);
-            backupValues.put(StatsEntry.COLUMN_GAME_ID, gameID);
-            backupValues.put(StatsEntry.COLUMN_FIRESTORE_ID, playerFirestoreID);
-            backupValues.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, teamFirestoreID);
-            backupValues.put(StatsEntry.COLUMN_PLAYERID, playerId);
-            backupValues.put(StatsEntry.COLUMN_1B, game1b);
-            backupValues.put(StatsEntry.COLUMN_2B, game2b);
-            backupValues.put(StatsEntry.COLUMN_3B, game3b);
-            backupValues.put(StatsEntry.COLUMN_HR, gameHR);
-            backupValues.put(StatsEntry.COLUMN_RUN, gameRun);
-            backupValues.put(StatsEntry.COLUMN_RBI, gameRBI);
-            backupValues.put(StatsEntry.COLUMN_BB, gameBB);
-            backupValues.put(StatsEntry.COLUMN_OUT, gameOuts);
-            backupValues.put(StatsEntry.COLUMN_SF, gameSF);
-            getContentResolver().insert(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, backupValues);
-        }
     }
 
     void showFinishGameDialog() {
@@ -659,8 +609,6 @@ public abstract class GameActivity extends AppCompatActivity
 
     //sets the textview displays with updated player/game data
     void setDisplays() {
-        Log.d("pinkfloyd", "setDisplays");
-
         String playerFirestoreID = currentBatter.getFirestoreID();
 
         Player inGamePlayer = getPlayerFromCursor(StatsEntry.CONTENT_URI_TEMP, playerFirestoreID);
@@ -1121,7 +1069,6 @@ public abstract class GameActivity extends AppCompatActivity
             final View eventView = (View) event.getLocalState();
             switch (action) {
                 case DragEvent.ACTION_DRAG_STARTED:
-                    Log.d("zztop", "ACTION_DRAG_STARTED");
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         switch (v.getId()) {
                             case R.id.home_display:
@@ -1142,7 +1089,6 @@ public abstract class GameActivity extends AppCompatActivity
                     secondDisplay.setOnTouchListener(null);
                     thirdDisplay.setOnTouchListener(null);
                     homeDisplay.setOnTouchListener(null);
-                    Log.d("zztop", "ACTION_DROP");
                     String movedPlayer = "";
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         switch (v.getId()) {
@@ -1170,7 +1116,6 @@ public abstract class GameActivity extends AppCompatActivity
                             batterMoved = true;
                             if (playEntered) {
                                 enableSubmitButton();
-//                                Log.d("zztop", "enableSubmitButton");
                             }
                         }
                         tempOuts++;
@@ -1239,13 +1184,9 @@ public abstract class GameActivity extends AppCompatActivity
                     mResetListeners = true;
                     break;
                 case DragEvent.ACTION_DRAG_ENDED:
-                    Log.d("zztop", "ACTION_DRAG_ENDED1");
                     View dragView = (View) event.getLocalState();
                     if(dragView != null) {
                         dragView.setAlpha(1f);
-                        Log.d("zztop", "dragView != null");
-                    } else {
-                        Log.d("zztop", "dragView == NULLLLLLLLLLLLLL");
                     }
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         switch (v.getId()) {
@@ -1263,7 +1204,6 @@ public abstract class GameActivity extends AppCompatActivity
                         mResetListeners = false;
                         setBaseListeners();
                     }
-                    Log.d("zztop", "ACTION_DRAG_ENDED2");
                     break;
             }
             return true;
@@ -1274,9 +1214,7 @@ public abstract class GameActivity extends AppCompatActivity
 
         @Override
         public boolean onTouch(View view, MotionEvent event) {
-            Log.d("zztop", "onTouch");
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                Log.d("zztop", "onTouchDOWN");
                 setBaseListeners();
 
                 view.setAlpha(.1f);
@@ -1415,7 +1353,7 @@ public abstract class GameActivity extends AppCompatActivity
         setRedoButton();
     }
 
-    void setUndoButton() {
+    private void setUndoButton() {
         boolean undo = gameLogIndex > lowestIndex;
         undoButton.setClickable(undo);
         if (undo) {
@@ -1425,10 +1363,9 @@ public abstract class GameActivity extends AppCompatActivity
         }
     }
 
-    void setRedoButton() {
+    private void setRedoButton() {
         boolean redo = gameLogIndex < highestIndex;
         redoButton.setClickable(redo);
-        Log.d("phil", "redoButton.setClickable(" + redo + ")   gameLogIndex=" + gameLogIndex + "   highestIndex=" + highestIndex);
         if (redo) {
             redoButton.setAlpha(1f);
         } else {
@@ -1503,16 +1440,13 @@ public abstract class GameActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d("megaman", "game onActivityResult");
         if(requestCode == REQUEST_CODE_EDIT) {
-            Log.d("megaman", "requestCode == REQUEST_CODE_EDIT");
             String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
             String[] selectionArgs = new String[]{mSelectionID};
             gameCursor = getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG, null,
                     selection, selectionArgs, null);
             gameCursor.moveToFirst();
             if (resultCode == RESULT_CODE_EDITED) {
-                Log.d("megaman", "resultCode == RESULT_CODE_EDITED");
                 lowestIndex = gameLogIndex;
                 getSelectionData();
                 setCustomViews();

@@ -62,7 +62,7 @@ public class UsersActivity extends AppCompatActivity
         implements InviteUserDialog.OnFragmentInteractionListener,
         EmailInviteDialog.OnListFragmentInteractionListener,
         CancelLoadDialog.OnListFragmentInteractionListener,
-RetryUserLoadDialog.OnFragmentInteractionListener,
+        RetryUserLoadDialog.OnFragmentInteractionListener,
         UserListAdapter.AdapterListener {
 
     private static final String SAVED_MAP = "map";
@@ -81,7 +81,6 @@ RetryUserLoadDialog.OnFragmentInteractionListener,
     private StatKeepUser mCreator;
 
     private RecyclerView mRecyclerView;
-    private UserListAdapter mAdapter;
 
     private Button startAdderBtn;
     private Button saveBtn;
@@ -94,7 +93,8 @@ RetryUserLoadDialog.OnFragmentInteractionListener,
     private int mLevel;
 
     private CancelLoadDialog mCancelLoadDialog;
-    boolean loadingUri;
+    private boolean loadingUri;
+    private RetryUserLoadDialog mRetryDialog;
 
     private final UsersActivity.MyHandler mHandler = new UsersActivity.MyHandler(this);
 
@@ -173,6 +173,9 @@ RetryUserLoadDialog.OnFragmentInteractionListener,
 
                         mProgressBar.setVisibility(View.GONE);
                         if (task.isSuccessful()) {
+                            if(mRetryDialog != null) {
+                                mRetryDialog.dismissIfShowing();
+                            }
                             mRecyclerView.setVisibility(View.VISIBLE);
                             mOriginalLevelsMap = new HashMap<>();
                             mUserList = new ArrayList<>();
@@ -195,6 +198,10 @@ RetryUserLoadDialog.OnFragmentInteractionListener,
                                         mUserList.add(statKeepUser);
                                     }
                                 }
+                            }
+                            if(mCreator == null && mUserList.isEmpty() && !myEmailSet) {
+                                openRetryDialog();
+                                return;
                             }
                             if(mLevel < LEVEL_ADMIN){
                                 myEmailSet = true;
@@ -232,7 +239,7 @@ RetryUserLoadDialog.OnFragmentInteractionListener,
     private void updateRV() {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(
                 this, LinearLayoutManager.VERTICAL, false));
-        mAdapter = new UserListAdapter(mUserList, this, mLevel);
+        UserListAdapter mAdapter = new UserListAdapter(mUserList, this, mLevel);
         mRecyclerView.setAdapter(mAdapter);
     }
 
@@ -391,20 +398,10 @@ RetryUserLoadDialog.OnFragmentInteractionListener,
 
     @Override
     public void onInviteUsers() {
-
-        firestore.collection(LEAGUE_COLLECTION)
-                .document(mSelectionID).collection(REQUESTS).get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot querySnapshot) {
-                DocumentSnapshot documentSnapshot = querySnapshot.getDocuments().get(0);
-                String codeText = documentSnapshot.getId();
-                createMsgInvite(codeText);
-            }
-        });
-
+        createMsgInvite();
     }
 
-    private void createMsgInvite(final String codeText) {
+    private void createMsgInvite() {
         final String selectionType;
         if (mSelectionType == MainPageSelection.TYPE_LEAGUE) {
             selectionType = "League";
@@ -420,7 +417,7 @@ RetryUserLoadDialog.OnFragmentInteractionListener,
                 .setDynamicLinkDomain("v4mcm.app.goo.gl")
                 // Open links with this app on Android
                 .setAndroidParameters(new DynamicLink.AndroidParameters.Builder()
-                        .setFallbackUrl(Uri.parse("http://play.google.com/store/apps/details?id=com.google.android.apps.maps"))
+                        .setFallbackUrl(Uri.parse("http://sleekstats.xyz"))
                         .build())
                 // Open links with com.example.ios on iOS
                 .setIosParameters(new DynamicLink.IosParameters.Builder("com.example.ios").build())
@@ -448,7 +445,7 @@ RetryUserLoadDialog.OnFragmentInteractionListener,
                             // Short link created
                             Uri shortLink = task.getResult().getShortLink();
                             Uri flowchartLink = task.getResult().getPreviewLink();
-                            sendMsgInvite(shortLink, selectionType, codeText);
+                            sendMsgInvite(shortLink);
                         } else {
                             Toast.makeText(UsersActivity.this, "Error creating link. " +
                                     "\n Please try again.", Toast.LENGTH_SHORT).show();
@@ -477,7 +474,7 @@ RetryUserLoadDialog.OnFragmentInteractionListener,
         super.onBackPressed();
     }
 
-    public void sendMsgInvite(Uri shortLink, String selectionType, String codeText) {
+    private void sendMsgInvite(Uri shortLink) {
         Intent msgIntent = new Intent(Intent.ACTION_SEND);
         msgIntent.setType("text/plain");
         msgIntent.putExtra(Intent.EXTRA_TEXT, "You're invited to view the stats & standings for "
@@ -604,12 +601,13 @@ RetryUserLoadDialog.OnFragmentInteractionListener,
     protected void onDestroy() {
         super.onDestroy();
         mHandler.removeCallbacks(retryLoadRunnable);
+        mHandler.removeCallbacksAndMessages(null);
     }
 
     private void openRetryDialog() {
         FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = new RetryUserLoadDialog();
-        newFragment.show(fragmentTransaction, "");
+        mRetryDialog = new RetryUserLoadDialog();
+        mRetryDialog.setCancelable(false);
+        fragmentManager.beginTransaction().add(mRetryDialog, null).commitAllowingStateLoss();
     }
 }

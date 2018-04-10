@@ -1,5 +1,6 @@
 package xyz.sleekstats.softball.dialogs;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -51,7 +52,7 @@ public class InviteListDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        View view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_invite_list, null);
+        @SuppressLint("InflateParams") View view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_invite_list, null);
         RecyclerView recyclerView = view.findViewById(R.id.invite_list_rv);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mAdapter = new InviteListRecyclerViewAdapter(inviteList);

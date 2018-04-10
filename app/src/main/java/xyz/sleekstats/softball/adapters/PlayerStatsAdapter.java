@@ -46,12 +46,12 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
 
     private final List<Player> players;
     private final int visibility;
-    private boolean isTeam;
+    private final boolean isTeam;
     private boolean genderSettingsOff;
     private final Context mContext;
     private int colorMale;
     private int colorFemale;
-    private String mStatKeeperID;
+    private final String mStatKeeperID;
     public static final int REQUEST_CODE = 1;
 
 

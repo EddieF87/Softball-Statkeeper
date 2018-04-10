@@ -21,9 +21,9 @@ public class TimeStampUpdater {
     public static final String UPDATE_TIME = "updatetime";
     //TIMESTAMP MAINTENANCE
 
-    public static long getNewTimeStamp() {
-        return System.currentTimeMillis();
-    }
+//    public static long getNewTimeStamp() {
+//        return System.currentTimeMillis();
+//    }
 
     public static long getLocalTimeStamp(Context context, String statKeeperID) {
         SharedPreferences updatePreferences = context.getSharedPreferences(statKeeperID + UPDATE_SETTINGS, Context.MODE_PRIVATE);

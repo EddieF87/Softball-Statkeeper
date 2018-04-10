@@ -7,6 +7,7 @@ import android.os.Parcelable;
  * Created by Eddie on 11/3/2017.
  */
 
+@SuppressWarnings("unused")
 public class PlayerLog implements Parcelable {
 
     private long id;

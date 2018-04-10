@@ -27,7 +27,7 @@ public class BoxScorePlayerCursorAdapter extends CursorAdapter {
     private Map<String, String> playerNames;
     public static final int KEY_CURRENT = 0;
     public static final int KEY_PLAYER = 1;
-    public static final int KEY_RECAP = 2;
+    private static final int KEY_RECAP = 2;
 
     public BoxScorePlayerCursorAdapter(Context context, int key) {
         super(context, null, 0 /* flags */);

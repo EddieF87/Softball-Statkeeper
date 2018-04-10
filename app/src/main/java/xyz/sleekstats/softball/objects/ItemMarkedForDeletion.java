@@ -9,6 +9,7 @@ import java.util.Comparator;
  * Created by Eddie on 2/2/2018.
  */
 
+@SuppressWarnings("unused")
 public class ItemMarkedForDeletion implements Parcelable {
 
     private String firestoreID;

@@ -30,6 +30,7 @@
             android:maxLines="1"
             android:textAlignment="center"
             android:textSize="30sp"
+            android:textStyle="bold"
             tools:targetApi="o"
             tools:text="abcdefghijklmnopqrst" />
 

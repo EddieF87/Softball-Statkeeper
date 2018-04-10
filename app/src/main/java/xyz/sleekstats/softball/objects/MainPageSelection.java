@@ -9,6 +9,7 @@ import java.util.Comparator;
  * Created by Eddie on 11/9/2017.
  */
 
+@SuppressWarnings("unused")
 public class MainPageSelection implements Parcelable {
 
     public static final String KEY_SELECTION_ID = "selectionID";
@@ -51,14 +52,17 @@ public class MainPageSelection implements Parcelable {
         return level;
     }
 
+    @SuppressWarnings("unused")
     public void setName(String name) {
         this.name = name;
     }
 
+    @SuppressWarnings("unused")
     public void setId(String id) {
         this.id = id;
     }
 
+    @SuppressWarnings("unused")
     public void setType(int type) {
         this.type = type;
     }
@@ -118,6 +122,7 @@ public class MainPageSelection implements Parcelable {
         };
     }
 
+    @SuppressWarnings("unused")
     public static Comparator<MainPageSelection> levelComparator () {
         return new Comparator<MainPageSelection>() {
             @Override

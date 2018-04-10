@@ -1,5 +1,6 @@
 package xyz.sleekstats.softball.dialogs;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -68,7 +69,7 @@ public class GameSettingsDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        View v = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_game_settings, null);
+        @SuppressLint("InflateParams") View v = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_game_settings, null);
 
         final SeekBar inningSeekBar = v.findViewById(R.id.innings_seekbar);
         mInningDisplay = v.findViewById(R.id.innings_textview);
@@ -79,7 +80,8 @@ public class GameSettingsDialog extends DialogFragment {
             v.findViewById(R.id.gender_sort_seekbar).setVisibility(View.GONE);
             v.findViewById(R.id.gender_sort_textview).setVisibility(View.GONE);
             v.findViewById(R.id.gender_sort_title).setVisibility(View.GONE);
-            v.findViewById(R.id.gamehelp_layout).setVisibility(View.GONE);
+            v.findViewById(R.id.help_text).setVisibility(View.GONE);
+            v.findViewById(R.id.toggle_help).setVisibility(View.GONE);
         }
 
 

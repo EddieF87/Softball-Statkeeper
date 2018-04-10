@@ -10,13 +10,13 @@ import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
  * Created by Eddie on 16/08/2017.
  */
 
-public class StatsDbHelper extends SQLiteOpenHelper {
+class StatsDbHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "playerstats.db";
     private static final int DATABASE_VERSION = 1;
 
 
-    public StatsDbHelper(Context context) {
+    StatsDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 

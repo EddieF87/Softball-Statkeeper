@@ -56,7 +56,7 @@
             android:id="@+id/btn_sql_load"
             android:layout_width="80dp"
             android:layout_height="48dp"
-            android:text="Load from cache"
+            android:text="@string/load_from_cache"
             android:textSize="10sp"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
@@ -68,7 +68,7 @@
             android:id="@+id/btn_retry_load"
             android:layout_width="80dp"
             android:layout_height="48dp"
-            android:text="Retry Load"
+            android:text="@string/retry_load"
             android:textSize="10sp"
             android:layout_alignParentStart="true"
             android:layout_alignParentBottom="true"
@@ -110,7 +110,8 @@
         app:layout_constraintEnd_toStartOf="@+id/textview_join_or_create"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/welcome_title"/>
+        app:layout_constraintTop_toBottomOf="@+id/welcome_title"
+        tools:targetApi="lollipop" />
 
     <TextView
         android:id="@+id/textview_join_or_create"

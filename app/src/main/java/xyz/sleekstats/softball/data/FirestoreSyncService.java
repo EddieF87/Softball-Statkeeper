@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -32,6 +31,7 @@ import java.util.Map;
 
 import xyz.sleekstats.softball.activities.UsersActivity;
 import xyz.sleekstats.softball.objects.ItemMarkedForDeletion;
+import xyz.sleekstats.softball.objects.MainPageSelection;
 import xyz.sleekstats.softball.objects.Player;
 import xyz.sleekstats.softball.objects.PlayerLog;
 import xyz.sleekstats.softball.objects.Team;
@@ -42,14 +42,10 @@ import static xyz.sleekstats.softball.data.StatsContract.StatsEntry;
 
 public class FirestoreSyncService extends IntentService {
 
-    private int playersofar;
-    private int teamssofar;
-//    private int boxscoresofar;
-    private String mStatKeeperID;
-    private String mStatKeeperName;
-    private int mStatKeeperType;
 
-    FirebaseFirestore mFirestore;
+    private String mStatKeeperID;
+
+    private FirebaseFirestore mFirestore;
 
     public static final String INTENT_CHECK_UPDATE = "checkupdate";
     public static final String INTENT_UPDATE_PLAYERS = "playerupdate";
@@ -81,7 +77,6 @@ public class FirestoreSyncService extends IntentService {
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
-        Log.d("openmike", "onHandleIntent");
         mFirestore = FirebaseFirestore.getInstance();
         this.mStatKeeperID = intent.getStringExtra(StatsEntry.COLUMN_LEAGUE_ID);
         mReceiver = intent.getParcelableExtra(StatsEntry.SYNC);
@@ -96,80 +91,62 @@ public class FirestoreSyncService extends IntentService {
         switch (action) {
             case INTENT_CHECK_UPDATE:
                 checkForUpdate();
-                Log.d("openmike", "receive INTENT_CHECK_UPDATE");
                 return;
 
             case INTENT_UPDATE_PLAYERS:
                 updatePlayers(localTimeStamp);
-                Log.d("openmike", "receive INTENT_UPDATE_PLAYERS");
                 return;
 
-                case INTENT_UPDATE_TEAMS:
-                updateTeams(localTimeStamp);
-                Log.d("openmike", "receive INTENT_UPDATE_TEAMS");
+            case INTENT_UPDATE_TEAMS:
+                String name = intent.getStringExtra(MainPageSelection.KEY_SELECTION_NAME);
+                int type = intent.getIntExtra(MainPageSelection.KEY_SELECTION_TYPE, 0);
+                updateTeams(localTimeStamp, name, type);
                 return;
 
             case INTENT_UPDATE_BOXSCORES:
                 updateBoxscores(localTimeStamp);
-                Log.d("openmike", "receive INTENT_UPDATE_BOXSCORES");
                 return;
 
             case INTENT_UPDATE_TIME:
                 updateAfterSync();
-                Log.d("openmike", "receive INTENT_UPDATE_TIME");
                 break;
 
             case INTENT_DELETION_CHECK:
                 int level = intent.getIntExtra(StatsEntry.LEVEL, 0);
                 deletionCheck(level);
-                Log.d("openmike", "receive INTENT_DELETION_CHECK");
                 return;
 
             case INTENT_DELETE_ITEMS:
                 items = intent.getParcelableArrayListExtra(StatsEntry.DELETE);
                 deleteItems(items);
-                Log.d("openmike", "receive INTENT_DELETE_ITEMS");
                 return;
 
             case INTENT_SAVE_ITEMS:
                 items = intent.getParcelableArrayListExtra(StatsEntry.DELETE);
                 saveItems(items);
-                Log.d("openmike", "receive INTENT_SAVE_ITEMS");
-                return;
+                break;
         }
     }
 
 
-    private void sndMsg(int msg){
-        Log.d("megaman", "Broadcasting message: " + msg);
-//        Intent intent = new Intent(StatsEntry.SYNC);
-//        // You can also include some extra data.
-//        intent.putExtra(StatsEntry.SYNC, msg);
-//        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    private void sndMsg(int msg) {
         mReceiver.send(msg, null);
     }
 
-    private void sndMax(int msg, int max){
-        Log.d("megaman", "Broadcasting message");
-//        Intent intent = new Intent(StatsEntry.SYNC);
-//        // You can also include some extra data.
-//        intent.putExtra(StatsEntry.SYNC, msg);
-//        intent.putExtra(FirestoreSyncService.KEY_MAX, max);
-//        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    private void sndMax(int msg, int max) {
         Bundle b = new Bundle();
         b.putInt(FirestoreSyncService.KEY_MAX, max);
         mReceiver.send(msg, b);
     }
 
-    private void sndDeletions(int msg, ArrayList<ItemMarkedForDeletion> list){
-        Log.d("megaman", "Broadcasting message");
+    private void sndDeletions(ArrayList<ItemMarkedForDeletion> list) {
         Bundle b = new Bundle();
         b.putParcelableArrayList(StatsEntry.DELETE, list);
-        mReceiver.send(msg, b);
+        mReceiver.send(MSG_OPEN_DELETION_DIALOG, b);
     }
     //SYNC CHECK
 
-    public void checkForUpdate() {
+    private void checkForUpdate() {
         final long localTimeStamp = TimeStampUpdater.getLocalTimeStamp(this, mStatKeeperID);
 
         mFirestore.collection(LEAGUE_COLLECTION).document(mStatKeeperID).get()
@@ -180,7 +157,7 @@ public class FirestoreSyncService extends IntentService {
                             long cloudTimeStamp = TimeStampUpdater.getCloudTimeStamp(task.getResult(), mStatKeeperID);
 
                             if (cloudTimeStamp > localTimeStamp) {
-                                    sndMsg(MSG_START_UPDATE);
+                                sndMsg(MSG_START_UPDATE);
                             } else {
                                 sndMsg(MSG_GO_TO_STATKEEPER);
                             }
@@ -197,17 +174,6 @@ public class FirestoreSyncService extends IntentService {
                 });
     }
 
-
-    //SYNCING UPDATES
-
-//    public void syncStats() {
-//        long localTimeStamp = TimeStampUpdater.getLocalTimeStamp(this, mStatKeeperID);
-//
-//        updateBoxscores(localTimeStamp);
-//        updatePlayers(localTimeStamp);
-//        updateTeams(localTimeStamp);
-//    }
-
     private void updatePlayers(long localTimeStamp) {
         mFirestore.collection(LEAGUE_COLLECTION).document(mStatKeeperID).collection(PLAYERS_COLLECTION)
                 .whereGreaterThan(StatsEntry.UPDATE, localTimeStamp)
@@ -219,7 +185,6 @@ public class FirestoreSyncService extends IntentService {
 
                             QuerySnapshot querySnapshot = task.getResult();
                             final int numberOfPlayers = querySnapshot.size();
-                            playersofar = 0;
                             sndMax(MSG_PLAYER_MAX, numberOfPlayers);
                             for (DocumentSnapshot document : querySnapshot) {
                                 final Player player = document.toObject(Player.class);
@@ -232,7 +197,6 @@ public class FirestoreSyncService extends IntentService {
                                             @Override
                                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                                 if (task.isSuccessful()) {
-                                                    playersofar++;
 
                                                     QuerySnapshot querySnapshot = task.getResult();
                                                     int games = 0;
@@ -391,7 +355,7 @@ public class FirestoreSyncService extends IntentService {
     }
 
 
-    private void updateTeams(long localTimeStamp) {
+    private void updateTeams(long localTimeStamp, final String statKeeperName, final int statKeeperType) {
         mFirestore.collection(LEAGUE_COLLECTION).document(mStatKeeperID).collection(TEAMS_COLLECTION)
                 .whereGreaterThan(StatsContract.StatsEntry.UPDATE, localTimeStamp)
                 .get()
@@ -476,8 +440,8 @@ public class FirestoreSyncService extends IntentService {
                                                     if (rowsUpdated < 1) {
                                                         values.put(StatsEntry.SYNC, true);
                                                         values.put(StatsEntry.COLUMN_FIRESTORE_ID, teamIdString);
-                                                        values.put(StatsEntry.TYPE, mStatKeeperType);
-                                                        values.put(StatsEntry.COLUMN_LEAGUE, mStatKeeperName);
+                                                        values.put(StatsEntry.TYPE, statKeeperType);
+                                                        values.put(StatsEntry.COLUMN_LEAGUE, statKeeperName);
                                                         getContentResolver().insert(StatsEntry.CONTENT_URI_TEAMS, values);
                                                     }
                                                     sndMsg(MSG_TEAM_UPDATED);
@@ -496,7 +460,7 @@ public class FirestoreSyncService extends IntentService {
 
 //SYNCING DELETES
 
-    public void deletionCheck(final int level) {
+    private void deletionCheck(final int level) {
         final long localTimeStamp = TimeStampUpdater.getLocalTimeStamp(this, mStatKeeperID);
 
         mFirestore.collection(LEAGUE_COLLECTION).document(mStatKeeperID).collection(DELETION_COLLECTION)
@@ -529,7 +493,7 @@ public class FirestoreSyncService extends IntentService {
                         if (level > UsersActivity.LEVEL_VIEW_WRITE) {
                             Collections.sort(itemMarkedForDeletionList, ItemMarkedForDeletion.nameComparator());
                             Collections.sort(itemMarkedForDeletionList, ItemMarkedForDeletion.typeComparator());
-                            sndDeletions(MSG_OPEN_DELETION_DIALOG, itemMarkedForDeletionList);
+                            sndDeletions(itemMarkedForDeletionList);
                         } else {
                             deleteItems(itemMarkedForDeletionList);
                             sndMsg(MSG_GO_TO_STATKEEPER);
@@ -542,7 +506,7 @@ public class FirestoreSyncService extends IntentService {
         });
     }
 
-    public void deleteItems(List<ItemMarkedForDeletion> deleteList) {
+    private void deleteItems(List<ItemMarkedForDeletion> deleteList) {
         if (deleteList.isEmpty()) {
             return;
         }
@@ -566,7 +530,7 @@ public class FirestoreSyncService extends IntentService {
         }
     }
 
-    public void saveItems(List<ItemMarkedForDeletion> saveList) {
+    private void saveItems(List<ItemMarkedForDeletion> saveList) {
         if (saveList.isEmpty()) {
             return;
         }
@@ -604,7 +568,6 @@ public class FirestoreSyncService extends IntentService {
     }
 
 
-
     private void clearGameDB() {
         String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
         String[] selectionArgs = new String[]{mStatKeeperID};
@@ -640,7 +603,7 @@ public class FirestoreSyncService extends IntentService {
         return currentlyPlaying;
     }
 
-    public void updateAfterSync() {
+    private void updateAfterSync() {
         final Context context = this;
         mFirestore.collection(LEAGUE_COLLECTION).document(mStatKeeperID).get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -653,7 +616,6 @@ public class FirestoreSyncService extends IntentService {
                     }
                 });
     }
-
 
 
 //    //LISTENER

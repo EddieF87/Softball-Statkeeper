@@ -93,7 +93,7 @@ public class StandingsAdapter extends RecyclerView.Adapter<StandingsAdapter.Stan
         private final TextView runsAllowedView;
         private final TextView runDiffView;
 
-        public StandingsViewHolder(View view) {
+        StandingsViewHolder(View view) {
             super(view);
             linearLayout = (LinearLayout) view;
             teamView = view.findViewById(R.id.name);
@@ -106,7 +106,7 @@ public class StandingsAdapter extends RecyclerView.Adapter<StandingsAdapter.Stan
             runDiffView = view.findViewById(R.id.rundiff);
         }
 
-        public void bindTeam(Team team) {
+        void bindTeam(Team team) {
             String teamName = team.getName();
             int wins = team.getWins();
             int losses = team.getLosses();

@@ -10,7 +10,6 @@ import android.net.NetworkInfo;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -35,6 +34,7 @@ public class LoadingActivity extends AppCompatActivity
     private int mStatKeeperType;
     private int mLevel;
     private String mStatKeeperID;
+    private String mStatKeeperName;
 
     private TextView loadTitle;
     private TextView loadDescription;
@@ -43,9 +43,6 @@ public class LoadingActivity extends AppCompatActivity
     private int maxPlayers = 9999;
     private int maxTeams = 9999;
     private int maxBoxscores = 9999;
-    private int omaxPlayers = 9999;
-    private int omaxTeams = 9999;
-    private int omaxBoxscores = 9999;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +65,7 @@ public class LoadingActivity extends AppCompatActivity
             MainPageSelection mainPageSelection = myApp.getCurrentSelection();
             mStatKeeperType = mainPageSelection.getType();
             mStatKeeperID = mainPageSelection.getId();
-//            String mStatKeeperName = mainPageSelection.getName();
+            mStatKeeperName = mainPageSelection.getName();
             mLevel = mainPageSelection.getLevel();
         } catch (Exception e) {
             goToMain();
@@ -86,7 +83,6 @@ public class LoadingActivity extends AppCompatActivity
             mReceiver = new MySyncResultReceiver(new Handler());
             mReceiver.setReceiver(this);
             setAndSendIntent(FirestoreSyncService.INTENT_CHECK_UPDATE);
-            Log.d("openmike", "send checkUpdateIntent");
         } else {
             openNoConnectionDialog();
         }
@@ -104,6 +100,10 @@ public class LoadingActivity extends AppCompatActivity
         serviceIntent.setAction(action);
         serviceIntent.putExtra(StatsEntry.COLUMN_LEAGUE_ID, mStatKeeperID);
         serviceIntent.putExtra(StatsEntry.SYNC, mReceiver);
+        if(action.equals(FirestoreSyncService.INTENT_UPDATE_TEAMS)) {
+            serviceIntent.putExtra(MainPageSelection.KEY_SELECTION_NAME, mStatKeeperName);
+            serviceIntent.putExtra(MainPageSelection.KEY_SELECTION_TYPE, mStatKeeperType);
+        }
         startService(serviceIntent);
     }
 
@@ -125,7 +125,7 @@ public class LoadingActivity extends AppCompatActivity
         startService(serviceIntent);
     }
 
-    public void proceedToNext() {
+    private void proceedToNext() {
         Intent intent;
         switch (mStatKeeperType) {
             case MainPageSelection.TYPE_LEAGUE:
@@ -152,7 +152,6 @@ public class LoadingActivity extends AppCompatActivity
     }
 
     private void startSyncFor(String type, int max) {
-        Log.d("openmike1", "startSyncFor(String type, int max){ " + type + max);
         loadProgressBar.setProgress(0);
         loadProgressBar.setMax(max);
         loadProgressBar.setVisibility(View.VISIBLE);
@@ -163,14 +162,13 @@ public class LoadingActivity extends AppCompatActivity
         loadDescription.setVisibility(View.VISIBLE);
     }
 
-    public void onSyncError(String error) {
+    private void onSyncError() {
         loadProgressBar.setVisibility(View.INVISIBLE);
+        loadDescription.setVisibility(View.INVISIBLE);
         loadTitle.setText(R.string.error);
-        String errorMsg = "Error with " + error;
-        loadDescription.setText(errorMsg);
     }
 
-    public void openDeletionCheckDialog(ArrayList<ItemMarkedForDeletion> itemMarkedForDeletionList) {
+    private void openDeletionCheckDialog(ArrayList<ItemMarkedForDeletion> itemMarkedForDeletionList) {
         loadProgressBar.setVisibility(View.INVISIBLE);
         loadTitle.setVisibility(View.INVISIBLE);
         loadDescription.setVisibility(View.INVISIBLE);
@@ -218,69 +216,56 @@ public class LoadingActivity extends AppCompatActivity
 
             case FirestoreSyncService.MSG_PLAYER_UPDATED:
                 maxPlayers--;
-                Log.d("openmike", maxPlayers + " players left out of " + omaxPlayers);
                 loadProgressBar.incrementProgressBy(1);
                 break;
 
             case FirestoreSyncService.MSG_TEAM_UPDATED:
                 maxTeams--;
-                Log.d("openmike", maxTeams + " TEAMS left out of " + omaxTeams);
                 loadProgressBar.incrementProgressBy(1);
                 break;
 
             case FirestoreSyncService.MSG_BOXSCORE_UPDATED:
                 maxBoxscores--;
-                Log.d("openmike", maxBoxscores + " Boxscores left out of " + omaxBoxscores);
                 loadProgressBar.incrementProgressBy(1);
                 break;
 
             case FirestoreSyncService.MSG_GO_TO_STATKEEPER:
-                Log.d("openmike", "GO_TO_STATKEEPER");
                 proceedToNext();
                 break;
 
             case FirestoreSyncService.MSG_START_UPDATE:
-                Log.d("openmike", "MSG_START_UPDATE");
                 loadTitle.setText(R.string.load1_prepare_sync);
                 loadDescription.setText(R.string.load1_desc);
                 setAndSendIntent(FirestoreSyncService.INTENT_UPDATE_PLAYERS);
                 break;
 
             case FirestoreSyncService.MSG_PLAYER_MAX:
-                Log.d("openmike", "MSG_PLAYER_MAX");
                 max = resultData.getInt(FirestoreSyncService.KEY_MAX, 0);
                 maxPlayers = max;
-                omaxPlayers = max;
                 loadProgressBar.setMax(max);
                 startSyncFor("player", max);
                 break;
 
             case FirestoreSyncService.MSG_TEAM_MAX:
-                Log.d("openmike", "MSG_TEAM_MAX");
                 max = resultData.getInt(FirestoreSyncService.KEY_MAX, 0);
                 maxTeams = max;
-                omaxTeams = max;
                 startSyncFor("team", max);
                 break;
 
             case FirestoreSyncService.MSG_BOXSCORE_MAX:
-                Log.d("openmike", "MSG_BOXSCORE_MAX");
                 max = resultData.getInt(FirestoreSyncService.KEY_MAX, 0);
                 maxBoxscores += max - 9999;
-                omaxBoxscores += max - 9999;
                 loadProgressBar.setMax(max);
                 startSyncFor("game", max);
                 break;
 
             case FirestoreSyncService.MSG_OPEN_DELETION_DIALOG:
-                Log.d("openmike", "MSG_OPEN_DELETION_DIALOG");
                 ArrayList<ItemMarkedForDeletion> deletions = resultData.getParcelableArrayList(StatsEntry.DELETE);
                 openDeletionCheckDialog(deletions);
                 break;
 
             case FirestoreSyncService.MSG_ERROR:
-                Log.d("openmike", "MSG_ERROR");
-                onSyncError("error");
+                onSyncError();
                 break;
         }
         if (maxPlayers < 1) {

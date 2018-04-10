@@ -8,6 +8,7 @@ import java.util.List;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
 
+@SuppressWarnings("unused")
 public class PreviousPlay {
 
     private String play;

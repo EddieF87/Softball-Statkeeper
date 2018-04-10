@@ -105,14 +105,12 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/diamond"
             app:layout_constraintVertical_bias="0.2"
-            tools:visibility="visible"
-            android:layout_marginRight="8dp" />
+            tools:visibility="visible"/>
 
         <ImageView
             android:id="@+id/btn_undo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="32dp"
             android:layout_marginStart="32dp"
             android:layout_marginTop="8dp"
             android:tint="@color/colorHighlight"

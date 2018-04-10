@@ -1,6 +1,7 @@
 package xyz.sleekstats.softball.dialogs;
 
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -54,7 +55,7 @@ public class ChooseOrCreateTeamDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-        View view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_choose_or_create_team, null);
+        @SuppressLint("InflateParams") View view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_choose_or_create_team, null);
         newTeamEditText = view.findViewById(R.id.edit_text_new_team);
         Button mButton = view.findViewById(R.id.select_current_team_btn);
 

@@ -33,8 +33,6 @@ import android.widget.Toast;
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.activities.BoxScoreActivity;
 import xyz.sleekstats.softball.activities.GameActivity;
-import xyz.sleekstats.softball.activities.LeagueGameActivity;
-import xyz.sleekstats.softball.activities.LeagueManagerActivity;
 import xyz.sleekstats.softball.activities.MainActivity;
 import xyz.sleekstats.softball.activities.TeamGameActivity;
 import xyz.sleekstats.softball.activities.TeamManagerActivity;

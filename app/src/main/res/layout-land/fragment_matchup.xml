@@ -19,7 +19,8 @@
         android:textAlignment="gravity"
         app:layout_constraintEnd_toStartOf="@+id/settings_separator"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        tools:targetApi="lollipop">
 
         <Spinner
             android:id="@+id/awayteam_spinner"
@@ -105,7 +106,8 @@
             android:layout_width="4dp"
             android:layout_height="match_parent"
             android:elevation="4dp"
-            android:background="@color/colorPrimary" />
+            android:background="@color/colorPrimary"
+            tools:targetApi="lollipop" />
 
 
         <android.support.v7.widget.RecyclerView
@@ -144,7 +146,8 @@
         app:layout_constraintBottom_toTopOf="@+id/settings_separator"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/layout_spinners"
-        app:layout_constraintTop_toBottomOf="@+id/layout_spinners">
+        app:layout_constraintTop_toBottomOf="@+id/layout_spinners"
+        tools:targetApi="lollipop">
 
         <TextView
             android:layout_width="60dp"
@@ -203,7 +206,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.7"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/layout_spinners" />
+        app:layout_constraintTop_toTopOf="@+id/layout_spinners"
+        tools:targetApi="lollipop" />
 
 
     <TextView
@@ -226,7 +230,8 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed"
         tools:text="aaaaaaaaaaaaaaaaabbbaa"
-        tools:visibility="visible" />
+        tools:visibility="visible"
+        tools:targetApi="lollipop" />
 
     <LinearLayout
         android:id="@+id/layout_settings"
@@ -244,7 +249,8 @@
         app:layout_constraintEnd_toEndOf="@+id/start_game"
         app:layout_constraintStart_toStartOf="@+id/start_game"
         app:layout_constraintTop_toTopOf="@+id/guideline_buttons"
-        app:layout_constraintVertical_bias="1.0">
+        app:layout_constraintVertical_bias="1.0"
+        tools:targetApi="lollipop">
 
         <TextView
             android:id="@+id/gender_lineup_view"

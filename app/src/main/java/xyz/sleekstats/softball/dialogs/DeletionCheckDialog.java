@@ -1,6 +1,7 @@
 package xyz.sleekstats.softball.dialogs;
 
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -19,7 +20,6 @@ import xyz.sleekstats.softball.adapters.DeletionCheckRecyclerViewAdapter;
 import xyz.sleekstats.softball.objects.ItemMarkedForDeletion;
 
 import java.util.ArrayList;
-import java.util.List;
 
 
 public class DeletionCheckDialog extends DialogFragment {
@@ -54,7 +54,7 @@ public class DeletionCheckDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        View view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_deletion_check, null);
+        @SuppressLint("InflateParams") View view = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_deletion_check, null);
         Context context = view.getContext();
         RecyclerView recyclerView = view.findViewById(R.id.rv_delete);
         recyclerView.setLayoutManager(new LinearLayoutManager(recyclerView.getContext()));

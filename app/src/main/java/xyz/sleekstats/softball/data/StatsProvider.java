@@ -11,7 +11,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.widget.Toast;
 
 import xyz.sleekstats.softball.R;
@@ -160,15 +159,6 @@ public class StatsProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Cannot query unknown URI " + uri);
         }
-        if(selection == null) {
-            Log.d("sqfuck", "selection == null");
-
-        } else if(selectionArgs == null) {
-            Log.d("sqfuck", "selectionArgs == null");
-
-        } else {
-            Log.d("sqfuck", table + selection + selectionArgs.toString());
-        }
         cursor = database.query(table, projection, selection, selectionArgs, null, null, sortOrder);
         cursor.setNotificationUri(getContext().getContentResolver(), uri);
         return cursor;
@@ -312,7 +302,6 @@ public class StatsProvider extends ContentProvider {
             return null;
         }
         getContext().getContentResolver().notifyChange(uri, null);
-        Log.d("sqfuck", table + values.toString());
         return ContentUris.withAppendedId(uri, id);
     }
 
@@ -327,17 +316,37 @@ public class StatsProvider extends ContentProvider {
 
         String firestoreID;
         String leagueID;
-        if (match == PLAYERS || match == PLAYERS_ID || match == TEAMS || match == TEAMS_ID) {
-            if (selectionArgs != null) {
-                firestoreID = selectionArgs[0];
-                leagueID = selectionArgs[1];
-            } else {
-                return -1;
-            }
-        } else {
-            firestoreID = null;
-            leagueID = null;
+        switch (match) {
+            case PLAYERS:
+            case TEAMS:
+                if (selectionArgs != null) {
+                    if (selectionArgs.length == 1) {
+                        leagueID = selectionArgs[0];
+                        firestoreID = null;
+                    } else {
+                        firestoreID = selectionArgs[0];
+                        leagueID = selectionArgs[1];
+                    }
+                } else {
+                    return -1;
+                }
+                break;
+            case PLAYERS_ID:
+            case TEAMS_ID:
+                if (selectionArgs != null) {
+                    firestoreID = selectionArgs[0];
+                    leagueID = selectionArgs[1];
+                } else {
+                    return -1;
+                }
+                break;
+            default:
+                firestoreID = null;
+                leagueID = null;
+                break;
         }
+
+
 
         SQLiteDatabase database = mOpenHelper.getWritableDatabase();
 
@@ -347,8 +356,10 @@ public class StatsProvider extends ContentProvider {
 
         switch (match) {
             case PLAYERS:
-                if (inGamePlayerCheck(firestoreID, leagueID)) {
-                    return -1;
+                if (firestoreID != null) {
+                    if (inGamePlayerCheck(firestoreID, leagueID)) {
+                        return -1;
+                    }
                 }
                 table = StatsEntry.PLAYERS_TABLE_NAME;
                 break;
@@ -365,8 +376,10 @@ public class StatsProvider extends ContentProvider {
                 break;
 
             case TEAMS:
-                if (inGameTeamCheck(leagueID, firestoreID)) {
-                    return -1;
+                if (firestoreID != null) {
+                    if (inGamePlayerCheck(firestoreID, leagueID)) {
+                        return -1;
+                    }
                 }
                 table = StatsEntry.TEAMS_TABLE_NAME;
                 break;
@@ -453,7 +466,6 @@ public class StatsProvider extends ContentProvider {
 
         rowsDeleted = database.delete(table, selection, selectionArgs);
         getContext().getContentResolver().notifyChange(uri, null);
-        Log.d("sqfuck", table + selection + selectionArgs.toString());
         return rowsDeleted;
     }
 
@@ -474,7 +486,7 @@ public class StatsProvider extends ContentProvider {
     public int update(@NonNull Uri uri, @Nullable ContentValues values,
                       @Nullable String selection, @Nullable String[] selectionArgs) {
         String leagueID;
-        if(values.containsKey(StatsEntry.COLUMN_LEAGUE_ID)) {
+        if (values.containsKey(StatsEntry.COLUMN_LEAGUE_ID)) {
             leagueID = values.getAsString(StatsEntry.COLUMN_LEAGUE_ID);
         } else {
             leagueID = null;
@@ -625,7 +637,6 @@ public class StatsProvider extends ContentProvider {
                 throw new IllegalArgumentException("Update is not supported for " + uri);
         }
         SQLiteDatabase database = mOpenHelper.getWritableDatabase();
-        Log.d("sqfuck", table + selection + selectionArgs.toString() + values.toString());
         try {
             int rowsUpdated = database.update(table, values, selection, selectionArgs);
             if (rowsUpdated != 0) {

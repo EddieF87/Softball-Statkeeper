@@ -20,7 +20,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -39,9 +38,7 @@ import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
 import xyz.sleekstats.softball.dialogs.AcceptInviteDialog;
 import xyz.sleekstats.softball.dialogs.DeleteSelectionDialog;
 import xyz.sleekstats.softball.dialogs.EditNameDialog;
-import xyz.sleekstats.softball.dialogs.EnterCodeDialog;
 import xyz.sleekstats.softball.dialogs.InviteListDialog;
-import xyz.sleekstats.softball.dialogs.JoinOrCreateDialog;
 import xyz.sleekstats.softball.dialogs.ContinueLoadDialog;
 import xyz.sleekstats.softball.dialogs.SelectionInfoDialog;
 import xyz.sleekstats.softball.objects.MainPageSelection;
@@ -90,9 +87,9 @@ public class MainActivity extends AppCompatActivity
         SelectionInfoDialog.OnFragmentInteractionListener,
         DeleteSelectionDialog.OnFragmentInteractionListener,
         ContinueLoadDialog.OnFragmentInteractionListener,
-        JoinOrCreateDialog.OnFragmentInteractionListener,
+//        JoinOrCreateDialog.OnFragmentInteractionListener,
         EditNameDialog.OnFragmentInteractionListener,
-        EnterCodeDialog.OnFragmentInteractionListener,
+//        EnterCodeDialog.OnFragmentInteractionListener,
         AcceptInviteDialog.OnFragmentInteractionListener {
 
     private FirebaseAuth mAuth;
@@ -124,9 +121,6 @@ public class MainActivity extends AppCompatActivity
 
         MobileAds.initialize(this, "ca-app-pub-5443559095909539~1574171209");
 
-//        mSelectionList = getIntent().getParcelableArrayListExtra("mSelectionList");
-//        mInviteList = getIntent().getParcelableArrayListExtra("mInviteList");
-
         mRecyclerView = findViewById(R.id.rv_main);
         mMsgView = findViewById(R.id.error_rv_main);
         mProgressBar = findViewById(R.id.progressBarMain);
@@ -137,8 +131,8 @@ public class MainActivity extends AppCompatActivity
         playerV.setOnClickListener(this);
         teamV.setOnClickListener(this);
         leagueV.setOnClickListener(this);
-        TextView joinOrCreate = findViewById(R.id.textview_join_or_create);
-        joinOrCreate.setOnClickListener(new View.OnClickListener() {
+        TextView createSK = findViewById(R.id.textview_join_or_create);
+        createSK.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 shuffleCreateStatKeeperViewsVisibility();
@@ -150,9 +144,6 @@ public class MainActivity extends AppCompatActivity
     protected void onStart() {
         super.onStart();
         mMsgView.setVisibility(View.GONE);
-//        mSelectionList = getIntent().getParcelableArrayListExtra("mSelectionList");
-//        mInviteList = getIntent().getParcelableArrayListExtra("mInviteList");
-//        loadingFinished = true;
         authenticateUser();
     }
 
@@ -177,14 +168,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void checkInvite() {
-        Log.d("xyxyx", "checkInvite");
         FirebaseDynamicLinks.getInstance()
                 .getDynamicLink(getIntent())
                 .addOnSuccessListener(this, new OnSuccessListener<PendingDynamicLinkData>() {
                     @Override
                     public void onSuccess(PendingDynamicLinkData pendingDynamicLinkData) {
                         // Get deep link from result (may be null if no link is found)
-                        Log.d("xyxyx", "getDynamicLink:SUCCESS");
 
                         Uri deepLink = null;
                         if (pendingDynamicLinkData != null) {
@@ -194,13 +183,11 @@ public class MainActivity extends AppCompatActivity
                         }
 
                         String path = deepLink.getPath();
-                        Log.d("xyxyx", "path: " + path);
                         String fullText = deepLink.getQueryParameter("key");
                         String[] splitCode = fullText.split("-");
                         final String id = splitCode[0];
                         final String name = splitCode[1];
                         final int type;
-                        Log.d("xyxyx", "id: " + id);
 
                         switch (path) {
                             case "/" + StatsEntry.COLUMN_TEAM:
@@ -210,7 +197,6 @@ public class MainActivity extends AppCompatActivity
                                 type = MainPageSelection.TYPE_LEAGUE;
                                 break;
                             default:
-                                Log.d("xyxyx", "path: wrong");
                                 return;
                         }
 
@@ -223,7 +209,6 @@ public class MainActivity extends AppCompatActivity
                             @Override
                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                 if (task.isSuccessful()) {
-                                    Log.d("xyxyx", "task.isSuccessful()");
                                     DocumentSnapshot documentSnapshot = task.getResult();
                                     Object levelObject = documentSnapshot.get(userID);
                                     if (levelObject == null) {
@@ -231,13 +216,11 @@ public class MainActivity extends AppCompatActivity
                                         return;
                                     }
                                     int level = ((Long) levelObject).intValue();
-                                    Log.d("xyxyx", "levelObject).intValue()" + level);
                                     if (level < UsersActivity.LEVEL_REMOVE_USER && -level < UsersActivity.LEVEL_CREATOR) {
                                         level = -level;
                                         openAcceptInviteDialog(id, name, type, level);
                                         return;
                                     }
-                                    Log.d("xyxyx", "task.phase2()");
                                     myApp.setCurrentSelection(new MainPageSelection(id, name, type, level));
                                     final Intent intent;
                                     intent = new Intent(MainActivity.this, LoadingActivity.class);
@@ -245,7 +228,6 @@ public class MainActivity extends AppCompatActivity
                                     finish();
                                 } else {
                                     openAcceptInviteDialog(id, name, type, 1);
-                                    Log.d("xyxyx", "task.fail()");
                                 }
                             }
                         });
@@ -389,9 +371,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void setViews() {
-        Log.d("godzilla", "setViews");
         if (mSelectionList.isEmpty()) {
-            Log.d("godzilla", "mSelectionList.isEmpty(");
             mMsgView.setText(R.string.create_statkeeper);
 
             if (mInviteList.isEmpty()) {
@@ -563,14 +543,7 @@ public class MainActivity extends AppCompatActivity
             default:
                 return;
         }
-        joinCreateDialog(type);
-    }
-
-    private void joinCreateDialog(int type) {
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = JoinOrCreateDialog.newInstance(type);
-        newFragment.show(fragmentTransaction, "");
+        enterNameDialog(type);
     }
 
     private void enterNameDialog(int type) {
@@ -709,7 +682,7 @@ public class MainActivity extends AppCompatActivity
         updateRV();
         final String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
         final String selectionID = mainPageSelection.getId();
-        String[] selectionArgs = new String[]{selectionID};
+        final String[] selectionArgs = new String[]{selectionID};
         getContentResolver().delete(StatsEntry.CONTENT_URI_SELECTIONS, selection, selectionArgs);
 
         if (mFirestore == null) {
@@ -783,6 +756,7 @@ public class MainActivity extends AppCompatActivity
                                                                     batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                         @Override
                                                                         public void onSuccess(Void aVoid) {
+                                                                            deleteStatKeeper(selection, selectionArgs);
                                                                             reloadSelections();
                                                                         }
                                                                     });
@@ -819,7 +793,12 @@ public class MainActivity extends AppCompatActivity
                     batch.commit().addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(MainActivity.this, "FAILLLL 1111111111", Toast.LENGTH_LONG).show();
+                            Toast.makeText(MainActivity.this, "Failed to delete StatKeeper. Please contact sleekstats@gmail.com", Toast.LENGTH_LONG).show();
+                        }
+                    }).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            deleteStatKeeper(selection, selectionArgs);
                         }
                     });
                 }
@@ -836,6 +815,18 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
+    private void deleteStatKeeper(String selection, String[] selectionArgs){
+        getContentResolver().delete(StatsEntry.CONTENT_URI_BOXSCORE_OVERVIEWS, selection, selectionArgs);
+        getContentResolver().delete(StatsEntry.CONTENT_URI_BOXSCORE_PLAYERS, selection, selectionArgs);
+        getContentResolver().delete(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, selection, selectionArgs);
+        getContentResolver().delete(StatsEntry.CONTENT_URI_BACKUP_TEAMS, selection, selectionArgs);
+        getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, selection, selectionArgs);
+        getContentResolver().delete(StatsEntry.CONTENT_URI_PLAYERS, selection, selectionArgs);
+        getContentResolver().delete(StatsEntry.CONTENT_URI_SELECTIONS, selection, selectionArgs);
+        getContentResolver().delete(StatsEntry.CONTENT_URI_TEAMS, selection, selectionArgs);
+        getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, selection, selectionArgs);
+    }
+
     private void deleteCollection(WriteBatch batch, Task<QuerySnapshot> task) {
         if (task.isSuccessful()) {
             QuerySnapshot querySnapshot = task.getResult();
@@ -848,7 +839,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public Loader<QuerySnapshot> onCreateLoader(int id, Bundle args) {
-        Log.d("godzilla", "onCreateLoader");
         mFireTaskLoader = new FireTaskLoader(this);
         setProgressBarVisible();
         mHandler.postDelayed(continueLoadRunnable, 20000);
@@ -868,7 +858,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onLoadFinished(android.support.v4.content.Loader<QuerySnapshot> loader, QuerySnapshot querySnapshot) {
-        Log.d("godzilla", "onLoadFinished");
 //        loadingFinished = true;
 
         if (mContinueLoadDialogFragment != null) {
@@ -878,7 +867,6 @@ public class MainActivity extends AppCompatActivity
         }
 
         if (mInviteList != null && mSelectionList != null) {
-            Log.d("godzilla", "mInviteList != null && mSelectionList != null");
             setViews();
             return;
         }
@@ -899,7 +887,6 @@ public class MainActivity extends AppCompatActivity
             mMsgView.setText(R.string.error_with_loading);
             setMessageViewVisible();
             loadSelections();
-            Log.d("godzilla", "querySnapshot == null");
             return;
         }
 
@@ -1000,7 +987,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void addSelection(final String name, final int type, final int level, final String statKeeperID) {
-        Log.d("xyxyx", "addSelection");
         final Intent intent;
         if (statKeeperID == null) {
             switch (type) {
@@ -1022,7 +1008,6 @@ public class MainActivity extends AppCompatActivity
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
-            Log.d("xyxyx", "currentUser == null");
             return;
         }
         final String userEmail = currentUser.getEmail();
@@ -1049,11 +1034,6 @@ public class MainActivity extends AppCompatActivity
                     onSuccessfulStatKeeperUpdate(intent, statKeeperDocument, level, userEmail, userDisplayName,
                             statKeeperID, name, type);
                 }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Log.d("xyxyx", "first fail");
-                }
             });
         } else {
             statKeeperDocument = mFirestore.collection(LEAGUE_COLLECTION).document(statKeeperID);
@@ -1076,19 +1056,15 @@ public class MainActivity extends AppCompatActivity
     private void onSuccessfulStatKeeperUpdate(final Intent intent, final DocumentReference statKeeperDocument,
                                               final int level, String userEmail, String userDisplayName,
                                               final String statKeeperID, final String name, final int type) {
-        Log.d("xyxyx", "first sucess");
         Map<String, Object> firestoreUserMap = new HashMap<>();
         firestoreUserMap.put(StatsEntry.LEVEL, level);
         firestoreUserMap.put(StatsEntry.EMAIL, userEmail);
         firestoreUserMap.put(StatsEntry.COLUMN_NAME, userDisplayName);
-        Log.d("xyxyx", "second attempt: " + level + userEmail + userDisplayName + userID);
 
         statKeeperDocument.collection(USERS).document(userID).set(firestoreUserMap)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d("xyxyx", "second success");
-                        Toast.makeText(MainActivity.this, "OK WORKING SO FAR....", Toast.LENGTH_SHORT).show();
 
                         MyApp myApp = (MyApp) getApplicationContext();
                         String selectionID = statKeeperDocument.getId();
@@ -1127,132 +1103,13 @@ public class MainActivity extends AppCompatActivity
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Log.d("xyxyx", "second fail");
                 Toast.makeText(MainActivity.this, "Firebase error! Try again!", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
 
-    private void enterCodeDialog(int type) {
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = EnterCodeDialog.newInstance(type);
-        newFragment.show(fragmentTransaction, "");
-    }
 
-    @Override
-    public void onJoinOrCreate(boolean create, int type) {
-        if (create) {
-            enterNameDialog(type);
-        } else {
-            enterCodeDialog(type);
-        }
-    }
-
-    private void postMessage(int msg) {
-        String text;
-        switch (msg) {
-            case 0:
-                text = "SUCCESS";
-                break;
-
-            case 1:
-                text = "Incorrect code entered.";
-                break;
-
-            case 3:
-                text = "You are attempting to join a Team with a League Code!";
-                break;
-
-            case 4:
-                text = "You are attempting to join a League with a Team Code!";
-                break;
-
-            case 5:
-                text = "You already have access to this StatKeeper!";
-                break;
-
-            default:
-                text = getString(R.string.error);
-                break;
-        }
-        Toast.makeText(MainActivity.this, text, Toast.LENGTH_LONG).show();
-    }
-
-
-    @Override
-    public void onSubmitCode(final String fullText, final int type) {
-        if (fullText.isEmpty()) {
-            postMessage(1);
-            return;
-        }
-
-        String[] splitCode = fullText.split("-");
-        if(splitCode.length < 2) {
-            postMessage(1);
-            return;
-        }
-        final String idText = splitCode[0];
-        final String codeText = splitCode[1];
-
-        for (MainPageSelection mainPageSelection : mSelectionList) {
-            if (idText.equals(mainPageSelection.getId())) {
-                postMessage(5);
-                return;
-            }
-        }
-
-        if (mFirestore == null) {
-            mFirestore = FirebaseFirestore.getInstance();
-        }
-        mFirestore.collection(LEAGUE_COLLECTION)
-                .document(idText).collection(REQUESTS).document(codeText).get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        try {
-                            StatKeepUser statKeepUser = documentSnapshot.toObject(StatKeepUser.class);
-                            String code = documentSnapshot.getId();
-                            String id = statKeepUser.getId();
-                            String name = statKeepUser.getName();
-                            String requestType = statKeepUser.getEmail();
-                            int level = statKeepUser.getLevel() + 100;
-
-                            if (!id.equals(REQUESTS)) {
-                                postMessage(99);
-                                return;
-                            }
-                            if (!codeText.equals(code)) {
-                                postMessage(1);
-                                return;
-                            }
-                            if (!String.valueOf(type).equals(requestType)) {
-                                if (type == MainPageSelection.TYPE_TEAM) {
-                                    postMessage(3);
-                                } else {
-                                    postMessage(4);
-                                }
-                                return;
-                            }
-                            if (level == UsersActivity.LEVEL_VIEW_ONLY) {
-                                postMessage(0);
-                                addSelection(name, type, level, idText);
-                            } else {
-                                Log.d("xyxyx", "???????? fail");
-                            }
-                        } catch (Exception e) {
-                            postMessage(99);
-                        }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        postMessage(99);
-                    }
-                });
-    }
 
     @Override
     public void onAcceptInvite(boolean accepted, String id, String name, int type, int level) {
@@ -1308,5 +1165,6 @@ private static class MyHandler extends Handler {
         mHandler.removeCallbacks(openInviteRunnable);
         mHandler.removeCallbacks(continueLoadRunnable);
         mHandler.removeCallbacks(dismissContinueLoadRunnable);
+        mHandler.removeCallbacksAndMessages(null);
     }
 }

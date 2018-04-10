@@ -17,7 +17,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -143,7 +142,6 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         } else {
             String uriString = args.getString(KEY_PLAYER_URI);
             mCurrentPlayerUri = Uri.parse(uriString);
-            Log.d("zztop", "URI " + mCurrentPlayerUri);
         }
     }
 
@@ -477,7 +475,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         });
     }
 
-    private void setRadioButtons(View view) {
+    public void setRadioButtons(View view) {
         group1 = view.findViewById(R.id.group1);
         group2 = view.findViewById(R.id.group2);
         RadioButton single = view.findViewById(R.id.single_rb);

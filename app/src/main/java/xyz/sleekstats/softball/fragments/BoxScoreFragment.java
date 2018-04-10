@@ -265,9 +265,8 @@ public class BoxScoreFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         awayAdapter.swapCursor(null);
-        if (selectionType == MainPageSelection.TYPE_TEAM) {
-            return;
+        if (homeAdapter != null) {
+            homeAdapter.swapCursor(null);
         }
-        homeAdapter.swapCursor(null);
     }
 }

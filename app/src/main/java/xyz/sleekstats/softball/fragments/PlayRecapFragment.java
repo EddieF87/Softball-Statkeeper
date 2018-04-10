@@ -11,7 +11,6 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -65,12 +64,10 @@ public class PlayRecapFragment extends Fragment implements LoaderManager.LoaderC
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Log.d("zztop", "onCreateView");
         View rootView = inflater.inflate(R.layout.fragment_play_recap, container, false);
         mRecyclerView = rootView.findViewById(R.id.rv_plays);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
         getLoaderManager().initLoader(PLAYER_NAMES_LOADER, null, this);
-        Log.d("zztop", "initLoader PLAYER_NAMES_LOADER");
         return rootView;
     }
 
@@ -78,12 +75,10 @@ public class PlayRecapFragment extends Fragment implements LoaderManager.LoaderC
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         getLoaderManager().initLoader(PLAYER_NAMES_LOADER, null, this);
-        Log.d("zztop", "onActivityCreated");
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        Log.d("zztop", "onCreateLoader");
         String[] projection;
         String selection;
         String[] selectionArgs;
@@ -121,7 +116,6 @@ public class PlayRecapFragment extends Fragment implements LoaderManager.LoaderC
 
         switch (loader.getId()) {
             case PLAYER_NAMES_LOADER:
-                Log.d("zztop", "onLoadFinished PLAYER_NAMES_LOADER");
                 data.moveToPosition(-1);
                 mPlayerNames = new HashMap<>();
                 while (data.moveToNext()) {
@@ -130,11 +124,9 @@ public class PlayRecapFragment extends Fragment implements LoaderManager.LoaderC
                             StatsContract.getColumnString(data, StatsEntry.COLUMN_NAME));
                 }
                 getLoaderManager().initLoader(PLAYS_LOADER, null, this);
-                Log.d("zztop", "initLoader PLAYS_LOADER");
                 break;
 
             case PLAYS_LOADER:
-                Log.d("zztop", "onLoadFinished PLAYS_LOADER");
                 if (mPreviousPlays == null) {
                     mPreviousPlays = new ArrayList<>();
                 } else {

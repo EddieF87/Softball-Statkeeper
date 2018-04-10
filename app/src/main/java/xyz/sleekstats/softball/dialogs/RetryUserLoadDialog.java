@@ -9,10 +9,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
 import xyz.sleekstats.softball.R;
 
@@ -22,6 +18,7 @@ import xyz.sleekstats.softball.R;
 public class RetryUserLoadDialog extends DialogFragment {
 
     private OnFragmentInteractionListener mListener;
+    private AlertDialog myDialog;
 
     public RetryUserLoadDialog() {
         // Required empty public constructor
@@ -31,7 +28,7 @@ public class RetryUserLoadDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+        myDialog = new AlertDialog.Builder(getActivity())
                 .setPositiveButton(R.string.retry, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         onButtonPressed(true);
@@ -43,8 +40,9 @@ public class RetryUserLoadDialog extends DialogFragment {
                     }
                 })
                 .setMessage(R.string.check_connection_and_retry)
-                .setTitle(R.string.unable_to_connect);
-        return builder.create();
+                .setTitle(R.string.unable_to_connect).create();
+
+        return myDialog;
     }
 
     private void onButtonPressed(boolean choice) {
@@ -72,5 +70,12 @@ public class RetryUserLoadDialog extends DialogFragment {
 
     public interface OnFragmentInteractionListener {
         void onRetryChoice(boolean choice);
+    }
+
+
+    public void dismissIfShowing(){
+        if (myDialog != null && myDialog.isShowing()){
+            myDialog.dismiss();
+        }
     }
 }

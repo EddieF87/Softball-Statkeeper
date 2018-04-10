@@ -80,10 +80,22 @@ public class PreviousPlaysAdapter extends RecyclerView.Adapter<PreviousPlaysAdap
 
             if (batter == null) {
                 String otherTeamResult;
+                PreviousPlay lastPlay = mPreviousPlays.get(position + 1);
+                int prevRuns;
                 if (inningNum % 2 == 0) {
-                    otherTeamResult = "Home Team scored " + homeRuns + " runs";
+                    if(lastPlay == null) {
+                        prevRuns = 0;
+                    } else {
+                        prevRuns = lastPlay.getHomeRuns();
+                    }
+                    otherTeamResult = "Home Team scored " + (homeRuns - prevRuns) + " runs";
                 } else {
-                    otherTeamResult = "Away Team scored " + awayRuns + " runs";
+                    if(lastPlay == null) {
+                        prevRuns = 0;
+                    } else {
+                        prevRuns = lastPlay.getAwayRuns();
+                    }
+                    otherTeamResult = "Away Team scored " + (awayRuns - prevRuns) + " runs";
                 }
                 holder.mPlayTextView.setText(otherTeamResult);
                 return;
@@ -241,7 +253,7 @@ public class PreviousPlaysAdapter extends RecyclerView.Adapter<PreviousPlaysAdap
         private final TextView mScoreTextView;
         private final TextView mOutsTextView;
 
-        public PlayViewHolder(View itemView) {
+        PlayViewHolder(View itemView) {
             super(itemView);
             mPlayTextView = itemView.findViewById(R.id.prev_play_text);
             mRunsTextView = itemView.findViewById(R.id.prev_runs_text);

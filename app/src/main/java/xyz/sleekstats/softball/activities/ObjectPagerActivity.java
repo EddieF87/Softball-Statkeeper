@@ -356,7 +356,7 @@ public abstract class ObjectPagerActivity extends AppCompatActivity
             super.destroyItem(container, position, object);
         }
 
-        public Fragment getRegisteredFragment(int position) {
+        Fragment getRegisteredFragment(int position) {
             return registeredFragments.get(position);
         }
 
@@ -365,7 +365,7 @@ public abstract class ObjectPagerActivity extends AppCompatActivity
             return objectIDs.size();
         }
 
-        public void unregisterFragments(){
+        void unregisterFragments(){
             if(registeredFragments != null) {
                 registeredFragments.clear();
                 registeredFragments = null;

@@ -1,6 +1,7 @@
 package xyz.sleekstats.softball.dialogs;
 
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -43,7 +44,7 @@ public class SelectionInfoDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        View v = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_selection_info_dialog, null);
+        @SuppressLint("InflateParams") View v = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_selection_info_dialog, null);
         TextView nameView = v.findViewById(R.id.name);
         TextView typeView = v.findViewById(R.id.type);
         TextView levelView = v.findViewById(R.id.level);
