@@ -52,7 +52,7 @@
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_marginEnd="16dp"
-        android:text="@string/games"
+        android:text="@string/scores"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="@+id/teamName"
         app:layout_constraintEnd_toStartOf="@+id/btn_start_adder"

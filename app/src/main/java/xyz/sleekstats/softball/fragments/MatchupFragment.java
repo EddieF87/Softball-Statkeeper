@@ -591,7 +591,8 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     }
 
     public void updateMatchup() {
-        if (awayTeamSpinner.getSelectedItem() == null || homeTeamSpinner.getSelectedItem() == null) {
+        if (awayTeamSpinner == null || awayTeamSpinner.getSelectedItem() == null
+                || homeTeamSpinner == null || homeTeamSpinner.getSelectedItem() == null) {
             return;
         }
 

@@ -14,13 +14,10 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.SparseIntArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,14 +28,12 @@ import android.widget.Toast;
 
 import xyz.sleekstats.softball.MyApp;
 import xyz.sleekstats.softball.R;
-import xyz.sleekstats.softball.data.FireTaskLoader;
 import xyz.sleekstats.softball.adapters.MainPageAdapter;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
 import xyz.sleekstats.softball.dialogs.AcceptInviteDialog;
 import xyz.sleekstats.softball.dialogs.DeleteSelectionDialog;
 import xyz.sleekstats.softball.dialogs.EditNameDialog;
-import xyz.sleekstats.softball.dialogs.InviteListDialog;
 import xyz.sleekstats.softball.dialogs.ContinueLoadDialog;
 import xyz.sleekstats.softball.dialogs.SelectionInfoDialog;
 import xyz.sleekstats.softball.objects.MainPageSelection;
@@ -50,6 +45,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
@@ -58,6 +54,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
@@ -69,6 +66,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import static xyz.sleekstats.softball.data.FirestoreUpdateService.BOXSCORE_COLLECTION;
 import static xyz.sleekstats.softball.data.FirestoreUpdateService.DELETION_COLLECTION;
@@ -81,37 +79,25 @@ import static xyz.sleekstats.softball.data.FirestoreUpdateService.TEAM_LOGS;
 import static xyz.sleekstats.softball.data.FirestoreUpdateService.USERS;
 
 public class MainActivity extends AppCompatActivity
-        implements LoaderManager.LoaderCallbacks<QuerySnapshot>,
-        View.OnClickListener,
-        InviteListDialog.OnFragmentInteractionListener,
+        implements View.OnClickListener,
         SelectionInfoDialog.OnFragmentInteractionListener,
         DeleteSelectionDialog.OnFragmentInteractionListener,
         ContinueLoadDialog.OnFragmentInteractionListener,
-//        JoinOrCreateDialog.OnFragmentInteractionListener,
         EditNameDialog.OnFragmentInteractionListener,
-//        EnterCodeDialog.OnFragmentInteractionListener,
         AcceptInviteDialog.OnFragmentInteractionListener {
 
     private FirebaseAuth mAuth;
     private static final int RC_SIGN_IN = 0;
     private ArrayList<MainPageSelection> mSelectionList;
-    private ArrayList<MainPageSelection> mInviteList;
     private String userID;
     private boolean visible;
-
     private RecyclerView mRecyclerView;
     private TextView mMsgView;
     private ProgressBar mProgressBar;
-
     private MainPageAdapter mainPageAdapter;
-    private static final int MAIN_LOADER = 22;
-    private FireTaskLoader mFireTaskLoader;
     private FirebaseFirestore mFirestore;
     private ContinueLoadDialog mContinueLoadDialogFragment;
-    private InviteListDialog mInviteListDialogFragment;
     private AcceptInviteDialog mAcceptInviteDialog;
-//    private boolean loadingFinished;
-
     private final MyHandler mHandler = new MyHandler(this);
 
     @Override
@@ -124,6 +110,8 @@ public class MainActivity extends AppCompatActivity
         mRecyclerView = findViewById(R.id.rv_main);
         mMsgView = findViewById(R.id.error_rv_main);
         mProgressBar = findViewById(R.id.progressBarMain);
+
+        mAuth = FirebaseAuth.getInstance();
 
         View playerV = findViewById(R.id.player_sk_card);
         View teamV = findViewById(R.id.team_sk_card);
@@ -138,24 +126,32 @@ public class MainActivity extends AppCompatActivity
                 shuffleCreateStatKeeperViewsVisibility();
             }
         });
+
+        if(savedInstanceState != null) {
+            mSelectionList = savedInstanceState.getParcelableArrayList("mSelectionList");
+        }
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        mMsgView.setVisibility(View.GONE);
+    protected void onResume() {
+        super.onResume();
+        if(mSelectionList != null) {
+            checkInvite();
+            setViews();
+            return;
+        }
         authenticateUser();
     }
 
     protected void authenticateUser() {
-        mAuth = FirebaseAuth.getInstance();
+
         if (mAuth.getCurrentUser() != null) {
+
             setProgressBarVisible();
-            loadSelections();
+            startFirestoreLoad();
             invalidateOptionsMenu();
-            if (mAcceptInviteDialog == null) {
-                checkInvite();
-            }
+            checkInvite();
+
         } else {
             startActivityForResult(AuthUI.getInstance()
                     .createSignInIntentBuilder()
@@ -168,6 +164,9 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void checkInvite() {
+        if (mAcceptInviteDialog != null) {
+            return;
+        }
         FirebaseDynamicLinks.getInstance()
                 .getDynamicLink(getIntent())
                 .addOnSuccessListener(this, new OnSuccessListener<PendingDynamicLinkData>() {
@@ -224,6 +223,7 @@ public class MainActivity extends AppCompatActivity
                                     myApp.setCurrentSelection(new MainPageSelection(id, name, type, level));
                                     final Intent intent;
                                     intent = new Intent(MainActivity.this, LoadingActivity.class);
+                                    intent.putExtra(StatsEntry.ADD, true);
                                     startActivity(intent);
                                     finish();
                                 } else {
@@ -236,9 +236,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void openAcceptInviteDialog(String id, String name, int type, int level) {
-        if (mInviteListDialogFragment != null) {
-            mInviteListDialogFragment.dismissIfShowing();
-        }
+
         if (mContinueLoadDialogFragment != null) {
             mContinueLoadDialogFragment.dismissIfShowing();
         }
@@ -312,7 +310,7 @@ public class MainActivity extends AppCompatActivity
                                                                 writeBatch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                     @Override
                                                                     public void onSuccess(Void aVoid) {
-                                                                        reloadSelections();
+                                                                        startFirestoreLoad();
                                                                         if (mAcceptInviteDialog == null) {
                                                                             checkInvite();
                                                                         }
@@ -325,12 +323,12 @@ public class MainActivity extends AppCompatActivity
                                             }
                                         }
                                     });
-                        reloadSelections();
+                            startFirestoreLoad();
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        reloadSelections();
+                        startFirestoreLoad();
                         if (mAcceptInviteDialog == null) {
                             checkInvite();
                         }
@@ -346,20 +344,6 @@ public class MainActivity extends AppCompatActivity
     invalidateOptionsMenu();
 }
 
-    private void loadSelections() {
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        userID = currentUser.getUid();
-        getSupportLoaderManager().initLoader(MAIN_LOADER, null, this);
-    }
-
-    private void reloadSelections() {
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        userID = currentUser.getUid();
-        mSelectionList = null;
-        mInviteList = null;
-        getSupportLoaderManager().restartLoader(MAIN_LOADER, null, this);
-    }
-
     private void setProgressBarVisible() {
         mMsgView.setVisibility(View.GONE);
         mProgressBar.setVisibility(View.VISIBLE);
@@ -371,24 +355,24 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void setViews() {
+        mProgressBar.setVisibility(View.GONE);
         if (mSelectionList.isEmpty()) {
             mMsgView.setText(R.string.create_statkeeper);
 
-            if (mInviteList.isEmpty()) {
-                if (loadFromCache()) {
-                    String text = "Unable to connect to SleekStats database.\nPlease check your connection and try again." +
+            if (loadFromCache()) {
+                String text = "Unable to connect to SleekStats database.\nPlease check your connection and try again." +
                             "\nAlternatively, try loading statkeepers from your local database.";
-                    mMsgView.setText(text);
-                    final Button sqlButton = findViewById(R.id.btn_sql_load);
-                    final Button retryButton = findViewById(R.id.btn_retry_load);
-                    sqlButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            sqlButton.setVisibility(View.GONE);
-                            retryButton.setVisibility(View.GONE);
-                            setProgressBarVisible();
-//                            loadFromCache();
-                            setViews();
+                mMsgView.setText(text);
+                final Button sqlButton = findViewById(R.id.btn_sql_load);
+                final Button retryButton = findViewById(R.id.btn_retry_load);
+                sqlButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        sqlButton.setVisibility(View.GONE);
+                        retryButton.setVisibility(View.GONE);
+                        setProgressBarVisible();
+//                           loadFromCache();
+                        setViews();
                         }
                     });
                     retryButton.setOnClickListener(new View.OnClickListener() {
@@ -397,7 +381,8 @@ public class MainActivity extends AppCompatActivity
                             sqlButton.setVisibility(View.GONE);
                             retryButton.setVisibility(View.GONE);
                             setProgressBarVisible();
-                            reloadSelections();
+//                            mLoadStarted = false;
+                            startFirestoreLoad();
                         }
                     });
                     sqlButton.setVisibility(View.VISIBLE);
@@ -409,8 +394,6 @@ public class MainActivity extends AppCompatActivity
                     }
                 }
                 setMessageViewVisible();
-            }
-
         } else {
             Collections.sort(mSelectionList, MainPageSelection.nameComparator());
             Collections.sort(mSelectionList, MainPageSelection.typeComparator());
@@ -421,25 +404,6 @@ public class MainActivity extends AppCompatActivity
             mProgressBar.setVisibility(View.GONE);
             mRecyclerView.setVisibility(View.VISIBLE);
         }
-        try {
-            if (!mInviteList.isEmpty()) {
-                mHandler.post(openInviteRunnable);
-            }
-        } catch (Exception ignored) {
-        }
-
-    }
-
-    private void openInviteDialog() {
-        if (mAcceptInviteDialog != null) {
-            return;
-        }
-        if (mInviteListDialogFragment != null) {
-            mInviteListDialogFragment.dismissIfShowing();
-        }
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        mInviteListDialogFragment = InviteListDialog.newInstance(mInviteList);
-        fragmentManager.beginTransaction().add(mInviteListDialogFragment, null).commitAllowingStateLoss();
     }
 
     private void shuffleCreateStatKeeperViewsVisibility() {
@@ -486,16 +450,12 @@ public class MainActivity extends AppCompatActivity
         switch (item.getItemId()) {
             case R.id.action_sign_in:
                 mMsgView.setVisibility(View.GONE);
-                mSelectionList = null;
-                mInviteList = null;
                 authenticateUser();
                 break;
             case R.id.action_sign_out:
                 mMsgView.setText(R.string.sign_in_to_start_text);
                 mMsgView.setVisibility(View.VISIBLE);
-                getSupportLoaderManager().destroyLoader(MAIN_LOADER);
                 mSelectionList = null;
-                mInviteList = null;
                 if (mRecyclerView != null) {
                     mRecyclerView.setAdapter(null);
                 }
@@ -570,69 +530,6 @@ public class MainActivity extends AppCompatActivity
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         DialogFragment newFragment = EditNameDialog.newInstance(title, type);
         newFragment.show(fragmentTransaction, "");
-    }
-
-    @Override
-    public void onInvitesSorted(List<MainPageSelection> list, SparseIntArray changes) {
-        if (mFirestore == null) {
-            mFirestore = FirebaseFirestore.getInstance();
-        }
-        if (userID == null) {
-            FirebaseUser currentUser = mAuth.getCurrentUser();
-            userID = currentUser.getUid();
-        }
-
-        final List<MainPageSelection> insertList = new ArrayList<>();
-        WriteBatch writeBatch = mFirestore.batch();
-
-        for (int i = 0; i < changes.size(); i++) {
-            int key = changes.keyAt(i);
-            final int level = changes.get(key);
-
-            if (level < 0) {
-                continue;
-            }
-
-            MainPageSelection mainPageSelection = list.get(key);
-            mainPageSelection.setLevel(level);
-            String selectionID = mainPageSelection.getId();
-            insertList.add(mainPageSelection);
-
-            DocumentReference leagueRef = mFirestore.collection(LEAGUE_COLLECTION).document(selectionID);
-            DocumentReference userRef = mFirestore.collection(LEAGUE_COLLECTION).document(selectionID)
-                    .collection(USERS).document(userID);
-
-            Map<String, Object> leagueUpdate = new HashMap<>();
-            if (level == UsersActivity.LEVEL_REMOVE_USER) {
-                leagueUpdate.put(userID, FieldValue.delete());
-                writeBatch.delete(userRef);
-            } else {
-                leagueUpdate.put(userID, level);
-                Map<String, Object> userUpdate = new HashMap<>();
-                userUpdate.put(StatsEntry.LEVEL, level);
-                writeBatch.update(userRef, userUpdate);
-            }
-            writeBatch.update(leagueRef, leagueUpdate);
-        }
-        writeBatch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                insertSelectionListToSQL(insertList);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(MainActivity.this, "FAILLLL", Toast.LENGTH_LONG).show();
-            }
-        });
-    }
-
-    private void insertSelectionListToSQL(List<MainPageSelection> list) {
-        for (MainPageSelection mainPageSelection : list) {
-            insertSelectionToSQL(mainPageSelection);
-            mInviteList.remove(mainPageSelection);
-        }
-        updateRV();
     }
 
     private void updateRV() {
@@ -757,7 +654,7 @@ public class MainActivity extends AppCompatActivity
                                                                         @Override
                                                                         public void onSuccess(Void aVoid) {
                                                                             deleteStatKeeper(selection, selectionArgs);
-                                                                            reloadSelections();
+                                                                            startFirestoreLoad();
                                                                         }
                                                                     });
                                                                 }
@@ -837,14 +734,30 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public Loader<QuerySnapshot> onCreateLoader(int id, Bundle args) {
-        mFireTaskLoader = new FireTaskLoader(this);
+    private void startFirestoreLoad () {
+//        mLoadStarted = true;
         setProgressBarVisible();
         mHandler.postDelayed(continueLoadRunnable, 20000);
-        return mFireTaskLoader;
-    }
 
+        if(mFirestore == null) {
+            mFirestore = FirebaseFirestore.getInstance();
+        }
+        if(userID == null) {
+            userID = mAuth.getCurrentUser().getUid();
+        }
+        mFirestore.collection(LEAGUE_COLLECTION)
+                .whereLessThan(userID, 99)
+                .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot querySnapshot) {
+//                if(!mLoadStarted){
+//                    return;
+//                }
+//                mLoadStarted = false;
+                loadData(querySnapshot);
+            }
+        });
+    }
 
     private void openContinueLoadDialog() {
         if (mAcceptInviteDialog != null) {
@@ -856,39 +769,27 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    @Override
-    public void onLoadFinished(android.support.v4.content.Loader<QuerySnapshot> loader, QuerySnapshot querySnapshot) {
-//        loadingFinished = true;
-
-        if (mContinueLoadDialogFragment != null) {
-            mHandler.post(dismissContinueLoadRunnable);
-        } else {
-            mHandler.removeCallbacks(continueLoadRunnable);
-        }
-
-        if (mInviteList != null && mSelectionList != null) {
-            setViews();
-            return;
-        }
-
-        if (mSelectionList == null) {
-            mSelectionList = new ArrayList<>();
-        } else {
-            mSelectionList.clear();
-        }
-
-        if (mInviteList == null) {
-            mInviteList = new ArrayList<>();
-        } else {
-            mInviteList.clear();
-        }
+    private void loadData(QuerySnapshot querySnapshot){
 
         if (querySnapshot == null) {
             mMsgView.setText(R.string.error_with_loading);
             setMessageViewVisible();
-            loadSelections();
+            startFirestoreLoad();
             return;
         }
+
+        if(mSelectionList != null) {
+            return;
+        }
+
+        if (mContinueLoadDialogFragment != null) {
+            mHandler.post(dismissContinueLoadRunnable);
+        }
+        mHandler.removeCallbacks(continueLoadRunnable);
+
+
+
+        mSelectionList = new ArrayList<>();
 
         for (DocumentSnapshot documentSnapshot : querySnapshot) {
             int level = documentSnapshot.getLong(userID).intValue();
@@ -902,26 +803,18 @@ public class MainActivity extends AppCompatActivity
             }
             MainPageSelection mainPageSelection = new MainPageSelection(
                     selectionID, name, type, level);
-            if (level < 0) {
-                mInviteList.add(mainPageSelection);
-            } else if (level >= UsersActivity.LEVEL_VIEW_ONLY) {
+            if (level >= UsersActivity.LEVEL_VIEW_ONLY) {
                 mSelectionList.add(mainPageSelection);
             }
         }
         setViews();
     }
 
-    @Override
-    public void onLoaderReset(android.support.v4.content.Loader<QuerySnapshot> loader) {
-        mRecyclerView.setAdapter(null);
-
-    }
 
     @Override
     public void loadChoice(boolean load) {
         mMsgView.setVisibility(View.GONE);
         if (load) {
-            mFireTaskLoader.cancelLoadInBackground();
             if (loadFromCache()) {
                 setViews();
             } else {
@@ -931,6 +824,8 @@ public class MainActivity extends AppCompatActivity
                 mMsgView.setText(errorText);
                 setMessageViewVisible();
             }
+        } else {
+            mHandler.postDelayed(continueLoadRunnable, 20000);
         }
     }
 
@@ -958,14 +853,20 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStop() {
         super.onStop();
-        getIntent().putParcelableArrayListExtra("mSelectionList", mSelectionList);
-        getIntent().putParcelableArrayListExtra("mInviteList", mInviteList);
         if (mRecyclerView != null) {
             mRecyclerView.setAdapter(null);
             mRecyclerView.setLayoutManager(null);
         }
         if (mainPageAdapter != null) {
             mainPageAdapter = null;
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if(mSelectionList != null) {
+            outState.putParcelableArrayList("mSelectionList", mSelectionList);
         }
     }
 
@@ -1096,6 +997,8 @@ public class MainActivity extends AppCompatActivity
                                     .document(selectionID).collection(REQUESTS).document();
                             StatKeepUser statKeepUser = new StatKeepUser(REQUESTS, name, String.valueOf(type), UsersActivity.LEVEL_VIEW_ONLY - 100);
                             requestDocument.set(statKeepUser, SetOptions.merge());
+                        } else {
+                            intent.putExtra(StatsEntry.ADD, true);
                         }
                         startActivity(intent);
                         finish();
@@ -1138,12 +1041,6 @@ private static class MyHandler extends Handler {
 
 }
 
-    private final Runnable openInviteRunnable = new Runnable() {
-        public void run() {
-            openInviteDialog();
-        }
-    };
-
     private final Runnable continueLoadRunnable = new Runnable() {
         public void run() {
             openContinueLoadDialog();
@@ -1162,9 +1059,11 @@ private static class MyHandler extends Handler {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mHandler.removeCallbacks(openInviteRunnable);
         mHandler.removeCallbacks(continueLoadRunnable);
         mHandler.removeCallbacks(dismissContinueLoadRunnable);
         mHandler.removeCallbacksAndMessages(null);
+        if(mRecyclerView != null) {
+            mRecyclerView.setAdapter(null);
+        }
     }
 }

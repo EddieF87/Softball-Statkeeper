@@ -389,7 +389,6 @@ MySyncResultReceiver.Receiver{
         }
     }
 
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -407,7 +406,7 @@ MySyncResultReceiver.Receiver{
             matchupFragment.setGameSettings();
             matchupFragment.updateBenchColors();
             matchupFragment.changeColorsRV(genderSettingsOn);
-            matchupFragment.updateMatchup();
+//            matchupFragment.updateMatchup();
         }
     }
 
@@ -566,6 +565,28 @@ MySyncResultReceiver.Receiver{
             }
             mReceiver.setReceiver(this);
         }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        boolean newSK = intent.getBooleanExtra(StatsEntry.ADD, false);
+
+        if(!newSK) {return;}
+
+        getStatKeeperData();
+
+        standingsFragment = null;
+        statsFragment = null;
+        matchupFragment = null;
+
+        ViewPager viewPager = findViewById(R.id.my_view_pager);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        viewPager.setOffscreenPageLimit(2);
+        viewPager.setAdapter(new LeagueManagerPagerAdapter(fragmentManager));
+
+        TabLayout tabLayout = findViewById(R.id.my_tab_layout);
+        tabLayout.setupWithViewPager(viewPager);
     }
 
     @Override

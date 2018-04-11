@@ -17,7 +17,9 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        android:gravity="start"
+        >
 
         <TextView
             android:id="@+id/sb_away_name"
@@ -57,6 +59,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="24dp"
         android:orientation="horizontal"
+        android:gravity="start"
         app:layout_constraintEnd_toStartOf="@+id/inning_top_arrow"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toEndOf="@+id/sb_away"

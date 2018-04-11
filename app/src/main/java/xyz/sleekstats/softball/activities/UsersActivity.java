@@ -24,7 +24,6 @@ import xyz.sleekstats.softball.adapters.UserListAdapter;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.dialogs.AccessGuideDialog;
 import xyz.sleekstats.softball.dialogs.CancelLoadDialog;
-import xyz.sleekstats.softball.dialogs.EmailInviteDialog;
 import xyz.sleekstats.softball.dialogs.InviteUserDialog;
 import xyz.sleekstats.softball.dialogs.RetryUserLoadDialog;
 import xyz.sleekstats.softball.objects.MainPageSelection;
@@ -38,13 +37,11 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.dynamiclinks.DynamicLink;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.ShortDynamicLink;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.lang.ref.WeakReference;
@@ -55,13 +52,10 @@ import java.util.List;
 import java.util.Map;
 
 import static xyz.sleekstats.softball.data.FirestoreUpdateService.LEAGUE_COLLECTION;
-import static xyz.sleekstats.softball.data.FirestoreUpdateService.REQUESTS;
 import static xyz.sleekstats.softball.data.FirestoreUpdateService.USERS;
 
 public class UsersActivity extends AppCompatActivity
-        implements InviteUserDialog.OnFragmentInteractionListener,
-        EmailInviteDialog.OnListFragmentInteractionListener,
-        CancelLoadDialog.OnListFragmentInteractionListener,
+        implements CancelLoadDialog.OnListFragmentInteractionListener,
         RetryUserLoadDialog.OnFragmentInteractionListener,
         UserListAdapter.AdapterListener {
 
@@ -252,20 +246,6 @@ public class UsersActivity extends AppCompatActivity
         emailView.setText(creatorEmail);
     }
 
-    private void openInviteUserDialog() {
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = new InviteUserDialog();
-        newFragment.show(fragmentTransaction, "");
-    }
-
-    private void openEmailInvitesDialog() {
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = new EmailInviteDialog();
-        newFragment.show(fragmentTransaction, "");
-    }
-
     private void setButtons() {
         if (mLevel >= LEVEL_ADMIN) {
             startAdderBtn = findViewById(R.id.btn_start_adder);
@@ -274,7 +254,7 @@ public class UsersActivity extends AppCompatActivity
                 @Override
                 public void onClick(View view) {
                     startAdderBtn.setVisibility(View.INVISIBLE);
-                    openInviteUserDialog();
+                    createMsgInvite();
                 }
             });
             saveBtn = findViewById(R.id.btn_save_changes);
@@ -391,16 +371,6 @@ public class UsersActivity extends AppCompatActivity
         outState.putParcelable(SAVED_CREATOR, mCreator);
     }
 
-    @Override
-    public void onEmailInvites() {
-        openEmailInvitesDialog();
-    }
-
-    @Override
-    public void onInviteUsers() {
-        createMsgInvite();
-    }
-
     private void createMsgInvite() {
         final String selectionType;
         if (mSelectionType == MainPageSelection.TYPE_LEAGUE) {
@@ -419,8 +389,6 @@ public class UsersActivity extends AppCompatActivity
                 .setAndroidParameters(new DynamicLink.AndroidParameters.Builder()
                         .setFallbackUrl(Uri.parse("http://sleekstats.xyz"))
                         .build())
-                // Open links with com.example.ios on iOS
-                .setIosParameters(new DynamicLink.IosParameters.Builder("com.example.ios").build())
                 .buildDynamicLink();
 
         Uri dynamicLinkUri = dynamicLink.getUri();
@@ -481,85 +449,6 @@ public class UsersActivity extends AppCompatActivity
                 + mSelectionName + "!\n\nJoin here: " + shortLink);
 
         startActivity(Intent.createChooser(msgIntent, "Send View-Link to friends!"));
-    }
-
-
-    @Override
-    public void onCancel() {
-        startAdderBtn.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void onSubmitEmails(List<String> emails, List<Integer> levels) {
-        int emailSize = emails.size();
-        if (emailSize < 1) {
-            return;
-        }
-
-        for (int i = 0; i < emailSize; i++) {
-            String emailText = emails.get(i);
-            if (emailText == null || emailText.isEmpty()) {
-                continue;
-            }
-            final String email = emailText.toLowerCase();
-            final int level = levels.get(i) + 1;
-            final DocumentReference statKeeperRef = firestore.collection(LEAGUE_COLLECTION).document(mSelectionID);
-            final CollectionReference usersCollection = firestore.collection(USERS);
-            usersCollection.
-                    whereEqualTo(StatsContract.StatsEntry.EMAIL, email)
-                    .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                    if (task.isSuccessful()) {
-                        List<DocumentSnapshot> documentSnapshots = task.getResult().getDocuments();
-
-                        Map<String, Object> userData = new HashMap<>();
-                        userData.put(StatsContract.StatsEntry.LEVEL, -level);
-
-                        WriteBatch writeBatch = firestore.batch();
-
-                        if (!documentSnapshots.isEmpty()) {
-                            DocumentSnapshot documentSnapshot = documentSnapshots.get(0);
-                            String userID = documentSnapshot.getId();
-
-                            StatKeepUser compareUser = new StatKeepUser(userID, null, null, 0);
-                            if (mUserList.contains(compareUser) || mCreator.equals(compareUser)) {
-                                return;
-                            }
-
-                            userData.put(StatsContract.StatsEntry.EMAIL, email);
-                            userData.put(StatsContract.StatsEntry.COLUMN_NAME, null);
-                            writeBatch.set(statKeeperRef.collection(USERS)
-                                    .document(userID), userData, SetOptions.merge());
-
-                            Map<String, Integer> statKeeperData = new HashMap<>();
-                            statKeeperData.put(userID, -level);
-                            writeBatch.set(firestore.collection(LEAGUE_COLLECTION).document(mSelectionID),
-                                    statKeeperData, SetOptions.merge());
-
-                        } else {
-                            writeBatch.set(usersCollection.document(email).collection(REQUESTS).document(mSelectionID), userData, SetOptions.merge());
-                            writeBatch.set(statKeeperRef.collection(REQUESTS).document(email),
-                                    userData, SetOptions.merge());
-                        }
-                        writeBatch.commit();
-                    }
-                }
-            });
-        }
-
-        String[] emailList = new String[emailSize];
-        emailList = emails.toArray(emailList);
-
-        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", "", null));
-        emailIntent.putExtra(Intent.EXTRA_BCC, emailList);
-        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "StatKeeper Invitation for " + mSelectionName + "!");
-        emailIntent.putExtra(Intent.EXTRA_TEXT, "You're invited to view, manage, and share stats and standings for " + mSelectionName + "." +
-                "\n\nFollow this link to begin: https://play.google.com/store/apps/details?id=xyz.sleekstats.softball");
-        //todo add link
-        startActivity(Intent.createChooser(emailIntent, "Email friends about their invitation!"));
-
-        startAdderBtn.setVisibility(View.VISIBLE);
     }
 
     @Override

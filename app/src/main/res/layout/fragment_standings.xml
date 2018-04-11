@@ -87,7 +87,7 @@
         android:id="@+id/btn_games"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:text="@string/games"
+        android:text="@string/scores"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="@+id/btn_waivers"
         app:layout_constraintEnd_toStartOf="@+id/btn_waivers"

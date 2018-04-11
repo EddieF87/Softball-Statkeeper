@@ -54,6 +54,9 @@ public class GameRecapListActivity extends AppCompatActivity implements LoaderMa
             MainPageSelection mainPageSelection = myApp.getCurrentSelection();
             mStatKeeperID = mainPageSelection.getId();
             mSelectionType = mainPageSelection.getType();
+            String skName = mainPageSelection.getName();
+            String title = skName + " Scores";
+            setTitle(title);
         } catch (Exception e) {
             Intent intent = new Intent(GameRecapListActivity.this, MainActivity.class);
             startActivity(intent);

@@ -1,7 +1,11 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="SubTheme">
+        <item name="android:windowBackground">@color/colorPrimaryLight</item>
+    </style>
+
+    <style name="SubTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
@@ -12,14 +16,8 @@
         <item name="android:borderlessButtonStyle">@style/MyFlatButtonStyle</item>
     </style>
 
-    <style name="WhiteTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
-        <item name="buttonStyle">@style/MyButtonStyle</item>
-        <item name="android:textColor">@color/colorPrimaryDark</item>
-        <item name="android:alertDialogTheme">@style/MyAlertDialog</item>
-        <item name="android:borderlessButtonStyle">@style/MyFlatButtonStyle</item>
+    <style name="WhiteTheme" parent="SubTheme">
+        <item name="android:windowBackground">@color/colorDefault</item>
     </style>
 
     <style name="ResultsButtonStyle" parent="RadioButtonStyle">

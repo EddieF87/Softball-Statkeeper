@@ -24,9 +24,9 @@ public class InviteUserDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-        AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
+        return new AlertDialog.Builder(getActivity())
                 .setTitle("Invite Users")
-                .setNeutralButton("Share View Link", new DialogInterface.OnClickListener() {
+                .setPositiveButton("Share View Link", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int i) {
                         if (mListener != null) {
@@ -35,15 +35,7 @@ public class InviteUserDialog extends DialogFragment {
                         dialog.dismiss();
                     }
                 })
-                .setNegativeButton("Grant Access Via emails", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        if (mListener != null) {
-                            mListener.onEmailInvites();
-                        }
-                        dialog.dismiss();
-                    }
-                })
-                .setPositiveButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                .setNeutralButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         if (mListener != null) {
                             mListener.onCancel();
@@ -53,27 +45,6 @@ public class InviteUserDialog extends DialogFragment {
                 })
                 .setCancelable(false)
                 .create();
-        alertDialog.setCanceledOnTouchOutside(false);
-        alertDialog.show();
-        try{
-            final Button posbutton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            LinearLayout linearLayout = (LinearLayout) posbutton.getParent();
-            linearLayout.setOrientation(LinearLayout.VERTICAL);
-
-//            final Button negbutton = alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-//            final Button neutbutton = alertDialog.getButton(AlertDialog.BUTTON_NEUTRAL);
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//                posbutton.setBackground(getContext().getDrawable(R.drawable.border));
-////                posbutton.setWidth(width);
-//                negbutton.setBackground(getContext().getDrawable(R.drawable.border));
-////                negbutton.setWidth(width);
-//                neutbutton.setBackground(getContext().getDrawable(R.drawable.border));
-////                neutbutton.setWidth(width);
-//            }
-        } catch(Exception ex){
-            //ignore it
-        }
-        return alertDialog;
     }
 
     @Override
@@ -103,7 +74,6 @@ public class InviteUserDialog extends DialogFragment {
     }
 
     public interface OnFragmentInteractionListener {
-        void onEmailInvites();
         void onInviteUsers();
         void onCancel();
     }

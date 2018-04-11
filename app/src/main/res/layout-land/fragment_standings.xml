@@ -90,7 +90,7 @@
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
         app:layout_constraintHorizontal_weight="1"
-        android:text="@string/games"
+        android:text="@string/scores"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="@+id/item_team_adder"
         app:layout_constraintEnd_toStartOf="@+id/btn_waivers"

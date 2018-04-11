@@ -10,6 +10,6 @@
     <color name="colorDefault">#FFFFFF</color>
     <color name="colorScoreboard">#FFD600</color>
     <color name="colorHighlight">#ff7b07</color>
-    <color name="male">#6fa2ef</color>
-    <color name="female">#f99da2</color>
+    <color name="male">#5688d2</color>
+    <color name="female">#e46f77</color>
 </resources>

@@ -191,8 +191,9 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="25"
+            android:textSize="16sp"
+            android:autoSizeTextType="none"
             android:autoSizeMinTextSize="10sp"
-            android:autoSizeTextType="uniform"
             android:padding="4dp"
             tools:targetApi="o" />
 
@@ -214,10 +215,8 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="25"
-            android:autoSizeMinTextSize="10sp"
-            android:autoSizeTextType="uniform"
+            android:textSize="16sp"
             android:padding="4dp"
-            android:textSize="12sp"
             tools:targetApi="o" />
 
     </LinearLayout>
@@ -239,24 +238,24 @@
         android:id="@+id/current_game_view"
         style="@style/RadioButtonStyle"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:layout_marginEnd="4dp"
         android:layout_marginStart="4dp"
         android:layout_weight="2"
+        android:elevation="2dp"
         android:maxLines="2"
         android:paddingBottom="0dp"
         android:paddingTop="0dp"
         android:textSize="16sp"
         android:visibility="gone"
-        tools:visibility="visible"
-        android:elevation="2dp"
         app:layout_constraintBottom_toBottomOf="@+id/layout_settings"
         app:layout_constraintEnd_toEndOf="@id/continue_game"
         app:layout_constraintStart_toStartOf="@id/continue_game"
         app:layout_constraintTop_toTopOf="@id/layout_settings"
+        tools:targetApi="lollipop"
         tools:text="aaaaaaaaaaaaa \n aaaabbbaa"
-        tools:targetApi="lollipop" />
+        tools:visibility="visible" />
 
     <LinearLayout
         android:id="@+id/layout_settings"

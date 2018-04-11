@@ -11,6 +11,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -24,12 +26,15 @@ public class GameRecapRecyclerViewAdapter extends RecyclerView.Adapter<GameRecap
     private final List<GameRecap> recapList;
     private final Map<String, String> teamNameMap;
     private final Context mContext;
+    private SimpleDateFormat mDateFormat;
 
     public GameRecapRecyclerViewAdapter(List<GameRecap> list, Map<String, String> map, Context context) {
         this.setHasStableIds(true);
         this.recapList = list;
         this.teamNameMap = map;
         this.mContext = context;
+        this.mDateFormat = (SimpleDateFormat) DateFormat.getDateInstance(DateFormat.SHORT);
+        mDateFormat.applyPattern(mDateFormat.toPattern().replaceAll("yyyy", "yy"));
     }
 
     @Override
@@ -46,7 +51,9 @@ public class GameRecapRecyclerViewAdapter extends RecyclerView.Adapter<GameRecap
         GameRecap gameRecap = recapList.get(position);
 
         final long gameID = gameRecap.getGameID();
-        String dateString = DateFormat.getDateInstance(DateFormat.DATE_FIELD).format(gameID);
+        String dateString = mDateFormat.format(gameID);
+
+//        DateFormat.getDateInstance(DateFormat.SHORT).format(gameID);
         holder.mDateTextView.setText(dateString);
 
         final String awayID = gameRecap.getAwayID();

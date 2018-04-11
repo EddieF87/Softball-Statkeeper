@@ -204,6 +204,11 @@ public class LineupFragment extends Fragment {
             public void onItemChangedColumn(int oldColumn, int newColumn) {
             }
 
+//            @Override
+//            public void onFocusedColumnChanged(int oldColumn, int newColumn) {
+//
+//            }
+
             @Override
             public void onItemDragEnded(int fromColumn, int fromRow, int toColumn, int toRow) {
             }

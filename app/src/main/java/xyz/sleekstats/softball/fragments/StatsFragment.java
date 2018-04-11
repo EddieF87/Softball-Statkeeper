@@ -202,7 +202,9 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
             update = mAdapter.changeColors(genderSettingsOn);
         }
         if (update) {
-            updateStatsRV();
+            if(mPlayers != null) {
+                updateStatsRV();
+            }
         }
     }
 

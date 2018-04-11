@@ -150,7 +150,7 @@
     <string name="asset_statements" translatable="false">[{\n  \"relation\": [\"delegate_permission/common.handle_all_urls\"],\n  \"target\": {\n    \"namespace\": \"web\",\n    \"site\": \"https://seekstats.xyz\",\n  }\n}]</string>
     <string name="change_game_length">Set Innings</string>
     <string name="accept">Accept</string>
-    <string name="games">Games</string>
+    <string name="scores">Scores</string>
     <string name="open_stat_manager">Open Stat Manager</string>
     <string name="close_stat_manager">Close Stat Manager</string>
     <string name="delete_recap">Delete</string>
