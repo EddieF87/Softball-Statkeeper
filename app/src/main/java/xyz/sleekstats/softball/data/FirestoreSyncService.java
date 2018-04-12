@@ -211,8 +211,14 @@ public class FirestoreSyncService extends IntentService {
                                                     int sfs = 0;
 
                                                     for (DocumentSnapshot document : querySnapshot) {
+                                                        String id = document.getId().substring(0, 5);
+                                                        if(id.equals("ERASE")) {
+                                                            games--;
+                                                        } else {
+                                                            games++;
+                                                        }
+
                                                         PlayerLog playerLog = document.toObject(PlayerLog.class);
-                                                        games++;
                                                         rbi += playerLog.getRbi();
                                                         runs += playerLog.getRuns();
                                                         singles += playerLog.getSingles();

@@ -9,11 +9,12 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import xyz.sleekstats.softball.R;
@@ -26,15 +27,14 @@ public class GameRecapRecyclerViewAdapter extends RecyclerView.Adapter<GameRecap
     private final List<GameRecap> recapList;
     private final Map<String, String> teamNameMap;
     private final Context mContext;
-    private SimpleDateFormat mDateFormat;
+    private SimpleDateFormat mSimpleDateFormat;
 
     public GameRecapRecyclerViewAdapter(List<GameRecap> list, Map<String, String> map, Context context) {
         this.setHasStableIds(true);
         this.recapList = list;
         this.teamNameMap = map;
         this.mContext = context;
-        this.mDateFormat = (SimpleDateFormat) DateFormat.getDateInstance(DateFormat.SHORT);
-        mDateFormat.applyPattern(mDateFormat.toPattern().replaceAll("yyyy", "yy"));
+        mSimpleDateFormat = new SimpleDateFormat("MMM dd\nyyyy", Locale.US);
     }
 
     @Override
@@ -44,14 +44,13 @@ public class GameRecapRecyclerViewAdapter extends RecyclerView.Adapter<GameRecap
         return new RecapViewHolder(frameLayout);
     }
 
-
     @Override
     public void onBindViewHolder(RecapViewHolder holder, int position) {
 
         GameRecap gameRecap = recapList.get(position);
 
         final long gameID = gameRecap.getGameID();
-        String dateString = mDateFormat.format(gameID);
+        String dateString = mSimpleDateFormat.format(gameID);
 
 //        DateFormat.getDateInstance(DateFormat.SHORT).format(gameID);
         holder.mDateTextView.setText(dateString);

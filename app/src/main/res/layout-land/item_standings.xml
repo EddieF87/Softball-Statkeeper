@@ -9,8 +9,8 @@
     android:orientation="horizontal"
     android:paddingTop="4dp"
     android:paddingBottom="4dp"
-    android:paddingLeft="8dp"
-    android:paddingRight="8dp">
+    android:paddingStart="8dp"
+    android:paddingEnd="0dp">
 
     <TextView
         android:id="@+id/name"
@@ -59,7 +59,7 @@
     <TextView
         android:id="@+id/runsagainst"
         style="@style/StandingsStyle"
-        android:layout_weight="36"
+        android:layout_weight="40"
         tools:text="144" />
 
     <TextView

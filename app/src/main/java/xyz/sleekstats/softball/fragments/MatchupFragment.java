@@ -519,7 +519,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                     }
                     break;
                 default:
-                    Toast.makeText(getActivity(), "onItemSelected error ", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Error ", Toast.LENGTH_SHORT).show();
                     break;
             }
             return;
@@ -537,7 +537,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                 homeTeamID = teamID;
                 break;
             default:
-                Toast.makeText(getActivity(), "onItemSelected error ", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "Error ", Toast.LENGTH_SHORT).show();
                 break;
         }
         List<Player> playerList = getLineup(teamID);

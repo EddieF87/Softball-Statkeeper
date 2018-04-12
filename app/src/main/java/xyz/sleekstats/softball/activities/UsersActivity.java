@@ -24,7 +24,6 @@ import xyz.sleekstats.softball.adapters.UserListAdapter;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.dialogs.AccessGuideDialog;
 import xyz.sleekstats.softball.dialogs.CancelLoadDialog;
-import xyz.sleekstats.softball.dialogs.InviteUserDialog;
 import xyz.sleekstats.softball.dialogs.RetryUserLoadDialog;
 import xyz.sleekstats.softball.objects.MainPageSelection;
 import xyz.sleekstats.softball.objects.StatKeepUser;
@@ -155,7 +154,7 @@ public class UsersActivity extends AppCompatActivity
             userCollection = firestore.collection(LEAGUE_COLLECTION).document(mSelectionID).collection(USERS);
         } else {
             Button emailButton = findViewById(R.id.btn_email);
-            emailButton.setText("Email Head Admin");
+            emailButton.setText(R.string.email_head_admin);
             userCollection = firestore.collection(LEAGUE_COLLECTION).document(mSelectionID).collection(USERS).whereGreaterThan(StatsContract.StatsEntry.LEVEL, LEVEL_ADMIN);
         }
         mHandler.postDelayed(retryLoadRunnable, 20000);

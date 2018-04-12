@@ -49,7 +49,7 @@ public class LeagueManagerActivity extends ExportActivity
         MatchupFragment.OnFragmentInteractionListener,
         StandingsFragment.OnFragmentInteractionListener,
         StatsFragment.OnFragmentInteractionListener,
-MySyncResultReceiver.Receiver{
+        MySyncResultReceiver.Receiver{
 
     private StandingsFragment standingsFragment;
     private StatsFragment statsFragment;
@@ -72,14 +72,7 @@ MySyncResultReceiver.Receiver{
             gameUpdating = savedInstanceState.getBoolean(StatsEntry.UPDATE, false);
         }
         getStatKeeperData();
-
-        ViewPager viewPager = findViewById(R.id.my_view_pager);
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        viewPager.setOffscreenPageLimit(2);
-        viewPager.setAdapter(new LeagueManagerPagerAdapter(fragmentManager));
-
-        TabLayout tabLayout = findViewById(R.id.my_tab_layout);
-        tabLayout.setupWithViewPager(viewPager);
+        startPager();
 
         String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
         String[] selectionArgs = new String[]{mLeagueID};
@@ -116,6 +109,15 @@ MySyncResultReceiver.Receiver{
         }
     }
 
+    private void startPager(){
+        ViewPager viewPager = findViewById(R.id.my_view_pager);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        viewPager.setOffscreenPageLimit(2);
+        viewPager.setAdapter(new LeagueManagerPagerAdapter(fragmentManager));
+
+        TabLayout tabLayout = findViewById(R.id.my_tab_layout);
+        tabLayout.setupWithViewPager(viewPager);
+    }
 
     private void sendRetryGameLoadIntent(){
 //        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, new IntentFilter(StatsEntry.UPDATE));
@@ -315,7 +317,7 @@ MySyncResultReceiver.Receiver{
         }
         if(firestoreUpdateFinish) {
             firestoreUpdate = 4;
-            Toast.makeText(LeagueManagerActivity.this, "Stats have been uploaded to cloud!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(LeagueManagerActivity.this, R.string.changes_to_cloud, Toast.LENGTH_SHORT).show();
         }
         if(localUpdateFinish && firestoreUpdateFinish) {
 //            LocalBroadcastManager.getInstance(LeagueManagerActivity.this).unregisterReceiver(mReceiver);
@@ -574,19 +576,11 @@ MySyncResultReceiver.Receiver{
 
         if(!newSK) {return;}
 
-        getStatKeeperData();
-
         standingsFragment = null;
         statsFragment = null;
         matchupFragment = null;
-
-        ViewPager viewPager = findViewById(R.id.my_view_pager);
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        viewPager.setOffscreenPageLimit(2);
-        viewPager.setAdapter(new LeagueManagerPagerAdapter(fragmentManager));
-
-        TabLayout tabLayout = findViewById(R.id.my_tab_layout);
-        tabLayout.setupWithViewPager(viewPager);
+        getStatKeeperData();
+        startPager();
     }
 
     @Override

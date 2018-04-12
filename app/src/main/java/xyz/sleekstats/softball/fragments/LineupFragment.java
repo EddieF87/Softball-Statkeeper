@@ -712,7 +712,7 @@ public class LineupFragment extends Fragment {
             cursor.close();
             return lineup;
         } catch (Exception e) {
-            Toast.makeText(getActivity(), "woops  " + e, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "Lineup Error  " + e, Toast.LENGTH_SHORT).show();
             return null;
         }
     }

@@ -22,7 +22,8 @@
         app:layout_constraintBottom_toTopOf="@+id/bottom_line"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/standings_titles" />
+        app:layout_constraintTop_toBottomOf="@id/standings_titles"
+        tools:listitem="@layout/item_standings" />
 
     <TextView
         android:id="@+id/empty_text"

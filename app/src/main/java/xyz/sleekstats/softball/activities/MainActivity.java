@@ -45,7 +45,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
@@ -54,7 +53,6 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
@@ -66,14 +64,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 import static xyz.sleekstats.softball.data.FirestoreUpdateService.BOXSCORE_COLLECTION;
 import static xyz.sleekstats.softball.data.FirestoreUpdateService.DELETION_COLLECTION;
 import static xyz.sleekstats.softball.data.FirestoreUpdateService.LEAGUE_COLLECTION;
 import static xyz.sleekstats.softball.data.FirestoreUpdateService.PLAYERS_COLLECTION;
 import static xyz.sleekstats.softball.data.FirestoreUpdateService.PLAYER_LOGS;
-import static xyz.sleekstats.softball.data.FirestoreUpdateService.REQUESTS;
 import static xyz.sleekstats.softball.data.FirestoreUpdateService.TEAMS_COLLECTION;
 import static xyz.sleekstats.softball.data.FirestoreUpdateService.TEAM_LOGS;
 import static xyz.sleekstats.softball.data.FirestoreUpdateService.USERS;
@@ -127,7 +123,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        if(savedInstanceState != null) {
+        if (savedInstanceState != null) {
             mSelectionList = savedInstanceState.getParcelableArrayList("mSelectionList");
         }
     }
@@ -135,7 +131,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        if(mSelectionList != null) {
+        if (mSelectionList != null) {
             checkInvite();
             setViews();
             return;
@@ -146,8 +142,6 @@ public class MainActivity extends AppCompatActivity
     protected void authenticateUser() {
 
         if (mAuth.getCurrentUser() != null) {
-
-            setProgressBarVisible();
             startFirestoreLoad();
             invalidateOptionsMenu();
             checkInvite();
@@ -266,83 +260,18 @@ public class MainActivity extends AppCompatActivity
                     if (mFirestore == null) {
                         mFirestore = FirebaseFirestore.getInstance();
                     }
-
-                    mFirestore.collection(USERS).document(id).set(userInfo).addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            if (email == null) {
-                                return;
-                            }
-                            mFirestore.collection(USERS).document(email).collection(REQUESTS).get()
-                                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                            if (task.isSuccessful()) {
-                                                QuerySnapshot querySnapshot = task.getResult();
-                                                for (final DocumentSnapshot emailReqSnapshot : querySnapshot) {
-
-                                                    final String statKeeper = emailReqSnapshot.getId();
-                                                    final long level = emailReqSnapshot.getLong(StatsEntry.LEVEL);
-
-                                                    final DocumentReference requestRef = mFirestore.collection(LEAGUE_COLLECTION).document(statKeeper).collection(REQUESTS).document(email);
-                                                    requestRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                                        @Override
-                                                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                                            if (task.isSuccessful()) {
-
-                                                                DocumentReference statKeeperRef = mFirestore.collection(LEAGUE_COLLECTION).document(statKeeper);
-                                                                DocumentReference userRef = statKeeperRef.collection(USERS).document(id);
-                                                                DocumentReference emailRequestRef = emailReqSnapshot.getReference();
-
-                                                                Map<String, Object> updateUser = new HashMap<>();
-                                                                updateUser.put(StatsEntry.LEVEL, level);
-                                                                updateUser.put(StatsEntry.EMAIL, email);
-
-                                                                Map<String, Object> updateStatKeeper = new HashMap<>();
-                                                                updateStatKeeper.put(id, level);
-
-
-                                                                WriteBatch writeBatch = mFirestore.batch();
-                                                                writeBatch.set(userRef, updateUser, SetOptions.merge());
-                                                                writeBatch.set(statKeeperRef, updateStatKeeper, SetOptions.merge());
-                                                                writeBatch.delete(requestRef);
-                                                                writeBatch.delete(emailRequestRef);
-                                                                writeBatch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                                    @Override
-                                                                    public void onSuccess(Void aVoid) {
-                                                                        startFirestoreLoad();
-                                                                        if (mAcceptInviteDialog == null) {
-                                                                            checkInvite();
-                                                                        }
-                                                                    }
-                                                                });
-                                                            }
-                                                        }
-                                                    });
-                                                }
-                                            }
-                                        }
-                                    });
-                            startFirestoreLoad();
+                    startFirestoreLoad();
+                    if (mAcceptInviteDialog == null) {
+                        checkInvite();
                     }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        startFirestoreLoad();
-                        if (mAcceptInviteDialog == null) {
-                            checkInvite();
-                        }
-                    }
-                });
+                }
+            } else {
+                mMsgView.setText(R.string.sign_in_to_start_text);
+                setMessageViewVisible();
             }
-        } else {
-            mMsgView.setText(R.string.sign_in_to_start_text);
-            setMessageViewVisible();
         }
+        invalidateOptionsMenu();
     }
-
-    invalidateOptionsMenu();
-}
 
     private void setProgressBarVisible() {
         mMsgView.setVisibility(View.GONE);
@@ -356,44 +285,23 @@ public class MainActivity extends AppCompatActivity
 
     private void setViews() {
         mProgressBar.setVisibility(View.GONE);
+
         if (mSelectionList.isEmpty()) {
             mMsgView.setText(R.string.create_statkeeper);
 
             if (loadFromCache()) {
+                mSelectionList = null;
                 String text = "Unable to connect to SleekStats database.\nPlease check your connection and try again." +
-                            "\nAlternatively, try loading statkeepers from your local database.";
+                        "\nAlternatively, try loading statkeepers from your local database.";
                 mMsgView.setText(text);
-                final Button sqlButton = findViewById(R.id.btn_sql_load);
-                final Button retryButton = findViewById(R.id.btn_retry_load);
-                sqlButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        sqlButton.setVisibility(View.GONE);
-                        retryButton.setVisibility(View.GONE);
-                        setProgressBarVisible();
-//                           loadFromCache();
-                        setViews();
-                        }
-                    });
-                    retryButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            sqlButton.setVisibility(View.GONE);
-                            retryButton.setVisibility(View.GONE);
-                            setProgressBarVisible();
-//                            mLoadStarted = false;
-                            startFirestoreLoad();
-                        }
-                    });
-                    sqlButton.setVisibility(View.VISIBLE);
-                    retryButton.setVisibility(View.VISIBLE);
-                } else {
-                    mainPageAdapter = null;
-                    if (!visible) {
-                        shuffleCreateStatKeeperViewsVisibility();
-                    }
+                setRetryButtons();
+            } else {
+                mainPageAdapter = null;
+                if (!visible) {
+                    shuffleCreateStatKeeperViewsVisibility();
                 }
-                setMessageViewVisible();
+            }
+            setMessageViewVisible();
         } else {
             Collections.sort(mSelectionList, MainPageSelection.nameComparator());
             Collections.sort(mSelectionList, MainPageSelection.typeComparator());
@@ -464,7 +372,6 @@ public class MainActivity extends AppCompatActivity
                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
-//                                finish();
                             }
                         });
                 break;
@@ -640,25 +547,17 @@ public class MainActivity extends AppCompatActivity
                                                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                                     deleteCollection(batch, task);
 
-                                                    leagueDoc.collection(REQUESTS).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                                        @Override
-                                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                            deleteCollection(batch, task);
-
-                                                            leagueDoc.collection(BOXSCORE_COLLECTION).get()
+                                                    leagueDoc.collection(BOXSCORE_COLLECTION).get()
                                                                     .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                                                @Override
-                                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                                    deleteCollection(batch, task);
-                                                                    batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                         @Override
-                                                                        public void onSuccess(Void aVoid) {
-                                                                            deleteStatKeeper(selection, selectionArgs);
-                                                                            startFirestoreLoad();
+                                                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                                            deleteCollection(batch, task);
+                                                                            batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                                @Override
+                                                                                public void onSuccess(Void aVoid) {
+                                                                                    deleteStatKeeper(selection, selectionArgs);
                                                                         }
                                                                     });
-                                                                }
-                                                            });
                                                         }
                                                     });
                                                 }
@@ -707,12 +606,12 @@ public class MainActivity extends AppCompatActivity
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Toast.makeText(MainActivity.this, "FAILLLL 1111111111", Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, "Failed to delete statkeeper. Please try again or contact sleekstats@gmail.com.", Toast.LENGTH_LONG).show();
             }
         });
     }
 
-    private void deleteStatKeeper(String selection, String[] selectionArgs){
+    private void deleteStatKeeper(String selection, String[] selectionArgs) {
         getContentResolver().delete(StatsEntry.CONTENT_URI_BOXSCORE_OVERVIEWS, selection, selectionArgs);
         getContentResolver().delete(StatsEntry.CONTENT_URI_BOXSCORE_PLAYERS, selection, selectionArgs);
         getContentResolver().delete(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, selection, selectionArgs);
@@ -734,15 +633,14 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void startFirestoreLoad () {
-//        mLoadStarted = true;
+    private void startFirestoreLoad() {
         setProgressBarVisible();
         mHandler.postDelayed(continueLoadRunnable, 20000);
 
-        if(mFirestore == null) {
+        if (mFirestore == null) {
             mFirestore = FirebaseFirestore.getInstance();
         }
-        if(userID == null) {
+        if (userID == null) {
             userID = mAuth.getCurrentUser().getUid();
         }
         mFirestore.collection(LEAGUE_COLLECTION)
@@ -750,16 +648,13 @@ public class MainActivity extends AppCompatActivity
                 .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot querySnapshot) {
-//                if(!mLoadStarted){
-//                    return;
-//                }
-//                mLoadStarted = false;
                 loadData(querySnapshot);
             }
         });
     }
 
     private void openContinueLoadDialog() {
+        mHandler.removeCallbacks(continueLoadRunnable);
         if (mAcceptInviteDialog != null) {
             return;
         }
@@ -768,17 +663,41 @@ public class MainActivity extends AppCompatActivity
         fragmentManager.beginTransaction().add(mContinueLoadDialogFragment, null).commitAllowingStateLoss();
     }
 
+    private void setRetryButtons() {
+        final Button sqlButton = findViewById(R.id.btn_sql_load);
+        final Button retryButton = findViewById(R.id.btn_retry_load);
+        sqlButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sqlButton.setVisibility(View.GONE);
+                retryButton.setVisibility(View.GONE);
+                setProgressBarVisible();
+                loadFromCache();
+                setViews();
+            }
+        });
+        retryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sqlButton.setVisibility(View.GONE);
+                retryButton.setVisibility(View.GONE);
+                startFirestoreLoad();
+            }
+        });
+        sqlButton.setVisibility(View.VISIBLE);
+        retryButton.setVisibility(View.VISIBLE);
+    }
 
-    private void loadData(QuerySnapshot querySnapshot){
+    private void loadData(QuerySnapshot querySnapshot) {
 
         if (querySnapshot == null) {
             mMsgView.setText(R.string.error_with_loading);
             setMessageViewVisible();
-            startFirestoreLoad();
+            setRetryButtons();
             return;
         }
 
-        if(mSelectionList != null) {
+        if (mSelectionList != null) {
             return;
         }
 
@@ -788,7 +707,6 @@ public class MainActivity extends AppCompatActivity
         mHandler.removeCallbacks(continueLoadRunnable);
 
 
-
         mSelectionList = new ArrayList<>();
 
         for (DocumentSnapshot documentSnapshot : querySnapshot) {
@@ -796,7 +714,7 @@ public class MainActivity extends AppCompatActivity
             String selectionID = documentSnapshot.getId();
             String name = documentSnapshot.getString(StatsEntry.COLUMN_NAME);
             int type;
-            if(name == null || documentSnapshot.getLong(StatsEntry.TYPE) == null) {
+            if (name == null || documentSnapshot.getLong(StatsEntry.TYPE) == null) {
                 continue;
             } else {
                 type = documentSnapshot.getLong(StatsEntry.TYPE).intValue();
@@ -865,7 +783,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if(mSelectionList != null) {
+        if (mSelectionList != null) {
             outState.putParcelableArrayList("mSelectionList", mSelectionList);
         }
     }
@@ -992,11 +910,6 @@ public class MainActivity extends AppCompatActivity
                                 values.put(StatsEntry.COLUMN_LEAGUE_ID, selectionID);
                                 getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
                             }
-
-                            DocumentReference requestDocument = mFirestore.collection(LEAGUE_COLLECTION)
-                                    .document(selectionID).collection(REQUESTS).document();
-                            StatKeepUser statKeepUser = new StatKeepUser(REQUESTS, name, String.valueOf(type), UsersActivity.LEVEL_VIEW_ONLY - 100);
-                            requestDocument.set(statKeepUser, SetOptions.merge());
                         } else {
                             intent.putExtra(StatsEntry.ADD, true);
                         }
@@ -1006,12 +919,10 @@ public class MainActivity extends AppCompatActivity
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Toast.makeText(MainActivity.this, "Firebase error! Try again!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Firebase error! Please try again!", Toast.LENGTH_SHORT).show();
             }
         });
     }
-
-
 
 
     @Override
@@ -1024,22 +935,22 @@ public class MainActivity extends AppCompatActivity
         mAcceptInviteDialog = null;
     }
 
-private static class MyHandler extends Handler {
-    private final WeakReference<MainActivity> mActivity;
+    private static class MyHandler extends Handler {
+        private final WeakReference<MainActivity> mActivity;
 
-    MyHandler(MainActivity activity) {
-        mActivity = new WeakReference<>(activity);
-    }
-
-    @Override
-    public void handleMessage(Message msg) {
-        MainActivity activity = mActivity.get();
-        if (activity != null) {
-            super.handleMessage(msg);
+        MyHandler(MainActivity activity) {
+            mActivity = new WeakReference<>(activity);
         }
-    }
 
-}
+        @Override
+        public void handleMessage(Message msg) {
+            MainActivity activity = mActivity.get();
+            if (activity != null) {
+                super.handleMessage(msg);
+            }
+        }
+
+    }
 
     private final Runnable continueLoadRunnable = new Runnable() {
         public void run() {
@@ -1062,7 +973,7 @@ private static class MyHandler extends Handler {
         mHandler.removeCallbacks(continueLoadRunnable);
         mHandler.removeCallbacks(dismissContinueLoadRunnable);
         mHandler.removeCallbacksAndMessages(null);
-        if(mRecyclerView != null) {
+        if (mRecyclerView != null) {
             mRecyclerView.setAdapter(null);
         }
     }

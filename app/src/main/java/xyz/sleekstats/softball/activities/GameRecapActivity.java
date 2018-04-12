@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Handler;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -17,6 +18,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.DateFormat;
 import java.util.HashMap;
@@ -25,14 +27,18 @@ import java.util.Map;
 import xyz.sleekstats.softball.MyApp;
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.adapters.BoxScorePlayerCursorAdapter;
+import xyz.sleekstats.softball.data.FirestoreUpdateService;
+import xyz.sleekstats.softball.data.MySyncResultReceiver;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
+import xyz.sleekstats.softball.data.TimeStampUpdater;
 import xyz.sleekstats.softball.dialogs.DeleteConfirmationDialog;
 import xyz.sleekstats.softball.objects.MainPageSelection;
 
 public class GameRecapActivity extends ExportActivity
         implements LoaderManager.LoaderCallbacks<Cursor>,
-DeleteConfirmationDialog.OnFragmentInteractionListener {
+        DeleteConfirmationDialog.OnFragmentInteractionListener,
+        MySyncResultReceiver.Receiver{
 
     private final static int PLAYER_NAME_LOADER = 11;
     private final static int AWAY_LOADER = 12;
@@ -42,9 +48,10 @@ DeleteConfirmationDialog.OnFragmentInteractionListener {
     private long mGameID;
     private String awayTeamID;
     private String homeTeamID;
-    private String selectionName;
-    private String selectionID;
-    private int selectionType;
+    private String mStatKeeperName;
+    private String mStatKeeperID;
+    private int mStatKeeperType;
+    private MySyncResultReceiver mReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,9 +61,9 @@ DeleteConfirmationDialog.OnFragmentInteractionListener {
         try {
             MyApp myApp = (MyApp) getApplicationContext();
             MainPageSelection mainPageSelection = myApp.getCurrentSelection();
-            selectionID = mainPageSelection.getId();
-            selectionType = mainPageSelection.getType();
-            selectionName = mainPageSelection.getName();
+            mStatKeeperID = mainPageSelection.getId();
+            mStatKeeperType = mainPageSelection.getType();
+            mStatKeeperName = mainPageSelection.getName();
         } catch (Exception e) {
             Intent intent = new Intent(GameRecapActivity.this, MainActivity.class);
             startActivity(intent);
@@ -89,8 +96,8 @@ DeleteConfirmationDialog.OnFragmentInteractionListener {
         header.setText(headerString);
 
 
-        if (selectionType == MainPageSelection.TYPE_TEAM) {
-            awayNameView.setText(selectionName);
+        if (mStatKeeperType == MainPageSelection.TYPE_TEAM) {
+            awayNameView.setText(mStatKeeperName);
         } else {
             awayNameView.setText(awayTeamName);
             homeNameView.setText(homeTeamName);
@@ -108,27 +115,27 @@ DeleteConfirmationDialog.OnFragmentInteractionListener {
         switch (id) {
             case AWAY_LOADER:
                 String teamID;
-                if (selectionType == MainPageSelection.TYPE_TEAM) {
-                    teamID = selectionID;
+                if (mStatKeeperType == MainPageSelection.TYPE_TEAM) {
+                    teamID = mStatKeeperID;
                 } else {
                     teamID = awayTeamID;
                 }
                 uri = StatsEntry.CONTENT_URI_BOXSCORE_PLAYERS;
                 selection = StatsEntry.COLUMN_GAME_ID + "=? AND " + StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
-                selectionArgs = new String[]{String.valueOf(mGameID), teamID, selectionID};
+                selectionArgs = new String[]{String.valueOf(mGameID), teamID, mStatKeeperID};
                 projection = null;
                 break;
             case HOME_LOADER:
                 uri = StatsEntry.CONTENT_URI_BOXSCORE_PLAYERS;
                 selection = StatsEntry.COLUMN_GAME_ID + "=? AND " + StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
-                selectionArgs = new String[]{String.valueOf(mGameID), homeTeamID, selectionID};
+                selectionArgs = new String[]{String.valueOf(mGameID), homeTeamID, mStatKeeperID};
                 projection = null;
                 break;
             case PLAYER_NAME_LOADER:
                 uri = StatsEntry.CONTENT_URI_PLAYERS;
                 projection = new String[]{StatsEntry.COLUMN_FIRESTORE_ID, StatsEntry.COLUMN_NAME};
                 selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
-                selectionArgs = new String[]{selectionID};
+                selectionArgs = new String[]{mStatKeeperID};
                 break;
             default:
                 return null;
@@ -158,7 +165,7 @@ DeleteConfirmationDialog.OnFragmentInteractionListener {
 
                 ListView awayListView = findViewById(R.id.away_players_listview);
                 ListView homeListView = findViewById(R.id.home_players_listview);
-                if (selectionType == MainPageSelection.TYPE_TEAM) {
+                if (mStatKeeperType == MainPageSelection.TYPE_TEAM) {
 
                     LinearLayout homeLayout = findViewById(R.id.linearLayoutHome);
                     homeLayout.setVisibility(View.GONE);
@@ -215,15 +222,44 @@ DeleteConfirmationDialog.OnFragmentInteractionListener {
     @Override
     public void onDeletionChoice(boolean delete) {
         if(delete) {
-            String selection = StatsEntry.COLUMN_GAME_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
-            String[] selectionArgs = new String[]{String.valueOf(mGameID), selectionID};
-            int rowsDeleted = getContentResolver().delete(StatsEntry.CONTENT_URI_BOXSCORE_PLAYERS, selection, selectionArgs);
-            if(rowsDeleted >= 0){
-                ContentValues values = new ContentValues();
-                values.put(StatsEntry.COLUMN_LOCAL, 0);
-                getContentResolver().update(StatsEntry.CONTENT_URI_BOXSCORE_OVERVIEWS, values, selection, selectionArgs);
+//            String selection = StatsEntry.COLUMN_GAME_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+//            String[] selectionArgs = new String[]{String.valueOf(mGameID), mStatKeeperID};
+//            int rowsDeleted = getContentResolver().delete(StatsEntry.CONTENT_URI_BOXSCORE_PLAYERS, selection, selectionArgs);
+//            if(rowsDeleted >= 0){
+//                ContentValues values = new ContentValues();
+//                values.put(StatsEntry.COLUMN_LOCAL, 0);
+//                getContentResolver().update(StatsEntry.CONTENT_URI_BOXSCORE_OVERVIEWS, values, selection, selectionArgs);
+//                finish();
+//            }
+
+            mReceiver = new MySyncResultReceiver(new Handler());
+            mReceiver.setReceiver(this);
+
+            Intent intent = new Intent(GameRecapActivity.this, FirestoreUpdateService.class);
+            intent.setAction(FirestoreUpdateService.INTENT_UNDO_GAME);
+            intent.putExtra(FirestoreUpdateService.STATKEEPER_ID, mStatKeeperID);
+            intent.putExtra(TimeStampUpdater.UPDATE_TIME, mGameID);
+            intent.putExtra(StatsEntry.UPDATE, mReceiver);
+            startService(intent);
+        }
+    }
+
+    @Override
+    public void onReceiveResult(int resultCode, Bundle resultData) {
+        switch (resultCode) {
+            case FirestoreUpdateService.MSG_UPDATE_SUCCESS:
+                Toast.makeText(GameRecapActivity.this, R.string.game_deleted, Toast.LENGTH_SHORT).show();
+                break;
+
+            case FirestoreUpdateService.MSG_FIRESTORE_SUCCESS:
+                TimeStampUpdater.updateTimeStamps(GameRecapActivity.this, mStatKeeperID, System.currentTimeMillis());
+                Toast.makeText(GameRecapActivity.this, R.string.changes_to_cloud, Toast.LENGTH_SHORT).show();
                 finish();
-            }
+                break;
+
+            case FirestoreUpdateService.MSG_FIRESTORE_FAILURE:
+                Toast.makeText(GameRecapActivity.this, R.string.cloud_fail, Toast.LENGTH_LONG).show();
+                break;
         }
     }
 }

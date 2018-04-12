@@ -58,14 +58,7 @@ public class TeamManagerActivity extends ExportActivity
         setContentView(R.layout.activity_team_viewpager);
 
         getStatKeeperData();
-
-        CustomViewPager mViewPager = findViewById(R.id.team_view_pager);
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        mViewPager.setAdapter(new TeamManagerPagerAdapter(fragmentManager));
-
-        TabLayout tabLayout = findViewById(R.id.team_tab_layout);
-        tabLayout.setupWithViewPager(mViewPager);
-
+        startPager();
 
         String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
         String[] selectionArgs = new String[]{mTeamID};
@@ -98,6 +91,15 @@ public class TeamManagerActivity extends ExportActivity
             startActivity(intent);
             finish();
         }
+    }
+
+    private void startPager() {
+        CustomViewPager mViewPager = findViewById(R.id.team_view_pager);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        mViewPager.setAdapter(new TeamManagerPagerAdapter(fragmentManager));
+
+        TabLayout tabLayout = findViewById(R.id.team_tab_layout);
+        tabLayout.setupWithViewPager(mViewPager);
     }
 
     private void sendRetryGameLoadIntent() {
@@ -434,5 +436,14 @@ public class TeamManagerActivity extends ExportActivity
             mReceiver.setReceiver(null);
         }
         finish();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        teamFragment = null;
+        lineupFragment = null;
+        getStatKeeperData();
+        startPager();
     }
 }

@@ -230,14 +230,14 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
             } else if (teamFilter == null || !teamFilter.equals(newFilter)) {
                 genderFilter = null;
                 teamFilter = newFilter;
-                reloadStats();
+                getLoaderManager().restartLoader(STATS_LOADER, null, this);
             }
         }
     }
 
     public void reloadStats() {
-        teamFilter = KEY_ALL_TEAMS;
-        genderFilter = null;
+//        teamFilter = KEY_ALL_TEAMS;
+//        genderFilter = null;
         getLoaderManager().restartLoader(STATS_LOADER, null, this);
     }
 
@@ -406,7 +406,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
                 break;
 
             default:
-                Toast.makeText(getActivity(), "SOMETHING WRONG WITH onClick", Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), "Error. Please contact sleekstats@gmail.com", Toast.LENGTH_LONG).show();
         }
         updateStatsRV();
     }

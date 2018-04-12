@@ -172,4 +172,7 @@
     <string name="delete_">Delete?</string>
     <string name="m">M</string>
     <string name="f">F</string>
+    <string name="email_head_admin">Email Head Admin</string>
+    <string name="changes_to_cloud">Changes have been uploaded to cloud!</string>
+    <string name="game_deleted">Game has been deleted, and stats have been reverted.</string>
 </resources>

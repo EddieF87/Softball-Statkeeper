@@ -8,6 +8,8 @@
     android:background="@color/colorPrimary"
     android:paddingTop="4dp"
     android:paddingBottom="6dp"
+    android:paddingStart="8dp"
+    android:paddingEnd="0dp"
     android:elevation="4dp"
     tools:targetApi="lollipop">
 

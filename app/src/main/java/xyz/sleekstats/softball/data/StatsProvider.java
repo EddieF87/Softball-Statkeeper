@@ -93,9 +93,6 @@ public class StatsProvider extends ContentProvider {
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection,
                         @Nullable String[] selectionArgs, @Nullable String sortOrder) {
         int match = sUriMatcher.match(uri);
-        if (match == SELECTIONS) {
-            return querySelection(projection, selection, selectionArgs, sortOrder);
-        }
 
         SQLiteDatabase database = mOpenHelper.getReadableDatabase();
         Cursor cursor;
@@ -156,6 +153,9 @@ public class StatsProvider extends ContentProvider {
             case BOXSCORE_OVERVIEWS:
                 table = StatsEntry.BOXSCORE_OVERVIEW_TABLE_NAME;
                 break;
+            case SELECTIONS:
+                table = StatsEntry.SELECTIONS_TABLE_NAME;
+                break;
             default:
                 throw new IllegalArgumentException("Cannot query unknown URI " + uri);
         }
@@ -170,11 +170,11 @@ public class StatsProvider extends ContentProvider {
         return null;
     }
 
-    private Cursor querySelection(String[] projection, String selection,
-                                  String[] selectionArgs, String sortOrder) {
-        SQLiteDatabase database = mOpenHelper.getReadableDatabase();
-        return database.query(StatsEntry.SELECTIONS_TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
-    }
+//    private Cursor querySelection(String[] projection, String selection,
+//                                  String[] selectionArgs, String sortOrder) {
+//        SQLiteDatabase database = mOpenHelper.getReadableDatabase();
+//        return database.query(StatsEntry.SELECTIONS_TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
+//    }
 
 
     @Nullable

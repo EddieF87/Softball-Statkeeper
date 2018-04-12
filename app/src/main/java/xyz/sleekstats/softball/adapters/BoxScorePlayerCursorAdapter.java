@@ -10,6 +10,8 @@ import android.widget.CursorAdapter;
 import android.widget.TextView;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 import java.util.Map;
 
 import xyz.sleekstats.softball.R;
@@ -25,19 +27,23 @@ public class BoxScorePlayerCursorAdapter extends CursorAdapter {
 
     private final int cursorKey;
     private Map<String, String> playerNames;
+    private SimpleDateFormat mDateFormat;
     public static final int KEY_CURRENT = 0;
     public static final int KEY_PLAYER = 1;
     private static final int KEY_RECAP = 2;
 
     public BoxScorePlayerCursorAdapter(Context context, int key) {
         super(context, null, 0 /* flags */);
-        cursorKey = key;
+        this.cursorKey = key;
+        if(cursorKey == KEY_PLAYER) {
+            this.mDateFormat = new SimpleDateFormat("MMM dd\nyyyy", Locale.US);
+        }
     }
 
     public BoxScorePlayerCursorAdapter(Context context, Map<String, String> map) {
         super(context, null, 0 /* flags */);
-        cursorKey = KEY_RECAP;
-        playerNames = map;
+        this.cursorKey = KEY_RECAP;
+        this.playerNames = map;
     }
 
     @Override
@@ -68,7 +74,7 @@ public class BoxScorePlayerCursorAdapter extends CursorAdapter {
                 break;
             default:
                 long gameID = StatsContract.getColumnLong(cursor, StatsEntry.COLUMN_GAME_ID);
-                name = DateFormat.getDateInstance(DateFormat.DATE_FIELD).format(gameID);
+                name = mDateFormat.format(gameID);
                 break;
         }
         int pRBI = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_RBI);
