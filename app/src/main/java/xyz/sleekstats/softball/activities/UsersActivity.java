@@ -380,13 +380,14 @@ public class UsersActivity extends AppCompatActivity
         String linkString = "http://sleekstats.xyz/" + selectionType.toLowerCase()
                 + "?key=" + mSelectionID + "-" + mSelectionName;
 
+        String packageName = getApplicationContext().getPackageName();
 
         DynamicLink dynamicLink = FirebaseDynamicLinks.getInstance().createDynamicLink()
                 .setLink(Uri.parse(linkString))
                 .setDynamicLinkDomain("v4mcm.app.goo.gl")
                 // Open links with this app on Android
                 .setAndroidParameters(new DynamicLink.AndroidParameters.Builder()
-                        .setFallbackUrl(Uri.parse("http://sleekstats.xyz"))
+                        .setFallbackUrl(Uri.parse("https://play.google.com/store/apps/details?id=" + packageName))
                         .build())
                 .buildDynamicLink();
 

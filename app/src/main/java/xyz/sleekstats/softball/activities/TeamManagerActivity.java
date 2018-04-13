@@ -441,9 +441,16 @@ public class TeamManagerActivity extends ExportActivity
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+
+        boolean newSK = intent.getBooleanExtra(StatsEntry.ADD, false);
+        if(!newSK) {return;}
+
         teamFragment = null;
         lineupFragment = null;
         getStatKeeperData();
         startPager();
+        if(teamFragment != null) {
+            teamFragment.reloadStats();
+        }
     }
 }

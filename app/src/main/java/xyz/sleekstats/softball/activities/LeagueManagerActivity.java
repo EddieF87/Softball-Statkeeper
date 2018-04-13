@@ -572,8 +572,8 @@ public class LeagueManagerActivity extends ExportActivity
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        boolean newSK = intent.getBooleanExtra(StatsEntry.ADD, false);
 
+        boolean newSK = intent.getBooleanExtra(StatsEntry.ADD, false);
         if(!newSK) {return;}
 
         standingsFragment = null;
