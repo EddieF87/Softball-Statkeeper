@@ -204,22 +204,20 @@ public class MainActivity extends AppCompatActivity
                                 if (task.isSuccessful()) {
                                     DocumentSnapshot documentSnapshot = task.getResult();
                                     Object levelObject = documentSnapshot.get(userID);
+
                                     if (levelObject == null) {
                                         openAcceptInviteDialog(id, name, type, 1);
-                                        return;
+                                    } else {
+                                        int level = ((Long) levelObject).intValue();
+                                        myApp.setCurrentSelection(new MainPageSelection(id, name, type, level));
+                                        final Intent intent;
+                                        intent = new Intent(MainActivity.this, LoadingActivity.class);
+                                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+//                                        intent.putExtra(StatsEntry.ADD, true);
+                                        startActivity(intent);
+                                        finish();
                                     }
-                                    int level = ((Long) levelObject).intValue();
-                                    if (level < UsersActivity.LEVEL_REMOVE_USER && -level < UsersActivity.LEVEL_CREATOR) {
-                                        level = -level;
-                                        openAcceptInviteDialog(id, name, type, level);
-                                        return;
-                                    }
-                                    myApp.setCurrentSelection(new MainPageSelection(id, name, type, level));
-                                    final Intent intent;
-                                    intent = new Intent(MainActivity.this, LoadingActivity.class);
-                                    intent.putExtra(StatsEntry.ADD, true);
-                                    startActivity(intent);
-                                    finish();
                                 } else {
                                     openAcceptInviteDialog(id, name, type, 1);
                                 }
@@ -390,7 +388,7 @@ public class MainActivity extends AppCompatActivity
         ConnectivityManager connManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connManager.getActiveNetworkInfo();
         if (networkInfo == null || !networkInfo.isConnected()) {
-            Toast.makeText(MainActivity.this, "Please connect to a network first!", Toast.LENGTH_LONG).show();
+            Toast.makeText(MainActivity.this, "Network connection needed to create a new statkeeper.", Toast.LENGTH_LONG).show();
             return;
         }
         int type;
@@ -911,7 +909,8 @@ public class MainActivity extends AppCompatActivity
                                 getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
                             }
                         } else {
-                            intent.putExtra(StatsEntry.ADD, true);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//                            intent.putExtra(StatsEntry.ADD, true);
                         }
                         startActivity(intent);
                         finish();

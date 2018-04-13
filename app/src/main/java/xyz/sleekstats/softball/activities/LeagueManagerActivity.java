@@ -570,20 +570,6 @@ public class LeagueManagerActivity extends ExportActivity
     }
 
     @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-
-        boolean newSK = intent.getBooleanExtra(StatsEntry.ADD, false);
-        if(!newSK) {return;}
-
-        standingsFragment = null;
-        statsFragment = null;
-        matchupFragment = null;
-        getStatKeeperData();
-        startPager();
-    }
-
-    @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(StatsEntry.UPDATE, gameUpdating);
