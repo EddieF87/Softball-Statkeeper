@@ -249,15 +249,12 @@ public class MainActivity extends AppCompatActivity
 
                 FirebaseUser currentUser = mAuth.getCurrentUser();
                 if (currentUser != null) {
-                    final String email = currentUser.getEmail();
-                    final String id = currentUser.getUid();
 
-                    Map<String, Object> userInfo = new HashMap<>();
-                    userInfo.put(StatsEntry.EMAIL, email);
-
+                    userID = mAuth.getCurrentUser().getUid();
                     if (mFirestore == null) {
                         mFirestore = FirebaseFirestore.getInstance();
                     }
+                    mSelectionList = null;
                     startFirestoreLoad();
                     if (mAcceptInviteDialog == null) {
                         checkInvite();
