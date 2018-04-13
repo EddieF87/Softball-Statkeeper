@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "472325178022-qmpao8cu8dbceofo0t48esse5bma2cg5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "xyz.sleekstats.softball",
+            "certificate_hash": "995e2eac70557864b564e785653c219759b6d619"
+          }
+        },
+        {
           "client_id": "472325178022-k9i84vrcecabj33913a9kcqkj5j0m218.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

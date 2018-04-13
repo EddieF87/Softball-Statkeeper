@@ -17,6 +17,9 @@ import android.util.SparseArray;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+
 import xyz.sleekstats.softball.MyApp;
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.data.StatsContract;
@@ -66,12 +69,9 @@ public abstract class ObjectPagerActivity extends AppCompatActivity
         ActionBar ab = getSupportActionBar();
         ab.setDisplayHomeAsUpEnabled(true);
 
-        //todo
-//        AdView adView = findViewById(R.id.pager_ad);
-//        AdRequest adRequest = new AdRequest.Builder()
-//                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
-//                .build();
-//        adView.loadAd(adRequest);
+        AdView adView = findViewById(R.id.pager_ad);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        adView.loadAd(adRequest);
     }
 
     @Override

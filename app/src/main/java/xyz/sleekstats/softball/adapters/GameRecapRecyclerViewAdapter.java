@@ -9,9 +9,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
@@ -27,7 +25,7 @@ public class GameRecapRecyclerViewAdapter extends RecyclerView.Adapter<GameRecap
     private final List<GameRecap> recapList;
     private final Map<String, String> teamNameMap;
     private final Context mContext;
-    private SimpleDateFormat mSimpleDateFormat;
+    private final SimpleDateFormat mSimpleDateFormat;
 
     public GameRecapRecyclerViewAdapter(List<GameRecap> list, Map<String, String> map, Context context) {
         this.setHasStableIds(true);

@@ -37,18 +37,29 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <intent-filter android:autoVerify="true"
-                tools:targetApi="m">
+            <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
+                    android:scheme="https"
                     android:host="sleekstats.xyz"
-                    android:scheme="https" />
-                <data android:path="/league" />
-                <data android:path="/team" />
+                    android:path="/league" />
+                <data android:scheme="https"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:scheme="https"
+                    android:host="sleekstats.xyz"
+                    android:path="/team" />
+                <data android:scheme="https"/>
             </intent-filter>
         </activity>
         <activity
@@ -74,16 +85,16 @@
             android:parentActivityName=".activities.TeamManagerActivity"
             android:screenOrientation="portrait" />
         <activity android:name=".activities.TeamPagerActivity" />
-        <activity android:name=".activities.PlayerPagerActivity"
-            android:theme="@style/WhiteTheme"
-            />
+        <activity
+            android:name=".activities.PlayerPagerActivity"
+            android:theme="@style/WhiteTheme" />
         <activity
             android:name=".activities.TeamManagerActivity"
             android:launchMode="singleTask"
             android:parentActivityName=".activities.MainActivity" />
-        <activity android:name=".activities.PlayerManagerActivity"
-            android:theme="@style/WhiteTheme"
-            />
+        <activity
+            android:name=".activities.PlayerManagerActivity"
+            android:theme="@style/WhiteTheme" />
         <activity
             android:name=".activities.UsersActivity"
             android:screenOrientation="portrait" />
@@ -104,8 +115,7 @@
 
         <activity
             android:name=".activities.LoadingActivity"
-            android:screenOrientation="portrait"
-            />
+            android:screenOrientation="portrait" />
 
         <service android:name=".data.FirestoreUpdateService" />
         <service android:name=".data.FirestoreSyncService" />

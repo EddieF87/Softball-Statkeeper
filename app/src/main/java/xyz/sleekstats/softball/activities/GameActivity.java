@@ -31,6 +31,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.dialogs.EndOfGameDialog;
@@ -182,12 +185,10 @@ public abstract class GameActivity extends AppCompatActivity
     protected abstract void getSelectionData();
 
     private void setViews() {
-        //todo
-//        AdView adView = findViewById(R.id.game_ad);
-//        AdRequest adRequest = new AdRequest.Builder()
-//                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
-//                .build();
-//        adView.loadAd(adRequest);
+
+        AdView adView = findViewById(R.id.game_ad);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        adView.loadAd(adRequest);
 
         nowBatting = findViewById(R.id.nowbatting);
         outsDisplay = findViewById(R.id.num_of_outs);

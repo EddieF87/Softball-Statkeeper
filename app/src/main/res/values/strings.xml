@@ -114,7 +114,6 @@
     <string name="step_1_drag_batter_to_a_base">Step 1: Drag batter to empty base</string>
     <string name="select_from_current_teams">Select from current teams</string>
     <string name="create_new_team">Create New Team</string>
-    <string name="user_email">User Email</string>
     <string name="player_statkeeper_desc"><![CDATA[Manage & view individual player stats]]></string>
     <string name="league_statkeeper_desc">Manage, view, &amp; share stats, scores, &amp; standings of a league</string>
     <string name="team_statkeeper_desc">Manage, view, &amp; share stats &amp; scores of a team</string>

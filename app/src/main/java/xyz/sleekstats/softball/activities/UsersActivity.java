@@ -444,7 +444,7 @@ public class UsersActivity extends AppCompatActivity
     private void sendMsgInvite(Uri shortLink) {
         Intent msgIntent = new Intent(Intent.ACTION_SEND);
         msgIntent.setType("text/plain");
-        msgIntent.putExtra(Intent.EXTRA_TEXT, "You're invited to view the stats & standings for "
+        msgIntent.putExtra(Intent.EXTRA_TEXT, "You're invited to view the scores, stats, & standings for "
                 + mSelectionName + "!\n\nJoin here: " + shortLink);
 
         startActivity(Intent.createChooser(msgIntent, "Send View-Link to friends!"));
