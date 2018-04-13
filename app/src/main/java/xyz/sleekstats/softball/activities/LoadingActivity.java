@@ -204,6 +204,9 @@ public class LoadingActivity extends AppCompatActivity
     }
 
     private void goToMain() {
+        if (mReceiver != null) {
+            mReceiver.setReceiver(null);
+        }
         Intent intent = new Intent(LoadingActivity.this, MainActivity.class);
         startActivity(intent);
         finish();

@@ -249,7 +249,7 @@
         android:paddingTop="0dp"
         android:textSize="16sp"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@+id/layout_settings"
+        app:layout_constraintBottom_toTopOf="@+id/continue_game"
         app:layout_constraintEnd_toEndOf="@id/continue_game"
         app:layout_constraintStart_toStartOf="@id/continue_game"
         app:layout_constraintTop_toTopOf="@id/layout_settings"
@@ -262,12 +262,13 @@
         style="@style/RadioButtonStyle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:minHeight="40dp"
         android:layout_marginEnd="4dp"
         android:layout_marginStart="4dp"
-        android:orientation="horizontal"
-        android:elevation="2dp"
-        android:paddingBottom="0dp"
         android:paddingTop="0dp"
+        android:paddingBottom="0dp"
+        android:elevation="2dp"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toTopOf="@id/start_game"
         app:layout_constraintEnd_toEndOf="@+id/start_game"
         app:layout_constraintStart_toStartOf="@+id/start_game"
@@ -281,13 +282,11 @@
             android:layout_marginLeft="6dp"
             android:layout_marginRight="6dp"
             android:layout_weight="1"
-            android:autoSizeMinTextSize="12sp"
-            android:autoSizeTextType="uniform"
             android:gravity="center"
             android:maxLines="2"
-            android:textSize="16sp"
-            tools:text="BGBG"
-            tools:targetApi="o" />
+            android:textSize="14sp"
+            tools:targetApi="o"
+            tools:text="BGBG" />
 
         <TextView
             android:id="@+id/innings_view"
@@ -299,8 +298,8 @@
             android:layout_weight="1"
             android:gravity="center"
             android:maxLines="2"
-            android:textSize="16sp"
-            tools:text="Innings: 3" />
+            android:textSize="14sp"
+            tools:text="Ins: 3" />
 
     </LinearLayout>
 

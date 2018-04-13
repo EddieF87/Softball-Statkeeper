@@ -68,16 +68,17 @@ public class LeagueManagerActivity extends ExportActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pager);
+
         if(savedInstanceState != null){
             gameUpdating = savedInstanceState.getBoolean(StatsEntry.UPDATE, false);
         }
         getStatKeeperData();
         startPager();
 
-        String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
-        String[] selectionArgs = new String[]{mLeagueID};
-
         if(!gameUpdating) {
+            String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+            String[] selectionArgs = new String[]{mLeagueID};
+
             Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, null, selection, selectionArgs, null);
             if (cursor != null && cursor.moveToFirst()) {
                 sendRetryGameLoadIntent();
@@ -464,6 +465,9 @@ public class LeagueManagerActivity extends ExportActivity
         super.onBackPressed();
         Intent intent = new Intent(LeagueManagerActivity.this, MainActivity.class);
         startActivity(intent);
+        if(mReceiver != null){
+            mReceiver.setReceiver(null);
+        }
         finish();
     }
 
@@ -542,11 +546,8 @@ public class LeagueManagerActivity extends ExportActivity
         startService(GameUpdateIntentMaker.getTeamIntent(context, updateTime, homeID, homeTeamRuns, awayTeamRuns, mLeagueID, mReceiver));
         startService(GameUpdateIntentMaker.getPlayersIntent(context, updateTime, mLeagueID, mReceiver));
         startService(GameUpdateIntentMaker.getBoxscoreIntent(context, updateTime, awayID, homeID, awayTeamRuns, homeTeamRuns, mLeagueID, mReceiver));
-        TimeStampUpdater.updateTimeStamps(this, mLeagueID, updateTime);
+//        TimeStampUpdater.updateTimeStamps(this, mLeagueID, updateTime);
     }
-
-
-
 
     @Override
     protected void onStop() {

@@ -251,7 +251,6 @@ public class GameRecapActivity extends ExportActivity
                 break;
 
             case FirestoreUpdateService.MSG_FIRESTORE_SUCCESS:
-                TimeStampUpdater.updateTimeStamps(GameRecapActivity.this, mStatKeeperID, System.currentTimeMillis());
                 Toast.makeText(GameRecapActivity.this, R.string.changes_to_cloud, Toast.LENGTH_SHORT).show();
                 finish();
                 break;
@@ -259,6 +258,15 @@ public class GameRecapActivity extends ExportActivity
             case FirestoreUpdateService.MSG_FIRESTORE_FAILURE:
                 Toast.makeText(GameRecapActivity.this, R.string.cloud_fail, Toast.LENGTH_LONG).show();
                 break;
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        if (mReceiver != null) {
+            mReceiver.setReceiver(null);
         }
     }
 }

@@ -51,29 +51,36 @@ public class TeamManagerActivity extends ExportActivity
     private int mSelectionType;
     private String mTeamName;
     private MySyncResultReceiver mReceiver;
+    private boolean gameUpdating;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_team_viewpager);
 
+        if(savedInstanceState != null){
+            gameUpdating = savedInstanceState.getBoolean(StatsEntry.UPDATE, false);
+        }
+
         getStatKeeperData();
         startPager();
 
-        String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
-        String[] selectionArgs = new String[]{mTeamID};
-        Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, null, selection, selectionArgs, null);
-        if (cursor != null && cursor.moveToFirst()) {
-            sendRetryGameLoadIntent();
-            cursor.close();
-            return;
-        }
-        cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_TEAMS, null, selection, selectionArgs, null);
-        if (cursor != null && cursor.moveToFirst()) {
-            sendRetryGameLoadIntent();
-        }
-        if (cursor != null) {
-            cursor.close();
+        if(!gameUpdating) {
+            String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
+            String[] selectionArgs = new String[]{mTeamID};
+            Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, null, selection, selectionArgs, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                sendRetryGameLoadIntent();
+                cursor.close();
+                return;
+            }
+            cursor = getContentResolver().query(StatsEntry.CONTENT_URI_BACKUP_TEAMS, null, selection, selectionArgs, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                sendRetryGameLoadIntent();
+            }
+            if (cursor != null) {
+                cursor.close();
+            }
         }
     }
 
@@ -316,6 +323,7 @@ public class TeamManagerActivity extends ExportActivity
                         break;
                 }
             } else if (requestCode == GameActivity.REQUEST_CODE_GAME && resultCode == GameActivity.RESULT_CODE_GAME_FINISHED) {
+                gameUpdating = true;
                 updateStats(data);
             }
         } catch (Exception ex) {
@@ -360,7 +368,7 @@ public class TeamManagerActivity extends ExportActivity
         startService(GameUpdateIntentMaker.getPlayersIntent(context, updateTime, mTeamID, mReceiver));
         startService(GameUpdateIntentMaker.getBoxscoreIntent(context, updateTime, awayID, homeID, awayTeamRuns, homeTeamRuns, mTeamID, mReceiver));
 
-        TimeStampUpdater.updateTimeStamps(this, mTeamID, updateTime);
+//        TimeStampUpdater.updateTimeStamps(this, mTeamID, updateTime);
     }
 
     private int localUpdate = 4;
@@ -412,6 +420,7 @@ public class TeamManagerActivity extends ExportActivity
         if (localUpdateFinish) {
             localUpdate = 4;
             Toast.makeText(TeamManagerActivity.this, R.string.stat_update_success, Toast.LENGTH_SHORT).show();
+            gameUpdating = false;
             if (teamFragment != null) {
                 teamFragment.reloadStats();
             }
@@ -436,5 +445,32 @@ public class TeamManagerActivity extends ExportActivity
             mReceiver.setReceiver(null);
         }
         finish();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+//        LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
+        if(mReceiver != null) {
+            mReceiver.setReceiver(null);
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(gameUpdating) {
+//            LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, new IntentFilter(StatsEntry.UPDATE));
+            if(mReceiver == null) {
+                mReceiver = new MySyncResultReceiver(new Handler());
+            }
+            mReceiver.setReceiver(this);
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(StatsEntry.UPDATE, gameUpdating);
     }
 }

@@ -11,6 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import xyz.sleekstats.softball.MyApp;
+import xyz.sleekstats.softball.activities.GameRecapActivity;
 import xyz.sleekstats.softball.objects.Player;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
 import xyz.sleekstats.softball.objects.PlayerLog;
@@ -86,6 +87,7 @@ public class FirestoreUpdateService extends IntentService {
                 .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
+//                TimeStampUpdater.updateTimeStamps(FirestoreUpdateService.this, statKeeperID, System.currentTimeMillis());
                 setDeletionDoc(statKeeperID, firestoreID, type, name, gender, teamFireID);
             }
         });
@@ -236,6 +238,7 @@ public class FirestoreUpdateService extends IntentService {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
+                        TimeStampUpdater.updateTimeStamps(FirestoreUpdateService.this, statKeeperID, System.currentTimeMillis());
                         sndMsg(MSG_FIRESTORE_SUCCESS);
                         getContentResolver().delete(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, selection, selectionArgs);
                     }
@@ -440,6 +443,7 @@ public class FirestoreUpdateService extends IntentService {
                         sndMsg(MSG_FIRESTORE_SUCCESS);
                         getContentResolver().delete(StatsEntry.CONTENT_URI_BOXSCORE_PLAYERS, selection, selectionArgs);
                         getContentResolver().delete(StatsEntry.CONTENT_URI_BOXSCORE_OVERVIEWS, selection, selectionArgs);
+                        TimeStampUpdater.updateTimeStamps(FirestoreUpdateService.this, statKeeperID, System.currentTimeMillis());
 
                     }
                 }).addOnFailureListener(new OnFailureListener() {
@@ -511,6 +515,7 @@ public class FirestoreUpdateService extends IntentService {
                 String[] selectionArgs = new String[]{String.valueOf(mUpdateTime), teamFirestoreID, statKeeperID};
                 getContentResolver().delete(StatsEntry.CONTENT_URI_BACKUP_TEAMS, selection, selectionArgs);
                 sndMsg(MSG_FIRESTORE_SUCCESS);
+                TimeStampUpdater.updateTimeStamps(FirestoreUpdateService.this, statKeeperID, System.currentTimeMillis());
             }
         });
         sndMsg(MSG_UPDATE_SUCCESS);
@@ -540,6 +545,7 @@ public class FirestoreUpdateService extends IntentService {
                 if (task.isSuccessful()) {
                     boxscoreValues.put(StatsEntry.COLUMN_LOCAL, 1);
                     sndMsg(MSG_FIRESTORE_SUCCESS);
+                    TimeStampUpdater.updateTimeStamps(FirestoreUpdateService.this, statKeeperID, System.currentTimeMillis());
                 } else {
                     boxscoreValues.put(StatsEntry.COLUMN_LOCAL, 0);
                     sndMsg(MSG_FIRESTORE_FAILURE);
@@ -612,6 +618,7 @@ public class FirestoreUpdateService extends IntentService {
                 getContentResolver().delete(StatsEntry.CONTENT_URI_BACKUP_PLAYERS, selection, selectionArgs);
                 getContentResolver().delete(StatsEntry.CONTENT_URI_BACKUP_TEAMS, selection, selectionArgs);
                 sndMsg(MSG_RETRY_SUCCESS);
+                TimeStampUpdater.updateTimeStamps(FirestoreUpdateService.this, statKeeperID, System.currentTimeMillis());
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override

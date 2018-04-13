@@ -142,11 +142,9 @@
             android:layout_marginLeft="6dp"
             android:layout_marginRight="6dp"
             android:layout_weight="1"
-            android:autoSizeMinTextSize="12sp"
-            android:autoSizeTextType="uniform"
             android:gravity="center"
             android:maxLines="2"
-            android:textSize="16sp"
+            android:textSize="14sp"
             tools:text="BGBG"
             tools:targetApi="o" />
 
@@ -160,7 +158,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:maxLines="2"
-            android:textSize="16sp"
+            android:textSize="14sp"
             tools:text="Innings: 3" />
 
     </LinearLayout>
