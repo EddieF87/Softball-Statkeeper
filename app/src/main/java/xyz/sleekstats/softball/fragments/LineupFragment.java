@@ -685,7 +685,7 @@ public class LineupFragment extends Fragment {
         if (notProperOrder) {
             if (females * requiredFemale >= males) {
                 Toast.makeText(getActivity(),
-                        "Please set " + mTeamName + "'s lineup properly or change gender rules",
+                        "Please set " + mTeamName + "'s lineup properly or edit gender order settings",
                         Toast.LENGTH_LONG).show();
                 return false;
             }

@@ -155,8 +155,9 @@ class StatsDbHelper extends SQLiteOpenHelper {
                         StatsEntry.COLUMN_LEAGUE_ID + " TEXT NOT NULL, " +
                         StatsEntry.COLUMN_NAME + " TEXT NOT NULL, " +
                         StatsEntry.TYPE + " INTEGER NOT NULL, " +
-                        StatsEntry.LEVEL + " INTEGER NOT NULL" +
-                        ");";
+                        StatsEntry.LEVEL + " INTEGER NOT NULL," +
+                        "UNIQUE(" + StatsEntry.COLUMN_FIRESTORE_ID + ", " + StatsEntry.COLUMN_LEAGUE_ID + ")"
+                        + ");";
 
         final String SQL_CREATE_BOXSCORE_OVERVIEW_TABLE =
                 "CREATE TABLE " + StatsEntry.BOXSCORE_OVERVIEW_TABLE_NAME + " (" +

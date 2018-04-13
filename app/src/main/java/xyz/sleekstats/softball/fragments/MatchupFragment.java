@@ -486,7 +486,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         if (notProperOrder) {
             if (females * requiredFemale >= males) {
                 Toast.makeText(getActivity(),
-                        "Please set " + teamName + "'s lineup properly or change gender rules",
+                        "Please set " + teamName + "'s lineup properly or edit gender order settings",
                         Toast.LENGTH_LONG).show();
                 return 1;
             } else {

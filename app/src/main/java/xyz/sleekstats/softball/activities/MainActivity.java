@@ -543,18 +543,18 @@ public class MainActivity extends AppCompatActivity
                                                     deleteCollection(batch, task);
 
                                                     leagueDoc.collection(BOXSCORE_COLLECTION).get()
-                                                                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                                @Override
+                                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                                    deleteCollection(batch, task);
+                                                                    batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                         @Override
-                                                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                                            deleteCollection(batch, task);
-                                                                            batch.commit().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                                                @Override
-                                                                                public void onSuccess(Void aVoid) {
-                                                                                    deleteStatKeeper(selection, selectionArgs);
+                                                                        public void onSuccess(Void aVoid) {
+                                                                            deleteStatKeeper(selection, selectionArgs);
                                                                         }
                                                                     });
-                                                        }
-                                                    });
+                                                                }
+                                                            });
                                                 }
                                             });
                                         }
@@ -714,10 +714,11 @@ public class MainActivity extends AppCompatActivity
             } else {
                 type = documentSnapshot.getLong(StatsEntry.TYPE).intValue();
             }
-            MainPageSelection mainPageSelection = new MainPageSelection(
-                    selectionID, name, type, level);
             if (level >= UsersActivity.LEVEL_VIEW_ONLY) {
-                mSelectionList.add(mainPageSelection);
+                MainPageSelection mainPageSelection = new MainPageSelection(
+                        selectionID, name, type, level);
+                insertSelectionToSQL(mainPageSelection);
+//                mSelectionList.add(mainPageSelection);
             }
         }
         setViews();
@@ -905,10 +906,8 @@ public class MainActivity extends AppCompatActivity
                                 values.put(StatsEntry.COLUMN_LEAGUE_ID, selectionID);
                                 getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
                             }
-                        } else {
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-//                            intent.putExtra(StatsEntry.ADD, true);
                         }
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(intent);
                         finish();
                     }

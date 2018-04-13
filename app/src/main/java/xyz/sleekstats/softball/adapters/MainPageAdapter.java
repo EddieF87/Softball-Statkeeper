@@ -82,6 +82,7 @@ public class MainPageAdapter extends RecyclerView.Adapter<MainPageAdapter.MainPa
             public void onClick(View view) {
                 MyApp myApp = (MyApp) mContext.getApplicationContext();
                 myApp.setCurrentSelection(mainPageSelection);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(mContext, intent, null);
                 if(mContext instanceof MainActivity) {
                     ((MainActivity) mContext).finish();

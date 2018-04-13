@@ -182,7 +182,12 @@ public class StatsProvider extends ContentProvider {
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
         final int match = sUriMatcher.match(uri);
         if (match == SELECTIONS) {
-            return insertSelection(uri, values);
+            long id = insertSelection(uri, values);
+            if(id == -1) {
+                return null;
+            } else {
+                return ContentUris.withAppendedId(uri, id);
+            }
         }
         String leagueID = values.getAsString(StatsEntry.COLUMN_LEAGUE_ID);
 
@@ -648,10 +653,10 @@ public class StatsProvider extends ContentProvider {
         }
     }
 
-    private Uri insertSelection(@NonNull Uri uri, @Nullable ContentValues values) {
+    private long insertSelection(@NonNull Uri uri, @Nullable ContentValues values) {
         SQLiteDatabase database = mOpenHelper.getWritableDatabase();
         long id = database.insert(StatsEntry.SELECTIONS_TABLE_NAME, null, values);
-        return ContentUris.withAppendedId(uri, id);
+        return id;
     }
 
     private boolean containsName(Uri uri, ContentValues values) {
