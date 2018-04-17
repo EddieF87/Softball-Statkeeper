@@ -18,6 +18,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.DragEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -122,6 +123,7 @@ public abstract class GameActivity extends AppCompatActivity
 
     boolean finalInning;
     boolean redoEndsGame = false;
+    boolean gameHelp;
 
     private boolean playEntered = false;
     private boolean batterMoved = false;
@@ -134,10 +136,10 @@ public abstract class GameActivity extends AppCompatActivity
     static final String KEY_GAMELOGINDEX = "keyGameLogIndex";
     static final String KEY_LOWESTINDEX = "keyLowestIndex";
     static final String KEY_HIGHESTINDEX = "keyHighestIndex";
-    static final String KEY_GENDERSORT = "keyGenderSort";
-    static final String KEY_FEMALEORDER = "keyFemaleOrder";
+    public static final String KEY_GENDERSORT = "keyGenderSort";
+    public static final String KEY_FEMALEORDER = "keyFemaleOrder";
     static final String KEY_INNINGNUMBER = "keyInningNumber";
-    static final String KEY_TOTALINNINGS = "keyTotalInnings";
+    public static final String KEY_TOTALINNINGS = "keyTotalInnings";
     static final String KEY_UNDOREDO = "keyUndoRedo";
     static final String KEY_REDOENDSGAME = "redoEndsGame";
     private static final String DIALOG_FINISH = "DialogFinish";
@@ -145,17 +147,20 @@ public abstract class GameActivity extends AppCompatActivity
     public static final int REQUEST_CODE_GAME = 111;
     public static final int RESULT_CODE_EDITED = 444;
     static final int REQUEST_CODE_EDIT = 333;
+    public static final String AUTO_OUT = "AUTO-OUT";
 
     String mSelectionID;
     private Toast mCurrentToast;
     private final MyTouchListener myTouchListener = new MyTouchListener();
     private final MyDragListener myDragListener = new MyDragListener();
-    private boolean gameHelp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getSelectionData();
+        if(!getSelectionData()) {
+            goToMain();
+            return;
+        }
         setCustomViews();
         setViews();
 
@@ -182,7 +187,13 @@ public abstract class GameActivity extends AppCompatActivity
         startGame();
     }
 
-    protected abstract void getSelectionData();
+    protected abstract boolean getSelectionData();
+
+    private void goToMain() {
+        Intent intent = new Intent(GameActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();
+    }
 
     private void setViews() {
 
@@ -284,7 +295,7 @@ public abstract class GameActivity extends AppCompatActivity
     }
 
     List<Player> genderSort(List<Player> team, int femaleRequired) {
-        if (femaleRequired < 1) {
+        if (femaleRequired == 0) {
             return team;
         }
 
@@ -336,6 +347,83 @@ public abstract class GameActivity extends AppCompatActivity
         }
         return team;
     }
+
+    List<Player> addAutoOuts(List<Player> team, int femaleRequired) {
+        if (femaleRequired < 1) {
+            return team;
+        }
+        boolean firstPlayerMale =  team.get(0).getGender() == 0;
+        String teamid = team.get(0).getTeamfirestoreid();
+        int menInARow = 0;
+        int womenInARow = 0;
+        int menInARowToStart = 0;
+        int womenInARowToStart = 0;
+        boolean toStart = true;
+
+        for (int i = 0; i < team.size(); i++) {
+
+            Player player = team.get(i);
+            if (player.getGender() == 1) {
+                womenInARow++;
+                menInARow = 0;
+                if (firstPlayerMale) {
+                    toStart = false;
+                }
+            } else {
+                menInARow++;
+                womenInARow = 0;
+                if (!firstPlayerMale) {
+                    toStart = false;
+                }
+            }
+
+            if (womenInARow > 1) {
+                team.add(i, new Player(AUTO_OUT, "(AUTO-OUT)", teamid, 0));
+                womenInARow = 1;
+                i++;
+                toStart = false;
+            }
+            if (menInARow > femaleRequired - 1) {
+                team.add(i, new Player(AUTO_OUT, "(AUTO-OUT)", teamid, 1));
+                menInARow = 1;
+                i++;
+                toStart = false;
+            }
+
+            if (toStart) {
+                if (womenInARow > 0) {
+                    womenInARowToStart++;
+                }
+                if (menInARow > 0) {
+                    menInARowToStart++;
+                }
+            }
+        }
+
+        if(menInARow + menInARowToStart > femaleRequired - 1) {
+            team.add(new Player(AUTO_OUT, "(AUTO-OUT)", teamid, 1));
+        }
+        if(womenInARow + womenInARowToStart > 1) {
+            team.add(new Player(AUTO_OUT, "(AUTO-OUT)", teamid, 0));
+        }
+
+//        if(addedAutoOut) {
+//            ContentValues values = new ContentValues();
+//            values.put(StatsEntry.COLUMN_LEAGUE_ID, mSelectionID);
+//            values.put(StatsEntry.COLUMN_FIRESTORE_ID, AUTO_OUT);
+//            values.put(StatsEntry.COLUMN_NAME, AUTO_OUT);
+//            values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, teamid);
+//            values.put(StatsEntry.COLUMN_GENDER, 1);
+//            values.put(StatsEntry.COLUMN_PLAYERID, -1);
+//            values.put(StatsEntry.COLUMN_ORDER, 101);
+//            Uri uri = getContentResolver().insert(StatsEntry.CONTENT_URI_TEMP, values);
+//            if(uri == null) {
+//                Toast.makeText(GameActivity.this, "ERRRRRR", Toast.LENGTH_LONG).show();
+//            }
+//        }
+        return team;
+    }
+
 
     public void onRadioButtonClicked(View view) {
         boolean checked = ((RadioButton) view).isChecked();
@@ -597,6 +685,9 @@ public abstract class GameActivity extends AppCompatActivity
     }
 
     private Player getPlayerFromCursor(Uri uri, String playerFirestoreID) {
+        if(playerFirestoreID.equals(AUTO_OUT)){
+            return new Player(AUTO_OUT, "(AUTO-OUT)", "xxxx", 3);
+        }
         String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
         String[] selectionArgs = {playerFirestoreID, mSelectionID};
         Cursor cursor = getContentResolver().query(uri, null,
@@ -663,7 +754,6 @@ public abstract class GameActivity extends AppCompatActivity
         setUndoRedo();
         setScoreDisplay();
     }
-
 
     void setScoreDisplay() {
         scoreboardAwayScore.setText(String.valueOf(awayTeamRuns));
@@ -734,6 +824,9 @@ public abstract class GameActivity extends AppCompatActivity
         ContentValues values = new ContentValues();
         int newValue;
 
+        if(action == null) {
+            return;
+        }
         switch (action) {
             case StatsEntry.COLUMN_1B:
                 newValue = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_1B) + n;
@@ -1042,16 +1135,18 @@ public abstract class GameActivity extends AppCompatActivity
 
     @Override
     protected void onDestroy() {
-        firstDisplay.setOnDragListener(null);
-        secondDisplay.setOnDragListener(null);
-        thirdDisplay.setOnDragListener(null);
-        homeDisplay.setOnDragListener(null);
-        outTrash.setOnDragListener(null);
-        batterDisplay.setOnTouchListener(null);
-        firstDisplay.setOnTouchListener(null);
-        secondDisplay.setOnTouchListener(null);
-        thirdDisplay.setOnTouchListener(null);
-        homeDisplay.setOnTouchListener(null);
+        if(firstDisplay!= null) {
+            firstDisplay.setOnDragListener(null);
+            secondDisplay.setOnDragListener(null);
+            thirdDisplay.setOnDragListener(null);
+            homeDisplay.setOnDragListener(null);
+            outTrash.setOnDragListener(null);
+            batterDisplay.setOnTouchListener(null);
+            firstDisplay.setOnTouchListener(null);
+            secondDisplay.setOnTouchListener(null);
+            thirdDisplay.setOnTouchListener(null);
+            homeDisplay.setOnTouchListener(null);
+        }
         super.onDestroy();
     }
 
@@ -1269,6 +1364,16 @@ public abstract class GameActivity extends AppCompatActivity
 
     protected abstract void increaseLineupIndex();
 
+    protected int setLineupIndex(List<Player> team, String playerFirestoreID) {
+        for(int i = 0; i < team.size(); i++) {
+            Player player = team.get(i);
+            if(player.getFirestoreID().equals(playerFirestoreID)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_game, menu);
@@ -1288,6 +1393,9 @@ public abstract class GameActivity extends AppCompatActivity
                 break;
             case R.id.action_edit_lineup:
                 actionEditLineup();
+                break;
+            case R.id.action_off_lineup_rules:
+                actionEndLineupRules();
                 break;
             case R.id.action_goto_stats:
                 actionViewBoxScore();
@@ -1318,6 +1426,24 @@ public abstract class GameActivity extends AppCompatActivity
     }
 
     protected abstract Bundle getBoxScoreBundle();
+
+    private void actionEndLineupRules() {
+        if(currentBatter != null && currentBatter.getFirestoreID().equals(AUTO_OUT)) {
+            Toast.makeText(GameActivity.this, "Can't reset lineup rules during Auto-Out", Toast.LENGTH_LONG).show();
+            return;
+        }
+        revertLineups();
+        lowestIndex = gameLogIndex;
+        highestIndex = gameLogIndex;
+        setUndoRedo();
+        SharedPreferences gamePreferences = getSharedPreferences(mSelectionID + StatsEntry.GAME, MODE_PRIVATE);
+        SharedPreferences.Editor editor = gamePreferences.edit();
+        editor.putInt(KEY_GENDERSORT, 0);
+        editor.apply();
+        invalidateOptionsMenu();
+    }
+
+    protected abstract void revertLineups();
 
     private void showExitDialog() {
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -1380,12 +1506,21 @@ public abstract class GameActivity extends AppCompatActivity
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem undoItem = menu.findItem(R.id.action_undo_play);
         MenuItem redoItem = menu.findItem(R.id.action_redo_play);
+        MenuItem resetLineupItem = menu.findItem(R.id.action_off_lineup_rules);
 
         boolean undo = gameLogIndex > lowestIndex;
         boolean redo = gameLogIndex < highestIndex;
 
         undoItem.setVisible(undo);
         redoItem.setVisible(redo);
+
+        SharedPreferences gamePreferences = getSharedPreferences(mSelectionID + StatsEntry.GAME, MODE_PRIVATE);
+        int sortArg = gamePreferences.getInt(KEY_GENDERSORT, 0);
+        if(sortArg == 0) {
+            resetLineupItem.setVisible(false);
+        } else {
+            resetLineupItem.setVisible(true);
+        }
 
         return true;
     }
@@ -1449,7 +1584,10 @@ public abstract class GameActivity extends AppCompatActivity
             gameCursor.moveToFirst();
             if (resultCode == RESULT_CODE_EDITED) {
                 lowestIndex = gameLogIndex;
-                getSelectionData();
+                if(!getSelectionData()) {
+                    goToMain();
+                    return;
+                }
                 setCustomViews();
                 setViews();
                 if(undoRedo) {

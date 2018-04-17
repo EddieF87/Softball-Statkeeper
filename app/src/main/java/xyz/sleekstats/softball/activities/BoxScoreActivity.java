@@ -21,12 +21,12 @@ public class BoxScoreActivity extends AppCompatActivity {
     private String homeTeamID;
     private String awayTeamName;
     private String homeTeamName;
-    private String selectionName;
-    private String selectionID;
+    private String mStatKeeperName;
+    private String mStatKeeperID;
     private int awayTeamRuns;
     private int homeTeamRuns;
     private int totalInnings;
-    private int selectionType;
+    private int mStatKeeperType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,22 +36,24 @@ public class BoxScoreActivity extends AppCompatActivity {
         try {
             MyApp myApp = (MyApp) getApplicationContext();
             MainPageSelection mainPageSelection = myApp.getCurrentSelection();
-            selectionID = mainPageSelection.getId();
-            selectionType = mainPageSelection.getType();
-            selectionName = mainPageSelection.getName();
-            setTitle(selectionName + " BoxScore");
+            mStatKeeperID = mainPageSelection.getId();
+            mStatKeeperType = mainPageSelection.getType();
+            mStatKeeperName = mainPageSelection.getName();
+            setTitle(mStatKeeperName + " BoxScore");
         } catch (Exception e) {
-            Intent intent = new Intent(BoxScoreActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
+            goToMain();
+        }
+        if(mStatKeeperID == null) {
+            goToMain();
+            return;
         }
 
         Bundle b;
         if (getIntent().getExtras() != null) {
             b = getIntent().getExtras();
         } else {
-            b = null;
             finish();
+            return;
         }
         awayTeamID = b.getString("awayTeamID", null);
         homeTeamID = b.getString("homeTeamID", null);
@@ -74,10 +76,10 @@ public class BoxScoreActivity extends AppCompatActivity {
             public Fragment getItem(int position) {
                 switch (position) {
                     case 0:
-                        return BoxScoreFragment.newInstance(selectionID, selectionName, selectionType, awayTeamID, homeTeamID,
+                        return BoxScoreFragment.newInstance(mStatKeeperID, mStatKeeperName, mStatKeeperType, awayTeamID, homeTeamID,
                                 awayTeamName, homeTeamName, totalInnings, awayTeamRuns, homeTeamRuns);
                     case 1:
-                        return PlayRecapFragment.newInstance(awayTeamID, homeTeamID, inningNumber, selectionID);
+                        return PlayRecapFragment.newInstance(awayTeamID, homeTeamID, inningNumber, mStatKeeperID);
                 }
                 return null;
             }
@@ -98,6 +100,12 @@ public class BoxScoreActivity extends AppCompatActivity {
 
         TabLayout tabLayout = findViewById(R.id.my_tab_layout);
         tabLayout.setupWithViewPager(mViewPager);
+    }
+
+    private void goToMain(){
+        Intent intent = new Intent(BoxScoreActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 
 

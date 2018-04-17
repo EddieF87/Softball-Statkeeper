@@ -82,6 +82,10 @@ public abstract class ObjectPagerActivity extends AppCompatActivity
 
     void startPager(int objectType, Uri uri) {
         setLeagueInfo();
+        if(mSelectionID == null) {
+            goToMain();
+            return;
+        }
 
         mObjectType = objectType;
         mUri = uri;
@@ -142,10 +146,14 @@ public abstract class ObjectPagerActivity extends AppCompatActivity
             mSelectionID = mainPageSelection.getId();
             level = mainPageSelection.getLevel();
         } catch (Exception e) {
-            Intent intent = new Intent(ObjectPagerActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
+            goToMain();
         }
+    }
+
+    private void goToMain() {
+        Intent intent = new Intent(ObjectPagerActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     @Override
@@ -220,8 +228,6 @@ public abstract class ObjectPagerActivity extends AppCompatActivity
                 teamFragment.showDeleteVsWaiversDialog();
             }
         }
-        TimeStampUpdater.updateTimeStamps(this, mSelectionID, System.currentTimeMillis());
-        setResult(RESULT_OK);
     }
 
     @Override
@@ -240,6 +246,7 @@ public abstract class ObjectPagerActivity extends AppCompatActivity
         }
         teamFragment.deleteTeam();
         setResult(RESULT_OK);
+        TimeStampUpdater.updateTimeStamps(this, mSelectionID, System.currentTimeMillis());
     }
 
     @Override
@@ -257,6 +264,7 @@ public abstract class ObjectPagerActivity extends AppCompatActivity
             teamFragment.deletePlayers();
         }
         setResult(RESULT_OK);
+        TimeStampUpdater.updateTimeStamps(this, mSelectionID, System.currentTimeMillis());
     }
 
     @Override

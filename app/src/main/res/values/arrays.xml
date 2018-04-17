@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="sortmethods">
+        <item>Ignore</item>
+        <item>@string/auto_sort</item>
+        <item>@string/add_auto_outs</item>
+    </string-array>
+</resources>

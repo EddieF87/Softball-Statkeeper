@@ -64,9 +64,11 @@ public class GameRecapActivity extends ExportActivity
             mStatKeeperType = mainPageSelection.getType();
             mStatKeeperName = mainPageSelection.getName();
         } catch (Exception e) {
-            Intent intent = new Intent(GameRecapActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
+            goToMain();
+        }
+        if(mStatKeeperID == null) {
+            goToMain();
+            return;
         }
 
         View boxscore = findViewById(R.id.relativelayout_boxscore);
@@ -103,6 +105,12 @@ public class GameRecapActivity extends ExportActivity
         }
 
         getSupportLoaderManager().initLoader(PLAYER_NAME_LOADER, null, this);
+    }
+
+    private void goToMain() {
+        Intent intent = new Intent(GameRecapActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     @Override

@@ -31,7 +31,7 @@ public class FinishGameConfirmationDialog extends DialogFragment {
             mListener = (FinishGameConfirmationDialog.OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement OnLineupSortListener");
         }
     }
 

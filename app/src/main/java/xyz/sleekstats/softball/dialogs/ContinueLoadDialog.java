@@ -34,7 +34,7 @@ public class ContinueLoadDialog extends DialogFragment {
             mListener = (ContinueLoadDialog.OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement OnLineupSortListener");
         }
     }
 

@@ -99,7 +99,7 @@ public class EditNameDialog extends DialogFragment {
             mListener = (EditNameDialog.OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement OnLineupSortListener");
         }
     }
 

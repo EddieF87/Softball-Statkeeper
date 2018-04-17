@@ -30,7 +30,7 @@ public class SetLineupActivity extends SingleFragmentActivity
         GameSettingsDialog.OnFragmentInteractionListener {
 
     private LineupFragment lineupFragment;
-    private String mSelectionID;
+    private String mStatKeeperID;
     private int mType;
     private String mTeamID;
     private boolean mInGame;
@@ -51,14 +51,21 @@ public class SetLineupActivity extends SingleFragmentActivity
             MyApp myApp = (MyApp) getApplicationContext();
             MainPageSelection mainPageSelection = myApp.getCurrentSelection();
             mType = mainPageSelection.getType();
-            mSelectionID = mainPageSelection.getId();
-            lineupFragment = LineupFragment.newInstance(mSelectionID, mType, teamName, mTeamID, mInGame);
+            mStatKeeperID = mainPageSelection.getId();
+            if(mStatKeeperID == null) {
+                goToMain();
+            }
+            lineupFragment = LineupFragment.newInstance(mStatKeeperID, mType, teamName, mTeamID, mInGame);
         } catch (Exception e) {
-            Intent intent = new Intent(SetLineupActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
+            goToMain();
         }
         return lineupFragment;
+    }
+
+    private void goToMain() {
+        Intent intent = new Intent(SetLineupActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     @Override
@@ -72,7 +79,7 @@ public class SetLineupActivity extends SingleFragmentActivity
                 continue;
             }
             int gender = genders.get(i);
-            values.put(StatsEntry.COLUMN_LEAGUE_ID, mSelectionID);
+            values.put(StatsEntry.COLUMN_LEAGUE_ID, mStatKeeperID);
             values.put(StatsEntry.COLUMN_NAME, name);
             values.put(StatsEntry.COLUMN_GENDER, gender);
             values.put(StatsEntry.COLUMN_TEAM, team);
@@ -82,7 +89,7 @@ public class SetLineupActivity extends SingleFragmentActivity
             Uri uri = getContentResolver().insert(StatsEntry.CONTENT_URI_PLAYERS, values);
             if (uri != null) {
                 String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
-                String[] selectionArgs = new String[]{mSelectionID};
+                String[] selectionArgs = new String[]{mStatKeeperID};
                 Cursor cursor = getContentResolver().query(uri, null, selection, selectionArgs, null);
                 if(cursor.moveToFirst()) {
                     Player player = new Player(cursor, false);
@@ -92,7 +99,7 @@ public class SetLineupActivity extends SingleFragmentActivity
             }
         }
         if (!players.isEmpty()) {
-            TimeStampUpdater.updateTimeStamps(this, mSelectionID, System.currentTimeMillis());
+            TimeStampUpdater.updateTimeStamps(this, mStatKeeperID, System.currentTimeMillis());
 
             if(lineupFragment != null) {
                 lineupFragment.updateBench(players);
@@ -115,7 +122,7 @@ public class SetLineupActivity extends SingleFragmentActivity
         super.onBackPressed();
         if(!mInGame){return;}
         Intent intent;
-        SharedPreferences gamePreferences = getSharedPreferences(mSelectionID + StatsEntry.GAME, Context.MODE_PRIVATE);
+        SharedPreferences gamePreferences = getSharedPreferences(mStatKeeperID + StatsEntry.GAME, Context.MODE_PRIVATE);
 
         SharedPreferences.Editor editor = gamePreferences.edit();
         if (mType == MainPageSelection.TYPE_LEAGUE) {
@@ -149,7 +156,7 @@ public class SetLineupActivity extends SingleFragmentActivity
             editor.putInt(KEY_GENDERSORT, sortArgument);
         } else {
             intent = new Intent(SetLineupActivity.this, TeamGameActivity.class);
-            editor.putBoolean(KEY_GENDERSORT, false);
+            editor.putInt(KEY_GENDERSORT, 0);
         }
         editor.apply();
         startActivity(intent);

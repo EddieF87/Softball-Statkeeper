@@ -32,10 +32,13 @@ import xyz.sleekstats.softball.dialogs.AddNewPlayersDialog;
 import xyz.sleekstats.softball.dialogs.ChangeTeamDialog;
 import xyz.sleekstats.softball.dialogs.ChooseOrCreateTeamDialog;
 import xyz.sleekstats.softball.dialogs.GameSettingsDialog;
+import xyz.sleekstats.softball.dialogs.LineupSortDialog;
+import xyz.sleekstats.softball.dialogs.PreviewSortDialog;
 import xyz.sleekstats.softball.fragments.MatchupFragment;
 import xyz.sleekstats.softball.fragments.StandingsFragment;
 import xyz.sleekstats.softball.fragments.StatsFragment;
 import xyz.sleekstats.softball.objects.MainPageSelection;
+import xyz.sleekstats.softball.objects.Player;
 import xyz.sleekstats.softball.objects.Team;
 
 import java.util.ArrayList;
@@ -49,7 +52,9 @@ public class LeagueManagerActivity extends ExportActivity
         MatchupFragment.OnFragmentInteractionListener,
         StandingsFragment.OnFragmentInteractionListener,
         StatsFragment.OnFragmentInteractionListener,
-        MySyncResultReceiver.Receiver{
+        MySyncResultReceiver.Receiver,
+        LineupSortDialog.OnLineupSortListener,
+        PreviewSortDialog.OnFragmentInteractionListener {
 
     private StandingsFragment standingsFragment;
     private StatsFragment statsFragment;
@@ -69,13 +74,18 @@ public class LeagueManagerActivity extends ExportActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pager);
 
-        if(savedInstanceState != null){
+        getStatKeeperData();
+        if (mLeagueID == null) {
+            goToMain();
+            return;
+        }
+
+        if (savedInstanceState != null) {
             gameUpdating = savedInstanceState.getBoolean(StatsEntry.UPDATE, false);
         }
-        getStatKeeperData();
         startPager();
 
-        if(!gameUpdating) {
+        if (!gameUpdating) {
             String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
             String[] selectionArgs = new String[]{mLeagueID};
 
@@ -95,7 +105,7 @@ public class LeagueManagerActivity extends ExportActivity
         }
     }
 
-    private void getStatKeeperData(){
+    private void getStatKeeperData() {
         try {
             MyApp myApp = (MyApp) getApplicationContext();
             MainPageSelection mainPageSelection = myApp.getCurrentSelection();
@@ -104,13 +114,17 @@ public class LeagueManagerActivity extends ExportActivity
             mLevel = mainPageSelection.getLevel();
             setTitle(leagueName + " (League)");
         } catch (Exception e) {
-            Intent intent = new Intent(LeagueManagerActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
+            goToMain();
         }
     }
 
-    private void startPager(){
+    private void goToMain() {
+        Intent intent = new Intent(LeagueManagerActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    private void startPager() {
         ViewPager viewPager = findViewById(R.id.my_view_pager);
         FragmentManager fragmentManager = getSupportFragmentManager();
         viewPager.setOffscreenPageLimit(2);
@@ -120,7 +134,7 @@ public class LeagueManagerActivity extends ExportActivity
         tabLayout.setupWithViewPager(viewPager);
     }
 
-    private void sendRetryGameLoadIntent(){
+    private void sendRetryGameLoadIntent() {
 //        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, new IntentFilter(StatsEntry.UPDATE));
         mReceiver = new MySyncResultReceiver(new Handler());
         mReceiver.setReceiver(this);
@@ -257,6 +271,22 @@ public class LeagueManagerActivity extends ExportActivity
     }
 
     @Override
+    public void startGameActivity(String awayID, String homeID, int inningAmt, int sortArg, int femaleOrder) {
+
+        SharedPreferences gamePreferences = getSharedPreferences(mLeagueID + StatsEntry.GAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = gamePreferences.edit();
+        editor.putString(StatsEntry.COLUMN_AWAY_TEAM, awayID);
+        editor.putString(StatsEntry.COLUMN_HOME_TEAM, homeID);
+        editor.putInt(GameActivity.KEY_TOTALINNINGS, inningAmt);
+        editor.putInt(GameActivity.KEY_GENDERSORT, sortArg);
+        editor.putInt(GameActivity.KEY_FEMALEORDER, femaleOrder);
+        editor.apply();
+
+        goToGameActivity();
+    }
+
+
+    @Override
     public void goToGameActivity() {
         Intent intent = new Intent(LeagueManagerActivity.this, LeagueGameActivity.class);
         startActivityForResult(intent, GameActivity.REQUEST_CODE_GAME);
@@ -276,7 +306,7 @@ public class LeagueManagerActivity extends ExportActivity
 
             case FirestoreUpdateService.MSG_TRANSFER_SUCCESS:
                 localUpdate--;
-                if(matchupFragment != null) {
+                if (matchupFragment != null) {
                     matchupFragment.setPostGameLayout(true);
                 }
                 break;
@@ -297,7 +327,7 @@ public class LeagueManagerActivity extends ExportActivity
             case FirestoreUpdateService.MSG_TRANSFER_FAILURE:
                 Toast.makeText(LeagueManagerActivity.this, "Error transferring stats.\nPlease try again.", Toast.LENGTH_LONG).show();
                 localUpdate = 999;
-                if(matchupFragment != null) {
+                if (matchupFragment != null) {
                     matchupFragment.onTransferError();
                 }
                 break;
@@ -305,26 +335,214 @@ public class LeagueManagerActivity extends ExportActivity
         boolean localUpdateFinish = localUpdate < 1;
         boolean firestoreUpdateFinish = firestoreUpdate < 1;
 
-        if(localUpdateFinish) {
+        if (localUpdateFinish) {
             localUpdate = 5;
-            if(standingsFragment != null) {
+            if (standingsFragment != null) {
                 standingsFragment.reloadStandings();
             }
-            if(statsFragment != null) {
+            if (statsFragment != null) {
                 statsFragment.reloadStats();
             }
             Toast.makeText(LeagueManagerActivity.this, R.string.stat_update_success, Toast.LENGTH_SHORT).show();
             gameUpdating = false;
         }
-        if(firestoreUpdateFinish) {
+        if (firestoreUpdateFinish) {
             firestoreUpdate = 4;
             Toast.makeText(LeagueManagerActivity.this, R.string.changes_to_cloud, Toast.LENGTH_SHORT).show();
         }
-        if(localUpdateFinish && firestoreUpdateFinish) {
+        if (localUpdateFinish && firestoreUpdateFinish) {
 //            LocalBroadcastManager.getInstance(LeagueManagerActivity.this).unregisterReceiver(mReceiver);
-            if(mReceiver != null){
+            if (mReceiver != null) {
                 mReceiver.setReceiver(null);
             }
+        }
+    }
+
+    @Override
+    public void onLineupSortChoice(String awayID, String homeID, int innings, int sortArg, int femaleOrder) {
+
+        if (sortArg < 0) {
+            ContentValues values = new ContentValues();
+            values.put(StatsEntry.COLUMN_LEAGUE_ID, mLeagueID);
+            values.put(StatsEntry.COLUMN_FIRESTORE_ID, GameActivity.AUTO_OUT);
+            values.put(StatsEntry.COLUMN_NAME, GameActivity.AUTO_OUT);
+            values.put(StatsEntry.COLUMN_GENDER, 1);
+            values.put(StatsEntry.COLUMN_PLAYERID, -1);
+            values.put(StatsEntry.COLUMN_ORDER, 101);
+
+            switch (sortArg) {
+                case -3:
+                    values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, awayID);
+                    getContentResolver().insert(StatsEntry.CONTENT_URI_TEMP, values);
+
+                    values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, homeID);
+                    getContentResolver().insert(StatsEntry.CONTENT_URI_TEMP, values);
+                    break;
+
+                case -2:
+                    values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, homeID);
+                    getContentResolver().insert(StatsEntry.CONTENT_URI_TEMP, values);
+                    break;
+
+                case -1:
+                    values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, awayID);
+                    getContentResolver().insert(StatsEntry.CONTENT_URI_TEMP, values);
+                    break;
+            }
+        }
+        if (matchupFragment != null) {
+            matchupFragment.setStartButtonClickable();
+        }
+
+        startGameActivity(awayID, homeID, innings, sortArg, femaleOrder);
+    }
+
+
+    @Override
+    public void onCancelStart() {
+        if (matchupFragment != null) {
+            matchupFragment.setStartButtonClickable();
+        }
+    }
+
+    @Override
+    public void onShowPreview(int sortArg, int femaleRequired) {
+        if (matchupFragment != null) {
+            ArrayList<Player> awayList;
+            ArrayList<Player> homeList;
+            if (sortArg < 0) {
+                awayList = addAutoOuts(matchupFragment.getAwayLineupCopy(), femaleRequired);
+                homeList = addAutoOuts(matchupFragment.getHomeLineupCopy(), femaleRequired);
+            } else if (sortArg > 0) {
+                awayList = genderSort(matchupFragment.getAwayLineupCopy(), femaleRequired + 1);
+                homeList = genderSort(matchupFragment.getHomeLineupCopy(), femaleRequired + 1);
+            } else {
+                awayList = matchupFragment.getAwayLineupCopy();
+                homeList = matchupFragment.getHomeLineupCopy();
+            }
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            DialogFragment newFragment = PreviewSortDialog.newInstance(awayList, homeList);
+            newFragment.setCancelable(false);
+            newFragment.show(fragmentTransaction, "");
+        }
+    }
+
+    private ArrayList<Player> genderSort(ArrayList<Player> team, int femaleRequired) {
+
+        List<Player> females = new ArrayList<>();
+        List<Player> males = new ArrayList<>();
+        int femaleIndex = 0;
+        int maleIndex = 0;
+        int firstFemale = 0;
+        boolean firstFemaleSet = false;
+        for (Player player : team) {
+            if (player.getGender() == 1) {
+                females.add(player);
+                firstFemaleSet = true;
+            } else {
+                males.add(player);
+            }
+            if (!firstFemaleSet) {
+                firstFemale++;
+            }
+        }
+        if (females.isEmpty() || males.isEmpty()) {
+            return team;
+        }
+        team.clear();
+        if (firstFemale >= femaleRequired) {
+            firstFemale = femaleRequired - 1;
+        }
+        for (int i = 0; i < firstFemale; i++) {
+            team.add(males.get(maleIndex));
+            maleIndex++;
+            if (maleIndex >= males.size()) {
+                maleIndex = 0;
+            }
+        }
+        for (int i = 0; i < 100; i++) {
+            if (i % femaleRequired == 0) {
+                team.add(females.get(femaleIndex));
+                femaleIndex++;
+                if (femaleIndex >= females.size()) {
+                    femaleIndex = 0;
+                }
+            } else {
+                team.add(males.get(maleIndex));
+                maleIndex++;
+                if (maleIndex >= males.size()) {
+                    maleIndex = 0;
+                }
+            }
+        }
+        return team;
+    }
+
+
+    private ArrayList<Player> addAutoOuts(ArrayList<Player> team, int femaleRequired) {
+        boolean firstPlayerMale = team.get(0).getGender() == 0;
+
+        String teamid = team.get(0).getTeamfirestoreid();
+        int menInARow = 0;
+        int womenInARow = 0;
+        int menInARowToStart = 0;
+        int womenInARowToStart = 0;
+        boolean toStart = true;
+
+        for (int i = 0; i < team.size(); i++) {
+
+            Player player = team.get(i);
+            if (player.getGender() == 1) {
+                womenInARow++;
+                menInARow = 0;
+                if (firstPlayerMale) {
+                    toStart = false;
+                }
+            } else {
+                menInARow++;
+                womenInARow = 0;
+                if (!firstPlayerMale) {
+                    toStart = false;
+                }
+            }
+
+            if (womenInARow > 1) {
+                team.add(i, new Player(GameActivity.AUTO_OUT, "(AUTO-OUT)", teamid, 0));
+                womenInARow = 1;
+                i++;
+                toStart = false;
+            }
+            if (menInARow > femaleRequired) {
+                team.add(i, new Player(GameActivity.AUTO_OUT, "(AUTO-OUT)", teamid, 1));
+                menInARow = 1;
+                i++;
+                toStart = false;
+            }
+
+            if (toStart) {
+                if (womenInARow > 0) {
+                    womenInARowToStart++;
+                }
+                if (menInARow > 0) {
+                    menInARowToStart++;
+                }
+            }
+        }
+        if (menInARow + menInARowToStart > femaleRequired) {
+            team.add(new Player(GameActivity.AUTO_OUT, "(AUTO-OUT)", teamid, 1));
+        }
+        if (womenInARow + womenInARowToStart > 1) {
+            team.add(new Player(GameActivity.AUTO_OUT, "(AUTO-OUT)", teamid, 0));
+        }
+
+        return team;
+    }
+
+    @Override
+    public void onReturnToSort() {
+        if (matchupFragment != null) {
+            matchupFragment.openLineupSortDialog(1);
         }
     }
 
@@ -463,12 +681,10 @@ public class LeagueManagerActivity extends ExportActivity
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        Intent intent = new Intent(LeagueManagerActivity.this, MainActivity.class);
-        startActivity(intent);
-        if(mReceiver != null){
+        if (mReceiver != null) {
             mReceiver.setReceiver(null);
         }
-        finish();
+        goToMain();
     }
 
     @Override
@@ -493,10 +709,8 @@ public class LeagueManagerActivity extends ExportActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                    Intent intent = new Intent(LeagueManagerActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    finish();
-                    return true;
+                goToMain();
+                return true;
             case R.id.change_user_settings:
                 goToUserSettings();
                 return true;
@@ -514,19 +728,19 @@ public class LeagueManagerActivity extends ExportActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode == GameActivity.REQUEST_CODE_GAME && resultCode == GameActivity.RESULT_CODE_GAME_FINISHED) {
+        if (requestCode == GameActivity.REQUEST_CODE_GAME && resultCode == GameActivity.RESULT_CODE_GAME_FINISHED) {
             gameUpdating = true;
             updateStats(data);
         }
     }
 
-    private void updateStats (Intent data) {
+    private void updateStats(Intent data) {
 
-        if(matchupFragment != null) {
+        if (matchupFragment != null) {
             matchupFragment.setPostGameLayout(false);
         }
 
-        if(mLeagueID == null) {
+        if (mLeagueID == null) {
             getStatKeeperData();
         }
         long updateTime = System.currentTimeMillis();
@@ -553,7 +767,7 @@ public class LeagueManagerActivity extends ExportActivity
     protected void onStop() {
         super.onStop();
 //        LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
-        if(mReceiver != null) {
+        if (mReceiver != null) {
             mReceiver.setReceiver(null);
         }
     }
@@ -561,9 +775,9 @@ public class LeagueManagerActivity extends ExportActivity
     @Override
     protected void onStart() {
         super.onStart();
-        if(gameUpdating) {
+        if (gameUpdating) {
 //            LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, new IntentFilter(StatsEntry.UPDATE));
-            if(mReceiver == null) {
+            if (mReceiver == null) {
                 mReceiver = new MySyncResultReceiver(new Handler());
             }
             mReceiver.setReceiver(this);

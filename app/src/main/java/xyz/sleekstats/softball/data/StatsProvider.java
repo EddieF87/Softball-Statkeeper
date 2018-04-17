@@ -655,8 +655,7 @@ public class StatsProvider extends ContentProvider {
 
     private long insertSelection(@NonNull Uri uri, @Nullable ContentValues values) {
         SQLiteDatabase database = mOpenHelper.getWritableDatabase();
-        long id = database.insert(StatsEntry.SELECTIONS_TABLE_NAME, null, values);
-        return id;
+        return database.insert(StatsEntry.SELECTIONS_TABLE_NAME, null, values);
     }
 
     private boolean containsName(Uri uri, ContentValues values) {

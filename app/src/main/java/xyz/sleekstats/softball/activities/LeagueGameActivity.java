@@ -12,6 +12,7 @@ import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -72,8 +73,10 @@ public class LeagueGameActivity extends GameActivity {
         awayTeam = setTeam(awayTeamID);
         homeTeam = setTeam(homeTeamID);
 
-        if (sortArgument != 0) {
+        if (sortArgument > 0) {
             setGendersort(sortArgument, genderSorter + 1);
+        } else if (sortArgument < 0) {
+            setAddAutoOuts(sortArgument, genderSorter + 1);
         }
 
         awayLineupRV = findViewById(R.id.away_lineup);
@@ -129,16 +132,95 @@ public class LeagueGameActivity extends GameActivity {
         }
     }
 
-    protected void getSelectionData() {
+
+    @Override
+    protected void revertLineups() {
+
+        Player awayPlayer = null;
+        while (awayPlayer == null || awayPlayer.getFirestoreID().equals(AUTO_OUT)) {
+            awayPlayer = awayTeam.get(awayTeamIndex);
+            if(awayPlayer.getFirestoreID().equals(AUTO_OUT)) {
+                increaseAwayIndex();
+            }
+        }
+        Player homePlayer = null;
+        while (homePlayer == null || homePlayer.getFirestoreID().equals(AUTO_OUT)) {
+            homePlayer = homeTeam.get(homeTeamIndex);
+            if(homePlayer.getFirestoreID().equals(AUTO_OUT)) {
+                increaseHomeIndex();
+            }
+        }
+
+        awayTeam.clear();
+        String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] selectionArgs = new String[]{awayTeamID, mSelectionID};
+        String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
+        Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEMP, null,
+                selection, selectionArgs, sortOrder);
+
+        while (cursor.moveToNext()) {
+            int order = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_ORDER);
+            if (order > 100) {
+                continue;
+            }
+            Player player = new Player(cursor, true);
+            awayTeam.add(player);
+        }
+
+        homeTeam.clear();
+        selectionArgs = new String[]{homeTeamID, mSelectionID};
+        cursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEMP, null,
+                selection, selectionArgs, sortOrder);
+
+        while (cursor.moveToNext()) {
+            int order = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_ORDER);
+            if (order > 100) {
+                continue;
+            }
+            Player player = new Player(cursor, true);
+            homeTeam.add(player);
+        }
+
+        awayTeamIndex = setLineupIndex(awayTeam, awayPlayer.getFirestoreID());
+        homeTeamIndex = setLineupIndex(homeTeam, homePlayer.getFirestoreID());
+
+        if(currentTeam == awayTeam) {
+            awayLineupAdapter.setCurrentLineupPosition(awayTeamIndex);
+            awayLineupRV.scrollToPosition(awayTeamIndex);
+        } else {
+            homeLineupAdapter.setCurrentLineupPosition(homeTeamIndex);
+            homeLineupRV.scrollToPosition(homeTeamIndex);
+        }
+
+        awayLineupAdapter.notifyDataSetChanged();
+        homeLineupAdapter.notifyDataSetChanged();
+    }
+
+    private void setAddAutoOuts(int sortArgument, int femaleOrder) {
+        switch (sortArgument) {
+            case -1:
+                addAutoOuts(awayTeam, femaleOrder);
+                break;
+            case -2:
+                addAutoOuts(homeTeam, femaleOrder);
+                break;
+            case -3:
+                addAutoOuts(awayTeam, femaleOrder);
+                addAutoOuts(homeTeam, femaleOrder);
+                break;
+            default:
+        }
+    }
+
+    protected boolean getSelectionData() {
         try {
             MyApp myApp = (MyApp) getApplicationContext();
             MainPageSelection mainPageSelection = myApp.getCurrentSelection();
             mSelectionID = mainPageSelection.getId();
             leagueName = mainPageSelection.getName();
+            return true;
         } catch (Exception e) {
-            Intent intent = new Intent(LeagueGameActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
+            return false;
         }
     }
 
@@ -503,6 +585,9 @@ public class LeagueGameActivity extends GameActivity {
             increaseAwayIndex();
         } else if (currentTeam == homeTeam) {
             increaseHomeIndex();
+        } else {
+            int i = 2;
+            increaseAwayIndex();
         }
     }
 

@@ -60,7 +60,7 @@ public class DeleteVsWaiversDialog extends DialogFragment {
             mListener = (DeleteVsWaiversDialog.OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement OnLineupSortListener");
         }
     }
 

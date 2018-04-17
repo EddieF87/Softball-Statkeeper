@@ -54,6 +54,10 @@ public class LoadingActivity extends AppCompatActivity
         loadProgressBar = findViewById(R.id.load_bar);
 
         getStatKeeperData();
+        if(mStatKeeperID == null) {
+            goToMain();
+            return;
+        }
 
         checkConnection();
 

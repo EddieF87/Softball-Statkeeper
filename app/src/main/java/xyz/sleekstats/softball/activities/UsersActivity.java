@@ -115,9 +115,11 @@ public class UsersActivity extends AppCompatActivity
             String leagueNameDisplay = mSelectionName + " Users";
             leagueNameTextView.setText(leagueNameDisplay);
         } catch (Exception e) {
-            Intent intent = new Intent(UsersActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
+            goToMain();
+        }
+        if(mSelectionID == null) {
+            goToMain();
+            return;
         }
 
         firestore = FirebaseFirestore.getInstance();
@@ -145,6 +147,12 @@ public class UsersActivity extends AppCompatActivity
             accessGuide.setVisibility(View.GONE);
         }
         startQuery();
+    }
+
+    private void goToMain() {
+        Intent intent = new Intent(UsersActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     private void startQuery(){

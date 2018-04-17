@@ -61,7 +61,7 @@ public class EndOfGameDialog extends DialogFragment {
             mListener = (OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement OnLineupSortListener");
         }
     }
 

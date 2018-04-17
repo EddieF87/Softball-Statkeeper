@@ -1,6 +1,7 @@
 package xyz.sleekstats.softball.fragments;
 
 
+import android.app.Activity;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -382,7 +383,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         setViewVisibility(View.VISIBLE, View.GONE);
         setRadioButtons(playerManager);
 
-        resultCount = 0;
+        resultCount = 1;
         resultCountText = playerManager.findViewById(R.id.textview_result_count);
         resultText = playerManager.findViewById(R.id.textview_result_chosen);
         Button submitBtn = playerManager.findViewById(R.id.submit);
@@ -469,8 +470,8 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 }
                 cursor.close();
 
-                resultCount = 0;
-                resultCountText.setText(String.valueOf(0));
+                resultCount = 1;
+                resultCountText.setText(String.valueOf(1));
             }
         });
     }
@@ -753,12 +754,12 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 intent.putExtra(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, mTeamFirestoreID);
                 getActivity().startService(intent);
                 Toast.makeText(getActivity(), playerName + " " + getString(R.string.editor_delete_player_successful), Toast.LENGTH_SHORT).show();
-            } else {
-                return;
+
+                getActivity().setResult(Activity.RESULT_OK);
+                if (getActivity() instanceof PlayerPagerActivity) {
+                    ((PlayerPagerActivity) getActivity()).returnDeleteResult(mFirestoreID);
+                }
             }
-        }
-        if (getActivity() instanceof PlayerPagerActivity) {
-            ((PlayerPagerActivity) getActivity()).returnDeleteResult(mFirestoreID);
         }
     }
 

@@ -67,6 +67,7 @@ import java.util.Map;
 
 import static xyz.sleekstats.softball.data.FirestoreUpdateService.BOXSCORE_COLLECTION;
 import static xyz.sleekstats.softball.data.FirestoreUpdateService.DELETION_COLLECTION;
+import static xyz.sleekstats.softball.data.FirestoreUpdateService.LAST_UPDATE;
 import static xyz.sleekstats.softball.data.FirestoreUpdateService.LEAGUE_COLLECTION;
 import static xyz.sleekstats.softball.data.FirestoreUpdateService.PLAYERS_COLLECTION;
 import static xyz.sleekstats.softball.data.FirestoreUpdateService.PLAYER_LOGS;
@@ -842,6 +843,7 @@ public class MainActivity extends AppCompatActivity
             firestoreLeagueMap.put(StatsEntry.COLUMN_NAME, name);
             firestoreLeagueMap.put(StatsEntry.TYPE, type);
             firestoreLeagueMap.put("creator", null);
+            firestoreLeagueMap.put(LAST_UPDATE, 0);
 
             statKeeperDocument.set(firestoreLeagueMap, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override

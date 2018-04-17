@@ -43,7 +43,8 @@ public class PreviousPlaysAdapter extends RecyclerView.Adapter<PreviousPlaysAdap
         int inningNum = currentPlay.getInning();
 
         if (position == mPreviousPlays.size() - 1) {
-            holder.mScoreTextView.setText("0 - 0");
+            String score = awayRuns + " - 0";
+            holder.mScoreTextView.setText(score);
         } else {
             PreviousPlay lastPlay = mPreviousPlays.get(position + 1);
             if (awayRuns != lastPlay.getAwayRuns() || homeRuns != lastPlay.getHomeRuns()) {
@@ -80,22 +81,28 @@ public class PreviousPlaysAdapter extends RecyclerView.Adapter<PreviousPlaysAdap
 
             if (batter == null) {
                 String otherTeamResult;
-                PreviousPlay lastPlay = mPreviousPlays.get(position + 1);
-                int prevRuns;
-                if (inningNum % 2 == 0) {
-                    if(lastPlay == null) {
-                        prevRuns = 0;
+                if (position != mPreviousPlays.size() - 1) {
+                    PreviousPlay lastPlay = mPreviousPlays.get(position + 1);
+                    int prevRuns;
+                    if (inningNum % 2 == 0) {
+                        if (lastPlay == null) {
+                            prevRuns = 0;
+                        } else {
+                            prevRuns = lastPlay.getHomeRuns();
+                        }
+                        otherTeamResult = "Home Team scored " + (homeRuns - prevRuns) + " runs";
                     } else {
-                        prevRuns = lastPlay.getHomeRuns();
+                        if (lastPlay == null) {
+                            prevRuns = 0;
+                        } else {
+                            prevRuns = lastPlay.getAwayRuns();
+                        }
+                        otherTeamResult = "Away Team scored " + (awayRuns - prevRuns) + " runs";
                     }
-                    otherTeamResult = "Home Team scored " + (homeRuns - prevRuns) + " runs";
                 } else {
-                    if(lastPlay == null) {
-                        prevRuns = 0;
-                    } else {
-                        prevRuns = lastPlay.getAwayRuns();
-                    }
-                    otherTeamResult = "Away Team scored " + (awayRuns - prevRuns) + " runs";
+                    otherTeamResult = "Away Team scored " + (awayRuns) + " runs";
+                    String score = awayRuns + " - 0";
+                    holder.mScoreTextView.setText(score);
                 }
                 holder.mPlayTextView.setText(otherTeamResult);
                 return;
@@ -179,9 +186,9 @@ public class PreviousPlaysAdapter extends RecyclerView.Adapter<PreviousPlaysAdap
             boolean threeOuts = (
                     (currentPlay.isHomeTeam() && (inningNum % 2 == 1))
                             || (!currentPlay.isHomeTeam() && (inningNum > 0 && inningNum % 2 == 0)));
-            if(position != 0) {
+            if (position != 0) {
                 PreviousPlay nextPlay = mPreviousPlays.get(position - 1);
-                if(nextPlay.getBatter() == null) {
+                if (nextPlay.getBatter() == null) {
                     threeOuts = true;
                 }
             }

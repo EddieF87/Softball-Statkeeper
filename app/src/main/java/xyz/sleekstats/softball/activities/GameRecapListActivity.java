@@ -58,9 +58,11 @@ public class GameRecapListActivity extends AppCompatActivity implements LoaderMa
             String title = skName + " Scores";
             setTitle(title);
         } catch (Exception e) {
-            Intent intent = new Intent(GameRecapListActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
+            goToMain();
+        }
+        if(mStatKeeperID == null) {
+            goToMain();
+            return;
         }
 
         mRecyclerView = findViewById(R.id.rv_games);
@@ -82,6 +84,11 @@ public class GameRecapListActivity extends AppCompatActivity implements LoaderMa
         getSupportLoaderManager().initLoader(TEAM_NAME_LOADER, null, this);
     }
 
+    private void goToMain() {
+        Intent intent = new Intent(GameRecapListActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();
+    }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {

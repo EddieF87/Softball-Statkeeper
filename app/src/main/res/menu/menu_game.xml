@@ -40,4 +40,8 @@
         android:title="@string/finish"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/action_off_lineup_rules"
+        android:title="Reset Lineup Rules"
+        app:showAsAction="never" />
 </menu>

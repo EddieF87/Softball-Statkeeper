@@ -38,7 +38,7 @@
     <string name="edit_lineup">Edit Lineup</string>
     <string name="redo_play">Redo Play</string>
     <string name="undo_play">Undo Play</string>
-    <string name="stats">Stats</string>
+    <string name="stats">Game Stats</string>
     <string name="bench">Bench</string>
     <string name="remove_all_players">Remove All Players</string>
     <string name="remove_all_free_agents">Remove all free agents from league?</string>
@@ -66,7 +66,7 @@
     <string name="start">Start</string>
 
     <string name="empty_avg">---</string>
-    <string name="user_settings">User Settings</string>
+    <string name="user_settings">Users</string>
     <string name="reset">Reset</string>
     <string name="save">Save</string>
     <string name="lineup">Lineup</string>
@@ -174,4 +174,7 @@
     <string name="email_head_admin">Email Head Admin</string>
     <string name="changes_to_cloud">Changes have been uploaded to cloud!</string>
     <string name="game_deleted">Game has been deleted, and stats have been reverted.</string>
+    <string name="add_auto_outs">Add Auto-Outs</string>
+    <string name="auto_sort">Auto-Sort</string>
+    <string name="preview">Preview</string>
 </resources>

@@ -44,11 +44,12 @@ public class PlayerManagerActivity extends ExportActivity
             MainPageSelection mainPageSelection = myApp.getCurrentSelection();
             String playerID = mainPageSelection.getId();
             String playerName = mainPageSelection.getName();
+            if(playerID == null){
+                goToMain();
+            }
             playerFragment = PlayerFragment.newInstance(playerID, playerName);
         } catch (Exception e) {
-            Intent intent = new Intent(PlayerManagerActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
+            goToMain();
         }
         return playerFragment;
     }
@@ -71,9 +72,7 @@ public class PlayerManagerActivity extends ExportActivity
                     String playerID = mainPageSelection.getId();
                     db.collection(FirestoreUpdateService.LEAGUE_COLLECTION).document(playerID).update("name", enteredText);
                 } catch (Exception e) {
-                    Intent intent = new Intent(PlayerManagerActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    finish();
+                    goToMain();
                 }
             }
         }
@@ -99,6 +98,10 @@ public class PlayerManagerActivity extends ExportActivity
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        goToMain();
+    }
+
+    private void goToMain(){
         Intent intent = new Intent(PlayerManagerActivity.this, MainActivity.class);
         startActivity(intent);
         finish();

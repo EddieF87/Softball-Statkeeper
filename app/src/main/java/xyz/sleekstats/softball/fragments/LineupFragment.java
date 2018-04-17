@@ -42,6 +42,7 @@ import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
 import xyz.sleekstats.softball.dialogs.AddNewPlayersDialog;
 import xyz.sleekstats.softball.dialogs.GameSettingsDialog;
+import xyz.sleekstats.softball.dialogs.LineupSortDialog;
 import xyz.sleekstats.softball.objects.MainPageSelection;
 import xyz.sleekstats.softball.objects.Player;
 import com.woxthebox.draglistview.BoardView;
@@ -60,6 +61,7 @@ public class LineupFragment extends Fragment {
     private TextView gameSummaryView;
     private TextView inningsView;
     private TextView orderView;
+    private Button lineupSubmitButton;
 
     private List<Player> mLineup;
     private List<Player> mBench;
@@ -73,7 +75,6 @@ public class LineupFragment extends Fragment {
     private static final String KEY_TEAM_NAME = "team_name";
     private static final String KEY_TEAM_ID = "team_id";
     private static final String KEY_INGAME = "ingame";
-    private static final String KEY_GENDERSORT = "keyGenderSort";
     private static final int LINEUP_INDEX = 0;
     private static final int BENCH_INDEX = 1;
 
@@ -116,7 +117,7 @@ public class LineupFragment extends Fragment {
                              Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_lineup, container, false);
 
-        final Button lineupSubmitButton = rootView.findViewById(R.id.lineup_submit);
+        lineupSubmitButton = rootView.findViewById(R.id.lineup_submit);
         lineupSubmitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -126,7 +127,6 @@ public class LineupFragment extends Fragment {
                 } else {
                     onSubmitLineup();
                 }
-                lineupSubmitButton.setClickable(true);
             }
         });
 
@@ -284,7 +284,7 @@ public class LineupFragment extends Fragment {
             if (mType == MainPageSelection.TYPE_LEAGUE) {
                 String awayTeam = gamePreferences.getString(StatsEntry.COLUMN_AWAY_TEAM, null);
                 String homeTeam = gamePreferences.getString(StatsEntry.COLUMN_HOME_TEAM, null);
-                int sortArgument = gamePreferences.getInt(KEY_GENDERSORT, 0);
+                int sortArgument = gamePreferences.getInt(GameActivity.KEY_GENDERSORT, 0);
 
                 switch (sortArgument) {
                     case 3:
@@ -307,9 +307,9 @@ public class LineupFragment extends Fragment {
                         }
                         break;
                 }
-                editor.putInt(KEY_GENDERSORT, sortArgument);
+                editor.putInt(GameActivity.KEY_GENDERSORT, sortArgument);
             } else {
-                editor.putBoolean(KEY_GENDERSORT, false);
+                editor.putInt(GameActivity.KEY_GENDERSORT, 0);
             }
             editor.apply();
             getActivity().setResult(GameActivity.RESULT_CODE_EDITED);
@@ -324,12 +324,16 @@ public class LineupFragment extends Fragment {
             int genderSorter = getGenderSorter();
 
             if (isLineupOK()) {
+                final Button continueGameButton = getView().findViewById(R.id.continue_game);
+                continueGameButton.setVisibility(View.GONE);
+                gameSummaryView.setVisibility(View.GONE);
                 clearGameDB();
                 boolean lineupCheck = addTeamToTempDB(genderSorter);
                 if (lineupCheck) {
                     startGame(isHome());
                 }
             } else {
+                lineupSubmitButton.setClickable(true);
                 Toast.makeText(getActivity(), "Add more players to lineup first.",
                         Toast.LENGTH_SHORT).show();
             }
@@ -366,7 +370,9 @@ public class LineupFragment extends Fragment {
             inningsView.setVisibility(View.VISIBLE);
             setGameSettings(innings, genderSorter);
 
-            Button lineupSubmitButton = getView().findViewById(R.id.lineup_submit);
+            if(lineupSubmitButton == null) {
+                lineupSubmitButton = getView().findViewById(R.id.lineup_submit);
+            }
             lineupSubmitButton.setText(R.string.start);
             radioButtonGroup.setVisibility(View.VISIBLE);
 
@@ -454,7 +460,7 @@ public class LineupFragment extends Fragment {
         final int inningNumber = savedGamePreferences.getInt("keyInningNumber", 2);
         int inningDisplay = inningNumber / 2;
         boolean isHome = savedGamePreferences.getBoolean("isHome", false);
-        final int totalInnings = savedGamePreferences.getInt("keyTotalInnings", 7);
+        final int totalInnings = savedGamePreferences.getInt(GameActivity.KEY_TOTALINNINGS, 7);
         String awayTeamName = "Away";
         String homeTeamName = "Home";
         if (isHome) {
@@ -490,12 +496,34 @@ public class LineupFragment extends Fragment {
 
 
     private void startGame(boolean isHome) {
-        Intent intent = new Intent(getActivity(), TeamGameActivity.class);
-        intent.putExtra("isHome", isHome);
-        intent.putExtra("sortArgument", sortLineup);
-        getActivity().startActivityForResult(intent, GameActivity.REQUEST_CODE_GAME);
+        if(sortLineup) {
+            openLineupSortDialog(1);
+        } else {
+            lineupSubmitButton.setClickable(true);
+            Intent intent = new Intent(getActivity(), TeamGameActivity.class);
+            intent.putExtra("isHome", isHome);
+            intent.putExtra(GameActivity.KEY_GENDERSORT, 0);
+            getActivity().startActivityForResult(intent, GameActivity.REQUEST_CODE_GAME);
+        }
     }
 
+    public void setStartButtonClickable() {
+        if(lineupSubmitButton == null) {
+            lineupSubmitButton = getView().findViewById(R.id.lineup_submit);
+        }
+        lineupSubmitButton.setClickable(true);
+    }
+
+
+    public void openLineupSortDialog(int sortArg) {
+        updateAndSubmitLineup();
+        int genderSorter = getGenderSorter();
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        DialogFragment newFragment = LineupSortDialog.newInstance(mTeamID, sortArg, genderSorter);
+        newFragment.setCancelable(false);
+        newFragment.show(fragmentTransaction, "");
+    }
 
     private boolean isLineupOK() {
         return updateAndSubmitLineup() > 3;
@@ -507,7 +535,7 @@ public class LineupFragment extends Fragment {
         return genderPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
     }
 
-    private boolean isHome() {
+    public boolean isHome() {
         RadioGroup radioGroup = getView().findViewById(R.id.radiobtns_away_or_home_team);
         int id = radioGroup.getCheckedRadioButtonId();
         switch (id) {

@@ -5,11 +5,11 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.Menu;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -49,19 +49,17 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
     private static final String KEY_ISHOME = "isHome";
 
     @Override
-    protected void getSelectionData() {
+    protected boolean getSelectionData() {
         try {
             MyApp myApp = (MyApp) getApplicationContext();
             MainPageSelection mainPageSelection = myApp.getCurrentSelection();
             mSelectionID = mainPageSelection.getId();
             myTeamName = mainPageSelection.getName();
+            return true;
         } catch (Exception e) {
-            Intent intent = new Intent(TeamGameActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
+            return false;
         }
     }
-
 
 
     @Override
@@ -91,10 +89,13 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         undoRedo = gamePreferences.getBoolean(KEY_UNDOREDO, false);
         redoEndsGame = gamePreferences.getBoolean(KEY_REDOENDSGAME, false);
 
-        boolean sortArgument = gamePreferences.getBoolean(KEY_GENDERSORT, false);
-        if (sortArgument) {
+        int sortArgument = gamePreferences.getInt(KEY_GENDERSORT, 0);
+        if (sortArgument > 0) {
             int genderSorter = gamePreferences.getInt(KEY_FEMALEORDER, 0);
             myTeam = genderSort(myTeam, genderSorter);
+        } else if (sortArgument <0) {
+            int genderSorter = gamePreferences.getInt(KEY_FEMALEORDER, 0);
+            myTeam = addAutoOuts(myTeam, genderSorter);
         }
     }
 
@@ -111,7 +112,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
 
         SharedPreferences gamePreferences = getSharedPreferences(mSelectionID + StatsEntry.GAME, MODE_PRIVATE);
 
-        boolean sortArgument = false;
+        int sortArgument = 0;
 
         if (args != null) {
             if (args.containsKey(KEY_ISHOME)) {
@@ -121,11 +122,11 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
             }
             SharedPreferences.Editor editor = gamePreferences.edit();
 
-            sortArgument = args.getBoolean("sortArgument");
+            sortArgument = args.getInt(KEY_GENDERSORT, 0);
 
             editor.putBoolean(KEY_ISHOME, isHome);
             editor.putInt(KEY_TOTALINNINGS, totalInnings);
-            editor.putBoolean(KEY_GENDERSORT, sortArgument);
+            editor.putInt(KEY_GENDERSORT, sortArgument);
             editor.putInt(KEY_FEMALEORDER, genderSorter);
             editor.apply();
         } else {
@@ -151,7 +152,9 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         myTeam = setTeam(mSelectionID);
         setTitle(awayTeamName + " @ " + homeTeamName);
 
-        if (sortArgument) {
+        if (sortArgument < 0) {
+            myTeam = addAutoOuts(myTeam, genderSorter);
+        } else if(sortArgument > 0) {
             myTeam = genderSort(myTeam, genderSorter);
         }
 
@@ -181,6 +184,8 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         });
     }
 
+
+
     @Override
     protected void startGame() {
         super.startGame();
@@ -199,13 +204,15 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
 
         ContentValues values = new ContentValues();
         String onDeck;
-        if (isAlternate) {
+        if (isAlternate && gameHelp) {
             myTeamIndex = 0;
             onDeck = null;
-            step1View.setVisibility(View.GONE);
-            step2View.setVisibility(View.GONE);
-            step3View.setVisibility(View.GONE);
-            step4View.setVisibility(View.GONE);
+            if(step1View != null) {
+                step1View.setVisibility(View.GONE);
+                step2View.setVisibility(View.GONE);
+                step3View.setVisibility(View.GONE);
+                step4View.setVisibility(View.GONE);
+            }
         } else {
             onDeck = currentBatter.getFirestoreID();
         }
@@ -508,6 +515,9 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
             }
             isAlternate = (StatsContract.getColumnString(gameCursor, StatsEntry.COLUMN_ONDECK) == null);
             gameLogIndex--;
+            if(gameLogIndex == 0 && isHome) {
+                increaseLineupIndex();
+            }
         } else {
             return;
         }
@@ -534,7 +544,14 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
     @Override
     protected void redoPlay() {
         String redoResult = getRedoResult();
-        if (redoResult == null && !isAlternate) {
+        if (redoResult == null) {
+            if(isHome && gameLogIndex == lowestIndex + 1) {
+                inningNumber++;
+                chooseDisplay();
+                setInningDisplay();
+                inningChanged = 1;
+                setDisplays();
+            }
             return;
         }
 
@@ -597,9 +614,42 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_game, menu);
-        return true;
+    protected void revertLineups() {
+        String playerFirestoreID;
+        if(currentBatter == null) {
+            playerFirestoreID = myTeam.get(myTeamIndex).getFirestoreID();
+            while (playerFirestoreID.equals(AUTO_OUT)) {
+                increaseLineupIndex();
+                playerFirestoreID = myTeam.get(myTeamIndex).getFirestoreID();
+            }
+        } else {
+            playerFirestoreID = currentBatter.getFirestoreID();
+            while (playerFirestoreID.equals(AUTO_OUT)) {
+                increaseLineupIndex();
+                playerFirestoreID = myTeam.get(myTeamIndex).getFirestoreID();
+            }
+        }
+
+        myTeam.clear();
+
+        String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] selectionArgs = new String[]{mSelectionID, mSelectionID};
+        String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
+        Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEMP, null,
+                selection, selectionArgs, sortOrder);
+
+        while (cursor.moveToNext()) {
+            int order = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_ORDER);
+            if (order > 100) {
+                continue;
+            }
+            Player player = new Player(cursor, true);
+            myTeam.add(player);
+        }
+
+        myTeamIndex = setLineupIndex(myTeam, playerFirestoreID);
+
+        setLineupRVPosition();
     }
 
     @Override

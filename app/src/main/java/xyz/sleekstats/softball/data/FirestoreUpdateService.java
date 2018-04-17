@@ -11,7 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import xyz.sleekstats.softball.MyApp;
-import xyz.sleekstats.softball.activities.GameRecapActivity;
+import xyz.sleekstats.softball.activities.GameActivity;
 import xyz.sleekstats.softball.objects.Player;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
 import xyz.sleekstats.softball.objects.PlayerLog;
@@ -667,6 +667,10 @@ public class FirestoreUpdateService extends IntentService {
         String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
         String[] selectionArgs = new String[]{statKeeperID};
         boolean successfulInsert;
+
+        String autoOutSelection = selection + " AND " + StatsEntry.COLUMN_FIRESTORE_ID + "=?";
+        String[] autoOutSelectionArgs = new String[]{statKeeperID, GameActivity.AUTO_OUT};
+        getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, autoOutSelection, autoOutSelectionArgs);
 
         successfulInsert = addBackupPlayerValues(selection, selectionArgs);
         if (!successfulInsert) {

@@ -7,10 +7,13 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
@@ -20,6 +23,8 @@ import xyz.sleekstats.softball.data.FirestoreUpdateService;
 import xyz.sleekstats.softball.data.GameUpdateIntentMaker;
 import xyz.sleekstats.softball.data.MySyncResultReceiver;
 import xyz.sleekstats.softball.data.TimeStampUpdater;
+import xyz.sleekstats.softball.dialogs.LineupSortDialog;
+import xyz.sleekstats.softball.dialogs.PreviewSortDialog;
 import xyz.sleekstats.softball.views.CustomViewPager;
 import xyz.sleekstats.softball.adapters.PlayerStatsAdapter;
 import xyz.sleekstats.softball.data.StatsContract;
@@ -42,7 +47,9 @@ public class TeamManagerActivity extends ExportActivity
         GameSettingsDialog.OnFragmentInteractionListener,
         RemoveAllPlayersDialog.OnFragmentInteractionListener,
         EditNameDialog.OnFragmentInteractionListener,
-        MySyncResultReceiver.Receiver {
+        MySyncResultReceiver.Receiver,
+        LineupSortDialog.OnLineupSortListener,
+        PreviewSortDialog.OnFragmentInteractionListener {
 
     private LineupFragment lineupFragment;
     private TeamFragment teamFragment;
@@ -63,6 +70,10 @@ public class TeamManagerActivity extends ExportActivity
         }
 
         getStatKeeperData();
+        if(mTeamID == null) {
+            goToMain();
+            return;
+        }
         startPager();
 
         if(!gameUpdating) {
@@ -94,10 +105,14 @@ public class TeamManagerActivity extends ExportActivity
             mLevel = mainPageSelection.getLevel();
             setTitle(mTeamName + " (Team)");
         } catch (Exception e) {
-            Intent intent = new Intent(TeamManagerActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
+            goToMain();
         }
+    }
+
+    private void goToMain() {
+        Intent intent = new Intent(TeamManagerActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     private void startPager() {
@@ -202,6 +217,191 @@ public class TeamManagerActivity extends ExportActivity
             TimeStampUpdater.updateTimeStamps(TeamManagerActivity.this, mTeamID, System.currentTimeMillis());
         }
     }
+
+    @Override
+
+
+    public void onLineupSortChoice(String awayID, String homeID, int inningAmt, int sortArg, int femaleOrder) {
+
+        if (lineupFragment != null) {
+            if(sortArg < 0) {
+                ContentValues values = new ContentValues();
+                values.put(StatsEntry.COLUMN_LEAGUE_ID, mTeamID);
+                values.put(StatsEntry.COLUMN_FIRESTORE_ID, GameActivity.AUTO_OUT);
+                values.put(StatsEntry.COLUMN_NAME, GameActivity.AUTO_OUT);
+                values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, mTeamID);
+                values.put(StatsEntry.COLUMN_GENDER, 1);
+                values.put(StatsEntry.COLUMN_PLAYERID, -1);
+                values.put(StatsEntry.COLUMN_ORDER, 101);
+                getContentResolver().insert(StatsEntry.CONTENT_URI_TEMP, values);
+            }
+
+            if(lineupFragment != null) {
+                lineupFragment.setStartButtonClickable();
+            }
+
+            Intent intent = new Intent(TeamManagerActivity.this, TeamGameActivity.class);
+            intent.putExtra(GameActivity.KEY_GENDERSORT, sortArg);
+            intent.putExtra("isHome", lineupFragment.isHome());
+            startActivityForResult(intent, GameActivity.REQUEST_CODE_GAME);
+        }
+    }
+
+    @Override
+    public void onCancelStart() {
+        if(lineupFragment != null) {
+            lineupFragment.setStartButtonClickable();
+        }
+    }
+
+    @Override
+    public void onShowPreview(int sortArg, int femaleOrder) {
+        if (lineupFragment != null) {
+
+            String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+            String[] selectionArgs = new String[]{mTeamID, mTeamID};
+            Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEMP,
+                    null, selection, selectionArgs, null);
+
+            ArrayList<Player> oldList = new ArrayList<>();
+            while (cursor.moveToNext()) {
+                oldList.add(new Player(cursor, true));
+            }
+            cursor.close();
+
+            ArrayList<Player> teamList;
+            if(sortArg < 0) {
+                teamList = addAutoOuts(oldList, femaleOrder);
+            } else if (sortArg > 0) {
+                teamList = genderSort(oldList, femaleOrder + 1);
+            } else {
+                teamList = oldList;
+            }
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            DialogFragment newFragment = PreviewSortDialog.newInstance(teamList);
+            newFragment.setCancelable(false);
+            newFragment.show(fragmentTransaction, "");
+        }
+    }
+
+    @Override
+    public void onReturnToSort() {
+        if(lineupFragment != null) {
+            lineupFragment.openLineupSortDialog(1);
+        }
+    }
+
+    private ArrayList<Player> genderSort(ArrayList<Player> team, int femaleRequired) {
+
+        List<Player> females = new ArrayList<>();
+        List<Player> males = new ArrayList<>();
+        int femaleIndex = 0;
+        int maleIndex = 0;
+        int firstFemale = 0;
+        boolean firstFemaleSet = false;
+        for (Player player : team) {
+            if (player.getGender() == 1) {
+                females.add(player);
+                firstFemaleSet = true;
+            } else {
+                males.add(player);
+            }
+            if (!firstFemaleSet) {
+                firstFemale++;
+            }
+        }
+        if (females.isEmpty() || males.isEmpty()) {
+            return team;
+        }
+        team.clear();
+        if (firstFemale >= femaleRequired) {
+            firstFemale = femaleRequired - 1;
+        }
+        for (int i = 0; i < firstFemale; i++) {
+            team.add(males.get(maleIndex));
+            maleIndex++;
+            if (maleIndex >= males.size()) {
+                maleIndex = 0;
+            }
+        }
+        for (int i = 0; i < 100; i++) {
+            if (i % femaleRequired == 0) {
+                team.add(females.get(femaleIndex));
+                femaleIndex++;
+                if (femaleIndex >= females.size()) {
+                    femaleIndex = 0;
+                }
+            } else {
+                team.add(males.get(maleIndex));
+                maleIndex++;
+                if (maleIndex >= males.size()) {
+                    maleIndex = 0;
+                }
+            }
+        }
+        return team;
+    }
+
+
+    private ArrayList<Player> addAutoOuts(ArrayList<Player> team, int femaleRequired) {
+        boolean firstPlayerMale =  team.get(0).getGender() == 0;
+
+        int menInARow = 0;
+        int womenInARow = 0;
+        int menInARowToStart = 0;
+        int womenInARowToStart = 0;
+        boolean toStart = true;
+
+        for (int i = 0; i < team.size(); i++) {
+
+            Player player = team.get(i);
+            if (player.getGender() == 1) {
+                womenInARow++;
+                menInARow = 0;
+                if(firstPlayerMale) {
+                    toStart = false;
+                }
+            } else {
+                menInARow++;
+                womenInARow = 0;
+                if(!firstPlayerMale) {
+                    toStart = false;
+                }
+            }
+
+            if(womenInARow > 1) {
+                team.add(i, new Player(GameActivity.AUTO_OUT, "(AUTO-OUT)", mTeamID, 0));
+                womenInARow = 1;
+                i++;
+                toStart = false;
+            }
+            if(menInARow > femaleRequired) {
+                team.add(i, new Player(GameActivity.AUTO_OUT, "(AUTO-OUT)", mTeamID, 1));
+                menInARow = 1;
+                i++;
+                toStart = false;
+            }
+
+            if(toStart) {
+                if(womenInARow > 0) {
+                    womenInARowToStart++;
+                }
+                if(menInARow > 0) {
+                    menInARowToStart++;
+                }
+            }
+        }
+        if(menInARow + menInARowToStart > femaleRequired) {
+            team.add(new Player(GameActivity.AUTO_OUT, "(AUTO-OUT)", mTeamID, 1));
+        }
+        if(womenInARow + womenInARowToStart > 1) {
+            team.add(new Player(GameActivity.AUTO_OUT, "(AUTO-OUT)", mTeamID, 0));
+        }
+
+        return team;
+    }
+
 
     private class TeamManagerPagerAdapter extends FragmentPagerAdapter {
 
@@ -439,12 +639,10 @@ public class TeamManagerActivity extends ExportActivity
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        Intent intent = new Intent(TeamManagerActivity.this, MainActivity.class);
-        startActivity(intent);
         if(mReceiver != null){
             mReceiver.setReceiver(null);
         }
-        finish();
+        goToMain();
     }
 
     @Override

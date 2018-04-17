@@ -3,6 +3,9 @@ package xyz.sleekstats.softball.fragments;
 
 import android.content.Context;
 import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
@@ -30,8 +33,10 @@ import android.widget.Toast;
 
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.activities.BoxScoreActivity;
+import xyz.sleekstats.softball.activities.GameActivity;
 import xyz.sleekstats.softball.activities.SetLineupActivity;
 import xyz.sleekstats.softball.adapters.MatchupAdapter;
+import xyz.sleekstats.softball.dialogs.LineupSortDialog;
 import xyz.sleekstats.softball.views.VerticalTextView;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
@@ -58,6 +63,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     private TextView gameSummaryView;
     private TextView inningsView;
     private TextView orderView;
+    private Button startGameBtn;
 
     private String awayTeamName;
     private String homeTeamName;
@@ -174,38 +180,38 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
             }
         });
 
-        final Button startGame = rootView.findViewById(R.id.start_game);
-        startGame.setOnClickListener(new View.OnClickListener() {
+        startGameBtn = rootView.findViewById(R.id.start_game);
+        startGameBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startGame.setClickable(false);
+                startGameBtn.setClickable(false);
                 if (awayTeamName == null || homeTeamName == null) {
                     Toast.makeText(getActivity(), R.string.add_teams_text,
                             Toast.LENGTH_SHORT).show();
-                    startGame.setClickable(true);
+                    startGameBtn.setClickable(true);
                     return;
                 }
                 if (awayTeamName.equals(homeTeamName)) {
                     Toast.makeText(getActivity(), R.string.choose_diff_teams_text, Toast.LENGTH_SHORT).show();
-                    startGame.setClickable(true);
+                    startGameBtn.setClickable(true);
                     return;
                 }
                 if (awayPlayersCount < 4) {
                     Toast.makeText(getActivity(), "Add more players to " + awayTeamName + " lineup first.", Toast.LENGTH_SHORT).show();
-                    startGame.setClickable(true);
+                    startGameBtn.setClickable(true);
                     return;
                 }
                 if (homePlayersCount < 4) {
                     Toast.makeText(getActivity(), "Add more players to " + homeTeamName + " lineup first.", Toast.LENGTH_SHORT).show();
-                    startGame.setClickable(true);
+                    startGameBtn.setClickable(true);
                     return;
                 }
                 if(mListener != null) {
-                    startGame.setClickable(true);
                     mListener.clearGameDB();
                 }
+
                 if (setLineupsToDB()) {
-                    startGame.setClickable(true);
+                    startGameBtn.setClickable(true);
                     return;
                 }
 
@@ -220,25 +226,33 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                 } else {
                     sortArgument = 0;
                 }
-                SharedPreferences gamePreferences =
-                        getActivity().getSharedPreferences(leagueID + StatsEntry.GAME, Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = gamePreferences.edit();
-                editor.putString(StatsEntry.COLUMN_AWAY_TEAM, awayTeamID);
-                editor.putString(StatsEntry.COLUMN_HOME_TEAM, homeTeamID);
-                editor.putInt("keyTotalInnings", innings);
-                editor.putInt("keyGenderSort", sortArgument);
-                editor.putInt("keyFemaleOrder", genderSorter);
-                editor.apply();
 
-                startGame.setClickable(true);
-                if(mListener != null) {
-                    mListener.goToGameActivity();
+                if(sortArgument == 0) {
+                    startGame();
+                    startGameBtn.setClickable(true);
+                } else {
+                    openLineupSortDialog(sortArgument);
                 }
+
             }
         });
         getLoaderManager().restartLoader(MATCHUP_LOADER, null, this);
         initialization = true;
         return rootView;
+    }
+
+    private void startGame() {
+        if(mListener != null) {
+            mListener.startGameActivity(awayTeamID, homeTeamID, innings, 0, genderSorter);
+        }
+    }
+
+    public void openLineupSortDialog(int sortArg) {
+         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+         DialogFragment newFragment = LineupSortDialog.newInstance(awayTeamID, homeTeamID, innings, sortArg, genderSorter);
+        newFragment.setCancelable(false);
+        newFragment.show(fragmentTransaction, "");
     }
 
     public void setPostGameLayout(boolean clickable){
@@ -303,7 +317,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                 .getSharedPreferences(leagueID + StatsEntry.GAME, Context.MODE_PRIVATE);
         final int inningNumber = savedGamePreferences.getInt("keyInningNumber", 2);
         int inningDisplay = inningNumber / 2;
-        final int totalInnings = savedGamePreferences.getInt("keyTotalInnings", 7);
+        final int totalInnings = savedGamePreferences.getInt(GameActivity.KEY_TOTALINNINGS, 7);
         final String awayID = savedGamePreferences.getString(StatsEntry.COLUMN_AWAY_TEAM, "");
         final String homeID = savedGamePreferences.getString(StatsEntry.COLUMN_HOME_TEAM, "");
         final String awayTeamName = getTeamNameFromFirestoreID(awayID);
@@ -404,6 +418,10 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     }
 
     private boolean setLineupsToDB() {
+        final Button continueGameButton = getView().findViewById(R.id.continue_game);
+        continueGameButton.setVisibility(View.GONE);
+        gameSummaryView.setVisibility(View.GONE);
+
         sortAwayLineup = false;
         sortHomeLineup = false;
         boolean cancel = false;
@@ -619,6 +637,14 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         }
     }
 
+    public ArrayList<Player> getAwayLineupCopy() {
+        return new ArrayList<>(awayLineup);
+    }
+
+    public ArrayList<Player> getHomeLineupCopy() {
+        return new ArrayList<>(homeLineup);
+    }
+
     private void initAwayRV() {
         int genderSorter = getGenderSorter();
 
@@ -693,6 +719,13 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public void setStartButtonClickable() {
+        if(startGameBtn == null) {
+            startGameBtn = getView().findViewById(R.id.start_game);
+        }
+        startGameBtn.setClickable(true);
     }
 
     private void getBench(String teamID) {
@@ -839,7 +872,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
             mListener = (MatchupFragment.OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement OnLineupSortListener");
         }
     }
 
@@ -852,6 +885,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     public interface OnFragmentInteractionListener {
         void clearGameDB();
         void goToGameSettings();
+        void startGameActivity(String awayID, String homeID, int inningAmt, int sortArg, int femaleOrder);
         void goToGameActivity();
     }
 }
