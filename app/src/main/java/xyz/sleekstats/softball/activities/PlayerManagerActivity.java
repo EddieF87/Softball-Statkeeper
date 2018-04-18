@@ -13,6 +13,7 @@ import xyz.sleekstats.softball.fragments.PlayerFragment;
 import xyz.sleekstats.softball.objects.MainPageSelection;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+
 public class PlayerManagerActivity extends ExportActivity
         implements EditNameDialog.OnFragmentInteractionListener,
         PlayerFragment.OnFragmentInteractionListener {
@@ -42,12 +43,12 @@ public class PlayerManagerActivity extends ExportActivity
         try {
             MyApp myApp = (MyApp) getApplicationContext();
             MainPageSelection mainPageSelection = myApp.getCurrentSelection();
-            String playerID = mainPageSelection.getId();
+            String mPlayerID = mainPageSelection.getId();
             String playerName = mainPageSelection.getName();
-            if(playerID == null){
+            if(mPlayerID == null){
                 goToMain();
             }
-            playerFragment = PlayerFragment.newInstance(playerID, playerName);
+            playerFragment = PlayerFragment.newInstance(mPlayerID, playerName);
         } catch (Exception e) {
             goToMain();
         }

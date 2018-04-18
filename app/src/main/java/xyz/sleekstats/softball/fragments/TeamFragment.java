@@ -588,7 +588,9 @@ public class TeamFragment extends Fragment
                 return true;
 
             case R.id.action_export_stats:
-                showDeleteConfirmationDialog();
+                if(getActivity() instanceof TeamManagerActivity) {
+                    ((TeamManagerActivity) getActivity()).startLeagueExport(mSelectionName);
+                }
                 return true;
         }
         return super.onOptionsItemSelected(item);

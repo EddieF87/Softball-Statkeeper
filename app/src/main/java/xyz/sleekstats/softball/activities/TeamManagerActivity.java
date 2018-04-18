@@ -23,6 +23,7 @@ import xyz.sleekstats.softball.data.FirestoreUpdateService;
 import xyz.sleekstats.softball.data.GameUpdateIntentMaker;
 import xyz.sleekstats.softball.data.MySyncResultReceiver;
 import xyz.sleekstats.softball.data.TimeStampUpdater;
+import xyz.sleekstats.softball.dialogs.DeleteConfirmationDialog;
 import xyz.sleekstats.softball.dialogs.LineupSortDialog;
 import xyz.sleekstats.softball.dialogs.PreviewSortDialog;
 import xyz.sleekstats.softball.views.CustomViewPager;
@@ -401,7 +402,6 @@ public class TeamManagerActivity extends ExportActivity
 
         return team;
     }
-
 
     private class TeamManagerPagerAdapter extends FragmentPagerAdapter {
 

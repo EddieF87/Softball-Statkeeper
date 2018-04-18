@@ -69,36 +69,7 @@ public class LineupSortDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-//        String message = "dddddddddd";
-////
-////        return new AlertDialog.Builder(getActivity())
-////                .setTitle("Choose Lineup Sorting Method")
-////                .setMessage(message)
-////                .setNegativeButton(R.string.add_auto_outs, new DialogInterface.OnClickListener() {
-////                    public void onClick(DialogInterface dialog, int id) {
-////                        mSortArg = -mSortArg;
-////                        onButtonPressed();
-////                        if(dialog != null) {
-////                            dialog.dismiss();
-////                        }
-////                    }
-////                })
-////                .setPositiveButton(R.string.auto_sort, new DialogInterface.OnClickListener() {
-////                    public void onClick(DialogInterface dialog, int id) {
-////                        onButtonPressed();
-////                        if(dialog != null) {
-////                            dialog.dismiss();
-////                        }
-////                    }
-////                })
-////                .setNeutralButton(R.string.back, new DialogInterface.OnClickListener() {
-////                    public void onClick(DialogInterface dialog, int id) {
-////                        if(dialog != null) {
-////                            dialog.dismiss();
-////                        }
-////                    }
-////                })
-////                .create();
+
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         // Set the dialog title
