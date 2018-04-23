@@ -88,6 +88,7 @@ public class StatsContract {
         public static final String COLUMN_RUN3 = "runc";
         public static final String COLUMN_RUN4 = "rund";
         public static final String COLUMN_INNING_CHANGED = "innchange";
+        public static final String COLUMN_INNING_RUNS = "innruns";
         public static final String COLUMN_PLAYERID = "playerid";
         public static final String COLUMN_TEAM_ID = "teamid";
         public static final String COLUMN_FIRESTORE_ID = "firestoreid";
@@ -109,6 +110,7 @@ public class StatsContract {
         public static final String LEVEL = "level";
         public static final String FREE_AGENT = "Free Agent";
         public static final String HELP = "help";
+        public static final String MERCY = "mercyruns";
         public static final String COLUMN_GAME_ID = "gameID";
         public static final String COLUMN_AWAY_TEAM = "Away";
         public static final String COLUMN_HOME_TEAM = "Home";

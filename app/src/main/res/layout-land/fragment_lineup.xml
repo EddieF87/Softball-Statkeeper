@@ -20,11 +20,12 @@
         android:textAlignment="center"
         android:textSize="24sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toStartOf="@+id/btn_start_adder"
+        android:maxLines="1"
+        app:layout_constraintEnd_toStartOf="@id/btn_randomize"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="TeamName" />
+        tools:text="ABCDEFGHIJKLMNOPQRST" />
 
     <LinearLayout
         android:id="@+id/layout_lineup_title"
@@ -100,6 +101,15 @@
             android:textSize="12sp" />
 
     </RadioGroup>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/btn_randomize"
+        style="@style/ShuffleFABStyle"
+        android:layout_height="0dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintBottom_toBottomOf="@id/btn_start_adder"
+        app:layout_constraintEnd_toStartOf="@id/btn_start_adder"
+        app:layout_constraintTop_toTopOf="@id/btn_start_adder" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/btn_start_adder"

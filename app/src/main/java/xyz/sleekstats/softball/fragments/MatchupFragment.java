@@ -134,11 +134,11 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         settingsLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                settingsLayout.setClickable(false);
+                settingsLayout.setEnabled(false);
                 if(mListener != null) {
                     mListener.goToGameSettings();
                 }
-                settingsLayout.setClickable(true);
+                settingsLayout.setEnabled(true);
             }
         });
         setGameSettings();
@@ -148,7 +148,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         editAwayLineup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                editAwayLineup.setClickable(false);
+                editAwayLineup.setEnabled(false);
                 if (awayTeamID == null) {
                     return;
                 }
@@ -159,13 +159,13 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                 b.putBoolean("ingame", false);
                 intent.putExtras(b);
                 startActivityForResult(intent, LINEUP_REQUEST);
-                editAwayLineup.setClickable(true);
+                editAwayLineup.setEnabled(true);
             }
         });
         editHomeLineup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                editHomeLineup.setClickable(false);
+                editHomeLineup.setEnabled(false);
                 if (homeTeamID == null) {
                     return;
                 }
@@ -176,7 +176,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                 b.putBoolean("ingame", false);
                 intent.putExtras(b);
                 startActivityForResult(intent, LINEUP_REQUEST);
-                editHomeLineup.setClickable(true);
+                editHomeLineup.setEnabled(true);
             }
         });
 
@@ -184,26 +184,30 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         startGameBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startGameBtn.setClickable(false);
+                if(startGameBtn.isEnabled()) {
+                    startGameBtn.setEnabled(false);
+                } else {
+                    return;
+                }
                 if (awayTeamName == null || homeTeamName == null) {
                     Toast.makeText(getActivity(), R.string.add_teams_text,
                             Toast.LENGTH_SHORT).show();
-                    startGameBtn.setClickable(true);
+                    startGameBtn.setEnabled(true);
                     return;
                 }
                 if (awayTeamName.equals(homeTeamName)) {
                     Toast.makeText(getActivity(), R.string.choose_diff_teams_text, Toast.LENGTH_SHORT).show();
-                    startGameBtn.setClickable(true);
+                    startGameBtn.setEnabled(true);
                     return;
                 }
                 if (awayPlayersCount < 4) {
                     Toast.makeText(getActivity(), "Add more players to " + awayTeamName + " lineup first.", Toast.LENGTH_SHORT).show();
-                    startGameBtn.setClickable(true);
+                    startGameBtn.setEnabled(true);
                     return;
                 }
                 if (homePlayersCount < 4) {
                     Toast.makeText(getActivity(), "Add more players to " + homeTeamName + " lineup first.", Toast.LENGTH_SHORT).show();
-                    startGameBtn.setClickable(true);
+                    startGameBtn.setEnabled(true);
                     return;
                 }
                 if(mListener != null) {
@@ -211,7 +215,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                 }
 
                 if (setLineupsToDB()) {
-                    startGameBtn.setClickable(true);
+                    startGameBtn.setEnabled(true);
                     return;
                 }
 
@@ -229,7 +233,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
 
                 if(sortArgument == 0) {
                     startGame();
-                    startGameBtn.setClickable(true);
+//                    startGameBtn.setEnabled(true);
                 } else {
                     openLineupSortDialog(sortArgument);
                 }
@@ -259,7 +263,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         postGameUpdate = !clickable;
         View view = getView();
         if(view == null) {return;}
-        view.findViewById(R.id.start_game).setClickable(clickable);
+        view.findViewById(R.id.start_game).setEnabled(clickable);
         view.findViewById(R.id.continue_game).setVisibility(View.GONE);
         if(gameSummaryView == null) {
             gameSummaryView = view.findViewById(R.id.current_game_view);
@@ -271,7 +275,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         postGameUpdate = false;
         View view = getView();
         if(view == null) {return;}
-        view.findViewById(R.id.start_game).setClickable(true);
+        view.findViewById(R.id.start_game).setEnabled(true);
         view.findViewById(R.id.continue_game).setVisibility(View.VISIBLE);
         if(gameSummaryView == null) {
             gameSummaryView = view.findViewById(R.id.current_game_view);
@@ -283,15 +287,20 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     public void onResume() {
         super.onResume();
 
+        setStartButtonClickable();
+
         final Button continueGameButton = getView().findViewById(R.id.continue_game);
+        continueGameButton.setEnabled(true);
         continueGameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                continueGameButton.setClickable(false);
+                continueGameButton.setEnabled(false);
+                if(startGameBtn != null) {
+                    startGameBtn.setEnabled(false);
+                }
                 if(mListener != null) {
                     mListener.goToGameActivity();
                 }
-                continueGameButton.setClickable(true);
             }
         });
 
@@ -332,7 +341,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         gameSummaryView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                gameSummaryView.setClickable(false);
+                gameSummaryView.setEnabled(false);
                 Intent intent = new Intent(getActivity(), BoxScoreActivity.class);
                 Bundle b = new Bundle();
                 b.putString("awayTeamName", awayTeamName);
@@ -346,7 +355,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                 b.putInt("homeTeamRuns", homeRuns);
                 intent.putExtras(b);
                 startActivity(intent);
-                gameSummaryView.setClickable(true);
+                gameSummaryView.setEnabled(true);
             }
         });
     }
@@ -725,7 +734,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         if(startGameBtn == null) {
             startGameBtn = getView().findViewById(R.id.start_game);
         }
-        startGameBtn.setClickable(true);
+        startGameBtn.setEnabled(true);
     }
 
     private void getBench(String teamID) {

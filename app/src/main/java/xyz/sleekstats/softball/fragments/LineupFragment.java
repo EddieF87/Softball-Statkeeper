@@ -48,6 +48,7 @@ import xyz.sleekstats.softball.objects.Player;
 import com.woxthebox.draglistview.BoardView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class LineupFragment extends Fragment {
@@ -121,7 +122,7 @@ public class LineupFragment extends Fragment {
         lineupSubmitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                lineupSubmitButton.setClickable(false);
+                lineupSubmitButton.setEnabled(false);
                 if (inGame) {
                     onSubmitEdit();
                 } else {
@@ -142,6 +143,14 @@ public class LineupFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 createTeamFragment(mTeamName, mTeamID);
+            }
+        });
+
+        final FloatingActionButton shuffleButton = rootView.findViewById(R.id.btn_randomize);
+        shuffleButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                shuffleBoardView();
             }
         });
 
@@ -260,6 +269,35 @@ public class LineupFragment extends Fragment {
         startBoardView();
     }
 
+    private void shuffleBoardView() {
+        if(mLineup == null) {
+            mLineup = new ArrayList<>();
+        } else {
+            mLineup.clear();
+        }
+        if(mBench == null) {
+            mBench = new ArrayList<>();
+        } else {
+            mBench.clear();
+        }
+        List lineupList = mBoardView.getAdapter(LINEUP_INDEX).getItemList();
+        for (Object playerObject : lineupList) {
+            Pair<Long, Player> pair = (Pair<Long, Player>) playerObject;
+            Player player = pair.second;
+            mLineup.add(player);
+        }
+        List benchList = mBoardView.getAdapter(BENCH_INDEX).getItemList();
+        for (Object playerObject : benchList) {
+            Pair<Long, Player> pair = (Pair<Long, Player>) playerObject;
+            Player player = pair.second;
+            mBench.add(player);
+        }
+        if(mLineup != null) {
+            Collections.shuffle(mLineup);
+        }
+        resetBoardView();
+    }
+
     private void startBoardView(){
         addColumnList(mLineup, false);
         addColumnList(mBench, true);
@@ -316,6 +354,9 @@ public class LineupFragment extends Fragment {
 //            intent.putExtra("edited", true);
 //            startActivity(intent);
             getActivity().finish();
+        } else {
+            Toast.makeText(getActivity(), "Add more players to lineup first.", Toast.LENGTH_SHORT).show();
+            lineupSubmitButton.setEnabled(true);
         }
     }
 
@@ -331,9 +372,11 @@ public class LineupFragment extends Fragment {
                 boolean lineupCheck = addTeamToTempDB(genderSorter);
                 if (lineupCheck) {
                     startGame(isHome());
+                } else {
+                    lineupSubmitButton.setEnabled(true);
                 }
             } else {
-                lineupSubmitButton.setClickable(true);
+                lineupSubmitButton.setEnabled(true);
                 Toast.makeText(getActivity(), "Add more players to lineup first.",
                         Toast.LENGTH_SHORT).show();
             }
@@ -360,7 +403,10 @@ public class LineupFragment extends Fragment {
                 settingsLayout.setClickable(true);
             }
         });
-
+        if(lineupSubmitButton == null) {
+            lineupSubmitButton = getView().findViewById(R.id.lineup_submit);
+        }
+        lineupSubmitButton.setEnabled(true);
         if (mType == MainPageSelection.TYPE_TEAM && !inGame) {
             SharedPreferences settingsPreferences = getActivity()
                     .getSharedPreferences(mSelectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
@@ -370,19 +416,20 @@ public class LineupFragment extends Fragment {
             inningsView.setVisibility(View.VISIBLE);
             setGameSettings(innings, genderSorter);
 
-            if(lineupSubmitButton == null) {
-                lineupSubmitButton = getView().findViewById(R.id.lineup_submit);
-            }
+
             lineupSubmitButton.setText(R.string.start);
             radioButtonGroup.setVisibility(View.VISIBLE);
 
+            continueGameButton.setEnabled(true);
             continueGameButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    continueGameButton.setClickable(false);
+                    continueGameButton.setEnabled(false);
+                    if(lineupSubmitButton != null) {
+                        lineupSubmitButton.setEnabled(false);
+                    }
                     Intent intent = new Intent(getActivity(), TeamGameActivity.class);
                     getActivity().startActivityForResult(intent, GameActivity.REQUEST_CODE_GAME);
-                    continueGameButton.setClickable(true);
                 }
             });
 //            continueGameButton.setVisibility(View.VISIBLE);
@@ -499,7 +546,7 @@ public class LineupFragment extends Fragment {
         if(sortLineup) {
             openLineupSortDialog(1);
         } else {
-            lineupSubmitButton.setClickable(true);
+//            lineupSubmitButton.setClickable(true);
             Intent intent = new Intent(getActivity(), TeamGameActivity.class);
             intent.putExtra("isHome", isHome);
             intent.putExtra(GameActivity.KEY_GENDERSORT, 0);
@@ -511,7 +558,7 @@ public class LineupFragment extends Fragment {
         if(lineupSubmitButton == null) {
             lineupSubmitButton = getView().findViewById(R.id.lineup_submit);
         }
-        lineupSubmitButton.setClickable(true);
+        lineupSubmitButton.setEnabled(true);
     }
 
 

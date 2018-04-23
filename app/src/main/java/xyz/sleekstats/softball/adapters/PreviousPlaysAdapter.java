@@ -112,7 +112,12 @@ public class PreviousPlaysAdapter extends RecyclerView.Adapter<PreviousPlaysAdap
         }
 
         String play = currentPlay.getPlay();
-        String action = batter + getPlayText(play);
+        String action;
+        if(play == null) {
+            action = "Skipped to Next Inning";
+        } else {
+            action = batter + getPlayText(play);
+        }
         holder.mPlayTextView.setText(action);
 
         List<String> runsList = currentPlay.getRunsList();

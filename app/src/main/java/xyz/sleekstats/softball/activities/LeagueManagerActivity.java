@@ -390,10 +390,6 @@ public class LeagueManagerActivity extends ExportActivity
                     break;
             }
         }
-        if (matchupFragment != null) {
-            matchupFragment.setStartButtonClickable();
-        }
-
         startGameActivity(awayID, homeID, innings, sortArg, femaleOrder);
     }
 

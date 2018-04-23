@@ -64,4 +64,10 @@ public class BaseLog {
     public List<Player> getTeam() {
         return team;
     }
+
+    @Override
+    public String toString() {
+        return "batter=" + batter.getName() + "  1." + basepositions[0] + "  2." + basepositions[1] + "  3." + basepositions[2]
+                + "  outs=" + outCount + "  away=" +awayTeamRuns + "  home=" +homeTeamRuns;
+    }
 }

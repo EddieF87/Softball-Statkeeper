@@ -140,6 +140,10 @@
         <item name="android:src">@drawable/ic_group_add_white_24dp</item>
     </style>
 
+    <style name="ShuffleFABStyle" parent="FloatingActionButtonStyle">
+        <item name="android:src">@drawable/ic_shuffle_white_24dp</item>
+    </style>
+
     <style name="PlayerBoardStyle">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>

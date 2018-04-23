@@ -38,24 +38,22 @@
         android:id="@+id/infield"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:contentDescription="@string/infield"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0"
-        app:srcCompat="@drawable/img_infield"
-        android:contentDescription="@string/infield" />
+        app:srcCompat="@drawable/img_infield" />
 
     <TextView
         android:id="@+id/second_display"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_margin="8dp"
-        android:background="@color/colorDefault"
+        android:background="@drawable/img_base"
         android:gravity="center"
         android:maxLines="2"
-        android:rotation="45"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/guide_h1"
         app:layout_constraintEnd_toStartOf="@+id/guide_v2"
@@ -67,11 +65,9 @@
         android:id="@+id/third_display"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_margin="8dp"
-        android:background="@color/colorDefault"
+        android:background="@drawable/img_base"
         android:gravity="center"
         android:maxLines="2"
-        android:rotation="45"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/guide_h2"
         app:layout_constraintEnd_toStartOf="@+id/guide_v1"
@@ -83,12 +79,10 @@
         android:id="@+id/first_display"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_margin="8dp"
-        android:background="@color/colorDefault"
+        android:background="@drawable/img_base"
         android:gravity="center"
-        android:maxLines="2"
-        android:rotation="45"
         android:textStyle="bold"
+        android:maxLines="2"
         app:layout_constraintBottom_toTopOf="@+id/guide_h2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/guide_v2"
@@ -100,14 +94,15 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_above="@id/infield"
-        android:background="@color/colorDefault"
-        android:rotation="45"
-        android:gravity="center"
+        android:background="@drawable/img_home"
+        android:scaleType="centerInside"
         app:layout_constraintBottom_toBottomOf="@id/infield"
         app:layout_constraintLeft_toRightOf="@id/guide_v1"
         app:layout_constraintRight_toLeftOf="@id/guide_v2"
         app:layout_constraintTop_toBottomOf="@id/guide_h2"
-        android:layout_margin="8dp"/>
+        app:layout_goneMarginLeft="4dp"
+        app:layout_goneMarginRight="4dp"
+        app:layout_goneMarginTop="8dp" />
 
 
     <ImageView
@@ -180,13 +175,12 @@
         android:layout_marginBottom="8dp"
         android:layout_marginStart="8dp"
         android:gravity="center"
-        android:text="Mercy\n0/4"
+        android:text="Mercy\nOff"
         android:textAllCaps="true"
         android:textColor="@color/colorHighlight"
         android:textSize="14sp"
         android:textStyle="bold|italic"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
-
 
 </android.support.constraint.ConstraintLayout>

@@ -13,7 +13,7 @@ import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
 class StatsDbHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "playerstats.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
 
     StatsDbHelper(Context context) {
@@ -23,7 +23,7 @@ class StatsDbHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         final String SQL_CREATE_PLAYERSTATS_TABLE =
-                "CREATE TABLE " + StatsEntry.PLAYERS_TABLE_NAME + " (" +
+                "CREATE TABLE IF NOT EXISTS " + StatsEntry.PLAYERS_TABLE_NAME + " (" +
                         StatsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         StatsEntry.COLUMN_FIRESTORE_ID + " TEXT NOT NULL, " +
                         StatsEntry.COLUMN_LEAGUE_ID + " TEXT NOT NULL, " +
@@ -50,7 +50,7 @@ class StatsDbHelper extends SQLiteOpenHelper {
                         ");";
 
         final String SQL_CREATE_TEMPPLAYERSTATS_TABLE =
-                "CREATE TABLE " + StatsEntry.TEMPPLAYERS_TABLE_NAME + " (" +
+                "CREATE TABLE IF NOT EXISTS " + StatsEntry.TEMPPLAYERS_TABLE_NAME + " (" +
                         StatsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         StatsEntry.COLUMN_FIRESTORE_ID + " TEXT NOT NULL, " +
                         StatsEntry.COLUMN_LEAGUE_ID + " TEXT NOT NULL, " +
@@ -75,7 +75,7 @@ class StatsDbHelper extends SQLiteOpenHelper {
                         ");";
 
         final String SQL_CREATE_BACKUP_PLAYERSTATS_TABLE =
-                "CREATE TABLE " + StatsEntry.BACKUP_PLAYERS_TABLE_NAME + " (" +
+                "CREATE TABLE IF NOT EXISTS " + StatsEntry.BACKUP_PLAYERS_TABLE_NAME + " (" +
                         StatsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         StatsEntry.COLUMN_FIRESTORE_ID + " TEXT NOT NULL, " +
                         StatsEntry.COLUMN_LEAGUE_ID + " TEXT NOT NULL, " +
@@ -94,7 +94,7 @@ class StatsDbHelper extends SQLiteOpenHelper {
                         ");";
 
         final String SQL_CREATE_TEAMSTATS_TABLE =
-                "CREATE TABLE " + StatsEntry.TEAMS_TABLE_NAME + " (" +
+                "CREATE TABLE IF NOT EXISTS " + StatsEntry.TEAMS_TABLE_NAME + " (" +
                         StatsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         StatsEntry.COLUMN_FIRESTORE_ID + " TEXT NOT NULL, " +
                         StatsEntry.COLUMN_LEAGUE_ID + " TEXT NOT NULL, " +
@@ -110,7 +110,7 @@ class StatsDbHelper extends SQLiteOpenHelper {
                         ");";
 
         final String SQL_CREATE_BACKUP_TEAMSTATS_TABLE =
-                "CREATE TABLE " + StatsEntry.BACKUP_TEAMS_TABLE_NAME + " (" +
+                "CREATE TABLE IF NOT EXISTS " + StatsEntry.BACKUP_TEAMS_TABLE_NAME + " (" +
                         StatsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         StatsEntry.COLUMN_FIRESTORE_ID + " TEXT NOT NULL, " +
                         StatsEntry.COLUMN_LEAGUE_ID + " TEXT NOT NULL, " +
@@ -124,7 +124,7 @@ class StatsDbHelper extends SQLiteOpenHelper {
                         ");";
 
         final String SQL_CREATE_GAMESTATS_TABLE =
-                "CREATE TABLE " + StatsEntry.GAME_TABLE_NAME + " (" +
+                "CREATE TABLE IF NOT EXISTS " + StatsEntry.GAME_TABLE_NAME + " (" +
                         StatsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         StatsEntry.COLUMN_LEAGUE_ID + " TEXT NOT NULL, " +
                         StatsEntry.COLUMN_PLAY + " TEXT, " +
@@ -149,7 +149,7 @@ class StatsDbHelper extends SQLiteOpenHelper {
                         ");";
 
         final String SQL_CREATE_LEAGUES_TABLE =
-                "CREATE TABLE " + StatsEntry.SELECTIONS_TABLE_NAME + " (" +
+                "CREATE TABLE IF NOT EXISTS " + StatsEntry.SELECTIONS_TABLE_NAME + " (" +
                         StatsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         StatsEntry.COLUMN_FIRESTORE_ID + " TEXT NOT NULL, " +
                         StatsEntry.COLUMN_LEAGUE_ID + " TEXT NOT NULL, " +
@@ -160,7 +160,7 @@ class StatsDbHelper extends SQLiteOpenHelper {
                         + ");";
 
         final String SQL_CREATE_BOXSCORE_OVERVIEW_TABLE =
-                "CREATE TABLE " + StatsEntry.BOXSCORE_OVERVIEW_TABLE_NAME + " (" +
+                "CREATE TABLE IF NOT EXISTS " + StatsEntry.BOXSCORE_OVERVIEW_TABLE_NAME + " (" +
                         StatsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         StatsEntry.COLUMN_LEAGUE_ID + " TEXT NOT NULL, " +
                         StatsEntry.COLUMN_GAME_ID + " INTEGER NOT NULL, " +
@@ -172,7 +172,7 @@ class StatsDbHelper extends SQLiteOpenHelper {
                         ");";
 
         final String SQL_CREATE_BOXSCORE_PLAYERS_TABLE =
-                "CREATE TABLE " + StatsEntry.BOXSCORE_PLAYERS_TABLE_NAME + " (" +
+                "CREATE TABLE IF NOT EXISTS " + StatsEntry.BOXSCORE_PLAYERS_TABLE_NAME + " (" +
                         StatsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         StatsEntry.COLUMN_LEAGUE_ID + " TEXT NOT NULL, " +
                         StatsEntry.COLUMN_GAME_ID + " INTEGER NOT NULL, " +
@@ -203,15 +203,8 @@ class StatsDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + StatsEntry.PLAYERS_TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + StatsEntry.PLAYERS_TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + StatsEntry.TEAMS_TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + StatsEntry.TEMPPLAYERS_TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + StatsEntry.GAME_TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + StatsEntry.BACKUP_PLAYERS_TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + StatsEntry.BACKUP_TEAMS_TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + StatsEntry.BOXSCORE_OVERVIEW_TABLE_NAME);
-        db.execSQL("DROP TABLE IF EXISTS " + StatsEntry.BOXSCORE_PLAYERS_TABLE_NAME);
-        onCreate(db);
+        if(newVersion > oldVersion) {
+            db.execSQL("ALTER TABLE " + StatsEntry.GAME_TABLE_NAME + " ADD COLUMN " + StatsEntry.COLUMN_INNING_RUNS + "  INTEGER DEFAULT 0");
+        }
     }
 }

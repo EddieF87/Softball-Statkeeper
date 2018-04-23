@@ -17,8 +17,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import xyz.sleekstats.softball.MyApp;
 import xyz.sleekstats.softball.R;
@@ -212,6 +214,17 @@ public class LeagueGameActivity extends GameActivity {
         }
     }
 
+    @Override
+    protected void inningJump(String playerResult) {
+        deleteGameLogs();
+        updatePlayerStats(playerResult, 1);
+        gameOuts = 3;
+        nextBatter();
+        lowestIndex = gameLogIndex;
+        setUndoRedo();
+        outsDisplay.setText("0 outs");
+    }
+
     protected boolean getSelectionData() {
         try {
             MyApp myApp = (MyApp) getApplicationContext();
@@ -251,6 +264,7 @@ public class LeagueGameActivity extends GameActivity {
         homeTeamIndex = gamePreferences.getInt(KEY_HOMETEAMINDEX, 0);
         undoRedo = gamePreferences.getBoolean(KEY_UNDOREDO, false);
         redoEndsGame = gamePreferences.getBoolean(KEY_REDOENDSGAME, redoEndsGame);
+        mercyRuns = gamePreferences.getInt(StatsEntry.MERCY, 99);
     }
 
     @Override
@@ -258,6 +272,7 @@ public class LeagueGameActivity extends GameActivity {
         super.startGame();
         awayTeamRuns = 0;
         homeTeamRuns = 0;
+        inningRuns = 0;
 
         currentTeam = awayTeam;
         currentBatter = awayTeam.get(0);
@@ -294,6 +309,7 @@ public class LeagueGameActivity extends GameActivity {
         gameCursor.moveToPosition(gameLogIndex);
         reloadRunsLog();
         reloadBaseLog();
+        inningRuns = StatsContract.getColumnInt(gameCursor, StatsEntry.COLUMN_INNING_RUNS);
         awayTeamRuns = currentBaseLogStart.getAwayTeamRuns();
         homeTeamRuns = currentBaseLogStart.getHomeTeamRuns();
         gameOuts = currentBaseLogStart.getOutCount();
@@ -433,6 +449,7 @@ public class LeagueGameActivity extends GameActivity {
         editor.putInt(KEY_HOMETEAMINDEX, homeTeamIndex);
         editor.putBoolean(KEY_UNDOREDO, undoRedo);
         editor.putBoolean(KEY_REDOENDSGAME, redoEndsGame);
+        editor.putInt(StatsEntry.MERCY, mercyRuns);
         editor.apply();
     }
 
@@ -444,6 +461,7 @@ public class LeagueGameActivity extends GameActivity {
     @Override
     protected void nextInning() {
         gameOuts = 0;
+        inningRuns = 0;
         emptyBases();
 
         if (inningNumber / 2 >= totalInnings) {
@@ -586,10 +604,31 @@ public class LeagueGameActivity extends GameActivity {
         } else if (currentTeam == homeTeam) {
             increaseHomeIndex();
         } else {
-            int i = 2;
             increaseAwayIndex();
         }
     }
+
+    @Override
+    protected void decreaseLineupIndex() {
+        if (currentTeam == awayTeam) {
+            decreaseAwayIndex();
+        } else if (currentTeam == homeTeam) {
+            decreaseHomeIndex();
+        } else {
+            decreaseAwayIndex();
+        }
+    }
+
+    @Override
+    protected void checkLineupIndex() {
+        if (awayTeamIndex >= awayTeam.size()) {
+            awayTeamIndex = awayTeam.size() - 1;
+        }
+        if (homeTeamIndex >= homeTeam.size()) {
+            homeTeamIndex = homeTeam.size() - 1;
+        }
+    }
+
 
     private void increaseAwayIndex() {
         awayTeamIndex++;

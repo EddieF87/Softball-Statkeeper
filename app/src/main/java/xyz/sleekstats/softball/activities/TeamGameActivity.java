@@ -13,6 +13,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import xyz.sleekstats.softball.MyApp;
 import xyz.sleekstats.softball.R;
@@ -88,6 +89,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         myTeamIndex = gamePreferences.getInt(KEY_MYTEAMINDEX, 0);
         undoRedo = gamePreferences.getBoolean(KEY_UNDOREDO, false);
         redoEndsGame = gamePreferences.getBoolean(KEY_REDOENDSGAME, false);
+        mercyRuns = gamePreferences.getInt(StatsEntry.MERCY, 99);
 
         int sortArgument = gamePreferences.getInt(KEY_GENDERSORT, 0);
         if (sortArgument > 0) {
@@ -195,6 +197,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
 
         awayTeamRuns = 0;
         homeTeamRuns = 0;
+        inningRuns = 0;
 
         currentBatter = myTeam.get(0);
         currentRunsLog = new ArrayList<>();
@@ -251,6 +254,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         gameCursor.moveToPosition(gameLogIndex);
         reloadRunsLog();
         reloadBaseLog();
+        inningRuns = StatsContract.getColumnInt(gameCursor, StatsEntry.COLUMN_INNING_RUNS);
         awayTeamRuns = currentBaseLogStart.getAwayTeamRuns();
         homeTeamRuns = currentBaseLogStart.getHomeTeamRuns();
         gameOuts = currentBaseLogStart.getOutCount();
@@ -331,12 +335,14 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         editor.putInt(KEY_MYTEAMINDEX, myTeamIndex);
         editor.putBoolean(KEY_UNDOREDO, undoRedo);
         editor.putBoolean(KEY_REDOENDSGAME, redoEndsGame);
+        editor.putInt(StatsEntry.MERCY, mercyRuns);
         editor.apply();
     }
 
     @Override
     protected void nextInning() {
         gameOuts = 0;
+        inningRuns = 0;
         emptyBases();
 
         if (inningNumber / 2 >= totalInnings) {
@@ -419,6 +425,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         } else {
             nowBatting.setText(homeTeamName);
         }
+        setScoreDisplay();
     }
 
     public void teamAddRun(View v) {
@@ -606,9 +613,17 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         }
     }
 
-    private void decreaseLineupIndex() {
+    @Override
+    protected void decreaseLineupIndex() {
         myTeamIndex--;
         if (myTeamIndex < 0) {
+            myTeamIndex = myTeam.size() - 1;
+        }
+    }
+
+    @Override
+    protected void checkLineupIndex() {
+        if (myTeamIndex >= myTeam.size()) {
             myTeamIndex = myTeam.size() - 1;
         }
     }
@@ -658,11 +673,33 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
     }
 
     protected void gotoLineupEditor(String teamName, String teamID) {
+        if(isAlternate) {
+            Toast.makeText(TeamGameActivity.this, "Can't edit lineup while other team is batting.", Toast.LENGTH_LONG).show();
+            return;
+        }
         Intent editorIntent = new Intent(TeamGameActivity.this, SetLineupActivity.class);
         editorIntent.putExtra("ingame", true);
         editorIntent.putExtra("team_name", teamName);
         editorIntent.putExtra("team_id", teamID);
         startActivityForResult(editorIntent, REQUEST_CODE_EDIT);
+    }
+
+    @Override
+    protected void inningJump(String playerResult) {
+        if((isHome && inningNumber % 2 == 0) || (!isHome && inningNumber % 2 == 1)) {
+            redoPlay();
+            return;
+        }
+        deleteGameLogs();
+        updatePlayerStats(playerResult, 1);
+        gameOuts = 3;
+        nextBatter();
+        lowestIndex = gameLogIndex;
+        setUndoRedo();
+        outsDisplay.setText("0 outs");
+        setDisplays();
+        chooseDisplay();
+
     }
 
     private void setLineupRVPosition() {

@@ -4,6 +4,10 @@ import android.app.Application;
 
 //import com.squareup.leakcanary.LeakCanary;
 
+import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.core.CrashlyticsCore;
+
+import io.fabric.sdk.android.Fabric;
 import xyz.sleekstats.softball.objects.MainPageSelection;
 
 /**
@@ -12,15 +16,17 @@ import xyz.sleekstats.softball.objects.MainPageSelection;
 
 public class MyApp extends Application {
 
-    @Override public void onCreate() {
+    @Override
+    public void onCreate() {
         super.onCreate();
-//        if (LeakCanary.isInAnalyzerProcess(this)) {
-//            // This process is dedicated to LeakCanary for heap analysis.
-//            // You should not init your app in this process.
-//            return;
-//        }
-//        LeakCanary.install(this);
-        // Normal app init code...
+        configureCrashReporting();
+    }
+
+    private void configureCrashReporting() {
+        CrashlyticsCore crashlyticsCore = new CrashlyticsCore.Builder()
+                .disabled(BuildConfig.DEBUG)
+                .build();
+        Fabric.with(this, new Crashlytics.Builder().core(crashlyticsCore).build());
     }
 
     private MainPageSelection currentSelection;

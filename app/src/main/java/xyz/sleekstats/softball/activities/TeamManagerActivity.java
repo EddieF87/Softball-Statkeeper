@@ -237,9 +237,9 @@ public class TeamManagerActivity extends ExportActivity
                 getContentResolver().insert(StatsEntry.CONTENT_URI_TEMP, values);
             }
 
-            if(lineupFragment != null) {
-                lineupFragment.setStartButtonClickable();
-            }
+//            if(lineupFragment != null) {
+//                lineupFragment.setStartButtonClickable();
+//            }
 
             Intent intent = new Intent(TeamManagerActivity.this, TeamGameActivity.class);
             intent.putExtra(GameActivity.KEY_GENDERSORT, sortArg);

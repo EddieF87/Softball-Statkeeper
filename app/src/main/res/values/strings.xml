@@ -73,8 +73,8 @@
     <string name="submit_lineup">Submit Lineup</string>
     <string name="OFF">OFF</string>
     <string name="ON">ON</string>
-    <string name="Innings">Innings</string>
-    <string name="set_gender_lineup">Lineup Gender Requirements</string>
+    <string name="Innings">Innings: %1$s</string>
+    <string name="set_gender_lineup">Lineup Gender Requirements: %1$s</string>
     <string name="game_settings">Game Settings</string>
     <string name="player">Player</string>
     <string name="league">League</string>
@@ -177,4 +177,5 @@
     <string name="add_auto_outs">Add Auto-Outs</string>
     <string name="auto_sort">Auto-Sort</string>
     <string name="preview">Preview</string>
+    <string name="next_inning">Next Inning</string>
 </resources>

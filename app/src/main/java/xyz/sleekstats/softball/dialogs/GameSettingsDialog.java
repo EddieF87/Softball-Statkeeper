@@ -78,7 +78,6 @@ public class GameSettingsDialog extends DialogFragment {
 
         if(inningNumber > 0) {
             v.findViewById(R.id.gender_sort_seekbar).setVisibility(View.GONE);
-            v.findViewById(R.id.gender_sort_textview).setVisibility(View.GONE);
             v.findViewById(R.id.gender_sort_title).setVisibility(View.GONE);
             v.findViewById(R.id.help_text).setVisibility(View.GONE);
             v.findViewById(R.id.toggle_help).setVisibility(View.GONE);
@@ -97,7 +96,7 @@ public class GameSettingsDialog extends DialogFragment {
         });
 
         final SeekBar genderSeekBar = v.findViewById(R.id.gender_sort_seekbar);
-        mGenderDisplay = v.findViewById(R.id.gender_sort_textview);
+        mGenderDisplay = v.findViewById(R.id.gender_sort_title);
         genderSeekBar.setProgress(genderSorter);
         setDisplay(genderSorter);
         genderSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -161,7 +160,7 @@ public class GameSettingsDialog extends DialogFragment {
 
     private void setDisplay(int i) {
         if (i == 0) {
-            mGenderDisplay.setText(R.string.OFF);
+            mGenderDisplay.setText(String.format(getString(R.string.set_gender_lineup), getString(R.string.OFF)));
             mGenderDisplay.setTextColor(ContextCompat.getColor(getContext(), R.color.colorPrimaryDark));
             return;
         }
@@ -174,7 +173,7 @@ public class GameSettingsDialog extends DialogFragment {
         String girl = "<font color='#f99da2'>F</font>";
         String order = boy + girl;
         order += order + order;
-        mGenderDisplay.setText(Html.fromHtml(order));
+        mGenderDisplay.setText(String.format(getString(R.string.set_gender_lineup), Html.fromHtml(order)));
     }
 
 

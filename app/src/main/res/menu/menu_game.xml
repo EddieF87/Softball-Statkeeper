@@ -21,6 +21,11 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/action_next_inning"
+        android:title="@string/next_inning"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_goto_stats"
         android:title="@string/stats"
         app:showAsAction="never" />
