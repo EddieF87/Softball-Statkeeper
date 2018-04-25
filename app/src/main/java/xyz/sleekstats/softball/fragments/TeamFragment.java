@@ -580,10 +580,11 @@ public class TeamFragment extends Fragment
                         .getSharedPreferences(mSelectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
                 int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
                 int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
+                int mercyRuns = settingsPreferences.getInt(StatsEntry.MERCY, 99);
                 boolean gameHelp = settingsPreferences.getBoolean(StatsEntry.HELP, true);
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                DialogFragment newFragment = GameSettingsDialog.newInstance(innings, genderSorter, mSelectionID, 0, gameHelp);
+                DialogFragment newFragment = GameSettingsDialog.newInstance(innings, genderSorter, mercyRuns, mSelectionID, 0, gameHelp);
                 newFragment.show(fragmentTransaction, "");
                 return true;
 

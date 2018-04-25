@@ -20,10 +20,10 @@
         android:title="@string/edit_lineup"
         app:showAsAction="never" />
 
-    <item
-        android:id="@+id/action_next_inning"
-        android:title="@string/next_inning"
-        app:showAsAction="never" />
+    <!--<item-->
+        <!--android:id="@+id/action_next_inning"-->
+        <!--android:title="@string/next_inning"-->
+        <!--app:showAsAction="never" />-->
 
     <item
         android:id="@+id/action_goto_stats"
@@ -32,7 +32,7 @@
 
     <item
         android:id="@+id/change_game_settings"
-        android:title="@string/change_game_length"
+        android:title="@string/change_innings_mercy"
         app:showAsAction="never" />
 
     <item

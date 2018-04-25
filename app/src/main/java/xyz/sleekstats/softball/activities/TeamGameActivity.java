@@ -109,6 +109,8 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
                 getSharedPreferences(mSelectionID + StatsEntry.SETTINGS, MODE_PRIVATE);
         int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0) + 1;
         totalInnings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
+        mercyRuns = settingsPreferences.getInt(StatsEntry.MERCY, 99);
+
 
         Bundle args = getIntent().getExtras();
 
@@ -530,6 +532,8 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         }
         undoLogs();
 
+        inningChanged = 0;
+
         resetBases(currentBaseLogStart);
         if (isAlternate) {
             decreaseLineupIndex();
@@ -552,13 +556,18 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
     protected void redoPlay() {
         String redoResult = getRedoResult();
         if (redoResult == null) {
-            if(isHome && gameLogIndex == lowestIndex + 1) {
-                inningNumber++;
-                chooseDisplay();
-                setInningDisplay();
-                inningChanged = 1;
-                setDisplays();
-            }
+//            if(isHome && gameLogIndex == lowestIndex + 1) {
+//                inningNumber++;
+//                chooseDisplay();
+//                setInningDisplay();
+//                inningChanged = 1;
+//                setDisplays();
+//            }
+            inningNumber++;
+            chooseDisplay();
+            setInningDisplay();
+            inningChanged = 1;
+            setDisplays();
             return;
         }
 
@@ -684,23 +693,22 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         startActivityForResult(editorIntent, REQUEST_CODE_EDIT);
     }
 
-    @Override
-    protected void inningJump(String playerResult) {
-        if((isHome && inningNumber % 2 == 0) || (!isHome && inningNumber % 2 == 1)) {
-            redoPlay();
-            return;
-        }
-        deleteGameLogs();
-        updatePlayerStats(playerResult, 1);
-        gameOuts = 3;
-        nextBatter();
-        lowestIndex = gameLogIndex;
-        setUndoRedo();
-        outsDisplay.setText("0 outs");
-        setDisplays();
-        chooseDisplay();
-
-    }
+//    @Override
+//    protected void inningJump(String playerResult) {
+//        if((isHome && inningNumber % 2 == 0) || (!isHome && inningNumber % 2 == 1)) {
+//            redoPlay();
+//            return;
+//        }
+//        deleteGameLogs();
+//        updatePlayerStats(playerResult, 1);
+//        gameOuts = 3;
+//        nextBatter();
+//        lowestIndex = gameLogIndex;
+//        setUndoRedo();
+//        outsDisplay.setText("0 outs");
+//        setDisplays();
+//        chooseDisplay();
+//    }
 
     private void setLineupRVPosition() {
         mLineupAdapter.setCurrentLineupPosition(myTeamIndex);

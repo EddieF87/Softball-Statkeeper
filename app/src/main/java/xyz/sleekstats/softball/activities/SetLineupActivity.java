@@ -108,7 +108,7 @@ public class SetLineupActivity extends SingleFragmentActivity
     }
 
     @Override
-    public void onGameSettingsChanged(int innings, int genderSorter) {
+    public void onGameSettingsChanged(int innings, int genderSorter, int mercyRuns) {
         boolean genderSettingsOn = genderSorter != 0;
 
         if (lineupFragment != null) {

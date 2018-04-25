@@ -179,7 +179,7 @@ public class TeamManagerActivity extends ExportActivity
     }
 
     @Override
-    public void onGameSettingsChanged(int innings, int genderSorter) {
+    public void onGameSettingsChanged(int innings, int genderSorter, int mercyRuns) {
         boolean genderSettingsOn = genderSorter != 0;
 
         if (lineupFragment != null) {

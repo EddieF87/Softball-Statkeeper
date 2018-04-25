@@ -145,7 +145,8 @@ class StatsDbHelper extends SQLiteOpenHelper {
                         StatsEntry.COLUMN_RUN4 + " TEXT, " +
 
                         StatsEntry.COLUMN_INNING_CHANGED + " INTEGER, " +
-                        StatsEntry.INNINGS + " INTEGER" +
+                        StatsEntry.INNINGS + " INTEGER, " +
+                        StatsEntry.COLUMN_INNING_RUNS + "  INTEGER DEFAULT 0" +
                         ");";
 
         final String SQL_CREATE_LEAGUES_TABLE =
@@ -204,7 +205,10 @@ class StatsDbHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if(newVersion > oldVersion) {
-            db.execSQL("ALTER TABLE " + StatsEntry.GAME_TABLE_NAME + " ADD COLUMN " + StatsEntry.COLUMN_INNING_RUNS + "  INTEGER DEFAULT 0");
+            if(oldVersion == 1) {
+                db.execSQL("ALTER TABLE " + StatsEntry.GAME_TABLE_NAME
+                        + " ADD COLUMN " + StatsEntry.COLUMN_INNING_RUNS + "  INTEGER DEFAULT 0");
+            }
         }
     }
 }

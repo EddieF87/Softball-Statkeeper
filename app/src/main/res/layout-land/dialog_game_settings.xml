@@ -1,6 +1,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+    android:layout_width="680dp"
     android:layout_height="match_parent"
     android:orientation="horizontal"
     android:baselineAligned="false">
@@ -8,74 +8,49 @@
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="2"
+        android:layout_weight="1"
         android:orientation="vertical">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginTop="8dp"
-            android:layout_weight="1"
-            android:autoSizeMinTextSize="12sp"
-            android:autoSizeTextType="uniform"
-            android:gravity="center"
-            android:text="@string/Innings"
-            android:textSize="18sp"
-            tools:targetApi="o" />
 
         <TextView
             android:id="@+id/innings_textview"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginTop="4dp"
-            android:layout_weight="1"
-            android:autoSizeMinTextSize="12sp"
-            android:autoSizeTextType="uniform"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="12dp"
             android:gravity="center"
+            android:text="@string/Innings"
             android:textSize="14sp"
+            android:textStyle="bold"
             tools:targetApi="o" />
+
 
         <SeekBar
             android:id="@+id/innings_seekbar"
             style="@style/Widget.AppCompat.SeekBar.Discrete"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:max="8"
             android:progress="1" />
 
         <TextView
             android:id="@+id/gender_sort_title"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginTop="24dp"
-            android:layout_weight="1"
-            android:autoSizeMinTextSize="12sp"
-            android:autoSizeTextType="uniform"
-            android:gravity="center"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="12dp"
+            android:gravity="start"
             android:text="@string/set_gender_lineup"
-            android:textSize="18sp"
-            tools:targetApi="o" />
-
-        <TextView
-            android:id="@+id/gender_sort_textview"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginTop="4dp"
-            android:layout_weight="1"
-            android:autoSizeMinTextSize="12sp"
-            android:autoSizeTextType="uniform"
-            android:gravity="center"
-            android:textColor="@color/male"
             android:textSize="14sp"
+            android:textStyle="bold"
             tools:targetApi="o" />
 
         <SeekBar
             android:id="@+id/gender_sort_seekbar"
             style="@style/Widget.AppCompat.SeekBar.Discrete"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:max="4"
             android:progress="1" />
 
@@ -91,16 +66,6 @@
         android:layout_gravity="center"
         >
 
-        <TextView
-            android:id="@+id/help_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginBottom="8dp"
-            android:gravity="center"
-            android:text="@string/in_game_help"
-            android:textSize="18sp" />
-
         <ToggleButton
             android:id="@+id/toggle_help"
             style="@style/RadioButtonStyle"
@@ -111,10 +76,30 @@
             android:checked="true"
             android:paddingBottom="0dp"
             android:paddingTop="0dp"
-            android:textOff="@string/OFF"
-            android:textOn="@string/ON"
+            android:textOff="@string/help_OFF"
+            android:textOn="@string/help_ON"
             android:textSize="14sp"
             android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/mercy_textview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="start"
+            android:text="@string/mercy_rule"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            tools:targetApi="o" />
+
+        <SeekBar
+            android:id="@+id/mercy_seekbar"
+            style="@style/Widget.AppCompat.SeekBar.Discrete"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:max="11"
+            android:progress="1" />
 
     </LinearLayout>
 

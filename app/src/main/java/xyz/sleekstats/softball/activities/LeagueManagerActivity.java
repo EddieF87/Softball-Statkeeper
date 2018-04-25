@@ -263,15 +263,16 @@ public class LeagueManagerActivity extends ExportActivity
         SharedPreferences settingsPreferences = getSharedPreferences(mLeagueID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
         int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
         int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
+        int mercyRuns = settingsPreferences.getInt(StatsEntry.MERCY, 99);
         boolean gameHelp = settingsPreferences.getBoolean(StatsEntry.HELP, true);
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = GameSettingsDialog.newInstance(innings, genderSorter, mLeagueID, 0, gameHelp);
+        DialogFragment newFragment = GameSettingsDialog.newInstance(innings, genderSorter, mercyRuns, mLeagueID, 0, gameHelp);
         newFragment.show(fragmentTransaction, "");
     }
 
     @Override
-    public void startGameActivity(String awayID, String homeID, int inningAmt, int sortArg, int femaleOrder) {
+    public void startGameActivity(String awayID, String homeID, int inningAmt, int sortArg, int femaleOrder, int mercyRuns) {
 
         SharedPreferences gamePreferences = getSharedPreferences(mLeagueID + StatsEntry.GAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = gamePreferences.edit();
@@ -280,6 +281,7 @@ public class LeagueManagerActivity extends ExportActivity
         editor.putInt(GameActivity.KEY_TOTALINNINGS, inningAmt);
         editor.putInt(GameActivity.KEY_GENDERSORT, sortArg);
         editor.putInt(GameActivity.KEY_FEMALEORDER, femaleOrder);
+        editor.putInt(StatsEntry.MERCY, mercyRuns);
         editor.apply();
 
         goToGameActivity();
@@ -390,7 +392,10 @@ public class LeagueManagerActivity extends ExportActivity
                     break;
             }
         }
-        startGameActivity(awayID, homeID, innings, sortArg, femaleOrder);
+
+        SharedPreferences settingsPreferences = getSharedPreferences(mLeagueID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
+        int mercyRuns = settingsPreferences.getInt(StatsEntry.MERCY, 99);
+        startGameActivity(awayID, homeID, innings, sortArg, femaleOrder, mercyRuns);
     }
 
 
@@ -612,7 +617,7 @@ public class LeagueManagerActivity extends ExportActivity
         SharedPreferences settingsPreferences = getSharedPreferences(mLeagueID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
         int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
         int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
-        onGameSettingsChanged(innings, genderSorter);
+        onGameSettingsChanged(innings, genderSorter, 0);
         boolean genderSettingsOn = genderSorter != 0;
 
         if (statsFragment != null) {
@@ -660,7 +665,7 @@ public class LeagueManagerActivity extends ExportActivity
     }
 
     @Override
-    public void onGameSettingsChanged(int innings, int genderSorter) {
+    public void onGameSettingsChanged(int innings, int genderSorter, int mercyRuns) {
         boolean genderSettingsOn = genderSorter != 0;
 
         if (statsFragment != null) {

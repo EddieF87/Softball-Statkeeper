@@ -71,10 +71,10 @@
     <string name="save">Save</string>
     <string name="lineup">Lineup</string>
     <string name="submit_lineup">Submit Lineup</string>
-    <string name="OFF">OFF</string>
-    <string name="ON">ON</string>
+    <string name="help_OFF">In-Game Help: OFF</string>
+    <string name="help_ON">In-Game Help: ON</string>
     <string name="Innings">Innings: %1$s</string>
-    <string name="set_gender_lineup">Lineup Gender Requirements: %1$s</string>
+    <string name="set_gender_lineup">Lineup Rules:</string>
     <string name="game_settings">Game Settings</string>
     <string name="player">Player</string>
     <string name="league">League</string>
@@ -147,7 +147,7 @@
     <string name="sac_bunt">Sac Bunt</string>
     <string name="runs">Runs Scored</string>
     <string name="asset_statements" translatable="false">[{\n  \"relation\": [\"delegate_permission/common.handle_all_urls\"],\n  \"target\": {\n    \"namespace\": \"web\",\n    \"site\": \"https://seekstats.xyz\",\n  }\n}]</string>
-    <string name="change_game_length">Set Innings</string>
+    <string name="change_innings_mercy">Set Innings/Mercy</string>
     <string name="accept">Accept</string>
     <string name="scores">Scores</string>
     <string name="open_stat_manager">Open Stat Manager</string>
@@ -162,11 +162,9 @@
     <string name="check_connection_and_retry">Please check your data connection and try again.</string>
     <string name="type_">Type:</string>
     <string name="level_">Level:</string>
-    <string name="in_game_help_">In-game help:</string>
     <string name="set_user_access">Set User Access</string>
     <string name="retry_load">Retry Load</string>
     <string name="load_from_cache">Load from Cache</string>
-    <string name="in_game_help">In-game help</string>
     <string name="item">Item</string>
     <string name="delete_">Delete?</string>
     <string name="m">M</string>
@@ -177,5 +175,6 @@
     <string name="add_auto_outs">Add Auto-Outs</string>
     <string name="auto_sort">Auto-Sort</string>
     <string name="preview">Preview</string>
-    <string name="next_inning">Next Inning</string>
+    <!--<string name="next_inning">Next Inning</string>-->
+    <string name="mercy_rule">Mercy Rule: %1$s</string>
 </resources>

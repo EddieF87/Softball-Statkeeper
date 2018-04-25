@@ -199,7 +199,7 @@ public abstract class ObjectPagerActivity extends AppCompatActivity
     }
 
     @Override
-    public void onGameSettingsChanged(int innings, int genderSorter) {
+    public void onGameSettingsChanged(int innings, int genderSorter, int mercyRuns) {
         boolean genderSettingsOn = genderSorter != 0;
 
         int pos = mViewPager.getCurrentItem();

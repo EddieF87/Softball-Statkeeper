@@ -64,6 +64,7 @@ public class LeagueGameActivity extends GameActivity {
 
         SharedPreferences gamePreferences = getSharedPreferences(mSelectionID + StatsEntry.GAME, MODE_PRIVATE);
         totalInnings = gamePreferences.getInt(KEY_TOTALINNINGS, 7);
+        mercyRuns = gamePreferences.getInt(StatsEntry.MERCY, 99);
         awayTeamID = gamePreferences.getString(StatsEntry.COLUMN_AWAY_TEAM, "x");
         awayTeamName = getTeamNameFromFirestoreID(awayTeamID);
         homeTeamID = gamePreferences.getString(StatsEntry.COLUMN_HOME_TEAM, "y");
@@ -214,16 +215,16 @@ public class LeagueGameActivity extends GameActivity {
         }
     }
 
-    @Override
-    protected void inningJump(String playerResult) {
-        deleteGameLogs();
-        updatePlayerStats(playerResult, 1);
-        gameOuts = 3;
-        nextBatter();
-        lowestIndex = gameLogIndex;
-        setUndoRedo();
-        outsDisplay.setText("0 outs");
-    }
+//    @Override
+//    protected void inningJump(String playerResult) {
+//        deleteGameLogs();
+//        updatePlayerStats(playerResult, 1);
+//        gameOuts = 3;
+//        nextBatter();
+//        lowestIndex = gameLogIndex;
+//        setUndoRedo();
+//        outsDisplay.setText("0 outs");
+//    }
 
     protected boolean getSelectionData() {
         try {

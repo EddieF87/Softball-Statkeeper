@@ -199,8 +199,6 @@ public class BoxScoreFragment extends Fragment implements LoaderManager.LoaderCa
                 int runs = 0;
                 int awayRuns = 0;
                 int homeRuns;
-                int totalAwayRuns = 0;
-                int totalHomeRuns = 0;
                 data.moveToPosition(-1);
                 while (data.moveToNext()) {
                     if (StatsContract.getColumnString(data, StatsEntry.COLUMN_RUN1) != null) {
@@ -220,21 +218,17 @@ public class BoxScoreFragment extends Fragment implements LoaderManager.LoaderCa
                         inningChangedCounter++;
                         if (inningChangedCounter % 2 == 0) {
                             homeRuns = runs;
-                            totalHomeRuns += homeRuns;
                             list.add(new InningScore(awayRuns, homeRuns));
                         } else {
                             awayRuns = runs;
-                            totalAwayRuns += awayRuns;
                         }
                         runs = 0;
                     }
                 }
                 if (inningChangedCounter % 2 == 1) {
                     list.add(new InningScore(awayRuns, runs));
-                    totalHomeRuns += runs;
                 } else {
                     list.add(new InningScore(runs, -1));
-                    totalAwayRuns += runs;
                 }
                 for (int i = list.size(); i < totalInnings; i++) {
                     list.add(new InningScore(-1, -1));
@@ -247,8 +241,8 @@ public class BoxScoreFragment extends Fragment implements LoaderManager.LoaderCa
                 TextView topTotalView = boxScoreTotal.findViewById(R.id.inning_top_row);
                 TextView bottomTotalView = boxScoreTotal.findViewById(R.id.inning_bottom_row);
                 TextView titleTotalView = boxScoreTotal.findViewById(R.id.inning_number_row);
-                topTotalView.setText(String.valueOf(totalAwayRuns));
-                bottomTotalView.setText(String.valueOf(totalHomeRuns));
+                topTotalView.setText(String.valueOf(awayTeamRuns));
+                bottomTotalView.setText(String.valueOf(homeTeamRuns));
                 topTotalView.setTypeface(null, Typeface.BOLD);
                 bottomTotalView.setTypeface(null, Typeface.BOLD);
                 titleTotalView.setTypeface(null, Typeface.BOLD);

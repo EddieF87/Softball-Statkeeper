@@ -6,6 +6,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -28,19 +29,21 @@ import xyz.sleekstats.softball.data.StatsContract;
 public class GameSettingsDialog extends DialogFragment {
 
     private OnFragmentInteractionListener mListener;
+    private String mSelectionID;
     private int genderSorter;
     private int innings;
-    private String mSelectionID;
     private int inningNumber;
+    private int mercyRuns;
     private TextView mGenderDisplay;
     private TextView mInningDisplay;
+    private TextView mMercyDisplay;
     private boolean gameHelp;
 
     public GameSettingsDialog() {
         // Required empty public constructor
     }
 
-    public static GameSettingsDialog newInstance(int innings, int genderSortArg, String selectionID, int currentInning, boolean helpArg) {
+    public static GameSettingsDialog newInstance(int innings, int genderSortArg, int mercy, String selectionID, int currentInning, boolean helpArg) {
 
         Bundle args = new Bundle();
         GameSettingsDialog fragment = new GameSettingsDialog();
@@ -49,6 +52,7 @@ public class GameSettingsDialog extends DialogFragment {
         args.putBoolean(StatsContract.StatsEntry.HELP, helpArg);
         args.putString("mSelectionID", selectionID);
         args.putInt("inningNumber", currentInning);
+        args.putInt(StatsContract.StatsEntry.MERCY, mercy);
         fragment.setArguments(args);
         return fragment;
     }
@@ -62,6 +66,7 @@ public class GameSettingsDialog extends DialogFragment {
             genderSorter = args.getInt(StatsContract.StatsEntry.COLUMN_GENDER);
             mSelectionID = args.getString("mSelectionID");
             inningNumber = args.getInt("inningNumber") / 2;
+            mercyRuns = args.getInt(StatsContract.StatsEntry.MERCY, 99);
             gameHelp = args.getBoolean(StatsContract.StatsEntry.HELP);
         }
     }
@@ -73,13 +78,12 @@ public class GameSettingsDialog extends DialogFragment {
 
         final SeekBar inningSeekBar = v.findViewById(R.id.innings_seekbar);
         mInningDisplay = v.findViewById(R.id.innings_textview);
-        mInningDisplay.setText(String.valueOf(innings));
+        mInningDisplay.setText(String.format(getString(R.string.Innings), String.valueOf(innings)));
         inningSeekBar.setProgress(innings - 1);
 
         if(inningNumber > 0) {
             v.findViewById(R.id.gender_sort_seekbar).setVisibility(View.GONE);
             v.findViewById(R.id.gender_sort_title).setVisibility(View.GONE);
-            v.findViewById(R.id.help_text).setVisibility(View.GONE);
             v.findViewById(R.id.toggle_help).setVisibility(View.GONE);
         }
 
@@ -87,7 +91,7 @@ public class GameSettingsDialog extends DialogFragment {
         inningSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                mInningDisplay.setText(String.valueOf(i + 1));
+                mInningDisplay.setText(String.format(getString(R.string.Innings),String.valueOf(i + 1)));
             }
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {}
@@ -119,7 +123,35 @@ public class GameSettingsDialog extends DialogFragment {
             }
         });
 
-
+        final SeekBar mercySeekBar = v.findViewById(R.id.mercy_seekbar);
+        mMercyDisplay = v.findViewById(R.id.mercy_textview);
+        String runs;
+        if(mercyRuns == 99) {
+            runs = "Off";
+            mercySeekBar.setProgress(0);
+        } else {
+            runs = String.valueOf(mercyRuns) + " Runs";
+            mercySeekBar.setProgress(mercyRuns - 4);
+        }
+        String mercyString = String.format(getString(R.string.mercy_rule), runs);
+        mMercyDisplay.setText(mercyString);
+        mercySeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                String runs;
+                if(i == 0 || i == 12) {
+                    runs = "Off";
+                } else {
+                    runs = String.valueOf(i + 4) + " Runs";
+                }
+                String mercyString = String.format(getString(R.string.mercy_rule), runs);
+                mMercyDisplay.setText(mercyString);
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
 
         final AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
                 .setView(v)
@@ -151,6 +183,10 @@ public class GameSettingsDialog extends DialogFragment {
                     return;
                 }
                 genderSorter = genderSeekBar.getProgress();
+                mercyRuns = mercySeekBar.getProgress() + 4;
+                if(mercyRuns == 4 || mercyRuns == 16) {
+                    mercyRuns = 99;
+                }
                 onButtonPressed();
                 alertDialog.dismiss();
             }
@@ -159,21 +195,31 @@ public class GameSettingsDialog extends DialogFragment {
     }
 
     private void setDisplay(int i) {
+        String displayString;
         if (i == 0) {
-            mGenderDisplay.setText(String.format(getString(R.string.set_gender_lineup), getString(R.string.OFF)));
+            displayString = getString(R.string.set_gender_lineup) + " OFF";
+
+            mGenderDisplay.setText(displayString);
             mGenderDisplay.setTextColor(ContextCompat.getColor(getContext(), R.color.colorPrimaryDark));
             return;
         }
-        mGenderDisplay.setTextColor(ContextCompat.getColor(getContext(), R.color.male));
+//        mGenderDisplay.setTextColor(ContextCompat.getColor(getContext(), R.color.male));
         StringBuilder stringBuilder = new StringBuilder();
+        String boyColor = Integer.toHexString(ContextCompat.getColor(getActivity(), R.color.male) & 0x00ffffff);
+        String girlColor = Integer.toHexString(ContextCompat.getColor(getActivity(), R.color.female) & 0x00ffffff);
+//        stringBuilder.append(getString(R.string.set_gender_lineup));
+        stringBuilder.append("<font color='#").append(boyColor).append("'>");
         for (int index = 0; index < i; index++) {
             stringBuilder.append("M");
         }
+        stringBuilder.append("</font>");
+
         String boy = stringBuilder.toString();
-        String girl = "<font color='#f99da2'>F</font>";
+        String girl = "<font color='#" + girlColor + "'>F</font>";
         String order = boy + girl;
-        order += order + order;
-        mGenderDisplay.setText(String.format(getString(R.string.set_gender_lineup), Html.fromHtml(order)));
+        order += order;
+        displayString = getString(R.string.set_gender_lineup) + " " + order;
+        mGenderDisplay.setText(Html.fromHtml(displayString));
     }
 
 
@@ -182,10 +228,11 @@ public class GameSettingsDialog extends DialogFragment {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt(StatsContract.StatsEntry.INNINGS, innings);
         editor.putInt(StatsContract.StatsEntry.COLUMN_GENDER, genderSorter);
+        editor.putInt(StatsContract.StatsEntry.MERCY, mercyRuns);
         editor.putBoolean(StatsContract.StatsEntry.HELP, gameHelp);
         editor.apply();
         if (mListener != null) {
-            mListener.onGameSettingsChanged(innings, genderSorter);
+            mListener.onGameSettingsChanged(innings, genderSorter, mercyRuns);
         }
     }
 
@@ -207,6 +254,6 @@ public class GameSettingsDialog extends DialogFragment {
     }
 
     public interface OnFragmentInteractionListener {
-        void onGameSettingsChanged(int innings, int genderSorter);
+        void onGameSettingsChanged(int innings, int genderSorter, int mercy);
     }
 }

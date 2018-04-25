@@ -213,7 +213,6 @@ public abstract class GameActivity extends AppCompatActivity
         inningDisplay = findViewById(R.id.inning);
         inningTopArrow = findViewById(R.id.inning_top_arrow);
         inningBottomArrow = findViewById(R.id.inning_bottom_arrow);
-        mercyDisplay = findViewById(R.id.mercy_display);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             mRunner = getDrawable(R.drawable.ic_directions_run_black_18dp);
@@ -222,6 +221,14 @@ public abstract class GameActivity extends AppCompatActivity
 
         group1 = findViewById(R.id.group1);
         group2 = findViewById(R.id.group2);
+
+        mercyDisplay = findViewById(R.id.mercy_display);
+        mercyDisplay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openGameSettingsDialog();
+            }
+        });
 
         submitPlay = findViewById(R.id.submit);
         submitPlay.setOnClickListener(new View.OnClickListener() {
@@ -510,7 +517,7 @@ public abstract class GameActivity extends AppCompatActivity
     }
 
     void startGame() {
-        SharedPreferences sharedPreferences = getSharedPreferences(mSelectionID + StatsContract.StatsEntry.SETTINGS, Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences(mSelectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
         gameHelp = sharedPreferences.getBoolean(StatsEntry.HELP, true);
         if (gameHelp) {
             step1View = findViewById(R.id.step1text);
@@ -749,9 +756,19 @@ public abstract class GameActivity extends AppCompatActivity
     void setScoreDisplay() {
         scoreboardAwayScore.setText(String.valueOf(awayTeamRuns));
         scoreboardHomeScore.setText(String.valueOf(homeTeamRuns));
-        String inningRunString = "Mercy\n" + (inningRuns) + "/" + mercyRuns;
+        setMercyDisplay(inningRuns);
+    }
+
+    private void setMercyDisplay(int runs) {
+        String mercyRule;
+        if(mercyRuns == 99) {
+            mercyRule = "OFF";
+        } else {
+            mercyRule = runs + "/" + mercyRuns;
+        }
+        String inningRunString = "Mercy\n" + mercyRule;
         mercyDisplay.setText(inningRunString);
-        if(inningRuns >= mercyRuns) {
+        if(runs >= mercyRuns) {
             mercyDisplay.setTextColor(Color.RED);
         } else {
             mercyDisplay.setTextColor(getResources().getColor(R.color.colorHighlight));
@@ -779,7 +796,7 @@ public abstract class GameActivity extends AppCompatActivity
             scoreboardHomeName.setTextColor(atBatColor);
             scoreboardHomeScore.setTextColor(atBatColor);
         }
-        mercyDisplay.setTextColor(getResources().getColor(R.color.colorHighlight));
+//        mercyDisplay.setTextColor(getResources().getColor(R.color.colorHighlight));
         inningDisplay.setText(String.valueOf(inningNumber / 2));
 
         String indicator;
@@ -1280,8 +1297,8 @@ public abstract class GameActivity extends AppCompatActivity
                             }
                             tempRuns++;
                             String scoreString;
-                            String inningRunString = "Mercy\n" + (inningRuns + tempRuns) + "/" + mercyRuns;
-                            mercyDisplay.setText(inningRunString);
+//                            String inningRunString = "Mercy\n" + (inningRuns + tempRuns) + "/" + mercyRuns;
+//                            mercyDisplay.setText(inningRunString);
 
                             if(inningRuns + tempRuns <= mercyRuns) {
                                 if (isTopOfInning()) {
@@ -1291,12 +1308,14 @@ public abstract class GameActivity extends AppCompatActivity
                                     scoreString = String.valueOf(homeTeamRuns + tempRuns);
                                     scoreboardHomeScore.setText(scoreString);
                                 }
-                                if(inningRuns + tempRuns == mercyRuns) {
-                                    mercyDisplay.setTextColor(Color.RED);
-                                }
-                            } else {
-                                mercyDisplay.setTextColor(Color.RED);
+//                                if(inningRuns + tempRuns == mercyRuns) {
+//                                    mercyDisplay.setTextColor(Color.RED);
+//                                }
                             }
+//                            else {
+//                                mercyDisplay.setTextColor(Color.RED);
+//                            }
+                            setMercyDisplay(inningRuns + tempRuns);
                         }
                     }
                     enableResetButton();
@@ -1419,20 +1438,20 @@ public abstract class GameActivity extends AppCompatActivity
             case R.id.action_edit_lineup:
                 actionEditLineup();
                 break;
-            case R.id.action_next_inning:
-                if(gameLogIndex == lowestIndex) {
-                    Toast.makeText(GameActivity.this,
-                            "Can't skip to next inning when inning just started", Toast.LENGTH_LONG).show();
-                    return true;
-                }
-                if(undoRedo) {
-                    Toast.makeText(GameActivity.this,
-                            "Can't skip to next inning while undoing/redoing plays", Toast.LENGTH_LONG).show();
-                    return true;
-                }
-                undoPlay();
-                inningJump(result);
-                break;
+//            case R.id.action_next_inning:
+//                if(gameLogIndex == lowestIndex) {
+//                    Toast.makeText(GameActivity.this,
+//                            "Can't skip to next inning when inning just started", Toast.LENGTH_LONG).show();
+//                    return true;
+//                }
+//                if(undoRedo) {
+//                    Toast.makeText(GameActivity.this,
+//                            "Can't skip to next inning while undoing/redoing plays", Toast.LENGTH_LONG).show();
+//                    return true;
+//                }
+//                undoPlay();
+//                inningJump(result);
+//                break;
             case R.id.action_off_lineup_rules:
                 actionEndLineupRules();
                 break;
@@ -1440,12 +1459,7 @@ public abstract class GameActivity extends AppCompatActivity
                 actionViewBoxScore();
                 break;
             case R.id.change_game_settings:
-                int innings = totalInnings;
-                int genderSorter = 0;
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                DialogFragment newFragment = GameSettingsDialog.newInstance(innings, genderSorter, mSelectionID, inningNumber, gameHelp);
-                newFragment.show(fragmentTransaction, "");
+                openGameSettingsDialog();
                 break;
             case R.id.action_exit_game:
                 showExitDialog();
@@ -1457,7 +1471,15 @@ public abstract class GameActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    protected abstract void inningJump(String playerResult);
+    private void openGameSettingsDialog() {
+        int genderSorter = 0;
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        DialogFragment newFragment = GameSettingsDialog.newInstance(totalInnings, genderSorter, mercyRuns, mSelectionID, inningNumber, gameHelp);
+        newFragment.show(fragmentTransaction, "");
+    }
+
+//    protected abstract void inningJump(String playerResult);
 
     private void actionViewBoxScore() {
         Intent statsIntent = new Intent(GameActivity.this, BoxScoreActivity.class);
@@ -1599,11 +1621,13 @@ public abstract class GameActivity extends AppCompatActivity
     }
 
     @Override
-    public void onGameSettingsChanged(int innings, int genderSorter) {
+    public void onGameSettingsChanged(int innings, int genderSorter, int mercy) {
         totalInnings = innings;
+        mercyRuns = mercy;
         SharedPreferences gamePreferences = getSharedPreferences(mSelectionID + StatsEntry.GAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = gamePreferences.edit();
         editor.putInt(KEY_TOTALINNINGS, totalInnings);
+        editor.putInt(StatsEntry.MERCY, mercyRuns);
         editor.apply();
 
         if (inningNumber / 2 >= totalInnings) {
@@ -1612,6 +1636,7 @@ public abstract class GameActivity extends AppCompatActivity
             finalInning = false;
             redoEndsGame = false;
         }
+        setScoreDisplay();
     }
 
     @Override

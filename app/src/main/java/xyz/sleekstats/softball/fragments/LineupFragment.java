@@ -202,22 +202,13 @@ public class LineupFragment extends Fragment {
         mBoardView.setColumnSnapPosition(BoardView.ColumnSnapPosition.CENTER);
         mBoardView.setBoardListener(new BoardView.BoardListener() {
             @Override
-            public void onItemDragStarted(int column, int row) {
-            }
-
+            public void onItemDragStarted(int column, int row) { }
             @Override
-            public void onItemChangedPosition(int oldColumn, int oldRow, int newColumn, int newRow) {
-            }
-
+            public void onItemChangedPosition(int oldColumn, int oldRow, int newColumn, int newRow) { }
             @Override
-            public void onItemChangedColumn(int oldColumn, int newColumn) {
-            }
-
-//            @Override
-//            public void onFocusedColumnChanged(int oldColumn, int newColumn) {
-//
-//            }
-
+            public void onItemChangedColumn(int oldColumn, int newColumn) { }
+            @Override
+            public void onFocusedColumnChanged(int oldColumn, int newColumn) { }
             @Override
             public void onItemDragEnded(int fromColumn, int fromRow, int toColumn, int toRow) {
             }
@@ -227,11 +218,8 @@ public class LineupFragment extends Fragment {
             public boolean canDragItemAtPosition(int column, int dragPosition) {
                 return true;
             }
-
             @Override
-            public boolean canDropItemAtPosition(int oldColumn, int oldRow, int newColumn, int newRow) {
-                return true;
-            }
+            public boolean canDropItemAtPosition(int oldColumn, int oldRow, int newColumn, int newRow) { return true; }
         });
 
         return rootView;
@@ -890,10 +878,11 @@ public class LineupFragment extends Fragment {
                 .getSharedPreferences(mSelectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
         int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
         int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
+        int mercyRuns = settingsPreferences.getInt(StatsEntry.MERCY, 99);
         boolean gameHelp = settingsPreferences.getBoolean(StatsEntry.HELP, true);
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = GameSettingsDialog.newInstance(innings, genderSorter, mSelectionID, 0, gameHelp);
+        DialogFragment newFragment = GameSettingsDialog.newInstance(innings, genderSorter, mercyRuns, mSelectionID, 0, gameHelp);
         newFragment.show(fragmentTransaction, "");
     }
 

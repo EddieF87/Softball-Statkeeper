@@ -89,6 +89,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     private String leagueID;
     private int innings;
     private int genderSorter;
+    private int mercyRuns;
     private boolean postGameUpdate;
 
     public MatchupFragment() {
@@ -247,7 +248,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
 
     private void startGame() {
         if(mListener != null) {
-            mListener.startGameActivity(awayTeamID, homeTeamID, innings, 0, genderSorter);
+            mListener.startGameActivity(awayTeamID, homeTeamID, innings, 0, genderSorter, mercyRuns);
         }
     }
 
@@ -393,6 +394,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
                 .getSharedPreferences(leagueID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
         innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
         genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
+        mercyRuns = settingsPreferences.getInt(StatsEntry.MERCY, 99);
         if(inningsView == null) {
             return;
         }
@@ -894,7 +896,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     public interface OnFragmentInteractionListener {
         void clearGameDB();
         void goToGameSettings();
-        void startGameActivity(String awayID, String homeID, int inningAmt, int sortArg, int femaleOrder);
+        void startGameActivity(String awayID, String homeID, int inningAmt, int sortArg, int femaleOrder, int mercy);
         void goToGameActivity();
     }
 }
