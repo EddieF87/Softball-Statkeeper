@@ -838,6 +838,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         mTeamMap = new HashMap<>();
 
+        cursor.moveToPosition(-1);
         while (cursor.moveToNext()) {
             String firestoreID = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_FIRESTORE_ID);
             String name = StatsContract.getColumnString(cursor, StatsEntry.COLUMN_NAME);
