@@ -16,20 +16,21 @@ public class PlayerPagerActivity extends ObjectPagerActivity {
     }
 
     public void returnDeleteResult(String deletedPlayer) {
-        Intent intent = getIntent();
+        Intent intent = new Intent();
         intent.putExtra(StatsContract.StatsEntry.DELETE, deletedPlayer);
+        setResult(RESULT_OK, intent);
         finish();
     }
 
     @Override
     public void onTeamChosen(String playerID, String teamName, String teamID) {
         super.onTeamChosen(playerID, teamName, teamID);
-        Intent intent = getIntent();
+        Intent intent = new Intent();
         setResult(RESULT_OK, intent);
     }
 
     public void returnGenderEdit(int gender, String id) {
-        Intent intent = getIntent();
+        Intent intent = new Intent();
         intent.putExtra(StatsContract.StatsEntry.COLUMN_GENDER, gender);
         intent.putExtra(StatsContract.StatsEntry.COLUMN_FIRESTORE_ID, id);
         setResult(17, intent);
@@ -57,7 +58,7 @@ public class PlayerPagerActivity extends ObjectPagerActivity {
         if(update) {
             TimeStampUpdater.updateTimeStamps(this, getSelectionID(), System.currentTimeMillis());
             String playerFirestoreID = playerFragment.getFirestoreID();
-            Intent intent = getIntent();
+            Intent intent = new Intent();
             intent.putExtra(StatsContract.StatsEntry.COLUMN_FIRESTORE_ID, playerFirestoreID);
             intent.putExtra(StatsContract.StatsEntry.COLUMN_NAME, enteredText);
             setResult(18, intent);

@@ -755,7 +755,6 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 getActivity().startService(intent);
                 Toast.makeText(getActivity(), playerName + " " + getString(R.string.editor_delete_player_successful), Toast.LENGTH_SHORT).show();
 
-                getActivity().setResult(Activity.RESULT_OK);
                 if (getActivity() instanceof PlayerPagerActivity) {
                     ((PlayerPagerActivity) getActivity()).returnDeleteResult(mFirestoreID);
                 }

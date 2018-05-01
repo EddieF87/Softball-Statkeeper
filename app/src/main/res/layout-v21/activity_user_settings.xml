@@ -193,6 +193,7 @@
         android:layout_height="0dp"
         android:layout_marginStart="8dp"
         android:drawablePadding="0dp"
+        android:drawableStart="@drawable/fui_ic_mail_white_24dp"
         android:text="@string/email_users"
         android:onClick="sendEmailUpdate"
         tools:visibility="visible"

@@ -37,6 +37,7 @@ import com.google.android.gms.ads.AdView;
 
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.data.StatsContract;
+import xyz.sleekstats.softball.dialogs.EditWarningDialog;
 import xyz.sleekstats.softball.dialogs.EndOfGameDialog;
 import xyz.sleekstats.softball.dialogs.FinishGameConfirmationDialog;
 import xyz.sleekstats.softball.dialogs.GameSettingsDialog;
@@ -55,7 +56,8 @@ public abstract class GameActivity extends AppCompatActivity
         implements EndOfGameDialog.OnFragmentInteractionListener,
         SaveDeleteGameDialog.OnFragmentInteractionListener,
         FinishGameConfirmationDialog.OnFragmentInteractionListener,
-        GameSettingsDialog.OnFragmentInteractionListener {
+        GameSettingsDialog.OnFragmentInteractionListener,
+        EditWarningDialog.OnFragmentInteractionListener {
 
     Cursor gameCursor;
 
@@ -119,9 +121,9 @@ public abstract class GameActivity extends AppCompatActivity
     ArrayList<String> currentRunsLog;
     ArrayList<String> tempRunsLog;
 
-    int gameLogIndex = 0;
-    int lowestIndex = 0;
-    int highestIndex = 0;
+    int gameLogIndex;
+    int lowestIndex;
+    int highestIndex;
     boolean undoRedo = false;
 
     boolean finalInning;
@@ -562,7 +564,9 @@ public abstract class GameActivity extends AppCompatActivity
         }
         if (gameOuts >= 3) {
             if (!isTopOfInning() && finalInning && awayTeamRuns > homeTeamRuns) {
-                increaseLineupIndex();
+                if (isLeagueGameOrHomeTeam()) {
+                    increaseLineupIndex();
+                }
                 showFinishGameDialog();
                 return;
             } else {
@@ -1436,7 +1440,7 @@ public abstract class GameActivity extends AppCompatActivity
                 redoPlay();
                 break;
             case R.id.action_edit_lineup:
-                actionEditLineup();
+                openEditWarningDialog();
                 break;
 //            case R.id.action_next_inning:
 //                if(gameLogIndex == lowestIndex) {
@@ -1650,6 +1654,10 @@ public abstract class GameActivity extends AppCompatActivity
             gameCursor.moveToFirst();
             if (resultCode == RESULT_CODE_EDITED) {
                 lowestIndex = gameLogIndex;
+                SharedPreferences gamePreferences = getSharedPreferences(mSelectionID + StatsEntry.GAME, MODE_PRIVATE);
+                SharedPreferences.Editor editor = gamePreferences.edit();
+                editor.putInt(KEY_LOWESTINDEX, lowestIndex);
+                editor.apply();
                 if(!getSelectionData()) {
                     goToMain();
                     return;
@@ -1668,5 +1676,16 @@ public abstract class GameActivity extends AppCompatActivity
                 Toast.makeText(GameActivity.this, "Lineups have been edited.", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    void setFinalInning() {
+        finalInning = inningNumber / 2 >= totalInnings;
+    }
+
+    protected abstract void openEditWarningDialog();
+
+    @Override
+    public void onEditConfirmed() {
+        actionEditLineup();
     }
 }

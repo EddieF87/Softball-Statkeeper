@@ -48,7 +48,6 @@ public class StatsContract {
         public static final String BACKUP_PLAYERS_TABLE_NAME = "backupplayers";
         public static final String BACKUP_TEAMS_TABLE_NAME = "backupteams";
 
-
         public static final String COLUMN_NAME = "name";
         public static final String COLUMN_TEAM = "team";
         public static final String COLUMN_ORDER = "batting";

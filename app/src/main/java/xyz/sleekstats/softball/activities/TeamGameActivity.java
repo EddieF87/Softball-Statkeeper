@@ -8,6 +8,9 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -20,6 +23,7 @@ import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.adapters.MatchupAdapter;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
+import xyz.sleekstats.softball.dialogs.EditWarningDialog;
 import xyz.sleekstats.softball.dialogs.EndOfGameDialog;
 import xyz.sleekstats.softball.objects.BaseLog;
 import xyz.sleekstats.softball.objects.MainPageSelection;
@@ -183,7 +187,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         teamText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                gotoLineupEditor(myTeamName, mSelectionID);
+                openEditWarningDialog();
             }
         });
     }
@@ -249,9 +253,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
     @Override
     protected void resumeGame() {
         isTop = (inningNumber % 2 == 0);
-        if (inningNumber / 2 >= totalInnings) {
-            finalInning = true;
-        }
+        setFinalInning();
         chooseDisplay();
         gameCursor.moveToPosition(gameLogIndex);
         reloadRunsLog();
@@ -346,11 +348,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         gameOuts = 0;
         inningRuns = 0;
         emptyBases();
-
-        if (inningNumber / 2 >= totalInnings) {
-            finalInning = true;
-        }
-
+        setFinalInning();
         inningNumber++;
         chooseDisplay();
         setInningDisplay();
@@ -364,6 +362,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
     }
 
     private void chooseDisplay() {
+        setFinalInning();
         isTop = (inningNumber % 2 == 0);
         if (isTop) {
             if (isHome) {
@@ -377,7 +376,11 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
             if (finalInning && homeTeamRuns > awayTeamRuns) {
                 if (!redoEndsGame) {
                     redoEndsGame = true;
-                    increaseLineupIndex();
+                    if(isHome) {
+                        decreaseLineupIndex();
+                    } else {
+                        increaseLineupIndex();
+                    }
                     showFinishGameDialog();
                 }
                 return;
@@ -549,7 +552,11 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
             decreaseLineupIndex();
         }
         updatePlayerStats(undoResult, -1);
-        setDisplays();
+        if(gameLogIndex != 0) {
+            setDisplays();
+        } else {
+            setUndoRedo();
+        }
     }
 
     @Override
@@ -566,7 +573,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
             inningNumber++;
             chooseDisplay();
             setInningDisplay();
-            inningChanged = 1;
+            inningChanged = 0;
             setDisplays();
             return;
         }
@@ -681,11 +688,19 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         gotoLineupEditor(myTeamName, mSelectionID);
     }
 
-    protected void gotoLineupEditor(String teamName, String teamID) {
+    @Override
+    protected void openEditWarningDialog() {
         if(isAlternate) {
             Toast.makeText(TeamGameActivity.this, "Can't edit lineup while other team is batting.", Toast.LENGTH_LONG).show();
             return;
         }
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        DialogFragment newFragment = new EditWarningDialog();
+        newFragment.show(fragmentTransaction, "");
+    }
+
+    protected void gotoLineupEditor(String teamName, String teamID) {
         Intent editorIntent = new Intent(TeamGameActivity.this, SetLineupActivity.class);
         editorIntent.putExtra("ingame", true);
         editorIntent.putExtra("team_name", teamName);

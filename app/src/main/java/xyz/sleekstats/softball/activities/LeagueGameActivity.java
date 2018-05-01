@@ -15,17 +15,19 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import xyz.sleekstats.softball.MyApp;
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.adapters.MatchupAdapter;
 import xyz.sleekstats.softball.data.StatsContract;
+import xyz.sleekstats.softball.dialogs.EditWarningDialog;
 import xyz.sleekstats.softball.objects.BaseLog;
 
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
@@ -108,13 +110,13 @@ public class LeagueGameActivity extends GameActivity {
         awayText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                gotoLineupEditor(awayTeamName, awayTeamID);
+                openEditWarningDialog();
             }
         });
         homeText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                gotoLineupEditor(homeTeamName, homeTeamID);
+                openEditWarningDialog();
             }
         });
     }
@@ -304,9 +306,7 @@ public class LeagueGameActivity extends GameActivity {
 
     @Override
     protected void resumeGame() {
-        if (inningNumber / 2 >= totalInnings) {
-            finalInning = true;
-        }
+        setFinalInning();
         gameCursor.moveToPosition(gameLogIndex);
         reloadRunsLog();
         reloadBaseLog();
@@ -460,14 +460,20 @@ public class LeagueGameActivity extends GameActivity {
     }
 
     @Override
+    protected void openEditWarningDialog() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        DialogFragment newFragment = new EditWarningDialog();
+        newFragment.show(fragmentTransaction, "");
+    }
+
+    @Override
     protected void nextInning() {
         gameOuts = 0;
         inningRuns = 0;
         emptyBases();
 
-        if (inningNumber / 2 >= totalInnings) {
-            finalInning = true;
-        }
+        setFinalInning();
         increaseLineupIndex();
         if (currentTeam == awayTeam) {
             if (finalInning && homeTeamRuns > awayTeamRuns) {
