@@ -22,6 +22,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import xyz.sleekstats.softball.MyApp;
 import xyz.sleekstats.softball.R;
@@ -434,6 +435,11 @@ public class LeagueGameActivity extends GameActivity {
     }
 
     @Override
+    protected boolean isLeagueGame() {
+        return true;
+    }
+
+    @Override
     protected boolean isLeagueGameOrHomeTeam() {
         return true;
     }
@@ -535,10 +541,12 @@ public class LeagueGameActivity extends GameActivity {
         }
         undoLogs();
         currentTeam = currentBaseLogStart.getTeam();
-        if (currentTeam == awayTeam) {
-            decreaseAwayIndex();
-        } else if (currentTeam == homeTeam) {
-            decreaseHomeIndex();
+        if(!undoResult.equals(StatsEntry.COLUMN_SB)) {
+            if (currentTeam == awayTeam) {
+                decreaseAwayIndex();
+            } else if (currentTeam == homeTeam) {
+                decreaseHomeIndex();
+            }
         }
         inningChanged = 0;
 
@@ -556,21 +564,25 @@ public class LeagueGameActivity extends GameActivity {
         currentTeam = currentBaseLogStart.getTeam();
         if (inningChanged == 1) {
             inningNumber++;
-            if (currentTeam == awayTeam) {
-                increaseHomeIndex();
-                setLineupRVPosition(false);
-                homeLineupAdapter.setCurrentLineupPosition(-1);
-                homeLineupAdapter.notifyDataSetChanged();
-            } else if (currentTeam == homeTeam) {
-                increaseAwayIndex();
-                setLineupRVPosition(true);
-                awayLineupAdapter.setCurrentLineupPosition(-1);
-                awayLineupAdapter.notifyDataSetChanged();
+            if(!redoResult.equals(StatsEntry.COLUMN_SB)) {
+                if (currentTeam == awayTeam) {
+                    increaseHomeIndex();
+                    setLineupRVPosition(false);
+                    homeLineupAdapter.setCurrentLineupPosition(-1);
+                    homeLineupAdapter.notifyDataSetChanged();
+                } else if (currentTeam == homeTeam) {
+                    increaseAwayIndex();
+                    setLineupRVPosition(true);
+                    awayLineupAdapter.setCurrentLineupPosition(-1);
+                    awayLineupAdapter.notifyDataSetChanged();
+                }
             }
             setInningDisplay();
         }
         if (inningChanged == 0) {
-            increaseLineupIndex();
+            if(!redoResult.equals(StatsEntry.COLUMN_SB)) {
+                increaseLineupIndex();
+            }
         } else {
             inningChanged = 0;
         }

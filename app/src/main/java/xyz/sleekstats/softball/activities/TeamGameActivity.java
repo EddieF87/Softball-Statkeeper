@@ -509,10 +509,14 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
     }
 
     @Override
+    protected boolean isLeagueGame() {
+        return false;
+    }
+
+    @Override
     protected boolean isLeagueGameOrHomeTeam() {
         return isHome;
     }
-
 
     @Override
     protected void undoPlay() {
@@ -539,7 +543,9 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
 
         resetBases(currentBaseLogStart);
         if (isAlternate) {
-            decreaseLineupIndex();
+            if(!undoResult.equals(StatsEntry.COLUMN_SB)) {
+                decreaseLineupIndex();
+            }
             chooseDisplay();
             setInningDisplay();
         } else {
@@ -549,10 +555,12 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
                 setInningDisplay();
                 return;
             }
-            decreaseLineupIndex();
+            if(undoResult == null || !undoResult.equals(StatsEntry.COLUMN_SB)) {
+                decreaseLineupIndex();
+            }
         }
         updatePlayerStats(undoResult, -1);
-        if(gameLogIndex != 0) {
+        if(gameLogIndex != 0 || !isHome) {
             setDisplays();
         } else {
             setUndoRedo();
@@ -588,7 +596,9 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         isAlternate = (tempBatter == null);
 
         if (!isAlternate) {
-            increaseLineupIndex();
+            if(!redoResult.equals(StatsEntry.COLUMN_SB)) {
+                increaseLineupIndex();
+            }
             isAlternate = (currentBatter == null);
             updatePlayerStats(redoResult, 1);
 

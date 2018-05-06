@@ -39,6 +39,11 @@
             android:id="@+id/hr_rb"
             style="@style/SmallRadioButtonStyle"
             android:text="@string/hr" />
+
+        <RadioButton
+            android:id="@+id/sb_rb"
+            style="@style/SmallRadioButtonStyle"
+            android:text="@string/hr" />
     </RadioGroup>
 
     <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"

@@ -90,6 +90,11 @@
             android:text="@string/error"
             android:textSize="12sp"
             tools:text="Reached on Error" />
+
+        <RadioButton
+            android:id="@+id/sb_rb"
+            style="@style/ResultsButtonStyle"
+            android:text="@string/sb" />
     </RadioGroup>
 
     <Button

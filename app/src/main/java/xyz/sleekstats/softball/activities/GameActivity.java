@@ -19,6 +19,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.DragEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -162,7 +163,7 @@ public abstract class GameActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(!getSelectionData()) {
+        if (!getSelectionData()) {
             goToMain();
             return;
         }
@@ -365,7 +366,7 @@ public abstract class GameActivity extends AppCompatActivity
         if (femaleRequired < 1) {
             return team;
         }
-        boolean firstPlayerMale =  team.get(0).getGender() == 0;
+        boolean firstPlayerMale = team.get(0).getGender() == 0;
         String teamid = team.get(0).getTeamfirestoreid();
         int menInARow = 0;
         int womenInARow = 0;
@@ -413,10 +414,10 @@ public abstract class GameActivity extends AppCompatActivity
             }
         }
 
-        if(menInARow + menInARowToStart > femaleRequired - 1) {
+        if (menInARow + menInARowToStart > femaleRequired - 1) {
             team.add(new Player(AUTO_OUT, "(AUTO-OUT)", teamid, 1));
         }
-        if(womenInARow + womenInARowToStart > 1) {
+        if (womenInARow + womenInARowToStart > 1) {
             team.add(new Player(AUTO_OUT, "(AUTO-OUT)", teamid, 0));
         }
 
@@ -477,6 +478,12 @@ public abstract class GameActivity extends AppCompatActivity
                 if (checked)
                     result = StatsEntry.COLUMN_SAC_BUNT;
                 group1.clearCheck();
+                break;
+            case R.id.sb_rb:
+                if (checked)
+                    result = StatsEntry.COLUMN_SB;
+                group1.clearCheck();
+                enableSubmitButton();
                 break;
         }
         if (batterMoved) {
@@ -582,6 +589,38 @@ public abstract class GameActivity extends AppCompatActivity
         updateGameLogs();
     }
 
+    void nextAfterSB() {
+        if (!isTopOfInning() && finalInning && homeTeamRuns > awayTeamRuns) {
+            if (isLeagueGameOrHomeTeam()) {
+//                increaseLineupIndex();
+            }
+            showFinishGameDialog();
+            return;
+        }
+        if (gameOuts >= 3) {
+            if (!isTopOfInning() && finalInning && awayTeamRuns > homeTeamRuns) {
+                if (isLeagueGameOrHomeTeam()) {
+//                    increaseLineupIndex();
+                }
+                showFinishGameDialog();
+                return;
+            } else {
+                if(isLeagueGame()){
+                    decreaseLineupIndex();
+                }
+                nextInning();
+                if (isTeamAlternate()) {
+//                    increaseLineupIndex();
+                }
+            }
+        } else {
+//            increaseLineupIndex();
+        }
+        enableSubmitButton();
+        updateGameLogs();
+    }
+
+    protected abstract boolean isLeagueGame();
     protected abstract boolean isLeagueGameOrHomeTeam();
 
     protected abstract void updateGameLogs();
@@ -601,9 +640,8 @@ public abstract class GameActivity extends AppCompatActivity
     }
 
     @SuppressLint("ShowToast")
-    private void showToast(String text)
-    {
-        if(mCurrentToast == null) {
+    private void showToast(String text) {
+        if (mCurrentToast == null) {
             mCurrentToast = Toast.makeText(this, text, Toast.LENGTH_SHORT);
         }
         mCurrentToast.setText(text);
@@ -687,7 +725,7 @@ public abstract class GameActivity extends AppCompatActivity
     }
 
     private Player getPlayerFromCursor(Uri uri, String playerFirestoreID) {
-        if(playerFirestoreID.equals(AUTO_OUT)){
+        if (playerFirestoreID.equals(AUTO_OUT)) {
             return new Player(AUTO_OUT, "(AUTO-OUT)", "xxxx", 3);
         }
         String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
@@ -765,14 +803,14 @@ public abstract class GameActivity extends AppCompatActivity
 
     private void setMercyDisplay(int runs) {
         String mercyRule;
-        if(mercyRuns == 99) {
+        if (mercyRuns == 99) {
             mercyRule = "OFF";
         } else {
             mercyRule = runs + "/" + mercyRuns;
         }
         String inningRunString = "Mercy\n" + mercyRule;
         mercyDisplay.setText(inningRunString);
-        if(runs >= mercyRuns) {
+        if (runs >= mercyRuns) {
             mercyDisplay.setTextColor(Color.RED);
         } else {
             mercyDisplay.setTextColor(getResources().getColor(R.color.colorHighlight));
@@ -844,7 +882,7 @@ public abstract class GameActivity extends AppCompatActivity
         ContentValues values = new ContentValues();
         int newValue;
 
-        if(action == null) {
+        if (action == null) {
             return;
         }
         switch (action) {
@@ -879,13 +917,31 @@ public abstract class GameActivity extends AppCompatActivity
                 values.put(StatsEntry.COLUMN_SF, newValue);
                 break;
             case StatsEntry.COLUMN_SAC_BUNT:
+            case StatsEntry.COLUMN_SB:
                 break;
             default:
                 break;
         }
 
         int rbiCount = currentRunsLog.size();
-        if (rbiCount > 0) {
+        if (action.equals(StatsEntry.COLUMN_SB)) {
+            Log.d("xyxyx", action + " " + n);
+            String[] newBases = new String[] {firstDisplay.getText().toString(),
+                    secondDisplay.getText().toString(), thirdDisplay.getText().toString()};
+            String[] oldBases = currentBaseLogStart.getBasepositions();
+            for(int i = 0; i < oldBases.length; i++) {
+                String oldPlayerOnBase = oldBases[i];
+                if(oldPlayerOnBase != null && !oldPlayerOnBase.isEmpty()) {
+                    for (int j = 0; j < oldBases.length; j++) {
+                        String newPlayerOnBase = newBases[j];
+                        if (oldPlayerOnBase.equals(newPlayerOnBase)) {
+                            Log.d("xyxyx", oldPlayerOnBase + " sb=" + (j - i));
+                            break;
+                        }
+                    }
+                }
+            }
+        } else if (rbiCount > 0 && !action.equals(StatsEntry.COLUMN_SB)) {
             newValue = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_RBI) + (rbiCount * n);
             values.put(StatsEntry.COLUMN_RBI, newValue);
         }
@@ -917,7 +973,7 @@ public abstract class GameActivity extends AppCompatActivity
         }
         if (!undoRedo) {
             inningRuns++;
-            if(inningRuns >= mercyRuns) {
+            if (inningRuns >= mercyRuns) {
                 gameOuts = 3;
                 if (isTopOfInning()) {
                     awayTeamRuns = mercyRuns;
@@ -963,17 +1019,17 @@ public abstract class GameActivity extends AppCompatActivity
         secondDisplay.setText(second);
         thirdDisplay.setText(third);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if(first != null && !first.isEmpty()) {
+            if (first != null && !first.isEmpty()) {
                 firstDisplay.setForeground(mRunner);
             } else {
                 firstDisplay.setForeground(null);
             }
-            if(second != null && !second.isEmpty()) {
+            if (second != null && !second.isEmpty()) {
                 secondDisplay.setForeground(mRunner);
             } else {
                 secondDisplay.setForeground(null);
             }
-            if(third != null && !third.isEmpty()) {
+            if (third != null && !third.isEmpty()) {
                 thirdDisplay.setForeground(mRunner);
             } else {
                 thirdDisplay.setForeground(null);
@@ -1020,12 +1076,19 @@ public abstract class GameActivity extends AppCompatActivity
             currentRunsLog.clear();
             currentRunsLog.addAll(tempRunsLog);
         }
-        if(result == null) {
+
+        if (result == null) {
             Toast.makeText(GameActivity.this, "Please choose a result!", Toast.LENGTH_SHORT).show();
             return;
         }
         updatePlayerStats(result, 1);
         gameOuts += tempOuts;
+        if (result.equals(StatsEntry.COLUMN_SB)) {
+            nextAfterSB();
+            String outs = gameOuts + " outs";
+            outsDisplay.setText(outs);
+            return;
+        }
         nextBatter();
         String outs = gameOuts + " outs";
         outsDisplay.setText(outs);
@@ -1062,7 +1125,6 @@ public abstract class GameActivity extends AppCompatActivity
         reloadRunsLog();
         gameCursor.moveToPrevious();
         reloadBaseLog();
-        //todo
         inningRuns = StatsContract.getColumnInt(gameCursor, StatsEntry.COLUMN_INNING_RUNS);
         awayTeamRuns = currentBaseLogStart.getAwayTeamRuns();
         homeTeamRuns = currentBaseLogStart.getHomeTeamRuns();
@@ -1091,7 +1153,6 @@ public abstract class GameActivity extends AppCompatActivity
 
         reloadRunsLog();
         reloadBaseLog();
-        //todo
         inningRuns = StatsContract.getColumnInt(gameCursor, StatsEntry.COLUMN_INNING_RUNS);
         awayTeamRuns = currentBaseLogStart.getAwayTeamRuns();
         homeTeamRuns = currentBaseLogStart.getHomeTeamRuns();
@@ -1169,7 +1230,7 @@ public abstract class GameActivity extends AppCompatActivity
 
     @Override
     protected void onDestroy() {
-        if(firstDisplay!= null) {
+        if (firstDisplay != null) {
             firstDisplay.setOnDragListener(null);
             secondDisplay.setOnDragListener(null);
             thirdDisplay.setOnDragListener(null);
@@ -1304,7 +1365,7 @@ public abstract class GameActivity extends AppCompatActivity
 //                            String inningRunString = "Mercy\n" + (inningRuns + tempRuns) + "/" + mercyRuns;
 //                            mercyDisplay.setText(inningRunString);
 
-                            if(inningRuns + tempRuns <= mercyRuns) {
+                            if (inningRuns + tempRuns <= mercyRuns) {
                                 if (isTopOfInning()) {
                                     scoreString = String.valueOf(awayTeamRuns + tempRuns);
                                     scoreboardAwayScore.setText(scoreString);
@@ -1327,7 +1388,7 @@ public abstract class GameActivity extends AppCompatActivity
                     break;
                 case DragEvent.ACTION_DRAG_ENDED:
                     View dragView = (View) event.getLocalState();
-                    if(dragView != null) {
+                    if (dragView != null) {
                         dragView.setAlpha(1f);
                     }
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -1342,7 +1403,7 @@ public abstract class GameActivity extends AppCompatActivity
                                 v.setBackground(getDrawable(R.drawable.img_base));
                         }
                     }
-                    if(mResetListeners) {
+                    if (mResetListeners) {
                         mResetListeners = false;
                         setBaseListeners();
                     }
@@ -1409,13 +1470,15 @@ public abstract class GameActivity extends AppCompatActivity
     }
 
     protected abstract void increaseLineupIndex();
+
     protected abstract void decreaseLineupIndex();
+
     protected abstract void checkLineupIndex();
 
     protected int setLineupIndex(List<Player> team, String playerFirestoreID) {
-        for(int i = 0; i < team.size(); i++) {
+        for (int i = 0; i < team.size(); i++) {
             Player player = team.get(i);
-            if(player.getFirestoreID().equals(playerFirestoreID)) {
+            if (player.getFirestoreID().equals(playerFirestoreID)) {
                 return i;
             }
         }
@@ -1495,7 +1558,7 @@ public abstract class GameActivity extends AppCompatActivity
     protected abstract Bundle getBoxScoreBundle();
 
     private void actionEndLineupRules() {
-        if(currentBatter != null && currentBatter.getFirestoreID().equals(AUTO_OUT)) {
+        if (currentBatter != null && currentBatter.getFirestoreID().equals(AUTO_OUT)) {
             Toast.makeText(GameActivity.this, "Can't reset lineup rules during Auto-Out", Toast.LENGTH_LONG).show();
             return;
         }
@@ -1531,7 +1594,7 @@ public abstract class GameActivity extends AppCompatActivity
         finish();
     }
 
-    private void deleteTempData(){
+    private void deleteTempData() {
         String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
         String[] selectionArgs = new String[]{mSelectionID};
         getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, selection, selectionArgs);
@@ -1542,7 +1605,7 @@ public abstract class GameActivity extends AppCompatActivity
 
     protected abstract void actionEditLineup();
 
-    void setUndoRedo(){
+    void setUndoRedo() {
         setUndoButton();
         setRedoButton();
     }
@@ -1583,7 +1646,7 @@ public abstract class GameActivity extends AppCompatActivity
 
         SharedPreferences gamePreferences = getSharedPreferences(mSelectionID + StatsEntry.GAME, MODE_PRIVATE);
         int sortArg = gamePreferences.getInt(KEY_GENDERSORT, 0);
-        if(sortArg == 0) {
+        if (sortArg == 0) {
             resetLineupItem.setVisible(false);
         } else {
             resetLineupItem.setVisible(true);
@@ -1646,7 +1709,7 @@ public abstract class GameActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == REQUEST_CODE_EDIT) {
+        if (requestCode == REQUEST_CODE_EDIT) {
             String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
             String[] selectionArgs = new String[]{mSelectionID};
             gameCursor = getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG, null,
@@ -1658,7 +1721,7 @@ public abstract class GameActivity extends AppCompatActivity
                 SharedPreferences.Editor editor = gamePreferences.edit();
                 editor.putInt(KEY_LOWESTINDEX, lowestIndex);
                 editor.apply();
-                if(!getSelectionData()) {
+                if (!getSelectionData()) {
                     goToMain();
                     return;
                 }
@@ -1666,7 +1729,7 @@ public abstract class GameActivity extends AppCompatActivity
                 setViews();
                 loadGamePreferences();
                 checkLineupIndex();
-                if(undoRedo) {
+                if (undoRedo) {
                     deleteGameLogs();
                     highestIndex = gameLogIndex;
                     invalidateOptionsMenu();

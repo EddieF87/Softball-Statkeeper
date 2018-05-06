@@ -849,7 +849,7 @@ public class MainActivity extends AppCompatActivity
                 @Override
                 public void onSuccess(Void aVoid) {
                     onSuccessfulStatKeeperUpdate(intent, statKeeperDocument, level, userEmail, userDisplayName,
-                            statKeeperID, name, type);
+                            null, name, type);
                 }
             });
         } else {

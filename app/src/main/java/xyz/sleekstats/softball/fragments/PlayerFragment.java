@@ -305,7 +305,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
 
     private void updatePlayerDataFirebase(String currentResult, int currentResultCount) {
         if(mPlayerLog == null) {
-            mPlayerLog = new PlayerLog(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+            mPlayerLog = new PlayerLog(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
         }
         switch (currentResult) {
             case RESULT_1B:

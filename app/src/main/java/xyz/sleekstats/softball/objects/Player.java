@@ -34,6 +34,7 @@ public class Player implements Parcelable {
     private int rbis;
     private int outs;
     private int sacFlies;
+    private int stolenBases;
     private int games;
     private int gender;
     private long playerId;
@@ -73,6 +74,7 @@ public class Player implements Parcelable {
         this.rbis = getColumnInt(cursor, StatsEntry.COLUMN_RBI);
         this.outs = getColumnInt(cursor, StatsEntry.COLUMN_OUT);
         this.sacFlies = getColumnInt(cursor, StatsEntry.COLUMN_SF);
+        this.stolenBases = getColumnInt(cursor, StatsEntry.COLUMN_SB);
 
         if(tempData) {
             this.playerId = getColumnInt(cursor, StatsEntry.COLUMN_PLAYERID);
@@ -170,6 +172,8 @@ public class Player implements Parcelable {
         return sacFlies;
     }
 
+    public int getStolenBases() { return stolenBases; }
+
     public String getTeamfirestoreid() {return teamfirestoreid;}
 
     public long getPlayerId() {
@@ -203,6 +207,8 @@ public class Player implements Parcelable {
     public void setSacFlies(int sacFlies) {
         this.sacFlies = sacFlies;
     }
+
+    public void setStolenBases(int stolenBases) { this.stolenBases = stolenBases; }
 
     public void setPlayerId(long playerId) {
         this.playerId = playerId;
@@ -448,6 +454,7 @@ public class Player implements Parcelable {
         rbis = in.readInt();
         outs = in.readInt();
         sacFlies = in.readInt();
+        stolenBases = in.readInt();
         games = in.readInt();
         gender = in.readInt();
         playerId = in.readLong();
@@ -473,6 +480,7 @@ public class Player implements Parcelable {
         dest.writeInt(rbis);
         dest.writeInt(outs);
         dest.writeInt(sacFlies);
+        dest.writeInt(stolenBases);
         dest.writeInt(games);
         dest.writeInt(gender);
         dest.writeLong(playerId);

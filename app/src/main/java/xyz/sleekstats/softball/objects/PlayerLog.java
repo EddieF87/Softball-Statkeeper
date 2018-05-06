@@ -20,11 +20,12 @@ public class PlayerLog implements Parcelable {
     private int outs;
     private int walks;
     private int sacfly;
+    private int stolenbases;
 
     public PlayerLog() {
     }
 
-    public PlayerLog(long id, int rbi, int runs, int singles, int doubles, int triples, int hrs, int outs, int walks, int sacfly) {
+    public PlayerLog(long id, int rbi, int runs, int singles, int doubles, int triples, int hrs, int outs, int walks, int sacfly, int stolenbases) {
         this.id = id;
         this.rbi = rbi;
         this.runs = runs;
@@ -35,6 +36,7 @@ public class PlayerLog implements Parcelable {
         this.outs = outs;
         this.walks = walks;
         this.sacfly = sacfly;
+        this.stolenbases = stolenbases;
     }
 
     public int getDoubles() {
@@ -64,6 +66,8 @@ public class PlayerLog implements Parcelable {
     public int getSacfly() {
         return sacfly;
     }
+
+    public int getStolenbases() { return stolenbases; }
 
     public int getSingles() {
         return singles;
@@ -117,6 +121,8 @@ public class PlayerLog implements Parcelable {
         this.sacfly = sacfly;
     }
 
+    public void setStolenbases(int stolenbases) { this.stolenbases = stolenbases; }
+
     public void addWalks(int walks) {
         this.walks += walks;
     }
@@ -157,6 +163,10 @@ public class PlayerLog implements Parcelable {
         this.sacfly += sacfly;
     }
 
+    public void addStolenbases(int stolenbases) {
+        this.stolenbases += stolenbases;
+    }
+
     protected PlayerLog(Parcel in) {
         id = in.readLong();
         rbi = in.readInt();
@@ -168,6 +178,7 @@ public class PlayerLog implements Parcelable {
         outs = in.readInt();
         walks = in.readInt();
         sacfly = in.readInt();
+        stolenbases = in.readInt();
     }
 
     @Override
@@ -187,6 +198,7 @@ public class PlayerLog implements Parcelable {
         dest.writeInt(outs);
         dest.writeInt(walks);
         dest.writeInt(sacfly);
+        dest.writeInt(stolenbases);
     }
 
     @SuppressWarnings("unused")
