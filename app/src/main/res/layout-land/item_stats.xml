@@ -19,7 +19,6 @@
         android:paddingEnd="10dp"
         android:paddingStart="8dp"
         android:textAlignment="textStart"
-        android:textSize="18sp"
         android:textStyle="bold"
         tools:text="DFFDFDFDF"
         tools:targetApi="o" />
@@ -103,6 +102,11 @@
 
     <TextView
         android:id="@+id/bb"
+        style="@style/StatsStyle"
+        tools:text="44" />
+
+    <TextView
+        android:id="@+id/sb"
         style="@style/StatsStyle"
         tools:text="44" />
 

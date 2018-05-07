@@ -36,6 +36,11 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/action_set_SB"
+        android:title="@string/stolen_bases_off"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_exit_game"
         android:title="@string/exit"
         app:showAsAction="never" />
@@ -47,6 +52,6 @@
 
     <item
         android:id="@+id/action_off_lineup_rules"
-        android:title="Reset Lineup Rules"
+        android:title="@string/reset_lineup_rules"
         app:showAsAction="never" />
 </menu>

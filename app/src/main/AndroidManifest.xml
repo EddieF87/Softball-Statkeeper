@@ -69,20 +69,20 @@
             android:parentActivityName=".activities.MainActivity" />
         <activity
             android:name=".activities.LeagueGameActivity"
-            android:launchMode="singleTask"
+            android:launchMode="singleTop"
             android:parentActivityName=".activities.LeagueManagerActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".activities.SetLineupActivity"
             android:label="Lineup Editor"
-            android:launchMode="singleTask"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait" />
         <activity
             android:name=".activities.BoxScoreActivity"
             android:label="Box Score" />
         <activity
             android:name=".activities.TeamGameActivity"
-            android:launchMode="singleTask"
+            android:launchMode="singleTop"
             android:parentActivityName=".activities.TeamManagerActivity"
             android:screenOrientation="portrait" />
         <activity android:name=".activities.TeamPagerActivity" />
@@ -95,6 +95,7 @@
             android:parentActivityName=".activities.MainActivity" />
         <activity
             android:name=".activities.PlayerManagerActivity"
+            android:launchMode="singleTask"
             android:theme="@style/WhiteTheme" />
         <activity
             android:name=".activities.UsersActivity"

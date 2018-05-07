@@ -347,6 +347,16 @@ public class Player implements Parcelable {
         };
     }
 
+    public static Comparator<Player> sbComparator () {
+        return new Comparator<Player>() {
+            @Override
+            public int compare(Player player1, Player player2) {
+                return player2.getStolenBases() - player1.getStolenBases();
+            }
+        };
+    }
+
+
     public static Comparator<Player> atbatComparator () {
         return new Comparator<Player>() {
             @Override

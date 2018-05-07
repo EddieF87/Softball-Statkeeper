@@ -95,6 +95,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     private static final String RESULT_SF = "SF";
     private static final String RESULT_R = "Run";
     private static final String RESULT_RBI = "RBI";
+    private static final String RESULT_SB = "SB";
 
     private static final String KEY_PLAYER_URI = "playerURI";
 
@@ -195,6 +196,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             TextView dblView = rootView.findViewById(R.id.playerboard_2b);
             TextView tplView = rootView.findViewById(R.id.playerboard_3b);
             TextView bbView = rootView.findViewById(R.id.playerboard_bb);
+            TextView sbView = rootView.findViewById(R.id.playerboard_sb);
             TextView teamView = rootView.findViewById(R.id.player_team);
             playerImage = rootView.findViewById(R.id.player_image);
 
@@ -244,6 +246,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             dblView.setText(String.valueOf(player.getDoubles()));
             tplView.setText(String.valueOf(player.getTriples()));
             bbView.setText(String.valueOf(player.getWalks()));
+            sbView.setText(String.valueOf(player.getStolenBases()));
             avgView.setText(String.valueOf(formatter.format(player.getAVG())));
             obpView.setText(String.valueOf(formatter.format(player.getOBP())));
             slgView.setText(String.valueOf(formatter.format(player.getSLG())));
@@ -334,6 +337,9 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 break;
             case RESULT_RBI:
                 mPlayerLog.addRbi(currentResultCount);
+                break;
+            case RESULT_SB:
+                mPlayerLog.addStolenbases(currentResultCount);
                 break;
         }
     }
@@ -447,6 +453,9 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                         case RESULT_RBI:
                             statEntry = StatsEntry.COLUMN_RBI;
                             break;
+                        case RESULT_SB:
+                            statEntry = StatsEntry.COLUMN_SB;
+                            break;
                         default:
                             return;
                     }
@@ -488,6 +497,18 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         RadioButton sf = view.findViewById(R.id.sf_rb);
         RadioButton run = view.findViewById(R.id.run_rb);
         RadioButton rbi = view.findViewById(R.id.rbi_rb);
+        RadioButton sb = view.findViewById(R.id.sb_rb);
+        bb.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean checked = ((RadioButton) view).isChecked();
+                if (checked) {
+                    group2.clearCheck();
+                    result = RESULT_BB;
+                    resultText.setText(result);
+                }
+            }
+        });
         single.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -532,17 +553,6 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 }
             }
         });
-        bb.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                boolean checked = ((RadioButton) view).isChecked();
-                if (checked) {
-                    group1.clearCheck();
-                    result = RESULT_BB;
-                    resultText.setText(result);
-                }
-            }
-        });
         out.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -561,6 +571,17 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 if (checked) {
                     group1.clearCheck();
                     result = RESULT_SF;
+                    resultText.setText(result);
+                }
+            }
+        });
+        sb.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean checked = ((RadioButton) view).isChecked();
+                if (checked) {
+                    group1.clearCheck();
+                    result = RESULT_SB;
                     resultText.setText(result);
                 }
             }

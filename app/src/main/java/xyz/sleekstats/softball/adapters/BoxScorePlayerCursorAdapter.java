@@ -84,7 +84,8 @@ public class BoxScorePlayerCursorAdapter extends CursorAdapter {
         int pHR = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_HR);
         int pOuts = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_OUT);
         int pBB = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_BB);
-        int pSF = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_SF);
+//        int pSF = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_SF);
+        int pSB = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_SB);
         int pH = p1b + p2b + p3b + pHR;
         int pAB = pH + pOuts;
 
@@ -98,7 +99,8 @@ public class BoxScorePlayerCursorAdapter extends CursorAdapter {
         TextView sglV = view.findViewById(R.id.bs_sgl);
         TextView dblV = view.findViewById(R.id.bs_dbl);
         TextView tplV = view.findViewById(R.id.bs_tpl);
-        TextView sfV = view.findViewById(R.id.bs_sf);
+//        TextView sfV = view.findViewById(R.id.bs_sb);
+        TextView sbV = view.findViewById(R.id.bs_sb);
         TextView outV = view.findViewById(R.id.bs_out);
 
         nameV.setText(name);
@@ -111,7 +113,7 @@ public class BoxScorePlayerCursorAdapter extends CursorAdapter {
         sglV.setText(String.valueOf(p1b));
         dblV.setText(String.valueOf(p2b));
         tplV.setText(String.valueOf(p3b));
-        sfV.setText(String.valueOf(pSF));
+        sbV.setText(String.valueOf(pSB));
         outV.setText(String.valueOf(pOuts));
     }
 

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
@@ -81,7 +82,17 @@ public class TimeStampUpdater {
 
     private static void updateCloudTimeStamp(long timestamp, String statKeeperID) {
         DocumentReference leagueDoc = FirebaseFirestore.getInstance().collection(LEAGUE_COLLECTION).document(statKeeperID);
-        leagueDoc.update(LAST_UPDATE, timestamp);
+        leagueDoc.update(LAST_UPDATE, timestamp).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+
+            }
+        });
     }
 
 

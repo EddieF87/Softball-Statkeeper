@@ -183,6 +183,7 @@ public class TeamFragment extends Fragment
         rootView.findViewById(R.id.dbl_title).setOnClickListener(this);
         rootView.findViewById(R.id.tpl_title).setOnClickListener(this);
         rootView.findViewById(R.id.bb_title).setOnClickListener(this);
+        rootView.findViewById(R.id.sb_title).setOnClickListener(this);
         rootView.findViewById(R.id.game_title).setOnClickListener(this);
 
         FloatingActionButton startAdderBtn = rootView.findViewById(R.id.btn_start_adder);
@@ -345,7 +346,8 @@ public class TeamFragment extends Fragment
         int sumTpl = 0;
         int sumDbl = 0;
         int sumSgl = 0;
-        int sumBb = 0;
+        int sumBB = 0;
+        int sumSB = 0;
         int sumOut = 0;
         int sumRbi = 0;
         int sumRun = 0;
@@ -358,7 +360,8 @@ public class TeamFragment extends Fragment
             sumTpl += player.getTriples();
             sumDbl += player.getDoubles();
             sumSgl += player.getSingles();
-            sumBb += player.getWalks();
+            sumBB += player.getWalks();
+            sumSB += player.getStolenBases();
             sumOut += player.getOuts();
             sumRbi += player.getRbis();
             sumRun += player.getRuns();
@@ -398,6 +401,7 @@ public class TeamFragment extends Fragment
         TextView dblView = totalLayout.findViewById(R.id.dbl_title);
         TextView tplView = totalLayout.findViewById(R.id.tpl_title);
         TextView bbView = totalLayout.findViewById(R.id.bb_title);
+        TextView sbView = totalLayout.findViewById(R.id.sb_title);
         TextView gameView = totalLayout.findViewById(R.id.game_title);
 
         totalNameView.setText(R.string.total);
@@ -405,7 +409,8 @@ public class TeamFragment extends Fragment
         tplView.setText(String.valueOf(sumTpl));
         dblView.setText(String.valueOf(sumDbl));
         sglView.setText(String.valueOf(sumSgl));
-        bbView.setText(String.valueOf(sumBb));
+        bbView.setText(String.valueOf(sumBB));
+        sbView.setText(String.valueOf(sumSB));
         rbiView.setText(String.valueOf(sumRbi));
         runView.setText(String.valueOf(sumRun));
         gameView.setText(String.valueOf(sumG));
@@ -416,7 +421,7 @@ public class TeamFragment extends Fragment
         abView.setText(String.valueOf(sumAB));
 
         double sumAvg = convertAVG(sumHits, sumAB);
-        double sumOBP = convertOBP(sumHits, sumAB, sumBb, sumSf);
+        double sumOBP = convertOBP(sumHits, sumAB, sumBB, sumSf);
         double sumSLG = convertSLG(sumAB, sumSgl, sumDbl, sumTpl, sumHr);
         double sumOPS = sumOBP + sumSLG;
 
@@ -429,7 +434,7 @@ public class TeamFragment extends Fragment
         if (sumAB <= 0) {
             avgString = "---";
             slgString = "---";
-            if (sumBb + sumSf <= 0) {
+            if (sumBB + sumSf <= 0) {
                 obpString = "---";
                 opsString = "---";
             } else {
@@ -846,6 +851,10 @@ public class TeamFragment extends Fragment
 
             case R.id.bb_title:
                 Collections.sort(mPlayers, Player.walkComparator());
+                break;
+
+            case R.id.sb_title:
+                Collections.sort(mPlayers, Player.sbComparator());
                 break;
 
             default:

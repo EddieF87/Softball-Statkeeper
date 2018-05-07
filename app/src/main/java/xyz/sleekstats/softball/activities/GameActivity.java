@@ -216,6 +216,14 @@ public abstract class GameActivity extends AppCompatActivity
         inningDisplay = findViewById(R.id.inning);
         inningTopArrow = findViewById(R.id.inning_top_arrow);
         inningBottomArrow = findViewById(R.id.inning_bottom_arrow);
+        RadioButton sbBtn = findViewById(R.id.sb_rb);
+        SharedPreferences sharedPreferences = getSharedPreferences(mSelectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
+        boolean sbOn = sharedPreferences.getBoolean(StatsEntry.COLUMN_SB, false);
+        if(sbOn){
+            sbBtn.setVisibility(View.VISIBLE);
+        } else {
+            sbBtn.setVisibility(View.GONE);
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             mRunner = getDrawable(R.drawable.ic_directions_run_black_18dp);
@@ -426,68 +434,65 @@ public abstract class GameActivity extends AppCompatActivity
 
 
     public void onRadioButtonClicked(View view) {
-        boolean checked = ((RadioButton) view).isChecked();
+        ((RadioButton) view).setChecked(true);
         playEntered = true;
         switch (view.getId()) {
             case R.id.single_rb:
-                if (checked)
-                    result = StatsEntry.COLUMN_1B;
+                result = StatsEntry.COLUMN_1B;
                 group2.clearCheck();
                 break;
             case R.id.dbl_rb:
-                if (checked)
-                    result = StatsEntry.COLUMN_2B;
+                result = StatsEntry.COLUMN_2B;
                 group2.clearCheck();
                 break;
             case R.id.triple_rb:
-                if (checked)
-                    result = StatsEntry.COLUMN_3B;
+                result = StatsEntry.COLUMN_3B;
                 group2.clearCheck();
                 break;
             case R.id.hr_rb:
-                if (checked)
-                    result = StatsEntry.COLUMN_HR;
+                result = StatsEntry.COLUMN_HR;
                 group2.clearCheck();
                 break;
             case R.id.bb_rb:
-                if (checked)
-                    result = StatsEntry.COLUMN_BB;
+                result = StatsEntry.COLUMN_BB;
                 group2.clearCheck();
                 break;
             case R.id.out_rb:
-                if (checked)
-                    result = StatsEntry.COLUMN_OUT;
+                result = StatsEntry.COLUMN_OUT;
                 group1.clearCheck();
                 break;
             case R.id.error_rb:
-                if (checked)
-                    result = StatsEntry.COLUMN_ERROR;
+                result = StatsEntry.COLUMN_ERROR;
                 group1.clearCheck();
                 break;
             case R.id.fc_rb:
-                if (checked)
-                    result = StatsEntry.COLUMN_FC;
+                result = StatsEntry.COLUMN_FC;
                 group1.clearCheck();
                 break;
             case R.id.sf_rb:
-                if (checked)
-                    result = StatsEntry.COLUMN_SF;
+                result = StatsEntry.COLUMN_SF;
                 group1.clearCheck();
                 break;
             case R.id.sacbunt_rb:
-                if (checked)
-                    result = StatsEntry.COLUMN_SAC_BUNT;
+                result = StatsEntry.COLUMN_SAC_BUNT;
                 group1.clearCheck();
                 break;
             case R.id.sb_rb:
-                if (checked)
-                    result = StatsEntry.COLUMN_SB;
                 group1.clearCheck();
-                enableSubmitButton();
-                break;
+                if (!batterMoved) {
+                    result = StatsEntry.COLUMN_SB;
+                    enableSubmitButton();
+                } else {
+                    cancelSBClick();
+                    Toast.makeText(GameActivity.this,
+                            "Can't set stolen bases if batter has moved!", Toast.LENGTH_SHORT).show();
+                }
+                return;
         }
         if (batterMoved) {
             enableSubmitButton();
+        } else {
+            disableSubmitButton();
         }
     }
 
@@ -605,7 +610,7 @@ public abstract class GameActivity extends AppCompatActivity
                 showFinishGameDialog();
                 return;
             } else {
-                if(isLeagueGame()){
+                if (isLeagueGame()) {
                     decreaseLineupIndex();
                 }
                 nextInning();
@@ -621,6 +626,7 @@ public abstract class GameActivity extends AppCompatActivity
     }
 
     protected abstract boolean isLeagueGame();
+
     protected abstract boolean isLeagueGameOrHomeTeam();
 
     protected abstract void updateGameLogs();
@@ -925,18 +931,65 @@ public abstract class GameActivity extends AppCompatActivity
 
         int rbiCount = currentRunsLog.size();
         if (action.equals(StatsEntry.COLUMN_SB)) {
-            Log.d("xyxyx", action + " " + n);
-            String[] newBases = new String[] {firstDisplay.getText().toString(),
+            String[] oldBases;
+            String[] newBases = new String[]{firstDisplay.getText().toString(),
                     secondDisplay.getText().toString(), thirdDisplay.getText().toString()};
-            String[] oldBases = currentBaseLogStart.getBasepositions();
-            for(int i = 0; i < oldBases.length; i++) {
+            if (undoRedo) {
+                if (n > 0) {
+                    gameCursor.moveToPrevious();
+                    BaseLog baseLog = new BaseLog(gameCursor, null, null);
+                    gameCursor.moveToNext();
+                    oldBases = baseLog.getBasepositions();
+                } else {
+                    gameCursor.moveToNext();
+                    BaseLog baseLog = new BaseLog(gameCursor, null, null);
+                    gameCursor.moveToPrevious();
+                    oldBases = baseLog.getBasepositions();
+
+                }
+            } else {
+                oldBases = currentBaseLogStart.getBasepositions();
+            }
+            for (int i = 0; i < oldBases.length; i++) {
                 String oldPlayerOnBase = oldBases[i];
-                if(oldPlayerOnBase != null && !oldPlayerOnBase.isEmpty()) {
+                if (oldPlayerOnBase != null && !oldPlayerOnBase.isEmpty()) {
                     for (int j = 0; j < oldBases.length; j++) {
                         String newPlayerOnBase = newBases[j];
                         if (oldPlayerOnBase.equals(newPlayerOnBase)) {
-                            Log.d("xyxyx", oldPlayerOnBase + " sb=" + (j - i));
+                            updatePlayerSBs(oldPlayerOnBase, j - i);
                             break;
+                        }
+                    }
+                    for (String playerScored : currentRunsLog) {
+                        if (oldPlayerOnBase.equals(playerScored)) {
+                            updatePlayerSBs(oldPlayerOnBase, 3 - i);
+                            break;
+                        }
+                    }
+                }
+            }
+            if (n < 0) {
+                String[] oldRunsLog = new String[4];
+                gameCursor.moveToNext();
+                String run1 = StatsContract.getColumnString(gameCursor, StatsEntry.COLUMN_RUN1);
+                String run2 = StatsContract.getColumnString(gameCursor, StatsEntry.COLUMN_RUN2);
+                String run3 = StatsContract.getColumnString(gameCursor, StatsEntry.COLUMN_RUN3);
+                String run4 = StatsContract.getColumnString(gameCursor, StatsEntry.COLUMN_RUN4);
+                gameCursor.moveToPrevious();
+                oldRunsLog[0] = run1;
+                oldRunsLog[1] = run2;
+                oldRunsLog[2] = run3;
+                oldRunsLog[3] = run4;
+
+                for (int i = 0; i < oldRunsLog.length; i++) {
+                    String oldRunnerScored = oldRunsLog[i];
+                    if (oldRunnerScored != null && !oldRunnerScored.isEmpty()) {
+                        for (int j = 0; i < oldBases.length; j++) {
+                            String newPlayerOnBase = newBases[j];
+                            if (oldRunnerScored.equals(newPlayerOnBase)) {
+                                updatePlayerSBs(newPlayerOnBase, j - 3);
+                                break;
+                            }
                         }
                     }
                 }
@@ -954,6 +1007,21 @@ public abstract class GameActivity extends AppCompatActivity
             }
         }
         cursor.close();
+    }
+
+    private void updatePlayerSBs(String player, int n) {
+
+        String selection = StatsEntry.COLUMN_NAME + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+        String[] selectionArgs = {player, mSelectionID};
+        Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEMP,
+                null, selection, selectionArgs, null
+        );
+        if (cursor.moveToFirst()) {
+            ContentValues values = new ContentValues();
+            int newValue = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_SB) + n;
+            values.put(StatsEntry.COLUMN_SB, newValue);
+            getContentResolver().update(StatsEntry.CONTENT_URI_TEMP, values, selection, selectionArgs);
+        }
     }
 
     protected abstract boolean isTeamAlternate();
@@ -1303,11 +1371,7 @@ public abstract class GameActivity extends AppCompatActivity
                             }
 
                         } else {
-                            batterDisplay.setVisibility(View.INVISIBLE);
-                            batterMoved = true;
-                            if (playEntered) {
-                                enableSubmitButton();
-                            }
+                            setBatterDropped();
                         }
                         tempOuts++;
                         String sumOuts = gameOuts + tempOuts + " outs";
@@ -1332,11 +1396,7 @@ public abstract class GameActivity extends AppCompatActivity
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                                 dropPoint.setForeground(mRunner);
                             }
-                            batterDisplay.setVisibility(View.INVISIBLE);
-                            batterMoved = true;
-                            if (playEntered) {
-                                enableSubmitButton();
-                            }
+                            setBatterDropped();
                         }
                         dropPoint.setAlpha(1);
 
@@ -1411,6 +1471,25 @@ public abstract class GameActivity extends AppCompatActivity
             }
             return true;
         }
+    }
+
+    private void setBatterDropped(){
+        batterDisplay.setVisibility(View.INVISIBLE);
+        batterMoved = true;
+        if (playEntered) {
+            if(result.equals(StatsEntry.COLUMN_SB)) {
+                cancelSBClick();
+            } else {
+                enableSubmitButton();
+            }
+        }
+    }
+
+    private void cancelSBClick() {
+        result = null;
+        playEntered = false;
+        group2.clearCheck();
+        disableSubmitButton();
     }
 
     final class MyTouchListener implements View.OnTouchListener {
@@ -1534,8 +1613,27 @@ public abstract class GameActivity extends AppCompatActivity
             case R.id.action_finish_game:
                 showFinishConfirmationDialog();
                 break;
+            case R.id.action_set_SB:
+                setSB(item);
+                break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void setSB(MenuItem item){
+        RadioButton sbBtn = findViewById(R.id.sb_rb);
+        SharedPreferences sharedPreferences = getSharedPreferences(mSelectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
+        boolean sbOn = !sharedPreferences.getBoolean(StatsEntry.COLUMN_SB, false);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(StatsEntry.COLUMN_SB, sbOn);
+        editor.apply();
+        if(sbOn){
+            sbBtn.setVisibility(View.VISIBLE);
+            item.setTitle(R.string.stolen_bases_on);
+        } else {
+            sbBtn.setVisibility(View.GONE);
+            item.setTitle(R.string.stolen_bases_off);
+        }
     }
 
     private void openGameSettingsDialog() {
@@ -1637,6 +1735,15 @@ public abstract class GameActivity extends AppCompatActivity
         MenuItem undoItem = menu.findItem(R.id.action_undo_play);
         MenuItem redoItem = menu.findItem(R.id.action_redo_play);
         MenuItem resetLineupItem = menu.findItem(R.id.action_off_lineup_rules);
+        MenuItem sbItem = menu.findItem(R.id.action_set_SB);
+
+        SharedPreferences sharedPreferences = getSharedPreferences(mSelectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
+        boolean sbOn = sharedPreferences.getBoolean(StatsEntry.COLUMN_SB, false);
+        if(sbOn){
+            sbItem.setTitle(R.string.stolen_bases_on);
+        } else {
+            sbItem.setTitle(R.string.stolen_bases_off);
+        }
 
         boolean undo = gameLogIndex > lowestIndex;
         boolean redo = gameLogIndex < highestIndex;

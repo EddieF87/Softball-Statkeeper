@@ -50,7 +50,8 @@ public class TeamManagerActivity extends ExportActivity
         EditNameDialog.OnFragmentInteractionListener,
         MySyncResultReceiver.Receiver,
         LineupSortDialog.OnLineupSortListener,
-        PreviewSortDialog.OnFragmentInteractionListener {
+        PreviewSortDialog.OnFragmentInteractionListener,
+        LineupFragment.OnFragmentInteractionListener {
 
     private LineupFragment lineupFragment;
     private TeamFragment teamFragment;
@@ -401,6 +402,11 @@ public class TeamManagerActivity extends ExportActivity
         }
 
         return team;
+    }
+
+    @Override
+    public void startGameActivity(Intent intent) {
+        startActivityForResult(intent, GameActivity.REQUEST_CODE_GAME);
     }
 
     private class TeamManagerPagerAdapter extends FragmentPagerAdapter {

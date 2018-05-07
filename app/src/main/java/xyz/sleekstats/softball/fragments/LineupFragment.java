@@ -57,6 +57,7 @@ public class LineupFragment extends Fragment {
     private int sCreatedItems;
     private int mColumnWidth;
 
+    private OnFragmentInteractionListener mListener;
     private boolean sortLineup;
 
     private TextView gameSummaryView;
@@ -417,7 +418,9 @@ public class LineupFragment extends Fragment {
                         lineupSubmitButton.setEnabled(false);
                     }
                     Intent intent = new Intent(getActivity(), TeamGameActivity.class);
-                    getActivity().startActivityForResult(intent, GameActivity.REQUEST_CODE_GAME);
+                    if(mListener != null) {
+                        mListener.startGameActivity(intent);
+                    }
                 }
             });
 //            continueGameButton.setVisibility(View.VISIBLE);
@@ -538,7 +541,9 @@ public class LineupFragment extends Fragment {
             Intent intent = new Intent(getActivity(), TeamGameActivity.class);
             intent.putExtra("isHome", isHome);
             intent.putExtra(GameActivity.KEY_GENDERSORT, 0);
-            getActivity().startActivityForResult(intent, GameActivity.REQUEST_CODE_GAME);
+            if(mListener != null) {
+                mListener.startGameActivity(intent);
+            }
         }
     }
 
@@ -645,6 +650,7 @@ public class LineupFragment extends Fragment {
                 values.put(StatsEntry.COLUMN_BB, existingPlayer.getWalks());
                 values.put(StatsEntry.COLUMN_OUT, existingPlayer.getOuts());
                 values.put(StatsEntry.COLUMN_SF, existingPlayer.getSacFlies());
+                values.put(StatsEntry.COLUMN_SB, existingPlayer.getStolenBases());
                 values.put(StatsEntry.COLUMN_RUN, existingPlayer.getRuns());
                 values.put(StatsEntry.COLUMN_RBI, existingPlayer.getRbis());
                 previousLineup.remove(existingPlayer);
@@ -673,6 +679,7 @@ public class LineupFragment extends Fragment {
                 values.put(StatsEntry.COLUMN_BB, existingPlayer.getWalks());
                 values.put(StatsEntry.COLUMN_OUT, existingPlayer.getOuts());
                 values.put(StatsEntry.COLUMN_SF, existingPlayer.getSacFlies());
+                values.put(StatsEntry.COLUMN_SB, existingPlayer.getStolenBases());
                 values.put(StatsEntry.COLUMN_RUN, existingPlayer.getRuns());
                 values.put(StatsEntry.COLUMN_RBI, existingPlayer.getRbis());
 
@@ -949,10 +956,26 @@ public class LineupFragment extends Fragment {
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof LineupFragment.OnFragmentInteractionListener) {
+            mListener = (LineupFragment.OnFragmentInteractionListener) context;
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
+    @Override
     public void onDestroyView() {
         mBoardView = null;
         super.onDestroyView();
     }
 
-
+    public interface OnFragmentInteractionListener {
+        void startGameActivity(Intent intent);
+    }
 }

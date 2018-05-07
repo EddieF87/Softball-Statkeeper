@@ -126,6 +126,11 @@
                     android:id="@+id/bb_title"
                     style="@style/StatsTitleStyle"
                     android:text="@string/bb" />
+
+                <TextView
+                    android:id="@+id/sb_title"
+                    style="@style/StatsTitleStyle"
+                    android:text="@string/sb" />
             </LinearLayout>
 
             <android.support.v7.widget.RecyclerView

@@ -147,6 +147,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         rootView.findViewById(R.id.dbl_title).setOnClickListener(this);
         rootView.findViewById(R.id.tpl_title).setOnClickListener(this);
         rootView.findViewById(R.id.bb_title).setOnClickListener(this);
+        rootView.findViewById(R.id.sb_title).setOnClickListener(this);
         rootView.findViewById(R.id.game_title).setOnClickListener(this);
 
         String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
@@ -186,7 +187,6 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
             SharedPreferences settingsPreferences = getActivity()
                     .getSharedPreferences(selectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
             int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
-
             statsRV.setLayoutManager(new LinearLayoutManager(
                     getActivity(), LinearLayoutManager.VERTICAL, false));
             mAdapter = new PlayerStatsAdapter(mPlayers, getActivity(), genderSorter, selectionID);
@@ -399,6 +399,10 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
 
             case R.id.bb_title:
                 Collections.sort(mPlayers, Player.walkComparator());
+                break;
+
+            case R.id.sb_title:
+                Collections.sort(mPlayers, Player.sbComparator());
                 break;
 
             case R.id.game_title:

@@ -70,9 +70,9 @@
         tools:text="@string/bb" />
 
     <TextView
-        android:id="@+id/bs_sf"
+        android:id="@+id/bs_sb"
         style="@style/BoxScoreStyle"
-        tools:text="@string/sf" />
+        tools:text="@string/sb" />
 
     <TextView
         android:id="@+id/bs_out"

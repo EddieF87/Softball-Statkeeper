@@ -95,9 +95,21 @@
         android:layout_weight="4"
         android:gravity="center"
         android:text="@string/obp"
-        app:layout_constraintLeft_toRightOf="@+id/playerboard_bb_title"
+        app:layout_constraintLeft_toRightOf="@id/playerboard_bb_title"
+        app:layout_constraintRight_toLeftOf="@id/playerboard_sb_title"
+        app:layout_constraintTop_toTopOf="@id/playerboard_bb_title" />
+
+    <TextView
+        android:id="@+id/playerboard_sb_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="3"
+        android:gravity="center"
+        android:text="@string/sb"
+        app:layout_constraintLeft_toRightOf="@id/playerboard_obp_title"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/playerboard_bb_title" />
+        app:layout_constraintTop_toTopOf="@id/playerboard_obp_title" />
+
 
     <TextView
         android:id="@+id/playerboard_ab"
@@ -153,6 +165,14 @@
         app:layout_constraintRight_toRightOf="@+id/playerboard_obp_title"
         app:layout_constraintLeft_toLeftOf="@+id/playerboard_obp_title"
         tools:text=".333" />
+
+    <TextView
+        android:id="@+id/playerboard_sb"
+        style="@style/PlayerBoardStyle"
+        app:layout_constraintBottom_toBottomOf="@+id/playerboard_obp"
+        app:layout_constraintLeft_toLeftOf="@+id/playerboard_sb_title"
+        app:layout_constraintRight_toRightOf="@+id/playerboard_sb_title"
+        tools:text="0" />
 
     <TextView
         android:id="@+id/player_avg_title"

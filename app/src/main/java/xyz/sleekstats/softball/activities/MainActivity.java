@@ -794,6 +794,10 @@ public class MainActivity extends AppCompatActivity
             Toast.makeText(MainActivity.this, R.string.please_enter_name_first, Toast.LENGTH_LONG).show();
             return;
         }
+        if(!name.matches("^['\\s\\)\\(a-zA-Z0-9_-]+$")){
+            Toast.makeText(MainActivity.this, "Please only enter letters, numbers, -, and _", Toast.LENGTH_SHORT).show();
+            return;
+        }
         if (mRecyclerView != null) {
             mRecyclerView.setVisibility(View.INVISIBLE);
         }
