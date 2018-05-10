@@ -1,7 +1,6 @@
 package xyz.sleekstats.softball.fragments;
 
 
-import android.app.Activity;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;

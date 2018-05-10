@@ -13,7 +13,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
@@ -23,7 +22,6 @@ import xyz.sleekstats.softball.data.FirestoreUpdateService;
 import xyz.sleekstats.softball.data.GameUpdateIntentMaker;
 import xyz.sleekstats.softball.data.MySyncResultReceiver;
 import xyz.sleekstats.softball.data.TimeStampUpdater;
-import xyz.sleekstats.softball.dialogs.DeleteConfirmationDialog;
 import xyz.sleekstats.softball.dialogs.LineupSortDialog;
 import xyz.sleekstats.softball.dialogs.PreviewSortDialog;
 import xyz.sleekstats.softball.views.CustomViewPager;

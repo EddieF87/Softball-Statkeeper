@@ -399,12 +399,12 @@ public abstract class ObjectPagerActivity extends AppCompatActivity
     protected void onDestroy() {
         if(mViewPager != null) {
             mViewPager.setAdapter(null);
+            mViewPager = null;
         }
         if(mAdapter != null) {
             mAdapter.unregisterFragments();
+            mAdapter = null;
         }
-        mAdapter = null;
-        mViewPager = null;
         super.onDestroy();
     }
 }

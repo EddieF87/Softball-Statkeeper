@@ -19,7 +19,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.DragEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -594,19 +593,13 @@ public abstract class GameActivity extends AppCompatActivity
         updateGameLogs();
     }
 
-    void nextAfterSB() {
+    private void nextAfterSB() {
         if (!isTopOfInning() && finalInning && homeTeamRuns > awayTeamRuns) {
-            if (isLeagueGameOrHomeTeam()) {
-//                increaseLineupIndex();
-            }
             showFinishGameDialog();
             return;
         }
         if (gameOuts >= 3) {
             if (!isTopOfInning() && finalInning && awayTeamRuns > homeTeamRuns) {
-                if (isLeagueGameOrHomeTeam()) {
-//                    increaseLineupIndex();
-                }
                 showFinishGameDialog();
                 return;
             } else {
@@ -614,12 +607,7 @@ public abstract class GameActivity extends AppCompatActivity
                     decreaseLineupIndex();
                 }
                 nextInning();
-                if (isTeamAlternate()) {
-//                    increaseLineupIndex();
-                }
             }
-        } else {
-//            increaseLineupIndex();
         }
         enableSubmitButton();
         updateGameLogs();
@@ -1300,15 +1288,25 @@ public abstract class GameActivity extends AppCompatActivity
     protected void onDestroy() {
         if (firstDisplay != null) {
             firstDisplay.setOnDragListener(null);
-            secondDisplay.setOnDragListener(null);
-            thirdDisplay.setOnDragListener(null);
-            homeDisplay.setOnDragListener(null);
-            outTrash.setOnDragListener(null);
-            batterDisplay.setOnTouchListener(null);
             firstDisplay.setOnTouchListener(null);
+        }
+        if (secondDisplay != null) {
+            secondDisplay.setOnDragListener(null);
             secondDisplay.setOnTouchListener(null);
+        }
+        if (thirdDisplay != null) {
+            thirdDisplay.setOnDragListener(null);
             thirdDisplay.setOnTouchListener(null);
+        }
+        if (homeDisplay != null) {
+            homeDisplay.setOnDragListener(null);
             homeDisplay.setOnTouchListener(null);
+        }
+        if (outTrash != null) {
+            outTrash.setOnDragListener(null);
+        }
+        if (batterDisplay != null) {
+            batterDisplay.setOnTouchListener(null);
         }
         super.onDestroy();
     }
