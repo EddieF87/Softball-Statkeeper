@@ -208,7 +208,7 @@ public class GameRecapListActivity extends AppCompatActivity implements LoaderMa
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
         outState.putString(KEY_SELECTION_ARG, mSelectionArg);
+        super.onSaveInstanceState(outState);
     }
 }

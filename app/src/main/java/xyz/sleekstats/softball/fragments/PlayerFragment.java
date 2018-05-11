@@ -61,7 +61,7 @@ import java.util.ArrayList;
  */
 public class PlayerFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    private final NumberFormat formatter = new DecimalFormat("#.000");
+    private static final NumberFormat formatter = new DecimalFormat("#.000");
     private static final int EXISTING_PLAYER_LOADER = 0;
     private Uri mCurrentPlayerUri;
     private int mLevel;
@@ -821,8 +821,8 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
         outState.putBoolean("isMgrView", isMgrView);
+        super.onSaveInstanceState(outState);
     }
 
     @Override

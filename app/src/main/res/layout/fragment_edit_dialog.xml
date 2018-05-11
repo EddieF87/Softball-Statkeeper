@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:context=".dialogs.EditTeamStatsDialog">
+
+    <LinearLayout
+        android:id="@+id/linearLayoutTotal"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayoutAdd"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/win_rbtotal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            tools:text="12" />
+
+        <TextView
+            android:id="@+id/loss_rbtotal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            tools:text="4" />
+
+        <TextView
+            android:id="@+id/tie_rbtotal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            tools:text="1" />
+
+        <TextView
+            android:id="@+id/rs_rbtotal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            tools:text="108" />
+
+        <TextView
+            android:id="@+id/ra_rbtotal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            tools:text="76" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayoutPlus"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayoutTotal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/win_rbplus"
+            style="@style/PlusStyle"
+            tools:text="+12" />
+
+        <TextView
+            android:id="@+id/loss_rbplus"
+            style="@style/PlusStyle"
+            tools:text="+4" />
+
+        <TextView
+            android:id="@+id/tie_rbplus"
+            style="@style/PlusStyle"
+            tools:text="+1" />
+
+        <TextView
+            android:id="@+id/rs_rbplus"
+            style="@style/PlusStyle"
+            tools:text="+108" />
+
+        <TextView
+            android:id="@+id/ra_rbplus"
+            style="@style/PlusStyle"
+            tools:text="+76" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayoutPlus2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="54dp"
+        android:layout_marginStart="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayoutTotal2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/wpct_rbplus"
+            style="@style/PlusStyle"
+            android:layout_marginEnd="32dp"
+            tools:text="+76" />
+
+        <TextView
+            android:id="@+id/diff_rbplus"
+            style="@style/PlusStyle"
+            tools:text="+108" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/linearLayoutTotal2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="4dp"
+        app:layout_constraintBottom_toTopOf="@+id/wpct_title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/wpct_rbtotal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            tools:text=".408" />
+
+        <TextView
+            android:id="@+id/rdiff_rbtotal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            tools:text="76" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/wpct_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:text="@string/winpct"
+        android:textSize="18sp"
+        android:textColor="@color/colorDefault"
+        android:background="@color/colorPrimary"
+        app:layout_constraintBottom_toBottomOf="@+id/rdiff_title"
+        app:layout_constraintEnd_toStartOf="@+id/rdiff_title"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/rdiff_title" />
+
+    <TextView
+        android:id="@+id/rdiff_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:text="@string/diff"
+        android:textSize="18sp"
+        android:textColor="@color/colorDefault"
+        android:background="@color/colorPrimary"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayoutTotal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/wpct_title" />
+
+    <LinearLayout
+        android:id="@+id/linearLayoutAdd"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/group1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <ImageView
+            android:id="@+id/addW"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:scaleType="centerCrop"
+            app:srcCompat="@drawable/baseline_arrow_drop_up_white_48" />
+
+
+        <ImageView
+            android:id="@+id/addL"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:scaleType="centerCrop"
+            app:srcCompat="@drawable/baseline_arrow_drop_up_white_48" />
+
+        <ImageView
+            android:id="@+id/addT"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:scaleType="centerCrop"
+            app:srcCompat="@drawable/baseline_arrow_drop_up_white_48" />
+
+        <ImageView
+            android:id="@+id/addRS"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:scaleType="centerCrop"
+            app:srcCompat="@drawable/baseline_arrow_drop_up_white_48" />
+
+        <ImageView
+            android:id="@+id/addRA"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:scaleType="centerCrop"
+            app:srcCompat="@drawable/baseline_arrow_drop_up_white_48" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayoutSubtract"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <ImageView
+            android:id="@+id/subW"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:scaleType="centerCrop"
+            app:srcCompat="@drawable/baseline_arrow_drop_down_white_48" />
+
+
+        <ImageView
+            android:id="@+id/subL"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:scaleType="centerCrop"
+            app:srcCompat="@drawable/baseline_arrow_drop_down_white_48" />
+
+        <ImageView
+            android:id="@+id/subT"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:scaleType="centerCrop"
+            app:srcCompat="@drawable/baseline_arrow_drop_down_white_48" />
+
+        <ImageView
+            android:id="@+id/subRS"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:scaleType="centerCrop"
+            app:srcCompat="@drawable/baseline_arrow_drop_down_white_48" />
+
+        <ImageView
+            android:id="@+id/subRA"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:scaleType="centerCrop"
+            app:srcCompat="@drawable/baseline_arrow_drop_down_white_48" />
+    </LinearLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/group1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@id/linearLayoutSubtract"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <TextView
+            android:id="@+id/win_rb"
+            style="@style/StatsTitleStyle"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="@string/w"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/loss_rb"
+            style="@style/StatsTitleStyle"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="@string/l"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tie_rb"
+            style="@style/StatsTitleStyle"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="@string/t"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/rs_rb"
+            style="@style/StatsTitleStyle"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="@string/rs"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/ra_rb"
+            style="@style/StatsTitleStyle"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="@string/ra"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>

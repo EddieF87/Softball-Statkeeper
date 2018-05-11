@@ -44,7 +44,7 @@ public abstract class ExportActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_CODE = 200;
     private static final int KEY_TEAMS = 0;
     private static final int KEY_PLAYERS = 1;
-    private final NumberFormat formatter = new DecimalFormat("#.000");
+    private static NumberFormat formatter = new DecimalFormat("#.000");
     private static final int KEY_LEAGUE = 10;
     private static final int KEY_BOXSCORE = 11;
     private int exportType;

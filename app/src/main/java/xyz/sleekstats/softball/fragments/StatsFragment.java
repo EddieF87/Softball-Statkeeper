@@ -323,7 +323,6 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
         outState.putInt(KEY_STAT_SORT, statSort);
         if(teamFilter != null) {
             outState.putString(KEY_TEAM_FILTER, teamFilter);
@@ -331,6 +330,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         if(genderFilter != null) {
             outState.putInt(KEY_GENDER_FILTER, genderFilter);
         }
+        super.onSaveInstanceState(outState);
     }
 
     private void sortStats(int statSorter) {

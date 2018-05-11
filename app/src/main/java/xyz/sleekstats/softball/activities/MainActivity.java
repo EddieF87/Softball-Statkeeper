@@ -779,10 +779,10 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
         if (mSelectionList != null) {
             outState.putParcelableArrayList("mSelectionList", mSelectionList);
         }
+        super.onSaveInstanceState(outState);
     }
 
     @Override

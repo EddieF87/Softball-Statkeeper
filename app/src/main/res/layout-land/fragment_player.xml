@@ -12,7 +12,7 @@
         android:layout_width="0dp"
         android:layout_height="40dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:autoSizeMinTextSize="12sp"
         android:autoSizeTextType="uniform"
         android:gravity="center"
@@ -25,8 +25,8 @@
         app:layout_constraintStart_toEndOf="@+id/player_image"
         app:layout_constraintStart_toStartOf="@+id/guideline_titles"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="Player  Name99999"
-        tools:targetApi="o" />
+        tools:targetApi="o"
+        tools:text="Player  Name99999" />
 
     <TextView
         android:id="@+id/player_team"
@@ -65,7 +65,6 @@
         android:id="@+id/border1"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="16dp"
         android:background="@android:color/darker_gray"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"

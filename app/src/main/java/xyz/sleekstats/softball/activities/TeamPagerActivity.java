@@ -1,14 +1,16 @@
 package xyz.sleekstats.softball.activities;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.widget.Toast;
 
 import xyz.sleekstats.softball.adapters.PlayerStatsAdapter;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.TimeStampUpdater;
+import xyz.sleekstats.softball.dialogs.EditTeamStatsDialog;
 import xyz.sleekstats.softball.fragments.TeamFragment;
 
-public class TeamPagerActivity extends ObjectPagerActivity {
+public class TeamPagerActivity extends ObjectPagerActivity implements EditTeamStatsDialog.OnFragmentInteractionListener {
 
     @Override
     protected void onStart() {
@@ -53,4 +55,13 @@ public class TeamPagerActivity extends ObjectPagerActivity {
         setResult(RESULT_OK);
     }
 
+    @Override
+    public void onCancel() {
+
+    }
+
+    @Override
+    public void onSubmit(String teamID, int wins, int losses, int ties, int runsScored, int runsAllowed) {
+
+    }
 }

@@ -108,16 +108,4 @@ public class BoxScoreActivity extends AppCompatActivity {
         finish();
     }
 
-
-//    @Override
-//    protected void onSaveInstanceState(Bundle outState) {
-//        super.onSaveInstanceState(outState);
-//        outState.putString("awayTeamID", awayTeamID);
-//        outState.putString("homeTeamID", homeTeamID);
-//        outState.putString("awayTeamName", awayTeamName);
-//        outState.putString("homeTeamName", homeTeamName);
-//        outState.putInt("totalInnings", totalInnings);
-//        outState.putInt("awayTeamRuns", awayTeamRuns);
-//        outState.putInt("homeTeamRuns", homeTeamRuns);
-//    }
 }

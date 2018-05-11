@@ -12,4 +12,6 @@
     <color name="colorHighlight">#da5700</color>
     <color name="male">#5688d2</color>
     <color name="female">#e46f77</color>
+    <color name="plus">#00cc00</color>
+    <color name="minus">#ff0d1d</color>
 </resources>

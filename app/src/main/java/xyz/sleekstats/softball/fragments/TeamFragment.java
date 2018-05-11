@@ -46,6 +46,7 @@ import xyz.sleekstats.softball.data.TimeStampUpdater;
 import xyz.sleekstats.softball.dialogs.AddNewPlayersDialog;
 import xyz.sleekstats.softball.dialogs.DeleteConfirmationDialog;
 import xyz.sleekstats.softball.dialogs.DeleteVsWaiversDialog;
+import xyz.sleekstats.softball.dialogs.EditTeamStatsDialog;
 import xyz.sleekstats.softball.dialogs.EditNameDialog;
 import xyz.sleekstats.softball.dialogs.GameSettingsDialog;
 import xyz.sleekstats.softball.dialogs.RemoveAllPlayersDialog;
@@ -552,6 +553,11 @@ public class TeamFragment extends Fragment
                 editNameDialog();
                 return true;
 
+
+            case R.id.action_edit_team_stats:
+                openEditTeamStatsDialog();
+                return true;
+
             case R.id.action_edit_lineup:
                 Intent setLineupIntent = new Intent(getActivity(), SetLineupActivity.class);
                 Bundle b = new Bundle();
@@ -634,6 +640,13 @@ public class TeamFragment extends Fragment
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         DialogFragment newFragment = EditNameDialog.newInstance(teamName);
+        newFragment.show(fragmentTransaction, "");
+    }
+
+    private void openEditTeamStatsDialog() {
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        DialogFragment newFragment = EditTeamStatsDialog.newInstance(mSelectionID, teamFirestoreID);
         newFragment.show(fragmentTransaction, "");
     }
 
@@ -865,7 +878,7 @@ public class TeamFragment extends Fragment
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
         outState.putInt(KEY_STAT_SORT, statSort);
+        super.onSaveInstanceState(outState);
     }
 }

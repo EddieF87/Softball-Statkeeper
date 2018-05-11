@@ -129,13 +129,13 @@ public class AddNewPlayersDialog extends DialogFragment {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
         ArrayList<String> names = new ArrayList<>(mAdapter.getNameEntries());
         ArrayList<Integer> genders = new ArrayList<>(mAdapter.getGenderEntries());
         HashSet<Integer> edits = mAdapter.getEdits();
         outState.putStringArrayList(KEY_NAMES, names);
         outState.putIntegerArrayList(KEY_GENDERS, new ArrayList<>(genders));
         outState.putIntegerArrayList(KEY_EDITS, new ArrayList<>(edits));
+        super.onSaveInstanceState(outState);
     }
 
     @Override

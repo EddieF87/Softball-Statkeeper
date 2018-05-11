@@ -370,12 +370,12 @@ public class UsersActivity extends AppCompatActivity
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
         if (levelChanges != null) {
             outState.putSerializable(SAVED_MAP, levelChanges);
         }
         outState.putSerializable(SAVED_USER_LEVELS, mOriginalLevelsMap);
         outState.putParcelable(SAVED_CREATOR, mCreator);
+        super.onSaveInstanceState(outState);
     }
 
     private void createMsgInvite() {

@@ -52,6 +52,7 @@ public class FirestoreUpdateService extends IntentService {
     public static final String INTENT_ADD_PLAYER_STATS = "addPlayerStats";
     public static final String INTENT_ADD_TEAM_STATS = "addTeamStats";
     public static final String INTENT_UPDATE_PLAYER = "updatePlayer";
+    public static final String INTENT_UPDATE_TEAM = "updateTeam";
     public static final String INTENT_DELETE_PLAYER = "delete";
     public static final String INTENT_DELETE_PLAYERS = "deleteList";
     public static final String INTENT_RETRY_GAME_LOAD = "retry";
@@ -637,6 +638,35 @@ public class FirestoreUpdateService extends IntentService {
         cursor.close();
     }
 
+    private void updateTeam(final String firestoreID, final TeamLog teamLog) {
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        final DocumentReference keeperRef = firestore.collection(FirestoreUpdateService.LEAGUE_COLLECTION)
+                .document(statKeeperID);
+        keeperRef.update(LAST_UPDATE, mUpdateTime);
+
+        final DocumentReference teamRef = keeperRef.collection(FirestoreUpdateService.TEAMS_COLLECTION)
+                .document(firestoreID);
+        teamRef.update(StatsEntry.UPDATE, mUpdateTime);
+
+        final DocumentReference teamLogRef = teamRef.collection(FirestoreUpdateService.TEAM_LOGS).document();
+        teamLogRef.set(teamLog).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                ContentValues values = new ContentValues();
+                values.put(StatsEntry.COLUMN_LEAGUE_ID, statKeeperID);
+                values.put(StatsEntry.COLUMN_WINS, -teamLog.getWins());
+                values.put(StatsEntry.COLUMN_LOSSES, -teamLog.getLosses());
+                values.put(StatsEntry.COLUMN_TIES, -teamLog.getTies());
+                values.put(StatsEntry.COLUMN_RUNSFOR, -teamLog.getRunsScored());
+                values.put(StatsEntry.COLUMN_RUNSAGAINST, -teamLog.getRunsAllowed());
+
+                String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
+                String[] selectionArgs = new String[]{firestoreID, statKeeperID};
+                getContentResolver().update(StatsEntry.CONTENT_URI_PLAYERS, values, selection, selectionArgs);
+            }
+        });
+    }
+
     private void updatePlayer(final String firestoreID, final PlayerLog playerLog) {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         final DocumentReference keeperRef = firestore.collection(FirestoreUpdateService.LEAGUE_COLLECTION)
@@ -860,6 +890,12 @@ public class FirestoreUpdateService extends IntentService {
                 PlayerLog playerLog = intent.getParcelableExtra(StatsEntry.PLAYERS_TABLE_NAME);
                 firestoreID = intent.getStringExtra(StatsEntry.COLUMN_FIRESTORE_ID);
                 updatePlayer(firestoreID, playerLog);
+                break;
+
+            case INTENT_UPDATE_TEAM:
+                TeamLog teamLog = intent.getParcelableExtra(StatsEntry.COLUMN_TEAM);
+                firestoreID = intent.getStringExtra(StatsEntry.COLUMN_FIRESTORE_ID);
+                updateTeam(firestoreID, teamLog);
                 break;
 
             case INTENT_UNDO_GAME:

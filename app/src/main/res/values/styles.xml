@@ -35,6 +35,17 @@
         <item name="android:paddingBottom">12dp</item>
     </style>
 
+    <style name="PlusStyle">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">bottom|right</item>
+        <item name="android:textColor">@color/plus</item>
+        <item name="android:textSize">10sp</item>
+        <item name="android:textStyle">bold|italic</item>
+
+    </style>
+
     <style name="MyFlatButtonStyle" parent="Widget.AppCompat.Button.Borderless">
         <item name="android:textColor">@color/colorPrimaryDark</item>
     </style>

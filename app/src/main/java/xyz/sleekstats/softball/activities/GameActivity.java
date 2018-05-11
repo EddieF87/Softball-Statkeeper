@@ -116,7 +116,7 @@ public abstract class GameActivity extends AppCompatActivity
     Player currentBatter;
     private Drawable mRunner;
 
-    private final NumberFormat formatter = new DecimalFormat("#.000");
+    private static final NumberFormat formatter = new DecimalFormat("#.000");
     BaseLog currentBaseLogStart;
     ArrayList<String> currentRunsLog;
     ArrayList<String> tempRunsLog;
@@ -1028,15 +1028,13 @@ public abstract class GameActivity extends AppCompatActivity
             getContentResolver().update(StatsEntry.CONTENT_URI_TEMP, values, selection, selectionArgs);
         }
         if (!undoRedo) {
+            if (inningRuns >= mercyRuns) {
+                gameOuts = 3;
+                return;
+            }
             inningRuns++;
             if (inningRuns >= mercyRuns) {
                 gameOuts = 3;
-                if (isTopOfInning()) {
-                    awayTeamRuns = mercyRuns;
-                } else if (!isTopOfInning()) {
-                    homeTeamRuns = mercyRuns;
-                }
-                return;
             }
             if (isTopOfInning()) {
                 awayTeamRuns++;

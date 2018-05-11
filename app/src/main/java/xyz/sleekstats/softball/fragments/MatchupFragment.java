@@ -805,10 +805,10 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
         outState.putString(StatsEntry.COLUMN_AWAY_TEAM, awayTeamID);
         outState.putString(StatsEntry.COLUMN_HOME_TEAM, homeTeamID);
         outState.putBoolean(StatsEntry.UPDATE, postGameUpdate);
+        super.onSaveInstanceState(outState);
     }
 
     @Override

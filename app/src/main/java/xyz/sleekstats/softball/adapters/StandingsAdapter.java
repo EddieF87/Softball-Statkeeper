@@ -30,7 +30,7 @@ public class StandingsAdapter extends RecyclerView.Adapter<StandingsAdapter.Stan
 
     private final Context mContext;
     private final List<Team> mTeams;
-    private final NumberFormat formatter = new DecimalFormat("#.000");
+    private static final NumberFormat formatter = new DecimalFormat("#.000");
 
     public StandingsAdapter(List<Team> teams, Context context){
         this.setHasStableIds(true);

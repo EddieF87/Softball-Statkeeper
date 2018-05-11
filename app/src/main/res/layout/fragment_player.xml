@@ -10,7 +10,7 @@
     <TextView
         android:id="@+id/player_name"
         android:layout_width="0dp"
-        android:layout_height="50dp"
+        android:layout_height="36dp"
         android:layout_marginEnd="8dp"
         android:layout_marginTop="8dp"
         android:autoSizeMinTextSize="12sp"
@@ -18,13 +18,13 @@
         android:gravity="fill_vertical"
         android:maxLines="1"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
-        android:textSize="40sp"
+        android:textSize="30sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@id/guideline_titles"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="Player  Name99999"
-        tools:targetApi="o" />
+        tools:targetApi="o"
+        tools:text="abcdefghijklmnopqrst" />
 
     <TextView
         android:id="@+id/player_team"
@@ -35,25 +35,25 @@
         android:autoSizeMinTextSize="12sp"
         android:autoSizeTextType="uniform"
         android:gravity="start"
-        android:textAlignment="textStart"
         android:maxLines="1"
-        android:textSize="18sp"
+        android:textAlignment="textStart"
+        android:textSize="14sp"
         android:textStyle="italic"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@id/player_name"
         app:layout_constraintTop_toBottomOf="@id/player_name"
-        tools:text="Playertopes"
-        tools:targetApi="o" />
+        tools:targetApi="o"
+        tools:text="Playertopes" />
 
 
     <ImageView
         android:id="@+id/player_image"
-        android:layout_width="0dp"
+        android:layout_width="59dp"
         android:layout_height="0dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginStart="8dp"
+        android:contentDescription="@string/player"
         android:padding="12dp"
         app:layout_constraintBottom_toBottomOf="@id/border1"
         app:layout_constraintEnd_toStartOf="@id/guideline_titles"
@@ -61,8 +61,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0"
-        app:srcCompat="@drawable/img_batter"
-        android:contentDescription="@string/player" />
+        app:srcCompat="@drawable/img_batter" />
 
 
 
@@ -92,7 +91,7 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent=".33" />
+        app:layout_constraintGuide_percent="0.24" />
 
 
     <LinearLayout

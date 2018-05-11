@@ -22,6 +22,7 @@ import xyz.sleekstats.softball.data.FirestoreUpdateService;
 import xyz.sleekstats.softball.data.GameUpdateIntentMaker;
 import xyz.sleekstats.softball.data.MySyncResultReceiver;
 import xyz.sleekstats.softball.data.TimeStampUpdater;
+import xyz.sleekstats.softball.dialogs.EditTeamStatsDialog;
 import xyz.sleekstats.softball.dialogs.LineupSortDialog;
 import xyz.sleekstats.softball.dialogs.PreviewSortDialog;
 import xyz.sleekstats.softball.views.CustomViewPager;
@@ -49,7 +50,8 @@ public class TeamManagerActivity extends ExportActivity
         MySyncResultReceiver.Receiver,
         LineupSortDialog.OnLineupSortListener,
         PreviewSortDialog.OnFragmentInteractionListener,
-        LineupFragment.OnFragmentInteractionListener {
+        LineupFragment.OnFragmentInteractionListener,
+        EditTeamStatsDialog.OnFragmentInteractionListener {
 
     private LineupFragment lineupFragment;
     private TeamFragment teamFragment;
@@ -407,6 +409,16 @@ public class TeamManagerActivity extends ExportActivity
         startActivityForResult(intent, GameActivity.REQUEST_CODE_GAME);
     }
 
+    @Override
+    public void onCancel() {
+
+    }
+
+    @Override
+    public void onSubmit(String teamID, int wins, int losses, int ties, int runsScored, int runsAllowed) {
+
+    }
+
     private class TeamManagerPagerAdapter extends FragmentPagerAdapter {
 
         TeamManagerPagerAdapter(FragmentManager fm) {
@@ -672,7 +684,7 @@ public class TeamManagerActivity extends ExportActivity
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
         outState.putBoolean(StatsEntry.UPDATE, gameUpdating);
+        super.onSaveInstanceState(outState);
     }
 }

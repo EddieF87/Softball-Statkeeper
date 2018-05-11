@@ -787,7 +787,7 @@ public class LeagueManagerActivity extends ExportActivity
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
         outState.putBoolean(StatsEntry.UPDATE, gameUpdating);
+        super.onSaveInstanceState(outState);
     }
 }
