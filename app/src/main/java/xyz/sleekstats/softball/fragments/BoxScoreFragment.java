@@ -188,10 +188,14 @@ public class BoxScoreFragment extends Fragment implements LoaderManager.LoaderCa
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         switch (loader.getId()) {
             case AWAY_LOADER:
-                awayAdapter.swapCursor(data);
+                if(awayAdapter != null) {
+                    awayAdapter.swapCursor(data);
+                }
                 break;
             case HOME_LOADER:
-                homeAdapter.swapCursor(data);
+                if(homeAdapter != null) {
+                    homeAdapter.swapCursor(data);
+                }
                 break;
             case SCORE_LOADER:
                 List<InningScore> list = new ArrayList<>();
@@ -258,7 +262,9 @@ public class BoxScoreFragment extends Fragment implements LoaderManager.LoaderCa
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        awayAdapter.swapCursor(null);
+        if (awayAdapter != null) {
+            awayAdapter.swapCursor(null);
+        }
         if (homeAdapter != null) {
             homeAdapter.swapCursor(null);
         }

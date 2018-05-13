@@ -157,10 +157,14 @@ public class GameRecapActivity extends ExportActivity
 
         switch (loader.getId()) {
             case AWAY_LOADER:
-                awayAdapter.swapCursor(data);
+                if(awayAdapter != null) {
+                    awayAdapter.swapCursor(data);
+                }
                 break;
             case HOME_LOADER:
-                homeAdapter.swapCursor(data);
+                if(homeAdapter != null) {
+                    homeAdapter.swapCursor(data);
+                }
                 break;
             case PLAYER_NAME_LOADER:
                 Map<String, String> mPlayerNames = new HashMap<>();
@@ -196,7 +200,12 @@ public class GameRecapActivity extends ExportActivity
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-
+        if(awayAdapter!=null) {
+            awayAdapter.swapCursor(null);
+        }
+        if(homeAdapter!=null){
+            homeAdapter.swapCursor(null);
+        }
     }
 
     private void openDeleteDialog(){

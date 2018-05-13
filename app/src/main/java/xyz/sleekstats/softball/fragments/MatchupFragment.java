@@ -60,6 +60,8 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     private RecyclerView rvHome;
     private MatchupAdapter homeLineupAdapter;
     private MatchupAdapter awayLineupAdapter;
+    private SimpleCursorAdapter homeSpinnerAdapter;
+    private SimpleCursorAdapter awaySpinnerAdapter;
     private TextView gameSummaryView;
     private TextView inningsView;
     private TextView orderView;
@@ -767,7 +769,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         boolean genderSortOn = getGenderSorter() != 0;
         int color;
         if (genderSortOn) {
-            color = ContextCompat.getColor(getContext(), R.color.male);
+            color = ContextCompat.getColor(getContext(), R.color.colorM);
         } else {
             color = ContextCompat.getColor(getContext(), R.color.colorPrimaryDark);
         }
@@ -847,8 +849,10 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
 
         SharedPreferences spinnerStates = getActivity()
                 .getSharedPreferences(SPINNER_STATE, Context.MODE_PRIVATE);
-        awayTeamSpinner.setAdapter(getSpinnerAdapter(R.layout.spinner_matchup_left, cursor));
-        homeTeamSpinner.setAdapter(getSpinnerAdapter(R.layout.spinner_matchup, cursor));
+        awaySpinnerAdapter = getSpinnerAdapter(R.layout.spinner_matchup_left, cursor);
+        homeSpinnerAdapter = getSpinnerAdapter(R.layout.spinner_matchup, cursor);
+        awayTeamSpinner.setAdapter(awaySpinnerAdapter);
+        homeTeamSpinner.setAdapter(homeSpinnerAdapter);
         awayTeamSpinner.setOnItemSelectedListener(this);
         homeTeamSpinner.setOnItemSelectedListener(this);
         int awayIndex = spinnerStates.getInt(KEY_AWAY_STATE, 0);
@@ -866,6 +870,12 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
+        if(awaySpinnerAdapter != null) {
+            awaySpinnerAdapter.swapCursor(null);
+        }
+        if(homeSpinnerAdapter != null) {
+            homeSpinnerAdapter.swapCursor(null);
+        }
     }
 
     private SimpleCursorAdapter getSpinnerAdapter(int layout, Cursor data) {

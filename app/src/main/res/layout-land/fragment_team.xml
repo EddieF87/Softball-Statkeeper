@@ -18,12 +18,11 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_weight="4"
-        android:autoSizeMinTextSize="20sp"
-        android:autoSizeTextType="uniform"
         android:maxLines="1"
         android:textAlignment="center"
         android:textSize="30sp"
         android:textStyle="bold"
+        style="@style/ShadowTextStrong"
         app:layout_constraintEnd_toStartOf="@+id/teamRecord"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -36,16 +35,34 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:layout_marginEnd="16dp"
+        android:layout_marginTop="8dp"
         android:layout_weight="1"
         android:autoSizeMinTextSize="12sp"
         android:autoSizeTextType="uniform"
         android:gravity="start"
         android:maxLines="1"
         android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="@+id/teamName"
+        android:textStyle="bold|italic"
+        app:layout_constraintBottom_toTopOf="@+id/teamExtras"
         app:layout_constraintEnd_toStartOf="@+id/btn_games"
+        app:layout_constraintTop_toTopOf="parent"
         tools:targetApi="o"
         tools:text="23-54-2" />
+
+    <TextView
+        android:id="@+id/teamExtras"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:gravity="center"
+        android:maxLines="2"
+        android:textSize="12sp"
+        android:textStyle="italic"
+        app:layout_constraintBottom_toTopOf="@+id/frameLayout"
+        app:layout_constraintEnd_toStartOf="@+id/btn_games"
+        app:layout_constraintStart_toEndOf="@+id/teamName"
+        app:layout_constraintTop_toBottomOf="@+id/teamRecord" />
 
     <Button
         android:id="@+id/btn_games"
@@ -73,12 +90,13 @@
         app:layout_constraintTop_toTopOf="@+id/teamName" />
 
     <FrameLayout
+        android:id="@+id/frameLayout"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="4dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -95,9 +113,9 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
             android:background="@drawable/bg_white"
+            android:elevation="8dp"
             android:padding="6dp"
             android:scrollbarFadeDuration="500"
-            android:elevation="8dp"
             tools:targetApi="lollipop">
 
             <LinearLayout

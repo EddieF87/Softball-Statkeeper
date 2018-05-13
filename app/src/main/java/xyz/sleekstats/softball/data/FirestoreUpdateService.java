@@ -403,41 +403,42 @@ public class FirestoreUpdateService extends IntentService {
 
             String[] qSelectionArgs = new String[]{firestoreID, statKeeperID};
             Cursor permanentPlayerCursor = getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS, null, qSelection, qSelectionArgs, null);
-            permanentPlayerCursor.moveToFirst();
 
-            firestoreID = StatsContract.getColumnString(permanentPlayerCursor, StatsEntry.COLUMN_FIRESTORE_ID);
-            int p1b = StatsContract.getColumnInt(permanentPlayerCursor, StatsEntry.COLUMN_1B);
-            int p2b = StatsContract.getColumnInt(permanentPlayerCursor, StatsEntry.COLUMN_2B);
-            int p3b = StatsContract.getColumnInt(permanentPlayerCursor, StatsEntry.COLUMN_3B);
-            int pHR = StatsContract.getColumnInt(permanentPlayerCursor, StatsEntry.COLUMN_HR);
-            int pRun = StatsContract.getColumnInt(permanentPlayerCursor, StatsEntry.COLUMN_RUN);
-            int pRBI = StatsContract.getColumnInt(permanentPlayerCursor, StatsEntry.COLUMN_RBI);
-            int pBB = StatsContract.getColumnInt(permanentPlayerCursor, StatsEntry.COLUMN_BB);
-            int pOuts = StatsContract.getColumnInt(permanentPlayerCursor, StatsEntry.COLUMN_OUT);
-            int pSF = StatsContract.getColumnInt(permanentPlayerCursor, StatsEntry.COLUMN_SF);
-            int pSB = StatsContract.getColumnInt(permanentPlayerCursor, StatsEntry.COLUMN_SB);
-            int pGames = StatsContract.getColumnInt(permanentPlayerCursor, StatsEntry.COLUMN_G);
-            permanentPlayerCursor.close();
+            if( permanentPlayerCursor.moveToFirst()) {
+                firestoreID = StatsContract.getColumnString(permanentPlayerCursor, StatsEntry.COLUMN_FIRESTORE_ID);
+                int p1b = StatsContract.getColumnInt(permanentPlayerCursor, StatsEntry.COLUMN_1B);
+                int p2b = StatsContract.getColumnInt(permanentPlayerCursor, StatsEntry.COLUMN_2B);
+                int p3b = StatsContract.getColumnInt(permanentPlayerCursor, StatsEntry.COLUMN_3B);
+                int pHR = StatsContract.getColumnInt(permanentPlayerCursor, StatsEntry.COLUMN_HR);
+                int pRun = StatsContract.getColumnInt(permanentPlayerCursor, StatsEntry.COLUMN_RUN);
+                int pRBI = StatsContract.getColumnInt(permanentPlayerCursor, StatsEntry.COLUMN_RBI);
+                int pBB = StatsContract.getColumnInt(permanentPlayerCursor, StatsEntry.COLUMN_BB);
+                int pOuts = StatsContract.getColumnInt(permanentPlayerCursor, StatsEntry.COLUMN_OUT);
+                int pSF = StatsContract.getColumnInt(permanentPlayerCursor, StatsEntry.COLUMN_SF);
+                int pSB = StatsContract.getColumnInt(permanentPlayerCursor, StatsEntry.COLUMN_SB);
+                int pGames = StatsContract.getColumnInt(permanentPlayerCursor, StatsEntry.COLUMN_G);
 
-            ContentValues values = new ContentValues();
-            values.put(StatsEntry.COLUMN_LEAGUE_ID, statKeeperID);
-            values.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
-            values.put(StatsEntry.COLUMN_1B, p1b - game1b);
-            values.put(StatsEntry.COLUMN_2B, p2b - game2b);
-            values.put(StatsEntry.COLUMN_3B, p3b - game3b);
-            values.put(StatsEntry.COLUMN_HR, pHR - gameHR);
-            values.put(StatsEntry.COLUMN_RUN, pRun - gameRun);
-            values.put(StatsEntry.COLUMN_RBI, pRBI - gameRBI);
-            values.put(StatsEntry.COLUMN_BB, pBB - gameBB);
-            values.put(StatsEntry.COLUMN_OUT, pOuts - gameOuts);
-            values.put(StatsEntry.COLUMN_SF, pSF - gameSF);
-            values.put(StatsEntry.COLUMN_SB, pSB - gameSB);
-            values.put(StatsEntry.COLUMN_G, pGames - 1);
+                ContentValues values = new ContentValues();
+                values.put(StatsEntry.COLUMN_LEAGUE_ID, statKeeperID);
+                values.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
+                values.put(StatsEntry.COLUMN_1B, p1b - game1b);
+                values.put(StatsEntry.COLUMN_2B, p2b - game2b);
+                values.put(StatsEntry.COLUMN_3B, p3b - game3b);
+                values.put(StatsEntry.COLUMN_HR, pHR - gameHR);
+                values.put(StatsEntry.COLUMN_RUN, pRun - gameRun);
+                values.put(StatsEntry.COLUMN_RBI, pRBI - gameRBI);
+                values.put(StatsEntry.COLUMN_BB, pBB - gameBB);
+                values.put(StatsEntry.COLUMN_OUT, pOuts - gameOuts);
+                values.put(StatsEntry.COLUMN_SF, pSF - gameSF);
+                values.put(StatsEntry.COLUMN_SB, pSB - gameSB);
+                values.put(StatsEntry.COLUMN_G, pGames - 1);
 
-            int updated = getContentResolver().update(StatsEntry.CONTENT_URI_PLAYERS, values, qSelection, qSelectionArgs);
-            if (updated > 0) {
-                undoBatch.update(playerRef, StatsEntry.UPDATE, newUpdateTime);
+                int updated = getContentResolver().update(StatsEntry.CONTENT_URI_PLAYERS, values, qSelection, qSelectionArgs);
+                if (updated > 0) {
+                    undoBatch.update(playerRef, StatsEntry.UPDATE, newUpdateTime);
+                }
             }
+            permanentPlayerCursor.close();
         }
         boxscorePlayerCursor.close();
 

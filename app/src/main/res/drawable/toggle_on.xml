@@ -5,7 +5,7 @@
         <shape
             xmlns:android="http://schemas.android.com/apk/res/android"
             android:shape="oval" >
-            <solid android:color="@color/female" />
+            <solid android:color="@color/colorF" />
         </shape>
     </item>
 

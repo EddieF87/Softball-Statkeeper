@@ -70,12 +70,12 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
         }
         this.genderSettingsOff = genderSorter == 0;
         if (genderSettingsOff) {
-            int color = ContextCompat.getColor(context, R.color.colorPrimaryDark);
+            int color = ContextCompat.getColor(context, R.color.colorLink);
             colorMale = color;
             colorFemale = color;
         } else {
-            colorMale = ContextCompat.getColor(context, R.color.male);
-            colorFemale = ContextCompat.getColor(context, R.color.female);
+            colorMale = ContextCompat.getColor(context, R.color.colorM);
+            colorFemale = ContextCompat.getColor(context, R.color.colorF);
         }
     }
 
@@ -104,14 +104,14 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             if (!genderSettingsOff) {
                 return false;
             }
-            colorMale = ContextCompat.getColor(mContext, R.color.male);
-            colorFemale = ContextCompat.getColor(mContext, R.color.female);
+            colorMale = ContextCompat.getColor(mContext, R.color.colorM);
+            colorFemale = ContextCompat.getColor(mContext, R.color.colorF);
             genderSettingsOff = false;
         } else {
             if (genderSettingsOff) {
                 return false;
             }
-            int color = ContextCompat.getColor(mContext, R.color.colorPrimaryDark);
+            int color = ContextCompat.getColor(mContext, R.color.colorLink);
             colorMale = color;
             colorFemale = color;
             genderSettingsOff = true;

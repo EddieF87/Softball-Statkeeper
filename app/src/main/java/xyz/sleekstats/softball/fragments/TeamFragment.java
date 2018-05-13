@@ -70,6 +70,7 @@ public class TeamFragment extends Fragment
     private LinearLayout totalLayout;
     private TextView teamNameView;
     private TextView teamRecordView;
+    private TextView teamExtraView;
     private RecyclerView rv;
     private PlayerStatsAdapter mAdapter;
 
@@ -87,7 +88,7 @@ public class TeamFragment extends Fragment
     private int mLevel;
     private static final String KEY_TEAM_URI = "teamURI";
     private static final String KEY_STAT_SORT = "keyStatSort";
-
+    private static final NumberFormat formatter = new DecimalFormat("#.000");
 
     public TeamFragment() {
         // Required empty public constructor
@@ -166,8 +167,8 @@ public class TeamFragment extends Fragment
 
 
         teamNameView = rootView.findViewById(R.id.teamName);
-        teamNameView = rootView.findViewById(R.id.teamName);
         teamRecordView = rootView.findViewById(R.id.teamRecord);
+        teamExtraView = rootView.findViewById(R.id.teamExtras);
         rv = rootView.findViewById(R.id.rv_players);
 
         rootView.findViewById(R.id.player_name_title).setOnClickListener(this);
@@ -303,6 +304,7 @@ public class TeamFragment extends Fragment
         int wins = 0;
         int losses = 0;
         int ties = 0;
+
         if (cursor.moveToFirst()) {
             Team team = new Team(cursor);
 
@@ -311,9 +313,15 @@ public class TeamFragment extends Fragment
             wins = team.getWins();
             losses = team.getLosses();
             ties = team.getTies();
+            int rS = team.getTotalRunsScored();
+            int rA = team.getTotalRunsAllowed();
+            double winPct = team.getWinPct();
 
             String recordText = wins + "-" + losses + "-" + ties;
             teamRecordView.setText(recordText);
+
+            String extraText = "Win%: " + String.valueOf(formatter.format(winPct)) + "\nRS: " + rS + " RA: " + rA;
+            teamExtraView.setText(extraText);
         } else if (!waivers) {
             TimeStampUpdater.setLocalTimeStamp(-1, getActivity(), mSelectionID);
             getActivity().finish();

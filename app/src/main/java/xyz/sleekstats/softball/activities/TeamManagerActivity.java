@@ -25,6 +25,7 @@ import xyz.sleekstats.softball.data.TimeStampUpdater;
 import xyz.sleekstats.softball.dialogs.EditTeamStatsDialog;
 import xyz.sleekstats.softball.dialogs.LineupSortDialog;
 import xyz.sleekstats.softball.dialogs.PreviewSortDialog;
+import xyz.sleekstats.softball.objects.TeamLog;
 import xyz.sleekstats.softball.views.CustomViewPager;
 import xyz.sleekstats.softball.adapters.PlayerStatsAdapter;
 import xyz.sleekstats.softball.data.StatsContract;
@@ -415,8 +416,36 @@ public class TeamManagerActivity extends ExportActivity
     }
 
     @Override
-    public void onSubmit(String teamID, int wins, int losses, int ties, int runsScored, int runsAllowed) {
+    public void onSaveTeamStatsUpdate(String teamID, int wins, int losses, int ties, int runsScored, int runsAllowed) {
 
+        Intent intent = new Intent(TeamManagerActivity.this, FirestoreUpdateService.class);
+        intent.putExtra(StatsEntry.COLUMN_TEAM, new TeamLog(0, wins, losses, ties, runsScored, runsAllowed));
+        intent.putExtra(FirestoreUpdateService.STATKEEPER_ID, teamID);
+        intent.putExtra(StatsEntry.COLUMN_FIRESTORE_ID, teamID);
+        intent.putExtra(TimeStampUpdater.UPDATE_TIME, System.currentTimeMillis());
+        intent.setAction(FirestoreUpdateService.INTENT_UPDATE_TEAM);
+        startService(intent);
+
+        String selection = StatsContract.StatsEntry.COLUMN_LEAGUE_ID + "=? AND " + StatsContract.StatsEntry.COLUMN_FIRESTORE_ID + "=?";
+        String[] selectionArgs = new String[]{teamID, teamID};
+
+        Cursor cursor = getContentResolver().query(StatsContract.StatsEntry.CONTENT_URI_TEAMS, null, selection, selectionArgs, null);
+        if(cursor.moveToFirst()){
+            wins += StatsContract.getColumnInt(cursor, StatsContract.StatsEntry.COLUMN_WINS);
+            losses += StatsContract.getColumnInt(cursor, StatsContract.StatsEntry.COLUMN_LOSSES);
+            ties += StatsContract.getColumnInt(cursor, StatsContract.StatsEntry.COLUMN_TIES);
+            runsScored += StatsContract.getColumnInt(cursor, StatsContract.StatsEntry.COLUMN_RUNSFOR);
+            runsAllowed += StatsContract.getColumnInt(cursor, StatsContract.StatsEntry.COLUMN_RUNSAGAINST);
+        }
+        cursor.close();
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(StatsContract.StatsEntry.COLUMN_WINS, wins);
+        contentValues.put(StatsContract.StatsEntry.COLUMN_LOSSES, losses);
+        contentValues.put(StatsContract.StatsEntry.COLUMN_TIES, ties);
+        contentValues.put(StatsContract.StatsEntry.COLUMN_RUNSFOR, runsScored);
+        contentValues.put(StatsContract.StatsEntry.COLUMN_RUNSAGAINST, runsAllowed);
+        getContentResolver().update(StatsContract.StatsEntry.CONTENT_URI_TEAMS, contentValues, selection, selectionArgs);
     }
 
     private class TeamManagerPagerAdapter extends FragmentPagerAdapter {

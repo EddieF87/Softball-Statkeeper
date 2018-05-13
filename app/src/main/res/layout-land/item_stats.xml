@@ -11,10 +11,10 @@
         android:id="@+id/name"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
-        android:autoSizeMinTextSize="10sp"
-        android:autoSizeTextType="uniform"
+        style="@style/ShadowText"
         android:gravity="center_vertical|start"
         android:maxLines="1"
+        android:singleLine="true"
         android:paddingBottom="4dp"
         android:paddingEnd="10dp"
         android:paddingStart="8dp"
@@ -29,7 +29,12 @@
         android:layout_width="50dp"
         android:paddingEnd="4dp"
         android:paddingStart="0dp"
+        android:textColor="@color/colorLink"
         android:textStyle="italic|bold"
+        android:shadowColor="@color/colorPlus"
+        android:shadowDx=".3"
+        android:shadowDy=".3"
+        android:shadowRadius=".1"
         tools:text="AAA" />
 
     <TextView

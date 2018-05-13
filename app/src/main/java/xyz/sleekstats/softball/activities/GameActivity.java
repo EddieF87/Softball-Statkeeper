@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -19,11 +20,16 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.view.DragEvent;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RadioButton;
@@ -156,6 +162,8 @@ public abstract class GameActivity extends AppCompatActivity
 
     String mSelectionID;
     private Toast mCurrentToast;
+    private String mToastText="";
+
     private final MyTouchListener myTouchListener = new MyTouchListener();
     private final MyDragListener myDragListener = new MyDragListener();
 
@@ -633,16 +641,6 @@ public abstract class GameActivity extends AppCompatActivity
         inningChanged = 0;
     }
 
-    @SuppressLint("ShowToast")
-    private void showToast(String text) {
-        if (mCurrentToast == null) {
-            mCurrentToast = Toast.makeText(this, text, Toast.LENGTH_SHORT);
-        }
-        mCurrentToast.setText(text);
-        mCurrentToast.setDuration(Toast.LENGTH_SHORT);
-        mCurrentToast.show();
-    }
-
     void enterGameValues(BaseLog currentBaseLogEnd, int team,
                          String previousBatterID, String onDeckID) {
 
@@ -849,11 +847,13 @@ public abstract class GameActivity extends AppCompatActivity
             default:
                 indicator = "th";
         }
-        String inningString = topOrBottom + " of the " + inningNumber / 2 + indicator;
-        showToast(inningString);
+        mToastText += "\n " + topOrBottom + " of the " + inningNumber / 2 + indicator;
+        toastUpdate(false);
+        mToastText = "";
     }
 
     void updatePlayerStats(String action, int n) {
+
         String playerFirestoreID;
         if (undoRedo) {
             if (tempBatter == null) {
@@ -867,6 +867,7 @@ public abstract class GameActivity extends AppCompatActivity
             }
             playerFirestoreID = currentBatter.getFirestoreID();
         }
+
         String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
         String[] selectionArgs = {playerFirestoreID, mSelectionID};
         Cursor cursor = getContentResolver().query(StatsEntry.CONTENT_URI_TEMP,
@@ -917,8 +918,20 @@ public abstract class GameActivity extends AppCompatActivity
                 break;
         }
 
+
+        StringBuilder stringBuilder = new StringBuilder();
+        if(n>0) {
+            stringBuilder.append("+").append(n).append(" ").append(action).append(" ");
+        } else if (n<0) {
+            stringBuilder.append("UNDO  \n").append(n).append(" ").append(action).append(" ");
+        }
+
         int rbiCount = currentRunsLog.size();
         if (action.equals(StatsEntry.COLUMN_SB)) {
+            stringBuilder.setLength(0);
+            if (n<0) {
+                stringBuilder.append("UNDO  \n");
+            }
             String[] oldBases;
             String[] newBases = new String[]{firstDisplay.getText().toString(),
                     secondDisplay.getText().toString(), thirdDisplay.getText().toString()};
@@ -933,7 +946,6 @@ public abstract class GameActivity extends AppCompatActivity
                     BaseLog baseLog = new BaseLog(gameCursor, null, null);
                     gameCursor.moveToPrevious();
                     oldBases = baseLog.getBasepositions();
-
                 }
             } else {
                 oldBases = currentBaseLogStart.getBasepositions();
@@ -945,12 +957,24 @@ public abstract class GameActivity extends AppCompatActivity
                         String newPlayerOnBase = newBases[j];
                         if (oldPlayerOnBase.equals(newPlayerOnBase)) {
                             updatePlayerSBs(oldPlayerOnBase, j - i);
+                            stringBuilder.append(oldPlayerOnBase).append(" stole ").append(j-i);
+                            if(j-i > 1){
+                                stringBuilder.append(" bases \n");
+                            } else {
+                                stringBuilder.append(" base \n");
+                            }
                             break;
                         }
                     }
                     for (String playerScored : currentRunsLog) {
                         if (oldPlayerOnBase.equals(playerScored)) {
                             updatePlayerSBs(oldPlayerOnBase, 3 - i);
+                            stringBuilder.append(oldPlayerOnBase).append(" stole ").append(3-i);
+                            if(3-i > 1){
+                                stringBuilder.append(" bases \n");
+                            } else {
+                                stringBuilder.append(" base \n");
+                            }
                             break;
                         }
                     }
@@ -976,6 +1000,12 @@ public abstract class GameActivity extends AppCompatActivity
                             String newPlayerOnBase = newBases[j];
                             if (oldRunnerScored.equals(newPlayerOnBase)) {
                                 updatePlayerSBs(newPlayerOnBase, j - 3);
+                                stringBuilder.append(newPlayerOnBase).append(" stole ").append(3-j);
+                                if(3-j > 1){
+                                    stringBuilder.append(" bases \n");
+                                } else {
+                                    stringBuilder.append(" base \n");
+                                }
                                 break;
                             }
                         }
@@ -992,9 +1022,39 @@ public abstract class GameActivity extends AppCompatActivity
         if (rbiCount > 0) {
             for (String player : currentRunsLog) {
                 updatePlayerRuns(player, n);
+                stringBuilder.append("\n").append(player).append(" scored ");
             }
         }
         cursor.close();
+        if(tempOuts>0) {
+            stringBuilder.append("\n Team Outs + ").append(tempOuts).append(" ");
+        }
+        mToastText = stringBuilder.toString();
+        toastUpdate(n<0);
+    }
+
+
+    private void toastUpdate(boolean undoing){
+        if(mToastText == null) {
+            return;
+        }
+        LayoutInflater inflater = getLayoutInflater();
+        View layout = inflater.inflate(R.layout.toast_play, (ViewGroup) findViewById(R.id.toast_play_container));
+        TextView toastPlayView = layout.findViewById(R.id.toast_play_text);
+        if(undoing){
+            toastPlayView.setTextColor(Color.RED);
+        }
+        toastPlayView.setText(mToastText);
+        if (mCurrentToast == null) {
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+            getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+            int height = displayMetrics.heightPixels;
+            int width = displayMetrics.widthPixels;
+            mCurrentToast = Toast.makeText(this, mToastText, Toast.LENGTH_SHORT);
+            mCurrentToast.setGravity(Gravity.TOP|Gravity.END,width/30, height * 2 / 7);
+        }
+        mCurrentToast.setView(layout);
+        mCurrentToast.show();
     }
 
     private void updatePlayerSBs(String player, int n) {
@@ -1135,6 +1195,7 @@ public abstract class GameActivity extends AppCompatActivity
             Toast.makeText(GameActivity.this, "Please choose a result!", Toast.LENGTH_SHORT).show();
             return;
         }
+
         updatePlayerStats(result, 1);
         gameOuts += tempOuts;
         if (result.equals(StatsEntry.COLUMN_SB)) {
@@ -1580,20 +1641,6 @@ public abstract class GameActivity extends AppCompatActivity
             case R.id.action_edit_lineup:
                 openEditWarningDialog();
                 break;
-//            case R.id.action_next_inning:
-//                if(gameLogIndex == lowestIndex) {
-//                    Toast.makeText(GameActivity.this,
-//                            "Can't skip to next inning when inning just started", Toast.LENGTH_LONG).show();
-//                    return true;
-//                }
-//                if(undoRedo) {
-//                    Toast.makeText(GameActivity.this,
-//                            "Can't skip to next inning while undoing/redoing plays", Toast.LENGTH_LONG).show();
-//                    return true;
-//                }
-//                undoPlay();
-//                inningJump(result);
-//                break;
             case R.id.action_off_lineup_rules:
                 actionEndLineupRules();
                 break;

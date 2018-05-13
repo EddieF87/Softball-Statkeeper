@@ -153,9 +153,11 @@ public class AddNewPlayersDialog extends DialogFragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
-        mRecyclerView.setAdapter(null);
-        mAdapter = null;
-        mRecyclerView = null;
+        if(mRecyclerView != null) {
+            mRecyclerView.setAdapter(null);
+            mAdapter = null;
+            mRecyclerView = null;
+        }
     }
 
     private void disableViewHolderEditTexts(){

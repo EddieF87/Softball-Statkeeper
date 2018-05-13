@@ -160,6 +160,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         teamsArray.add(KEY_ALL_TEAMS);
 //        teamIDs = new HashMap<>();
 //        teamIDs.put(StatsEntry.FREE_AGENT, -1);
+        mCursor.moveToPosition(-1);
         while (mCursor.moveToNext()) {
             String teamName = StatsContract.getColumnString(mCursor, StatsEntry.COLUMN_NAME);
 //            String firestoreID = StatsContract.getColumnString(mCursor, StatsEntry.COLUMN_FIRESTORE_ID);

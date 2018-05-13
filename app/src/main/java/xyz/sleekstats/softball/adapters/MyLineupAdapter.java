@@ -106,8 +106,8 @@ public class MyLineupAdapter extends DragItemAdapter<Pair<Long, Player>, MyLineu
     }
 
     private void setGenderColors(){
-        colorMale = ContextCompat.getColor(mContext, R.color.male);
-        colorFemale = ContextCompat.getColor(mContext, R.color.female);
+        colorMale = ContextCompat.getColor(mContext, R.color.colorM);
+        colorFemale = ContextCompat.getColor(mContext, R.color.colorF);
     }
 
 

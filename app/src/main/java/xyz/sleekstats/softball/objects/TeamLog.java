@@ -1,11 +1,14 @@
 package xyz.sleekstats.softball.objects;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by Eddie on 11/3/2017.
  */
 
 @SuppressWarnings("unused")
-public class TeamLog {
+public class TeamLog implements Parcelable {
 
     private long id;
     private int wins;
@@ -82,4 +85,41 @@ public class TeamLog {
     public void setRunsScored(int runsScored) {
         this.runsScored = runsScored;
     }
+
+    protected TeamLog(Parcel in) {
+        id = in.readLong();
+        wins = in.readInt();
+        losses = in.readInt();
+        ties = in.readInt();
+        runsScored = in.readInt();
+        runsAllowed = in.readInt();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(id);
+        dest.writeInt(wins);
+        dest.writeInt(losses);
+        dest.writeInt(ties);
+        dest.writeInt(runsScored);
+        dest.writeInt(runsAllowed);
+    }
+
+    @SuppressWarnings("unused")
+    public static final Parcelable.Creator<TeamLog> CREATOR = new Parcelable.Creator<TeamLog>() {
+        @Override
+        public TeamLog createFromParcel(Parcel in) {
+            return new TeamLog(in);
+        }
+
+        @Override
+        public TeamLog[] newArray(int size) {
+            return new TeamLog[size];
+        }
+    };
 }

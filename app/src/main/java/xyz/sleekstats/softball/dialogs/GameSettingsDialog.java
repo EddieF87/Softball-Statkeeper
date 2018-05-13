@@ -204,8 +204,8 @@ public class GameSettingsDialog extends DialogFragment {
         }
 //        mGenderDisplay.setTextColor(ContextCompat.getColor(getContext(), R.color.male));
         StringBuilder stringBuilder = new StringBuilder();
-        String boyColor = Integer.toHexString(ContextCompat.getColor(getActivity(), R.color.male) & 0x00ffffff);
-        String girlColor = Integer.toHexString(ContextCompat.getColor(getActivity(), R.color.female) & 0x00ffffff);
+        String boyColor = Integer.toHexString(ContextCompat.getColor(getActivity(), R.color.colorM) & 0x00ffffff);
+        String girlColor = Integer.toHexString(ContextCompat.getColor(getActivity(), R.color.colorF) & 0x00ffffff);
 //        stringBuilder.append(getString(R.string.set_gender_lineup));
         stringBuilder.append("<font color='#").append(boyColor).append("'>");
         for (int index = 0; index < i; index++) {

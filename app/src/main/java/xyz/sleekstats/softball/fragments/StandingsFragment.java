@@ -180,6 +180,7 @@ public class StandingsFragment extends Fragment implements LoaderManager.LoaderC
         if(mTeams.isEmpty()) {
             setRVVisibility(false);
         } else {
+            Collections.sort(mTeams, Team.runDiffComparator());
             Collections.sort(mTeams, Team.winpctComparator());
             setRVVisibility(true);
             updateStandingsRV();

@@ -288,9 +288,9 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     private void setColor() {
         int color;
         if (gender == 0) {
-            color = R.color.male;
+            color = R.color.colorM;
         } else {
-            color = R.color.female;
+            color = R.color.colorF;
         }
         nameView.setTextColor(getResources().getColor(color));
         playerImage.setColorFilter(getResources().getColor(color));

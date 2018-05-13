@@ -108,8 +108,8 @@ public class EditTeamStatsDialog extends DialogFragment implements View.OnClickL
                 addedRS = 0;
                 addedRA = 0;
             }
-            colorPlus = ContextCompat.getColor(getContext(), R.color.plus);
-            colorMinus = ContextCompat.getColor(getContext(), R.color.minus);
+            colorPlus = ContextCompat.getColor(getContext(), R.color.colorPlus);
+            colorMinus = ContextCompat.getColor(getContext(), R.color.colorMinus);
         } else {
             dismiss();
         }
@@ -189,7 +189,7 @@ public class EditTeamStatsDialog extends DialogFragment implements View.OnClickL
 
     public void onButtonPressed() {
         if (mListener != null) {
-            mListener.onSubmit(mTeamID, addedWins, addedLosses, addedTies, addedRS, addedRA);
+            mListener.onSaveTeamStatsUpdate(mTeamID, addedWins, addedLosses, addedTies, addedRS, addedRA);
         }
     }
 
@@ -427,6 +427,6 @@ public class EditTeamStatsDialog extends DialogFragment implements View.OnClickL
 
     public interface OnFragmentInteractionListener {
         void onCancel();
-        void onSubmit(String teamID, int wins, int losses, int ties, int runsScored, int runsAllowed);
+        void onSaveTeamStatsUpdate(String teamID, int wins, int losses, int ties, int runsScored, int runsAllowed);
     }
 }
