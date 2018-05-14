@@ -1,5 +1,6 @@
 package xyz.sleekstats.softball.dialogs;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -129,7 +130,7 @@ public class EditTeamStatsDialog extends DialogFragment implements View.OnClickL
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        final  View view=inflater.inflate(R.layout.fragment_edit_dialog,null);
+        @SuppressLint("InflateParams") final  View view=inflater.inflate(R.layout.fragment_edit_dialog, null);
 
         Context context = view.getContext();
         view.findViewById(R.id.addW).setOnClickListener(this);
@@ -173,7 +174,6 @@ public class EditTeamStatsDialog extends DialogFragment implements View.OnClickL
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        mListener.onCancel();
                         if (dialog != null) {
                             dialog.dismiss();
                         }
@@ -187,7 +187,7 @@ public class EditTeamStatsDialog extends DialogFragment implements View.OnClickL
         return alertDialog;
     }
 
-    public void onButtonPressed() {
+    private void onButtonPressed() {
         if (mListener != null) {
             mListener.onSaveTeamStatsUpdate(mTeamID, addedWins, addedLosses, addedTies, addedRS, addedRA);
         }
@@ -426,7 +426,6 @@ public class EditTeamStatsDialog extends DialogFragment implements View.OnClickL
     }
 
     public interface OnFragmentInteractionListener {
-        void onCancel();
         void onSaveTeamStatsUpdate(String teamID, int wins, int losses, int ties, int runsScored, int runsAllowed);
     }
 }

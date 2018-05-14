@@ -8,7 +8,7 @@ import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.core.CrashlyticsCore;
 
 import io.fabric.sdk.android.Fabric;
-import xyz.sleekstats.softball.objects.MainPageSelection;
+import xyz.sleekstats.softball.models.MainPageSelection;
 
 /**
  * Created by Eddie on 11/10/2017.

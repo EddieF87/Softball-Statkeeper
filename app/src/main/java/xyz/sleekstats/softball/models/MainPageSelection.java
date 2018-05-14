@@ -1,4 +1,4 @@
-package xyz.sleekstats.softball.objects;
+package xyz.sleekstats.softball.models;
 
 import android.os.Parcel;
 import android.os.Parcelable;

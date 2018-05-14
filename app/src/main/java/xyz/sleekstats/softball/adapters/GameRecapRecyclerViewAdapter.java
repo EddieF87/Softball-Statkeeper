@@ -19,7 +19,7 @@ import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.activities.GameRecapActivity;
 import xyz.sleekstats.softball.activities.GameRecapListActivity;
 import xyz.sleekstats.softball.data.StatsContract;
-import xyz.sleekstats.softball.objects.GameRecap;
+import xyz.sleekstats.softball.models.GameRecap;
 
 public class GameRecapRecyclerViewAdapter extends RecyclerView.Adapter<GameRecapRecyclerViewAdapter.RecapViewHolder> {
     private final List<GameRecap> recapList;

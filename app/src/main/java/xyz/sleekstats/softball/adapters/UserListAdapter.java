@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.activities.UsersActivity;
-import xyz.sleekstats.softball.objects.StatKeepUser;
+import xyz.sleekstats.softball.models.StatKeepUser;
 
 import java.util.List;
 

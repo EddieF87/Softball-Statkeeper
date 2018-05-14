@@ -21,8 +21,8 @@ import xyz.sleekstats.softball.data.MySyncResultReceiver;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
 import xyz.sleekstats.softball.dialogs.DeletionCheckDialog;
 import xyz.sleekstats.softball.dialogs.NoConnectionDialog;
-import xyz.sleekstats.softball.objects.ItemMarkedForDeletion;
-import xyz.sleekstats.softball.objects.MainPageSelection;
+import xyz.sleekstats.softball.models.ItemMarkedForDeletion;
+import xyz.sleekstats.softball.models.MainPageSelection;
 
 import java.util.ArrayList;
 

@@ -25,8 +25,8 @@ import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.dialogs.AccessGuideDialog;
 import xyz.sleekstats.softball.dialogs.CancelLoadDialog;
 import xyz.sleekstats.softball.dialogs.RetryUserLoadDialog;
-import xyz.sleekstats.softball.objects.MainPageSelection;
-import xyz.sleekstats.softball.objects.StatKeepUser;
+import xyz.sleekstats.softball.models.MainPageSelection;
+import xyz.sleekstats.softball.models.StatKeepUser;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;

@@ -25,8 +25,8 @@ import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.adapters.GameRecapRecyclerViewAdapter;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
-import xyz.sleekstats.softball.objects.GameRecap;
-import xyz.sleekstats.softball.objects.MainPageSelection;
+import xyz.sleekstats.softball.models.GameRecap;
+import xyz.sleekstats.softball.models.MainPageSelection;
 
 public class GameRecapListActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemSelectedListener{
 

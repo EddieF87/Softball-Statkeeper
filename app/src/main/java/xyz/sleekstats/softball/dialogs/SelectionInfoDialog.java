@@ -16,7 +16,7 @@ import android.widget.TextView;
 
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.activities.UsersActivity;
-import xyz.sleekstats.softball.objects.MainPageSelection;
+import xyz.sleekstats.softball.models.MainPageSelection;
 
 public class SelectionInfoDialog extends DialogFragment {
 

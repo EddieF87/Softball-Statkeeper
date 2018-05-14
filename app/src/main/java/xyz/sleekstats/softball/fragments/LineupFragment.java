@@ -43,8 +43,8 @@ import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
 import xyz.sleekstats.softball.dialogs.AddNewPlayersDialog;
 import xyz.sleekstats.softball.dialogs.GameSettingsDialog;
 import xyz.sleekstats.softball.dialogs.LineupSortDialog;
-import xyz.sleekstats.softball.objects.MainPageSelection;
-import xyz.sleekstats.softball.objects.Player;
+import xyz.sleekstats.softball.models.MainPageSelection;
+import xyz.sleekstats.softball.models.Player;
 import com.woxthebox.draglistview.BoardView;
 
 import java.util.ArrayList;
@@ -231,7 +231,7 @@ public class LineupFragment extends Fragment {
         postGameUpdate = !clickable;
         View view = getView();
         if(view == null) {return;}
-        view.findViewById(R.id.lineup_submit).setClickable(clickable);
+        view.findViewById(R.id.lineup_submit).setEnabled(clickable);
         view.findViewById(R.id.continue_game).setVisibility(View.GONE);
         if(gameSummaryView == null) {
             gameSummaryView = view.findViewById(R.id.current_game_view);
@@ -243,7 +243,7 @@ public class LineupFragment extends Fragment {
         postGameUpdate = false;
         View view = getView();
         if(view == null) {return;}
-        view.findViewById(R.id.lineup_submit).setClickable(true);
+        view.findViewById(R.id.lineup_submit).setEnabled(true);
         view.findViewById(R.id.continue_game).setVisibility(View.VISIBLE);
         if(gameSummaryView == null) {
             gameSummaryView = view.findViewById(R.id.current_game_view);
@@ -387,9 +387,9 @@ public class LineupFragment extends Fragment {
         settingsLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                settingsLayout.setClickable(false);
+                settingsLayout.setEnabled(false);
                 openGameSettingsDialog();
-                settingsLayout.setClickable(true);
+                settingsLayout.setEnabled(true);
             }
         });
         if(lineupSubmitButton == null) {
@@ -513,7 +513,7 @@ public class LineupFragment extends Fragment {
         gameSummaryView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                gameSummaryView.setClickable(false);
+                gameSummaryView.setEnabled(false);
                 Intent intent = new Intent(getActivity(), BoxScoreActivity.class);
                 Bundle b = new Bundle();
                 b.putString("awayTeamName", finalAwayTeamName);
@@ -526,7 +526,7 @@ public class LineupFragment extends Fragment {
                 b.putInt("homeTeamRuns", homeRuns);
                 intent.putExtras(b);
                 startActivity(intent);
-                gameSummaryView.setClickable(true);
+                gameSummaryView.setEnabled(true);
 
             }
         });
@@ -537,7 +537,7 @@ public class LineupFragment extends Fragment {
         if(sortLineup) {
             openLineupSortDialog(1);
         } else {
-//            lineupSubmitButton.setClickable(true);
+//            lineupSubmitButton.setEnabled(true);
             Intent intent = new Intent(getActivity(), TeamGameActivity.class);
             intent.putExtra("isHome", isHome);
             intent.putExtra(GameActivity.KEY_GENDERSORT, 0);

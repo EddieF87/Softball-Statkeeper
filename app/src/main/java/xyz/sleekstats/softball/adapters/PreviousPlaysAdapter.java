@@ -12,7 +12,7 @@ import java.util.Map;
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
-import xyz.sleekstats.softball.objects.PreviousPlay;
+import xyz.sleekstats.softball.models.PreviousPlay;
 
 public class PreviousPlaysAdapter extends RecyclerView.Adapter<PreviousPlaysAdapter.PlayViewHolder> {
 

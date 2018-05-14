@@ -1,15 +1,20 @@
 package xyz.sleekstats.softball.activities;
 
-import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Rect;
+import android.graphics.Paint;
+import android.graphics.Point;
+import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -21,6 +26,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.DragEvent;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -29,7 +35,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RadioButton;
@@ -48,10 +53,10 @@ import xyz.sleekstats.softball.dialogs.EndOfGameDialog;
 import xyz.sleekstats.softball.dialogs.FinishGameConfirmationDialog;
 import xyz.sleekstats.softball.dialogs.GameSettingsDialog;
 import xyz.sleekstats.softball.dialogs.SaveDeleteGameDialog;
-import xyz.sleekstats.softball.objects.BaseLog;
+import xyz.sleekstats.softball.models.BaseLog;
 
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
-import xyz.sleekstats.softball.objects.Player;
+import xyz.sleekstats.softball.models.Player;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -77,7 +82,7 @@ public abstract class GameActivity extends AppCompatActivity
     TextView rbiDisplay;
     TextView runDisplay;
     TextView hrDisplay;
-    TextView mercyDisplay;
+    private TextView mercyDisplay;
     private TextView inningDisplay;
     private ImageView inningTopArrow;
     private ImageView inningBottomArrow;
@@ -270,7 +275,7 @@ public abstract class GameActivity extends AppCompatActivity
         undoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                undoButton.setClickable(false);
+                undoButton.setEnabled(false);
                 undoPlay();
             }
         });
@@ -279,7 +284,8 @@ public abstract class GameActivity extends AppCompatActivity
         redoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                redoButton.setClickable(false);
+                Log.d("barney", "redoCLICK");
+                redoButton.setEnabled(false);
                 redoPlay();
             }
         });
@@ -783,8 +789,9 @@ public abstract class GameActivity extends AppCompatActivity
         runDisplay.setText(runDisplayText);
         batterDisplay.setVisibility(View.VISIBLE);
 
-        setUndoRedo();
         setScoreDisplay();
+        setUndoRedo();
+        Log.d("zztop", "setUndoRedosetDisplays");
     }
 
     void setScoreDisplay() {
@@ -1035,6 +1042,7 @@ public abstract class GameActivity extends AppCompatActivity
 
 
     private void toastUpdate(boolean undoing){
+        Log.d("zztop", "toastUpdate");
         if(mToastText == null) {
             return;
         }
@@ -1261,6 +1269,7 @@ public abstract class GameActivity extends AppCompatActivity
         if (gameLogIndex < gameCursor.getCount() - 1) {
             undoRedo = true;
             gameLogIndex++;
+            Log.d("barney", "gameLogIndex++ " + gameLogIndex + "   getRedoResult");
         } else {
             return null;
         }
@@ -1405,7 +1414,7 @@ public abstract class GameActivity extends AppCompatActivity
                     secondDisplay.setOnTouchListener(null);
                     thirdDisplay.setOnTouchListener(null);
                     homeDisplay.setOnTouchListener(null);
-                    String movedPlayer = "";
+
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         switch (v.getId()) {
                             case R.id.home_display:
@@ -1426,7 +1435,6 @@ public abstract class GameActivity extends AppCompatActivity
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                                 draggedView.setForeground(null);
                             }
-
                         } else {
                             setBatterDropped();
                         }
@@ -1434,54 +1442,37 @@ public abstract class GameActivity extends AppCompatActivity
                         String sumOuts = gameOuts + tempOuts + " outs";
                         outsDisplay.setText(sumOuts);
                     } else {
+                        if(dropPoint == null){
+                            return false;
+                        }
                         if (eventView instanceof TextView) {
-                            TextView draggedView = (TextView) eventView;
-                            movedPlayer = draggedView.getText().toString();
-
-                            dropPoint.setText(movedPlayer);
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                dropPoint.setForeground(mRunner);
+                                eventView.setForeground(null);
                             }
-                            draggedView.setText(null);
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                draggedView.setForeground(null);
-                            }
-                            draggedView.setAlpha(1);
                         } else {
-                            String currentBatterString = currentBatter.getName();
-                            dropPoint.setText(currentBatterString);
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                dropPoint.setForeground(mRunner);
-                            }
                             setBatterDropped();
                         }
                         dropPoint.setAlpha(1);
+                        dropPoint.setText(eventView.getTag().toString());
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            dropPoint.setForeground(mRunner);
+                        }
 
                         if (dropPoint == homeDisplay) {
                             homeDisplay.bringToFront();
-                            if (eventView instanceof TextView) {
-                                if (undoRedo) {
-                                    tempRunsLog.add(movedPlayer);
+                            if (undoRedo) {
+                                    tempRunsLog.add(eventView.getTag().toString());
                                 } else {
-                                    currentRunsLog.add(movedPlayer);
+                                    currentRunsLog.add(eventView.getTag().toString());
                                 }
-                            } else {
-                                String currentBatterString = currentBatter.getName();
-                                if (undoRedo) {
-                                    tempRunsLog.add(currentBatterString);
-                                } else {
-                                    currentRunsLog.add(currentBatterString);
-                                }
-                            }
+
                             homeDisplay.setText(null);
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                                 homeDisplay.setForeground(null);
                             }
                             tempRuns++;
-                            String scoreString;
-//                            String inningRunString = "Mercy\n" + (inningRuns + tempRuns) + "/" + mercyRuns;
-//                            mercyDisplay.setText(inningRunString);
 
+                            String scoreString;
                             if (inningRuns + tempRuns <= mercyRuns) {
                                 if (isTopOfInning()) {
                                     scoreString = String.valueOf(awayTeamRuns + tempRuns);
@@ -1490,23 +1481,27 @@ public abstract class GameActivity extends AppCompatActivity
                                     scoreString = String.valueOf(homeTeamRuns + tempRuns);
                                     scoreboardHomeScore.setText(scoreString);
                                 }
-//                                if(inningRuns + tempRuns == mercyRuns) {
-//                                    mercyDisplay.setTextColor(Color.RED);
-//                                }
                             }
-//                            else {
-//                                mercyDisplay.setTextColor(Color.RED);
-//                            }
                             setMercyDisplay(inningRuns + tempRuns);
                         }
                     }
                     enableResetButton();
                     mResetListeners = true;
+                    eventView.setTag(null);
                     break;
                 case DragEvent.ACTION_DRAG_ENDED:
                     View dragView = (View) event.getLocalState();
                     if (dragView != null) {
                         dragView.setAlpha(1f);
+                        if(eventView.getTag() != null) {
+                            if(eventView instanceof TextView) {
+                                ((TextView) eventView).setText(eventView.getTag().toString());
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                    eventView.setForeground(mRunner);
+                                }
+                                eventView.setTag(null);
+                            }
+                        }
                     }
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         switch (v.getId()) {
@@ -1556,9 +1551,12 @@ public abstract class GameActivity extends AppCompatActivity
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 setBaseListeners();
 
-                view.setAlpha(.1f);
+                TextView tv;
+
                 switch (view.getId()) {
                     case R.id.batter:
+                        view.setAlpha(.1f);
+                        view.setTag(currentBatter.getName());
                         if (firstOccupied) {
                             secondDisplay.setOnDragListener(null);
                             thirdDisplay.setOnDragListener(null);
@@ -1571,6 +1569,12 @@ public abstract class GameActivity extends AppCompatActivity
                         }
                         break;
                     case R.id.first_display:
+                        tv = (TextView) view;
+                        view.setTag(tv.getText().toString());
+                        tv.setText("");
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            tv.setForeground(null);
+                        }
                         if (secondOccupied) {
                             thirdDisplay.setOnDragListener(null);
                             homeDisplay.setOnDragListener(null);
@@ -1579,21 +1583,33 @@ public abstract class GameActivity extends AppCompatActivity
                         }
                         break;
                     case R.id.second_display:
+                        tv = (TextView) view;
+                        view.setTag(tv.getText().toString());
+                        tv.setText("");
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            tv.setForeground(null);
+                        }
                         firstDisplay.setOnDragListener(null);
                         if (thirdOccupied) {
                             homeDisplay.setOnDragListener(null);
                         }
                         break;
                     case R.id.third_display:
+                        tv = (TextView) view;
+                        view.setTag(tv.getText().toString());
+                        tv.setText("");
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            tv.setForeground(null);
+                        }
                         firstDisplay.setOnDragListener(null);
                         secondDisplay.setOnDragListener(null);
                         break;
                     default:
-                        break;
+                        return false;
                 }
 
                 ClipData data = ClipData.newPlainText("", "");
-                View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
+                View.DragShadowBuilder shadowBuilder = new MyDragShadowBuilder(view);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     view.startDragAndDrop(data, shadowBuilder, view, 0);
                 } else {
@@ -1602,6 +1618,51 @@ public abstract class GameActivity extends AppCompatActivity
             }
             view.performClick();
             return true;
+        }
+    }
+
+    class MyDragShadowBuilder extends View.DragShadowBuilder {
+
+        MyDragShadowBuilder(View view) {
+            super(view);
+        }
+
+        @Override
+        public void onProvideShadowMetrics(Point outShadowSize, Point outShadowTouchPoint) {
+            super.onProvideShadowMetrics(outShadowSize, outShadowTouchPoint);
+        }
+
+        @Override
+        public void onDrawShadow(Canvas canvas) {
+            String playerText = getView().getTag().toString();
+            int width = getView().getWidth();
+            int height = getView().getHeight();
+            int xPos = (canvas.getWidth() / 2);
+            int textSize = width/8;
+
+            Resources res = getResources();
+            Bitmap b = BitmapFactory.decodeResource(res, R.drawable.ic_directions_run_black_18dp);
+            Bitmap resizedB = Bitmap.createScaledBitmap(b, width, height, false);
+            canvas.drawBitmap(resizedB, 0, 0, null);
+
+            Paint paint = new Paint();
+            paint.setARGB(255, 255 , 255, 255);
+            float textWidth = paint.measureText(playerText) * width/90;
+            RectF rectF = new RectF((xPos - (textWidth/2) - (width/27)),height - (width * 2/9),(xPos + (textWidth/2) + (width/27)),(height - (width/54)));
+            canvas.drawRoundRect(rectF, 20.0f, 20.0f, paint);
+
+            paint.setStyle(Paint.Style.STROKE);
+            paint.setStrokeWidth(width/54);
+            paint.setColor(getResources().getColor(R.color.colorPrimary));
+            canvas.drawRoundRect(rectF, 20.0f, 20.0f, paint);
+
+            Paint textPaint = new Paint();
+            textPaint.setTextAlign(Paint.Align.CENTER);
+            textPaint.setARGB(255, 0 , 0, 0);
+            textPaint.setColor(getResources().getColor(R.color.colorPrimaryDark));
+            textPaint.setTextSize(textSize);
+
+            canvas.drawText(playerText, xPos, height-(width/18), textPaint);
         }
     }
 
@@ -1687,8 +1748,6 @@ public abstract class GameActivity extends AppCompatActivity
         newFragment.show(fragmentTransaction, "");
     }
 
-//    protected abstract void inningJump(String playerResult);
-
     private void actionViewBoxScore() {
         Intent statsIntent = new Intent(GameActivity.this, BoxScoreActivity.class);
         Bundle b = getBoxScoreBundle();
@@ -1747,13 +1806,14 @@ public abstract class GameActivity extends AppCompatActivity
     protected abstract void actionEditLineup();
 
     void setUndoRedo() {
+        Log.d("zztop", "setUndoRedo");
         setUndoButton();
         setRedoButton();
     }
 
     private void setUndoButton() {
         boolean undo = gameLogIndex > lowestIndex;
-        undoButton.setClickable(undo);
+        undoButton.setEnabled(undo);
         if (undo) {
             undoButton.setAlpha(1f);
         } else {
@@ -1763,7 +1823,8 @@ public abstract class GameActivity extends AppCompatActivity
 
     private void setRedoButton() {
         boolean redo = gameLogIndex < highestIndex;
-        redoButton.setClickable(redo);
+        Log.d("barney","redo = " + redo + "  gameLogIndex=" + gameLogIndex + "  highestIndex=" + highestIndex);
+        redoButton.setEnabled(redo);
         if (redo) {
             redoButton.setAlpha(1f);
         } else {

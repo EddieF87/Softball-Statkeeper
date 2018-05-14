@@ -50,9 +50,9 @@ import xyz.sleekstats.softball.dialogs.EditTeamStatsDialog;
 import xyz.sleekstats.softball.dialogs.EditNameDialog;
 import xyz.sleekstats.softball.dialogs.GameSettingsDialog;
 import xyz.sleekstats.softball.dialogs.RemoveAllPlayersDialog;
-import xyz.sleekstats.softball.objects.MainPageSelection;
-import xyz.sleekstats.softball.objects.Player;
-import xyz.sleekstats.softball.objects.Team;
+import xyz.sleekstats.softball.models.MainPageSelection;
+import xyz.sleekstats.softball.models.Player;
+import xyz.sleekstats.softball.models.Team;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;

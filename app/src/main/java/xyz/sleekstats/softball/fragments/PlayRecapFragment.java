@@ -24,8 +24,8 @@ import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.adapters.PreviousPlaysAdapter;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
-import xyz.sleekstats.softball.objects.MainPageSelection;
-import xyz.sleekstats.softball.objects.PreviousPlay;
+import xyz.sleekstats.softball.models.MainPageSelection;
+import xyz.sleekstats.softball.models.PreviousPlay;
 
 public class PlayRecapFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 

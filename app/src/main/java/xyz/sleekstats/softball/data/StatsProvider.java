@@ -15,7 +15,7 @@ import android.widget.Toast;
 
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
-import xyz.sleekstats.softball.objects.MainPageSelection;
+import xyz.sleekstats.softball.models.MainPageSelection;
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;

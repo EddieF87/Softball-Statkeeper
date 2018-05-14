@@ -47,10 +47,10 @@ import xyz.sleekstats.softball.data.TimeStampUpdater;
 import xyz.sleekstats.softball.dialogs.ChangeTeamDialog;
 import xyz.sleekstats.softball.dialogs.DeleteConfirmationDialog;
 import xyz.sleekstats.softball.dialogs.EditNameDialog;
-import xyz.sleekstats.softball.objects.MainPageSelection;
-import xyz.sleekstats.softball.objects.Player;
-import xyz.sleekstats.softball.objects.PlayerLog;
-import xyz.sleekstats.softball.objects.Team;
+import xyz.sleekstats.softball.models.MainPageSelection;
+import xyz.sleekstats.softball.models.Player;
+import xyz.sleekstats.softball.models.PlayerLog;
+import xyz.sleekstats.softball.models.Team;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -484,7 +484,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         });
     }
 
-    public void setRadioButtons(View view) {
+    private void setRadioButtons(View view) {
         group1 = view.findViewById(R.id.group1);
         group2 = view.findViewById(R.id.group2);
         RadioButton single = view.findViewById(R.id.single_rb);

@@ -21,7 +21,7 @@
         android:textSize="24sp"
         android:textStyle="bold"
         android:maxLines="1"
-        style="@style/ShadowText"
+        style="@style/ShadowTextStrong"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"

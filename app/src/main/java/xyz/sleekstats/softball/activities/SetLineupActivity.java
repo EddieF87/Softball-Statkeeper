@@ -16,8 +16,8 @@ import xyz.sleekstats.softball.data.TimeStampUpdater;
 import xyz.sleekstats.softball.dialogs.AddNewPlayersDialog;
 import xyz.sleekstats.softball.dialogs.GameSettingsDialog;
 import xyz.sleekstats.softball.fragments.LineupFragment;
-import xyz.sleekstats.softball.objects.MainPageSelection;
-import xyz.sleekstats.softball.objects.Player;
+import xyz.sleekstats.softball.models.MainPageSelection;
+import xyz.sleekstats.softball.models.Player;
 
 import java.util.ArrayList;
 import java.util.List;

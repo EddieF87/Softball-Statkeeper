@@ -25,7 +25,7 @@ import xyz.sleekstats.softball.data.TimeStampUpdater;
 import xyz.sleekstats.softball.dialogs.EditTeamStatsDialog;
 import xyz.sleekstats.softball.dialogs.LineupSortDialog;
 import xyz.sleekstats.softball.dialogs.PreviewSortDialog;
-import xyz.sleekstats.softball.objects.TeamLog;
+import xyz.sleekstats.softball.models.TeamLog;
 import xyz.sleekstats.softball.views.CustomViewPager;
 import xyz.sleekstats.softball.adapters.PlayerStatsAdapter;
 import xyz.sleekstats.softball.data.StatsContract;
@@ -37,8 +37,8 @@ import xyz.sleekstats.softball.dialogs.GameSettingsDialog;
 import xyz.sleekstats.softball.dialogs.RemoveAllPlayersDialog;
 import xyz.sleekstats.softball.fragments.LineupFragment;
 import xyz.sleekstats.softball.fragments.TeamFragment;
-import xyz.sleekstats.softball.objects.MainPageSelection;
-import xyz.sleekstats.softball.objects.Player;
+import xyz.sleekstats.softball.models.MainPageSelection;
+import xyz.sleekstats.softball.models.Player;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -408,11 +408,6 @@ public class TeamManagerActivity extends ExportActivity
     @Override
     public void startGameActivity(Intent intent) {
         startActivityForResult(intent, GameActivity.REQUEST_CODE_GAME);
-    }
-
-    @Override
-    public void onCancel() {
-
     }
 
     @Override

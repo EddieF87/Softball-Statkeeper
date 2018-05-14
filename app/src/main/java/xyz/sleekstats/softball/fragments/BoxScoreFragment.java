@@ -27,8 +27,8 @@ import xyz.sleekstats.softball.adapters.BoxScoreArrayAdapter;
 import xyz.sleekstats.softball.adapters.BoxScorePlayerCursorAdapter;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
-import xyz.sleekstats.softball.objects.InningScore;
-import xyz.sleekstats.softball.objects.MainPageSelection;
+import xyz.sleekstats.softball.models.InningScore;
+import xyz.sleekstats.softball.models.MainPageSelection;
 
 /**
  * A simple {@link Fragment} subclass.

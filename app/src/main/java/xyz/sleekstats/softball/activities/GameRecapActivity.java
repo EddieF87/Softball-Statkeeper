@@ -32,7 +32,7 @@ import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
 import xyz.sleekstats.softball.data.TimeStampUpdater;
 import xyz.sleekstats.softball.dialogs.DeleteConfirmationDialog;
-import xyz.sleekstats.softball.objects.MainPageSelection;
+import xyz.sleekstats.softball.models.MainPageSelection;
 
 public class GameRecapActivity extends ExportActivity
         implements LoaderManager.LoaderCallbacks<Cursor>,

@@ -201,8 +201,8 @@
     </style>
 
     <style name="ShadowTextPlay">
-        <item name="android:textColor">#ffffff</item>
-        <item name="android:shadowColor">#0015ff</item>
+        <item name="android:shadowColor">#ffffff</item>
+        <item name="android:textColor">#0015ff</item>
         <item name="android:shadowDx">1</item>
         <item name="android:shadowDy">1</item>
         <item name="android:shadowRadius">.5</item>

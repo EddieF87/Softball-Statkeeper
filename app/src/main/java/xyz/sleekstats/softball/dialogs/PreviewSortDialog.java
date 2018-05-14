@@ -19,7 +19,7 @@ import java.util.List;
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.adapters.MatchupAdapter;
 import xyz.sleekstats.softball.data.StatsContract;
-import xyz.sleekstats.softball.objects.Player;
+import xyz.sleekstats.softball.models.Player;
 
 public class PreviewSortDialog extends DialogFragment {
 

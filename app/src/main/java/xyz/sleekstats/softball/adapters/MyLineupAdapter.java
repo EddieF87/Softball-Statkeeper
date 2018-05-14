@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import xyz.sleekstats.softball.R;
-import xyz.sleekstats.softball.objects.Player;
+import xyz.sleekstats.softball.models.Player;
 import com.woxthebox.draglistview.DragItemAdapter;
 
 import java.util.ArrayList;

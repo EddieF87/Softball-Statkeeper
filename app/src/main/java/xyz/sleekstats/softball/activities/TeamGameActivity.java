@@ -13,6 +13,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -25,9 +26,9 @@ import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
 import xyz.sleekstats.softball.dialogs.EditWarningDialog;
 import xyz.sleekstats.softball.dialogs.EndOfGameDialog;
-import xyz.sleekstats.softball.objects.BaseLog;
-import xyz.sleekstats.softball.objects.MainPageSelection;
-import xyz.sleekstats.softball.objects.Player;
+import xyz.sleekstats.softball.models.BaseLog;
+import xyz.sleekstats.softball.models.MainPageSelection;
+import xyz.sleekstats.softball.models.Player;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -310,6 +311,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         );
         gameLogIndex++;
         highestIndex = gameLogIndex;
+        Log.d("barney", "gameLogIndex++ " + gameLogIndex + "   highestIndex = gameLogIndex = " + highestIndex);
 
         String onDeck = currentBatter.getFirestoreID();
 
@@ -323,6 +325,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
             setDisplays();
         } else {
             setUndoRedo();
+            Log.d("zztop", "setUndoRedoupdateGameLogs");
         }
 
         clearTempState();
@@ -569,6 +572,7 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
 
     @Override
     protected void redoPlay() {
+        Log.d("barney", "redoPlay");
         String redoResult = getRedoResult();
         if (redoResult == null) {
 //            if(isHome && gameLogIndex == lowestIndex + 1) {

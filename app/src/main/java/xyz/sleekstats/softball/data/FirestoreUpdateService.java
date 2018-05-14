@@ -12,10 +12,10 @@ import android.support.annotation.Nullable;
 
 import xyz.sleekstats.softball.MyApp;
 import xyz.sleekstats.softball.activities.GameActivity;
-import xyz.sleekstats.softball.objects.Player;
+import xyz.sleekstats.softball.models.Player;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
-import xyz.sleekstats.softball.objects.PlayerLog;
-import xyz.sleekstats.softball.objects.TeamLog;
+import xyz.sleekstats.softball.models.PlayerLog;
+import xyz.sleekstats.softball.models.TeamLog;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;

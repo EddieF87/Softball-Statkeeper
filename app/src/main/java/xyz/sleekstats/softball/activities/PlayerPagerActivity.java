@@ -5,7 +5,7 @@ import android.content.Intent;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.TimeStampUpdater;
 import xyz.sleekstats.softball.fragments.PlayerFragment;
-import xyz.sleekstats.softball.objects.MainPageSelection;
+import xyz.sleekstats.softball.models.MainPageSelection;
 
 public class PlayerPagerActivity extends ObjectPagerActivity {
 

@@ -3,7 +3,6 @@ package xyz.sleekstats.softball.activities;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.widget.Toast;
 
 import xyz.sleekstats.softball.adapters.PlayerStatsAdapter;
@@ -12,7 +11,7 @@ import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.TimeStampUpdater;
 import xyz.sleekstats.softball.dialogs.EditTeamStatsDialog;
 import xyz.sleekstats.softball.fragments.TeamFragment;
-import xyz.sleekstats.softball.objects.TeamLog;
+import xyz.sleekstats.softball.models.TeamLog;
 
 public class TeamPagerActivity extends ObjectPagerActivity implements EditTeamStatsDialog.OnFragmentInteractionListener {
 
@@ -57,11 +56,6 @@ public class TeamPagerActivity extends ObjectPagerActivity implements EditTeamSt
             TimeStampUpdater.updateTimeStamps(this, getSelectionID(), System.currentTimeMillis());
         }
         setResult(RESULT_OK);
-    }
-
-    @Override
-    public void onCancel() {
-
     }
 
     @Override

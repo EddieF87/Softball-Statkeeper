@@ -19,9 +19,9 @@ import xyz.sleekstats.softball.MyApp;
 import xyz.sleekstats.softball.data.MyFileProvider;
 import xyz.sleekstats.softball.data.StatsContract;
 import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
-import xyz.sleekstats.softball.objects.MainPageSelection;
-import xyz.sleekstats.softball.objects.Player;
-import xyz.sleekstats.softball.objects.Team;
+import xyz.sleekstats.softball.models.MainPageSelection;
+import xyz.sleekstats.softball.models.Player;
+import xyz.sleekstats.softball.models.Team;
 import com.opencsv.CSVWriter;
 
 import java.io.File;
@@ -44,7 +44,7 @@ public abstract class ExportActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_CODE = 200;
     private static final int KEY_TEAMS = 0;
     private static final int KEY_PLAYERS = 1;
-    private static NumberFormat formatter = new DecimalFormat("#.000");
+    private static final NumberFormat formatter = new DecimalFormat("#.000");
     private static final int KEY_LEAGUE = 10;
     private static final int KEY_BOXSCORE = 11;
     private int exportType;

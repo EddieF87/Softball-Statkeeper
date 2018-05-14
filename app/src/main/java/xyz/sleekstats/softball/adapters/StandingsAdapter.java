@@ -16,7 +16,7 @@ import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.activities.LeagueManagerActivity;
 import xyz.sleekstats.softball.activities.TeamPagerActivity;
 import xyz.sleekstats.softball.data.StatsContract;
-import xyz.sleekstats.softball.objects.Team;
+import xyz.sleekstats.softball.models.Team;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;

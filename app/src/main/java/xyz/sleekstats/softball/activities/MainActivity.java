@@ -36,8 +36,8 @@ import xyz.sleekstats.softball.dialogs.DeleteSelectionDialog;
 import xyz.sleekstats.softball.dialogs.EditNameDialog;
 import xyz.sleekstats.softball.dialogs.ContinueLoadDialog;
 import xyz.sleekstats.softball.dialogs.SelectionInfoDialog;
-import xyz.sleekstats.softball.objects.MainPageSelection;
-import xyz.sleekstats.softball.objects.StatKeepUser;
+import xyz.sleekstats.softball.models.MainPageSelection;
+import xyz.sleekstats.softball.models.StatKeepUser;
 
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.ads.MobileAds;
@@ -207,7 +207,7 @@ public class MainActivity extends AppCompatActivity
                                     Object levelObject = documentSnapshot.get(userID);
 
                                     if (levelObject == null) {
-                                        openAcceptInviteDialog(id, name, type, 1);
+                                        openAcceptInviteDialog(id, name, type);
                                     } else {
                                         int level = ((Long) levelObject).intValue();
                                         myApp.setCurrentSelection(new MainPageSelection(id, name, type, level));
@@ -220,7 +220,7 @@ public class MainActivity extends AppCompatActivity
                                         finish();
                                     }
                                 } else {
-                                    openAcceptInviteDialog(id, name, type, 1);
+                                    openAcceptInviteDialog(id, name, type);
                                 }
                             }
                         });
@@ -228,14 +228,14 @@ public class MainActivity extends AppCompatActivity
                 });
     }
 
-    private void openAcceptInviteDialog(String id, String name, int type, int level) {
+    private void openAcceptInviteDialog(String id, String name, int type) {
 
         if (mContinueLoadDialogFragment != null) {
             mContinueLoadDialogFragment.dismissIfShowing();
         }
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        mAcceptInviteDialog = AcceptInviteDialog.newInstance(id, name, type, level);
+        mAcceptInviteDialog = AcceptInviteDialog.newInstance(id, name, type, 1);
         mAcceptInviteDialog.show(fragmentTransaction, "");
     }
 

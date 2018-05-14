@@ -30,12 +30,12 @@ import java.util.List;
 import java.util.Map;
 
 import xyz.sleekstats.softball.activities.UsersActivity;
-import xyz.sleekstats.softball.objects.ItemMarkedForDeletion;
-import xyz.sleekstats.softball.objects.MainPageSelection;
-import xyz.sleekstats.softball.objects.Player;
-import xyz.sleekstats.softball.objects.PlayerLog;
-import xyz.sleekstats.softball.objects.Team;
-import xyz.sleekstats.softball.objects.TeamLog;
+import xyz.sleekstats.softball.models.ItemMarkedForDeletion;
+import xyz.sleekstats.softball.models.MainPageSelection;
+import xyz.sleekstats.softball.models.Player;
+import xyz.sleekstats.softball.models.PlayerLog;
+import xyz.sleekstats.softball.models.Team;
+import xyz.sleekstats.softball.models.TeamLog;
 
 import static xyz.sleekstats.softball.data.FirestoreUpdateService.*;
 import static xyz.sleekstats.softball.data.StatsContract.StatsEntry;

@@ -1,4 +1,4 @@
-package xyz.sleekstats.softball.objects;
+package xyz.sleekstats.softball.models;
 
 /**
  * Created by Eddie on 15/10/2017.

@@ -13,7 +13,7 @@ import xyz.sleekstats.softball.MyApp;
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.fragments.BoxScoreFragment;
 import xyz.sleekstats.softball.fragments.PlayRecapFragment;
-import xyz.sleekstats.softball.objects.MainPageSelection;
+import xyz.sleekstats.softball.models.MainPageSelection;
 
 public class BoxScoreActivity extends AppCompatActivity {
 
