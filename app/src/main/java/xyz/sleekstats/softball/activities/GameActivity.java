@@ -147,6 +147,7 @@ public abstract class GameActivity extends AppCompatActivity
     private boolean secondOccupied = false;
     private boolean thirdOccupied = false;
     private boolean mResetListeners = false;
+    private boolean mResetDrag;
     int totalInnings;
 
     static final String KEY_GAMELOGINDEX = "keyGameLogIndex";
@@ -167,7 +168,7 @@ public abstract class GameActivity extends AppCompatActivity
 
     String mSelectionID;
     private Toast mCurrentToast;
-    private String mToastText="";
+    private String mToastText = "";
 
     private final MyTouchListener myTouchListener = new MyTouchListener();
     private final MyDragListener myDragListener = new MyDragListener();
@@ -231,7 +232,7 @@ public abstract class GameActivity extends AppCompatActivity
         RadioButton sbBtn = findViewById(R.id.sb_rb);
         SharedPreferences sharedPreferences = getSharedPreferences(mSelectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
         boolean sbOn = sharedPreferences.getBoolean(StatsEntry.COLUMN_SB, false);
-        if(sbOn){
+        if (sbOn) {
             sbBtn.setVisibility(View.VISIBLE);
         } else {
             sbBtn.setVisibility(View.GONE);
@@ -284,7 +285,6 @@ public abstract class GameActivity extends AppCompatActivity
         redoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d("barney", "redoCLICK");
                 redoButton.setEnabled(false);
                 redoPlay();
             }
@@ -510,6 +510,10 @@ public abstract class GameActivity extends AppCompatActivity
     }
 
     private void setBaseListeners() {
+        firstDisplay.setAlpha(1f);
+        secondDisplay.setAlpha(1f);
+        thirdDisplay.setAlpha(1f);
+        batterDisplay.setAlpha(1f);
         if (firstDisplay.getText().toString().isEmpty()) {
             firstDisplay.setOnTouchListener(null);
             firstDisplay.setOnDragListener(myDragListener);
@@ -791,7 +795,6 @@ public abstract class GameActivity extends AppCompatActivity
 
         setScoreDisplay();
         setUndoRedo();
-        Log.d("zztop", "setUndoRedosetDisplays");
     }
 
     void setScoreDisplay() {
@@ -927,16 +930,16 @@ public abstract class GameActivity extends AppCompatActivity
 
 
         StringBuilder stringBuilder = new StringBuilder();
-        if(n>0) {
+        if (n > 0) {
             stringBuilder.append("+").append(n).append(" ").append(action).append(" ");
-        } else if (n<0) {
+        } else if (n < 0) {
             stringBuilder.append("UNDO  \n").append(n).append(" ").append(action).append(" ");
         }
 
         int rbiCount = currentRunsLog.size();
         if (action.equals(StatsEntry.COLUMN_SB)) {
             stringBuilder.setLength(0);
-            if (n<0) {
+            if (n < 0) {
                 stringBuilder.append("UNDO  \n");
             }
             String[] oldBases;
@@ -964,8 +967,8 @@ public abstract class GameActivity extends AppCompatActivity
                         String newPlayerOnBase = newBases[j];
                         if (oldPlayerOnBase.equals(newPlayerOnBase)) {
                             updatePlayerSBs(oldPlayerOnBase, j - i);
-                            stringBuilder.append(oldPlayerOnBase).append(" stole ").append(j-i);
-                            if(j-i > 1){
+                            stringBuilder.append(oldPlayerOnBase).append(" stole ").append(j - i);
+                            if (j - i > 1) {
                                 stringBuilder.append(" bases \n");
                             } else {
                                 stringBuilder.append(" base \n");
@@ -976,8 +979,8 @@ public abstract class GameActivity extends AppCompatActivity
                     for (String playerScored : currentRunsLog) {
                         if (oldPlayerOnBase.equals(playerScored)) {
                             updatePlayerSBs(oldPlayerOnBase, 3 - i);
-                            stringBuilder.append(oldPlayerOnBase).append(" stole ").append(3-i);
-                            if(3-i > 1){
+                            stringBuilder.append(oldPlayerOnBase).append(" stole ").append(3 - i);
+                            if (3 - i > 1) {
                                 stringBuilder.append(" bases \n");
                             } else {
                                 stringBuilder.append(" base \n");
@@ -1007,8 +1010,8 @@ public abstract class GameActivity extends AppCompatActivity
                             String newPlayerOnBase = newBases[j];
                             if (oldRunnerScored.equals(newPlayerOnBase)) {
                                 updatePlayerSBs(newPlayerOnBase, j - 3);
-                                stringBuilder.append(newPlayerOnBase).append(" stole ").append(3-j);
-                                if(3-j > 1){
+                                stringBuilder.append(newPlayerOnBase).append(" stole ").append(3 - j);
+                                if (3 - j > 1) {
                                     stringBuilder.append(" bases \n");
                                 } else {
                                     stringBuilder.append(" base \n");
@@ -1033,23 +1036,22 @@ public abstract class GameActivity extends AppCompatActivity
             }
         }
         cursor.close();
-        if(tempOuts>0) {
+        if (tempOuts > 0) {
             stringBuilder.append("\n Team Outs + ").append(tempOuts).append(" ");
         }
         mToastText = stringBuilder.toString();
-        toastUpdate(n<0);
+        toastUpdate(n < 0);
     }
 
 
-    private void toastUpdate(boolean undoing){
-        Log.d("zztop", "toastUpdate");
-        if(mToastText == null) {
+    private void toastUpdate(boolean undoing) {
+        if (mToastText == null) {
             return;
         }
         LayoutInflater inflater = getLayoutInflater();
         View layout = inflater.inflate(R.layout.toast_play, (ViewGroup) findViewById(R.id.toast_play_container));
         TextView toastPlayView = layout.findViewById(R.id.toast_play_text);
-        if(undoing){
+        if (undoing) {
             toastPlayView.setTextColor(Color.RED);
         }
         toastPlayView.setText(mToastText);
@@ -1059,7 +1061,7 @@ public abstract class GameActivity extends AppCompatActivity
             int height = displayMetrics.heightPixels;
             int width = displayMetrics.widthPixels;
             mCurrentToast = Toast.makeText(this, mToastText, Toast.LENGTH_SHORT);
-            mCurrentToast.setGravity(Gravity.TOP|Gravity.END,width/30, height * 2 / 7);
+            mCurrentToast.setGravity(Gravity.TOP | Gravity.END, width / 30, height * 2 / 7);
         }
         mCurrentToast.setView(layout);
         mCurrentToast.show();
@@ -1269,7 +1271,6 @@ public abstract class GameActivity extends AppCompatActivity
         if (gameLogIndex < gameCursor.getCount() - 1) {
             undoRedo = true;
             gameLogIndex++;
-            Log.d("barney", "gameLogIndex++ " + gameLogIndex + "   getRedoResult");
         } else {
             return null;
         }
@@ -1383,17 +1384,17 @@ public abstract class GameActivity extends AppCompatActivity
 
     class MyDragListener implements View.OnDragListener {
 
-
         @Override
         public boolean onDrag(View v, final DragEvent event) {
-            int action = event.getAction();
-            TextView dropPoint = null;
-            if (v.getId() != R.id.trash) {
-                dropPoint = (TextView) v;
-            }
             final View eventView = (View) event.getLocalState();
+
+            int action = event.getAction();
             switch (action) {
                 case DragEvent.ACTION_DRAG_STARTED:
+                    if (eventView == null) {
+                        mResetListeners = true;
+                        return false;
+                    }
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         switch (v.getId()) {
                             case R.id.home_display:
@@ -1409,6 +1410,16 @@ public abstract class GameActivity extends AppCompatActivity
                     }
                     break;
                 case DragEvent.ACTION_DROP:
+                    if (eventView == null) {
+                        return false;
+                    }
+                    TextView dropPoint = null;
+                    if (v.getId() != R.id.trash) {
+                        dropPoint = (TextView) v;
+                    }
+                    ClipData.Item item = event.getClipData().getItemAt(0);
+                    String nameString = item.getText().toString();
+
                     batterDisplay.setOnTouchListener(null);
                     firstDisplay.setOnTouchListener(null);
                     secondDisplay.setOnTouchListener(null);
@@ -1442,18 +1453,18 @@ public abstract class GameActivity extends AppCompatActivity
                         String sumOuts = gameOuts + tempOuts + " outs";
                         outsDisplay.setText(sumOuts);
                     } else {
-                        if(dropPoint == null){
+                        if (dropPoint == null) {
                             return false;
                         }
                         if (eventView instanceof TextView) {
+                            ((TextView) eventView).setText(null);
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                                 eventView.setForeground(null);
                             }
                         } else {
                             setBatterDropped();
                         }
-                        dropPoint.setAlpha(1);
-                        dropPoint.setText(eventView.getTag().toString());
+                        dropPoint.setText(nameString);
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                             dropPoint.setForeground(mRunner);
                         }
@@ -1461,10 +1472,10 @@ public abstract class GameActivity extends AppCompatActivity
                         if (dropPoint == homeDisplay) {
                             homeDisplay.bringToFront();
                             if (undoRedo) {
-                                    tempRunsLog.add(eventView.getTag().toString());
-                                } else {
-                                    currentRunsLog.add(eventView.getTag().toString());
-                                }
+                                tempRunsLog.add(nameString);
+                            } else {
+                                currentRunsLog.add(nameString);
+                            }
 
                             homeDisplay.setText(null);
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -1487,22 +1498,9 @@ public abstract class GameActivity extends AppCompatActivity
                     }
                     enableResetButton();
                     mResetListeners = true;
-                    eventView.setTag(null);
+                    mResetDrag = false;
                     break;
                 case DragEvent.ACTION_DRAG_ENDED:
-                    View dragView = (View) event.getLocalState();
-                    if (dragView != null) {
-                        dragView.setAlpha(1f);
-                        if(eventView.getTag() != null) {
-                            if(eventView instanceof TextView) {
-                                ((TextView) eventView).setText(eventView.getTag().toString());
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                    eventView.setForeground(mRunner);
-                                }
-                                eventView.setTag(null);
-                            }
-                        }
-                    }
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         switch (v.getId()) {
                             case R.id.home_display:
@@ -1519,17 +1517,27 @@ public abstract class GameActivity extends AppCompatActivity
                         mResetListeners = false;
                         setBaseListeners();
                     }
+                    if (eventView == null) {
+                        return false;
+                    }
+                    if (mResetDrag) {
+                        mResetDrag = false;
+                        if (eventView instanceof TextView && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            eventView.setForeground(mRunner);
+                        }
+                        eventView.setAlpha(1f);
+                    }
                     break;
             }
             return true;
         }
     }
 
-    private void setBatterDropped(){
+    private void setBatterDropped() {
         batterDisplay.setVisibility(View.INVISIBLE);
         batterMoved = true;
         if (playEntered) {
-            if(result.equals(StatsEntry.COLUMN_SB)) {
+            if (result.equals(StatsEntry.COLUMN_SB)) {
                 cancelSBClick();
             } else {
                 enableSubmitButton();
@@ -1552,11 +1560,12 @@ public abstract class GameActivity extends AppCompatActivity
                 setBaseListeners();
 
                 TextView tv;
-
+                String nameString;
                 switch (view.getId()) {
                     case R.id.batter:
                         view.setAlpha(.1f);
-                        view.setTag(currentBatter.getName());
+                        nameString = currentBatter.getName();
+
                         if (firstOccupied) {
                             secondDisplay.setOnDragListener(null);
                             thirdDisplay.setOnDragListener(null);
@@ -1570,8 +1579,8 @@ public abstract class GameActivity extends AppCompatActivity
                         break;
                     case R.id.first_display:
                         tv = (TextView) view;
-                        view.setTag(tv.getText().toString());
-                        tv.setText("");
+                        nameString = tv.getText().toString();
+                        view.setAlpha(.5f);
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                             tv.setForeground(null);
                         }
@@ -1584,8 +1593,8 @@ public abstract class GameActivity extends AppCompatActivity
                         break;
                     case R.id.second_display:
                         tv = (TextView) view;
-                        view.setTag(tv.getText().toString());
-                        tv.setText("");
+                        nameString = tv.getText().toString();
+                        view.setAlpha(.5f);
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                             tv.setForeground(null);
                         }
@@ -1596,8 +1605,8 @@ public abstract class GameActivity extends AppCompatActivity
                         break;
                     case R.id.third_display:
                         tv = (TextView) view;
-                        view.setTag(tv.getText().toString());
-                        tv.setText("");
+                        nameString = tv.getText().toString();
+                        view.setAlpha(.5f);
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                             tv.setForeground(null);
                         }
@@ -1608,8 +1617,15 @@ public abstract class GameActivity extends AppCompatActivity
                         return false;
                 }
 
-                ClipData data = ClipData.newPlainText("", "");
+                if (nameString.isEmpty()) {
+                    Toast.makeText(GameActivity.this, "Error", Toast.LENGTH_SHORT).show();
+                    view.setAlpha(1f);
+                    return false;
+                }
+                view.setTag(nameString);
+                ClipData data = ClipData.newPlainText("baserunner", nameString);
                 View.DragShadowBuilder shadowBuilder = new MyDragShadowBuilder(view);
+                mResetDrag = true;
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     view.startDragAndDrop(data, shadowBuilder, view, 0);
                 } else {
@@ -1635,10 +1651,11 @@ public abstract class GameActivity extends AppCompatActivity
         @Override
         public void onDrawShadow(Canvas canvas) {
             String playerText = getView().getTag().toString();
+            getView().setTag(null);
             int width = getView().getWidth();
             int height = getView().getHeight();
             int xPos = (canvas.getWidth() / 2);
-            int textSize = width/8;
+            int textSize = width / 8;
 
             Resources res = getResources();
             Bitmap b = BitmapFactory.decodeResource(res, R.drawable.ic_directions_run_black_18dp);
@@ -1646,23 +1663,23 @@ public abstract class GameActivity extends AppCompatActivity
             canvas.drawBitmap(resizedB, 0, 0, null);
 
             Paint paint = new Paint();
-            paint.setARGB(255, 255 , 255, 255);
-            float textWidth = paint.measureText(playerText) * width/90;
-            RectF rectF = new RectF((xPos - (textWidth/2) - (width/27)),height - (width * 2/9),(xPos + (textWidth/2) + (width/27)),(height - (width/54)));
+            paint.setARGB(255, 255, 255, 255);
+            float textWidth = paint.measureText(playerText) * width / 90;
+            RectF rectF = new RectF((xPos - (textWidth / 2) - (width / 27)), height - (width * 2 / 9), (xPos + (textWidth / 2) + (width / 27)), (height - (width / 54)));
             canvas.drawRoundRect(rectF, 20.0f, 20.0f, paint);
 
             paint.setStyle(Paint.Style.STROKE);
-            paint.setStrokeWidth(width/54);
+            paint.setStrokeWidth(width / 54);
             paint.setColor(getResources().getColor(R.color.colorPrimary));
             canvas.drawRoundRect(rectF, 20.0f, 20.0f, paint);
 
             Paint textPaint = new Paint();
             textPaint.setTextAlign(Paint.Align.CENTER);
-            textPaint.setARGB(255, 0 , 0, 0);
+            textPaint.setARGB(255, 0, 0, 0);
             textPaint.setColor(getResources().getColor(R.color.colorPrimaryDark));
             textPaint.setTextSize(textSize);
 
-            canvas.drawText(playerText, xPos, height-(width/18), textPaint);
+            canvas.drawText(playerText, xPos, height - (width / 18), textPaint);
         }
     }
 
@@ -1724,14 +1741,14 @@ public abstract class GameActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    private void setSB(MenuItem item){
+    private void setSB(MenuItem item) {
         RadioButton sbBtn = findViewById(R.id.sb_rb);
         SharedPreferences sharedPreferences = getSharedPreferences(mSelectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
         boolean sbOn = !sharedPreferences.getBoolean(StatsEntry.COLUMN_SB, false);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(StatsEntry.COLUMN_SB, sbOn);
         editor.apply();
-        if(sbOn){
+        if (sbOn) {
             sbBtn.setVisibility(View.VISIBLE);
             item.setTitle(R.string.stolen_bases_on);
         } else {
@@ -1806,7 +1823,6 @@ public abstract class GameActivity extends AppCompatActivity
     protected abstract void actionEditLineup();
 
     void setUndoRedo() {
-        Log.d("zztop", "setUndoRedo");
         setUndoButton();
         setRedoButton();
     }
@@ -1823,7 +1839,6 @@ public abstract class GameActivity extends AppCompatActivity
 
     private void setRedoButton() {
         boolean redo = gameLogIndex < highestIndex;
-        Log.d("barney","redo = " + redo + "  gameLogIndex=" + gameLogIndex + "  highestIndex=" + highestIndex);
         redoButton.setEnabled(redo);
         if (redo) {
             redoButton.setAlpha(1f);
@@ -1843,7 +1858,7 @@ public abstract class GameActivity extends AppCompatActivity
 
         SharedPreferences sharedPreferences = getSharedPreferences(mSelectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
         boolean sbOn = sharedPreferences.getBoolean(StatsEntry.COLUMN_SB, false);
-        if(sbOn){
+        if (sbOn) {
             sbItem.setTitle(R.string.stolen_bases_on);
         } else {
             sbItem.setTitle(R.string.stolen_bases_off);

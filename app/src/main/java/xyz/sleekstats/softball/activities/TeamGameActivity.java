@@ -311,7 +311,6 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
         );
         gameLogIndex++;
         highestIndex = gameLogIndex;
-        Log.d("barney", "gameLogIndex++ " + gameLogIndex + "   highestIndex = gameLogIndex = " + highestIndex);
 
         String onDeck = currentBatter.getFirestoreID();
 
@@ -325,7 +324,6 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
             setDisplays();
         } else {
             setUndoRedo();
-            Log.d("zztop", "setUndoRedoupdateGameLogs");
         }
 
         clearTempState();
@@ -572,7 +570,6 @@ public class TeamGameActivity extends GameActivity implements EndOfGameDialog.On
 
     @Override
     protected void redoPlay() {
-        Log.d("barney", "redoPlay");
         String redoResult = getRedoResult();
         if (redoResult == null) {
 //            if(isHome && gameLogIndex == lowestIndex + 1) {
