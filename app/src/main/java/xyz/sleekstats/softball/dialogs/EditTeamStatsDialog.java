@@ -130,7 +130,7 @@ public class EditTeamStatsDialog extends DialogFragment implements View.OnClickL
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        @SuppressLint("InflateParams") final  View view=inflater.inflate(R.layout.fragment_edit_dialog, null);
+        @SuppressLint("InflateParams") final  View view=inflater.inflate(R.layout.dialog_edit_teamstats, null);
 
         Context context = view.getContext();
         view.findViewById(R.id.addW).setOnClickListener(this);

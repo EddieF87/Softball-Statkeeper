@@ -18,6 +18,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -40,6 +41,15 @@ import xyz.sleekstats.softball.models.MainPageSelection;
 import xyz.sleekstats.softball.models.StatKeepUser;
 
 import com.firebase.ui.auth.AuthUI;
+import com.google.ads.consent.ConsentForm;
+import com.google.ads.consent.ConsentFormListener;
+import com.google.ads.consent.ConsentInfoUpdateListener;
+import com.google.ads.consent.ConsentInformation;
+import com.google.ads.consent.ConsentStatus;
+import com.google.ads.consent.DebugGeography;
+import com.google.ads.mediation.admob.AdMobAdapter;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -58,6 +68,8 @@ import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.lang.ref.WeakReference;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -96,11 +108,15 @@ public class MainActivity extends AppCompatActivity
     private ContinueLoadDialog mContinueLoadDialogFragment;
     private AcceptInviteDialog mAcceptInviteDialog;
     private final MyHandler mHandler = new MyHandler(this);
+    private ConsentForm form;
+    private static final String TAG = "concon";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        checkForConsent();
 
         MobileAds.initialize(this, "ca-app-pub-5443559095909539~1574171209");
 
@@ -127,6 +143,48 @@ public class MainActivity extends AppCompatActivity
         if (savedInstanceState != null) {
             mSelectionList = savedInstanceState.getParcelableArrayList("mSelectionList");
         }
+    }
+
+    private void checkForConsent() {
+        ConsentInformation consentInformation = ConsentInformation.getInstance(MainActivity.this);
+        String[] publisherIds = {"pub-5443559095909539"};
+
+        consentInformation.requestConsentInfoUpdate(publisherIds, new ConsentInfoUpdateListener() {
+            @Override
+            public void onConsentInfoUpdated(ConsentStatus consentStatus) {
+                switch (consentStatus) {
+                    case UNKNOWN:
+                        if (ConsentInformation.getInstance(getBaseContext())
+                                .isRequestLocationInEeaOrUnknown()) {
+                            requestConsent();
+                        }
+                }
+            }
+            @Override
+            public void onFailedToUpdateConsentInfo(String errorDescription) {
+            }
+        });
+    }
+
+    private void requestConsent() {
+        URL privacyUrl = null;
+        try {
+            privacyUrl = new URL("https://sites.google.com/site/sleekstatsprivacypolicy/");
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        form = new ConsentForm.Builder(MainActivity.this, privacyUrl)
+                .withListener(new ConsentFormListener() {
+                    @Override
+                    public void onConsentFormLoaded() {
+                        if (form != null) {
+                            form.show();
+                        }
+                    }
+                })
+                .withNonPersonalizedAdsOption()
+                .build();
+        form.load();
     }
 
     @Override
@@ -355,7 +413,7 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_sign_in:
                 mMsgView.setVisibility(View.GONE);
                 authenticateUser();
-                break;
+                invalidateOptionsMenu();
             case R.id.action_sign_out:
                 mMsgView.setText(R.string.sign_in_to_start_text);
                 mMsgView.setVisibility(View.VISIBLE);
@@ -368,11 +426,11 @@ public class MainActivity extends AppCompatActivity
                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
+                                invalidateOptionsMenu();
                             }
                         });
                 break;
         }
-        invalidateOptionsMenu();
         return true;
     }
 
@@ -476,7 +534,11 @@ public class MainActivity extends AppCompatActivity
     public void onDeleteConfirmed(final MainPageSelection mainPageSelection) {
         if (userID == null) {
             FirebaseUser currentUser = mAuth.getCurrentUser();
-            userID = currentUser.getUid();
+            if (currentUser != null) {
+                userID = currentUser.getUid();
+            } else {
+                return;
+            }
         }
         mSelectionList.remove(mainPageSelection);
         updateRV();
@@ -572,6 +634,9 @@ public class MainActivity extends AppCompatActivity
                         }
                         StatKeepUser newCreator = Collections.max(userList, StatKeepUser.levelComparator());
                         String creatorID = newCreator.getId();
+                        if(creatorID == null || creatorID.isEmpty()) {
+                            return;
+                        }
 
                         Map<String, Object> userCreatorUpdate = new HashMap<>();
                         userCreatorUpdate.put(StatsEntry.LEVEL, UsersActivity.LEVEL_CREATOR);
@@ -637,7 +702,12 @@ public class MainActivity extends AppCompatActivity
             mFirestore = FirebaseFirestore.getInstance();
         }
         if (userID == null) {
-            userID = mAuth.getCurrentUser().getUid();
+            FirebaseUser currentUser = mAuth.getCurrentUser();
+            if (currentUser != null) {
+                userID = currentUser.getUid();
+            } else {
+                return;
+            }
         }
         mFirestore.collection(LEAGUE_COLLECTION)
                 .whereLessThan(userID, 99)
@@ -747,7 +817,12 @@ public class MainActivity extends AppCompatActivity
     private boolean loadFromCache() {
         mSelectionList = new ArrayList<>();
         if (userID == null) {
-            userID = mAuth.getCurrentUser().getUid();
+            FirebaseUser currentUser = mAuth.getCurrentUser();
+            if (currentUser != null) {
+                userID = currentUser.getUid();
+            } else {
+                return false;
+            }
         }
         String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=?";
         String[] selectionArgs = new String[]{userID};
@@ -828,8 +903,10 @@ public class MainActivity extends AppCompatActivity
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
-            return;
+                return;
         }
+        userID = currentUser.getUid();
+
         final String userEmail = currentUser.getEmail();
         final String userDisplayName = currentUser.getDisplayName();
 

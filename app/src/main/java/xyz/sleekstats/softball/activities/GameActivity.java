@@ -43,6 +43,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.ads.consent.ConsentInfoUpdateListener;
+import com.google.ads.consent.ConsentInformation;
+import com.google.ads.consent.ConsentStatus;
+import com.google.ads.consent.DebugGeography;
+import com.google.ads.mediation.admob.AdMobAdapter;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 
@@ -70,6 +75,7 @@ public abstract class GameActivity extends AppCompatActivity
         GameSettingsDialog.OnFragmentInteractionListener,
         EditWarningDialog.OnFragmentInteractionListener {
 
+    private static final String TAG = "concon";
     Cursor gameCursor;
 
     TextView scoreboardAwayName;
@@ -206,6 +212,49 @@ public abstract class GameActivity extends AppCompatActivity
         startGame();
     }
 
+    private void checkForConsent() {
+        ConsentInformation consentInformation = ConsentInformation.getInstance(GameActivity.this);
+        String[] publisherIds = {"pub-5443559095909539"};
+
+        if(!consentInformation.isRequestLocationInEeaOrUnknown()) {
+            AdRequest adRequest = new AdRequest.Builder()
+                    .build();
+            AdView adView = findViewById(R.id.game_ad);
+            adView.loadAd(adRequest);
+            return;
+        }
+        consentInformation.requestConsentInfoUpdate(publisherIds, new ConsentInfoUpdateListener() {
+            @Override
+            public void onConsentInfoUpdated(ConsentStatus consentStatus) {
+                AdRequest adRequest;
+                switch (consentStatus) {
+                    case PERSONALIZED:
+                        adRequest = new AdRequest.Builder()
+                                .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
+                                .addTestDevice("E86B9D16D56D2E888CC1EF6694718979")
+                                .build();
+                        break;
+                    case NON_PERSONALIZED:
+                        Bundle extras = new Bundle();
+                        extras.putString("npa", "1");
+
+                        adRequest = new AdRequest.Builder()
+                                .addNetworkExtrasBundle(AdMobAdapter.class, extras)
+                                .build();
+                        break;
+                    default:
+                        return;
+                }
+                AdView adView = findViewById(R.id.game_ad);
+                adView.loadAd(adRequest);
+            }
+
+            @Override
+            public void onFailedToUpdateConsentInfo(String errorDescription) {
+            }
+        });
+    }
+
     protected abstract boolean getSelectionData();
 
     private void goToMain() {
@@ -216,9 +265,7 @@ public abstract class GameActivity extends AppCompatActivity
 
     private void setViews() {
 
-        AdView adView = findViewById(R.id.game_ad);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        adView.loadAd(adRequest);
+        checkForConsent();
 
         nowBatting = findViewById(R.id.nowbatting);
         outsDisplay = findViewById(R.id.num_of_outs);

@@ -183,4 +183,6 @@
     <string name="stolen_bases_off">Stolen Bases: Off</string>
     <string name="stolen_bases_on">Stolen Bases: On</string>
     <string name="edit_team_stats">Edit Team Stats</string>
+    <string name="edit_of_games_played">Edit # of Games Played</string>
+    <string name="gdpr">GDPR</string>
 </resources>

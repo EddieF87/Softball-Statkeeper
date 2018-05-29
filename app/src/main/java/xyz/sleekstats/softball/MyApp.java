@@ -1,6 +1,7 @@
 package xyz.sleekstats.softball;
 
 import android.app.Application;
+import android.support.multidex.MultiDexApplication;
 
 //import com.squareup.leakcanary.LeakCanary;
 
@@ -14,7 +15,7 @@ import xyz.sleekstats.softball.models.MainPageSelection;
  * Created by Eddie on 11/10/2017.
  */
 
-public class MyApp extends Application {
+public class MyApp extends MultiDexApplication {
 
     @Override
     public void onCreate() {

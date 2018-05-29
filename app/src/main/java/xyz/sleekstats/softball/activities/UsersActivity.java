@@ -12,6 +12,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -28,6 +31,14 @@ import xyz.sleekstats.softball.dialogs.RetryUserLoadDialog;
 import xyz.sleekstats.softball.models.MainPageSelection;
 import xyz.sleekstats.softball.models.StatKeepUser;
 
+import com.google.ads.consent.ConsentForm;
+import com.google.ads.consent.ConsentFormListener;
+import com.google.ads.consent.ConsentInfoUpdateListener;
+import com.google.ads.consent.ConsentInformation;
+import com.google.ads.consent.ConsentStatus;
+import com.google.ads.consent.DebugGeography;
+import com.google.ads.mediation.admob.AdMobAdapter;
+import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -44,6 +55,8 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.lang.ref.WeakReference;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -90,7 +103,7 @@ public class UsersActivity extends AppCompatActivity
     private RetryUserLoadDialog mRetryDialog;
 
     private final UsersActivity.MyHandler mHandler = new UsersActivity.MyHandler(this);
-
+    private ConsentForm form;
     private FirebaseFirestore firestore;
 
     @Override
@@ -117,7 +130,7 @@ public class UsersActivity extends AppCompatActivity
         } catch (Exception e) {
             goToMain();
         }
-        if(mSelectionID == null) {
+        if (mSelectionID == null) {
             goToMain();
             return;
         }
@@ -133,7 +146,7 @@ public class UsersActivity extends AppCompatActivity
         }
 
         TextView accessGuide = findViewById(R.id.set_access_levels);
-        if(mLevel > LEVEL_VIEW_WRITE) {
+        if (mLevel > LEVEL_VIEW_WRITE) {
             accessGuide.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -155,7 +168,7 @@ public class UsersActivity extends AppCompatActivity
         finish();
     }
 
-    private void startQuery(){
+    private void startQuery() {
         final String myEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         Query userCollection;
         if (mLevel > LEVEL_VIEW_WRITE) {
@@ -174,7 +187,7 @@ public class UsersActivity extends AppCompatActivity
 
                         mProgressBar.setVisibility(View.GONE);
                         if (task.isSuccessful()) {
-                            if(mRetryDialog != null) {
+                            if (mRetryDialog != null) {
                                 mRetryDialog.dismissIfShowing();
                             }
                             mRecyclerView.setVisibility(View.VISIBLE);
@@ -200,14 +213,14 @@ public class UsersActivity extends AppCompatActivity
                                     }
                                 }
                             }
-                            if(mCreator == null && mUserList.isEmpty() && !myEmailSet) {
+                            if (mCreator == null && mUserList.isEmpty() && !myEmailSet) {
                                 openRetryDialog();
                                 return;
                             }
-                            if(mLevel < LEVEL_ADMIN){
+                            if (mLevel < LEVEL_ADMIN) {
                                 myEmailSet = true;
                             }
-                            if(myEmailSet) {
+                            if (myEmailSet) {
                                 String levelString;
                                 switch (mLevel) {
                                     case 1:
@@ -235,6 +248,68 @@ public class UsersActivity extends AppCompatActivity
                         }
                     }
                 });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        ConsentInformation consentInformation = ConsentInformation.getInstance(UsersActivity.this);
+        consentInformation.setDebugGeography(DebugGeography.DEBUG_GEOGRAPHY_EEA);
+        if (consentInformation.isRequestLocationInEeaOrUnknown()) {
+            Log.d("concon", "usermenu activate!");
+            getMenuInflater().inflate(R.menu.menu_user, menu);
+            return true;
+        } else {
+            Log.d("concon", "usermenu failllllll!");
+
+        }
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.gdpr) {
+            checkForConsent();
+        }
+        return true;
+    }
+
+    private void checkForConsent() {
+        ConsentInformation consentInformation = ConsentInformation.getInstance(UsersActivity.this);
+        String[] publisherIds = {"pub-5443559095909539"};
+
+        consentInformation.requestConsentInfoUpdate(publisherIds, new ConsentInfoUpdateListener() {
+            @Override
+            public void onConsentInfoUpdated(ConsentStatus consentStatus) {
+                if (ConsentInformation.getInstance(getBaseContext())
+                        .isRequestLocationInEeaOrUnknown()) {
+                    requestConsent();
+                }
+            }
+            @Override
+            public void onFailedToUpdateConsentInfo(String reason) {
+            }
+        });
+    }
+
+    private void requestConsent() {
+        URL privacyUrl = null;
+        try {
+            privacyUrl = new URL("https://sites.google.com/site/sleekstatsprivacypolicy/");
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        form = new ConsentForm.Builder(UsersActivity.this, privacyUrl)
+                .withListener(new ConsentFormListener() {
+                    @Override
+                    public void onConsentFormLoaded() {
+                        if (form != null) {
+                            form.show();
+                        }
+                    }
+                })
+                .withNonPersonalizedAdsOption()
+                .build();
+        form.load();
     }
 
     private void updateRV() {
@@ -467,7 +542,7 @@ public class UsersActivity extends AppCompatActivity
 
     @Override
     public void onRetryChoice(boolean choice) {
-        if(choice) {
+        if (choice) {
             startQuery();
         } else {
             finish();
@@ -476,9 +551,11 @@ public class UsersActivity extends AppCompatActivity
 
     private static class MyHandler extends Handler {
         private final WeakReference<UsersActivity> mActivity;
+
         MyHandler(UsersActivity activity) {
             mActivity = new WeakReference<>(activity);
         }
+
         @Override
         public void handleMessage(Message msg) {
             UsersActivity activity = mActivity.get();

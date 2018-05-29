@@ -46,6 +46,7 @@ import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
 import xyz.sleekstats.softball.data.TimeStampUpdater;
 import xyz.sleekstats.softball.dialogs.ChangeTeamDialog;
 import xyz.sleekstats.softball.dialogs.DeleteConfirmationDialog;
+import xyz.sleekstats.softball.dialogs.EditGamesPlayedDialog;
 import xyz.sleekstats.softball.dialogs.EditNameDialog;
 import xyz.sleekstats.softball.models.MainPageSelection;
 import xyz.sleekstats.softball.models.Player;
@@ -674,6 +675,9 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             case R.id.action_delete_player:
                 showDeleteConfirmationDialog();
                 return true;
+            case R.id.action_edit_gamesplayed:
+                openEditGamesPlayedDialog();
+                return true;
             case R.id.action_player_mgr:
                 shuffleMgrView();
                 updateMenuTitle(item);
@@ -685,9 +689,21 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 }
                 return false;
         }
-        return super.
+        return super.onOptionsItemSelected(item);
+    }
 
-                onOptionsItemSelected(item);
+    private void openEditGamesPlayedDialog() {
+        Cursor cursor = getActivity().getContentResolver().query(mCurrentPlayerUri, new String[]{StatsEntry.COLUMN_G},
+                null, null, null);
+        if(cursor.moveToFirst()){
+            int games = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_G);
+
+            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            DialogFragment newFragment = EditGamesPlayedDialog.newInstance(playerName, mFirestoreID, games);
+            newFragment.show(fragmentTransaction, "");
+        }
+        cursor.close();
     }
 
     private void updateMenuTitle(MenuItem menuItem) {
@@ -711,6 +727,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         if (levelAuthorized(UsersActivity.LEVEL_ADMIN)) {
             menu.findItem(R.id.action_delete_player).setVisible(true);
             menu.findItem(R.id.action_player_mgr).setVisible(true);
+            menu.findItem(R.id.action_edit_gamesplayed).setVisible(true);
         }
 
         if (mSelectionType != MainPageSelection.TYPE_TEAM) {
@@ -721,6 +738,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             menu.findItem(R.id.action_delete_player).setVisible(false);
             menu.findItem(R.id.action_change_gender).setVisible(false);
             menu.findItem(R.id.action_player_mgr).setVisible(false);
+            menu.findItem(R.id.action_edit_gamesplayed).setVisible(false);
         }
     }
 

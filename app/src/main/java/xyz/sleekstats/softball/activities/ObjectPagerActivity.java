@@ -13,10 +13,15 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 
+import com.google.ads.consent.ConsentInfoUpdateListener;
+import com.google.ads.consent.ConsentInformation;
+import com.google.ads.consent.ConsentStatus;
+import com.google.ads.mediation.admob.AdMobAdapter;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 
@@ -69,9 +74,48 @@ public abstract class ObjectPagerActivity extends AppCompatActivity
         ActionBar ab = getSupportActionBar();
         ab.setDisplayHomeAsUpEnabled(true);
 
-        AdView adView = findViewById(R.id.pager_ad);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        adView.loadAd(adRequest);
+        checkForConsent();
+    }
+
+    private void checkForConsent() {
+        ConsentInformation consentInformation = ConsentInformation.getInstance(ObjectPagerActivity.this);
+        String[] publisherIds = {"pub-5443559095909539"};
+
+        if(!consentInformation.isRequestLocationInEeaOrUnknown()) {
+            AdRequest adRequest = new AdRequest.Builder()
+                    .build();
+            AdView adView = findViewById(R.id.pager_ad);
+            adView.loadAd(adRequest);
+            return;
+        }
+        consentInformation.requestConsentInfoUpdate(publisherIds, new ConsentInfoUpdateListener() {
+            @Override
+            public void onConsentInfoUpdated(ConsentStatus consentStatus) {
+                AdRequest adRequest;
+                switch (consentStatus) {
+                    case PERSONALIZED:
+                        adRequest = new AdRequest.Builder()
+                                .build();
+                        break;
+                    case NON_PERSONALIZED:
+                        Bundle extras = new Bundle();
+                        extras.putString("npa", "1");
+
+                        adRequest = new AdRequest.Builder()
+                                .addNetworkExtrasBundle(AdMobAdapter.class, extras)
+                                .build();
+                        break;
+                    default:
+                        return;
+                }
+                AdView adView = findViewById(R.id.pager_ad);
+                adView.loadAd(adRequest);
+            }
+
+            @Override
+            public void onFailedToUpdateConsentInfo(String errorDescription) {
+            }
+        });
     }
 
     @Override
