@@ -185,4 +185,5 @@
     <string name="edit_team_stats">Edit Team Stats</string>
     <string name="edit_of_games_played">Edit # of Games Played</string>
     <string name="gdpr">GDPR</string>
+    <string name="add_extra_out">Add Extra Out</string>
 </resources>

@@ -1219,9 +1219,13 @@ public abstract class GameActivity extends AppCompatActivity
         setBaseListeners();
         tempOuts = 0;
         tempRuns = 0;
-        String outs = gameOuts + " outs";
-        outsDisplay.setText(outs);
+        setOutsDisplay(gameOuts);
         setScoreDisplay();
+    }
+
+    private void setOutsDisplay(int outs) {
+        String outsString = outs + " outs";
+        outsDisplay.setText(outsString);
     }
 
     void emptyBases() {
@@ -1257,13 +1261,11 @@ public abstract class GameActivity extends AppCompatActivity
         gameOuts += tempOuts;
         if (result.equals(StatsEntry.COLUMN_SB)) {
             nextAfterSB();
-            String outs = gameOuts + " outs";
-            outsDisplay.setText(outs);
+            setOutsDisplay(gameOuts);
             return;
         }
         nextBatter();
-        String outs = gameOuts + " outs";
-        outsDisplay.setText(outs);
+        setOutsDisplay(gameOuts);
     }
 
     void deleteGameLogs() {
@@ -1427,6 +1429,12 @@ public abstract class GameActivity extends AppCompatActivity
         super.onDestroy();
     }
 
+    private void addTempOuts(){
+        tempOuts++;
+        int sumOuts = gameOuts + tempOuts;
+        setOutsDisplay(sumOuts);
+    }
+
     protected abstract boolean isTopOfInning();
 
     class MyDragListener implements View.OnDragListener {
@@ -1496,9 +1504,7 @@ public abstract class GameActivity extends AppCompatActivity
                         } else {
                             setBatterDropped();
                         }
-                        tempOuts++;
-                        String sumOuts = gameOuts + tempOuts + " outs";
-                        outsDisplay.setText(sumOuts);
+                        addTempOuts();
                     } else {
                         if (dropPoint == null) {
                             return false;
@@ -1762,6 +1768,9 @@ public abstract class GameActivity extends AppCompatActivity
                 break;
             case R.id.action_redo_play:
                 redoPlay();
+                break;
+            case R.id.action_add_out:
+                addTempOuts();
                 break;
             case R.id.action_edit_lineup:
                 openEditWarningDialog();
