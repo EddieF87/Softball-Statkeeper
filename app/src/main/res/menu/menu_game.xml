@@ -41,6 +41,11 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/action_edit_score"
+        android:title="@string/edit_score"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_set_SB"
         android:title="@string/stolen_bases_off"
         app:showAsAction="never" />

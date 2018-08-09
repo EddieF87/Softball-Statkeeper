@@ -235,6 +235,9 @@ public class PreviousPlaysAdapter extends RecyclerView.Adapter<PreviousPlaysAdap
 
             case StatsEntry.COLUMN_SAC_BUNT:
                 return " sac bunted";
+
+            case StatsEntry.COLUMN_K:
+                return " struck out";
         }
         return "";
     }

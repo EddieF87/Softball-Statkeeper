@@ -65,6 +65,7 @@ public class StatsContract {
         public static final String COLUMN_FC = "fielderschoice";
         public static final String COLUMN_ERROR = "error";
         public static final String COLUMN_SB = "stolenbase";
+        public static final String COLUMN_K = "k";
 
         public static final String COLUMN_RBI = "rbi";
         public static final String COLUMN_RUN = "runs";

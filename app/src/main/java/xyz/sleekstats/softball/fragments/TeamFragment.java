@@ -186,6 +186,7 @@ public class TeamFragment extends Fragment
         rootView.findViewById(R.id.tpl_title).setOnClickListener(this);
         rootView.findViewById(R.id.bb_title).setOnClickListener(this);
         rootView.findViewById(R.id.sb_title).setOnClickListener(this);
+        rootView.findViewById(R.id.k_title).setOnClickListener(this);
         rootView.findViewById(R.id.game_title).setOnClickListener(this);
 
         FloatingActionButton startAdderBtn = rootView.findViewById(R.id.btn_start_adder);
@@ -357,6 +358,7 @@ public class TeamFragment extends Fragment
         int sumSgl = 0;
         int sumBB = 0;
         int sumSB = 0;
+        int sumK = 0;
         int sumOut = 0;
         int sumRbi = 0;
         int sumRun = 0;
@@ -371,6 +373,7 @@ public class TeamFragment extends Fragment
             sumSgl += player.getSingles();
             sumBB += player.getWalks();
             sumSB += player.getStolenBases();
+            sumK += player.getStrikeouts();
             sumOut += player.getOuts();
             sumRbi += player.getRbis();
             sumRun += player.getRuns();
@@ -411,6 +414,7 @@ public class TeamFragment extends Fragment
         TextView tplView = totalLayout.findViewById(R.id.tpl_title);
         TextView bbView = totalLayout.findViewById(R.id.bb_title);
         TextView sbView = totalLayout.findViewById(R.id.sb_title);
+        TextView kView = totalLayout.findViewById(R.id.k_title);
         TextView gameView = totalLayout.findViewById(R.id.game_title);
 
         totalNameView.setText(R.string.total);
@@ -420,6 +424,7 @@ public class TeamFragment extends Fragment
         sglView.setText(String.valueOf(sumSgl));
         bbView.setText(String.valueOf(sumBB));
         sbView.setText(String.valueOf(sumSB));
+        kView.setText(String.valueOf(sumK));
         rbiView.setText(String.valueOf(sumRbi));
         runView.setText(String.valueOf(sumRun));
         gameView.setText(String.valueOf(sumG));
@@ -876,6 +881,10 @@ public class TeamFragment extends Fragment
 
             case R.id.sb_title:
                 Collections.sort(mPlayers, Player.sbComparator());
+                break;
+
+            case R.id.k_title:
+                Collections.sort(mPlayers, Player.kComparator());
                 break;
 
             default:

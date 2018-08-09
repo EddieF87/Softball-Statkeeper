@@ -53,6 +53,7 @@ import com.google.android.gms.ads.AdView;
 
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.data.StatsContract;
+import xyz.sleekstats.softball.dialogs.AddRunsDialog;
 import xyz.sleekstats.softball.dialogs.EditWarningDialog;
 import xyz.sleekstats.softball.dialogs.EndOfGameDialog;
 import xyz.sleekstats.softball.dialogs.FinishGameConfirmationDialog;
@@ -73,7 +74,8 @@ public abstract class GameActivity extends AppCompatActivity
         SaveDeleteGameDialog.OnFragmentInteractionListener,
         FinishGameConfirmationDialog.OnFragmentInteractionListener,
         GameSettingsDialog.OnFragmentInteractionListener,
-        EditWarningDialog.OnFragmentInteractionListener {
+        EditWarningDialog.OnFragmentInteractionListener,
+        AddRunsDialog.OnFragmentInteractionListener {
 
     private static final String TAG = "concon";
     Cursor gameCursor;
@@ -277,12 +279,15 @@ public abstract class GameActivity extends AppCompatActivity
         inningTopArrow = findViewById(R.id.inning_top_arrow);
         inningBottomArrow = findViewById(R.id.inning_bottom_arrow);
         RadioButton sbBtn = findViewById(R.id.sb_rb);
+        RadioButton kBtn = findViewById(R.id.k_rb);
         SharedPreferences sharedPreferences = getSharedPreferences(mSelectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
         boolean sbOn = sharedPreferences.getBoolean(StatsEntry.COLUMN_SB, false);
         if (sbOn) {
             sbBtn.setVisibility(View.VISIBLE);
+            kBtn.setVisibility(View.VISIBLE);
         } else {
             sbBtn.setVisibility(View.GONE);
+            kBtn.setVisibility(View.GONE);
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -515,6 +520,10 @@ public abstract class GameActivity extends AppCompatActivity
                 break;
             case R.id.bb_rb:
                 result = StatsEntry.COLUMN_BB;
+                group2.clearCheck();
+                break;
+            case R.id.k_rb:
+                result = StatsEntry.COLUMN_K;
                 group2.clearCheck();
                 break;
             case R.id.out_rb:
@@ -967,6 +976,12 @@ public abstract class GameActivity extends AppCompatActivity
             case StatsEntry.COLUMN_SF:
                 newValue = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_SF) + n;
                 values.put(StatsEntry.COLUMN_SF, newValue);
+                break;
+            case StatsEntry.COLUMN_K:
+                newValue = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_OUT) + n;
+                values.put(StatsEntry.COLUMN_OUT, newValue);
+                newValue = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_K) + n;
+                values.put(StatsEntry.COLUMN_K, newValue);
                 break;
             case StatsEntry.COLUMN_SAC_BUNT:
             case StatsEntry.COLUMN_SB:
@@ -1793,12 +1808,16 @@ public abstract class GameActivity extends AppCompatActivity
             case R.id.action_set_SB:
                 setSB(item);
                 break;
+            case R.id.action_edit_score:
+                openAddRunsDialog();
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
 
     private void setSB(MenuItem item) {
         RadioButton sbBtn = findViewById(R.id.sb_rb);
+        RadioButton kBtn = findViewById(R.id.k_rb);
         SharedPreferences sharedPreferences = getSharedPreferences(mSelectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
         boolean sbOn = !sharedPreferences.getBoolean(StatsEntry.COLUMN_SB, false);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -1806,9 +1825,11 @@ public abstract class GameActivity extends AppCompatActivity
         editor.apply();
         if (sbOn) {
             sbBtn.setVisibility(View.VISIBLE);
+            kBtn.setVisibility(View.VISIBLE);
             item.setTitle(R.string.stolen_bases_on);
         } else {
             sbBtn.setVisibility(View.GONE);
+            kBtn.setVisibility(View.GONE);
             item.setTitle(R.string.stolen_bases_off);
         }
     }
@@ -1818,6 +1839,22 @@ public abstract class GameActivity extends AppCompatActivity
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         DialogFragment newFragment = GameSettingsDialog.newInstance(totalInnings, genderSorter, mercyRuns, mSelectionID, inningNumber, gameHelp);
+        newFragment.show(fragmentTransaction, "");
+    }
+
+    private void openAddRunsDialog() {
+        int awayR;
+        int homeR;
+        if (isTopOfInning()) {
+            awayR = awayTeamRuns + tempRuns;
+            homeR = homeTeamRuns;
+        } else {
+            awayR = awayTeamRuns;
+            homeR = homeTeamRuns + tempRuns;
+        }
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        DialogFragment newFragment = AddRunsDialog.newInstance(awayR, homeR);
         newFragment.show(fragmentTransaction, "");
     }
 
@@ -2032,5 +2069,18 @@ public abstract class GameActivity extends AppCompatActivity
     @Override
     public void onEditConfirmed() {
         actionEditLineup();
+    }
+
+    @Override
+    public void onChangeRuns(int awayR, int homeR) {
+        if (isTopOfInning()) {
+            awayTeamRuns = awayR - tempRuns;
+            homeTeamRuns = homeR;
+        } else {
+            awayTeamRuns = awayR;
+            homeTeamRuns = homeR - tempRuns;
+        }
+        scoreboardAwayScore.setText(String.valueOf(awayR));
+        scoreboardHomeScore.setText(String.valueOf(homeR));
     }
 }

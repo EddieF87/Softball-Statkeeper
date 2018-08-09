@@ -130,6 +130,11 @@
                     android:id="@+id/sb_title"
                     style="@style/StatsTitleStyle"
                     android:text="@string/sb" />
+
+                <TextView
+                    android:id="@+id/k_title"
+                    style="@style/StatsTitleStyle"
+                    android:text="@string/k" />
             </LinearLayout>
 
             <android.support.v7.widget.RecyclerView

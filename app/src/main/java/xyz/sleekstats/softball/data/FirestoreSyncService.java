@@ -210,6 +210,7 @@ public class FirestoreSyncService extends IntentService {
                                                     int outs = 0;
                                                     int sfs = 0;
                                                     int sbs = 0;
+                                                    int strikeouts = 0;
 
                                                     for (DocumentSnapshot document : querySnapshot) {
                                                         String id = document.getId().substring(0, 5);
@@ -230,6 +231,7 @@ public class FirestoreSyncService extends IntentService {
                                                         outs += playerLog.getOuts();
                                                         sfs += playerLog.getSacfly();
                                                         sbs += playerLog.getStolenbases();
+                                                        strikeouts += playerLog.getStrikeouts();
                                                     }
 
                                                     final DocumentReference docRef = mFirestore.collection(LEAGUE_COLLECTION)
@@ -246,6 +248,7 @@ public class FirestoreSyncService extends IntentService {
                                                     int totalRuns = player.getRuns() + runs;
                                                     int totalSFs = player.getSacFlies() + sfs;
                                                     int totalSBs = player.getStolenBases() + sbs;
+                                                    int totalStrikeouts = player.getStrikeouts() + strikeouts;
 
                                                     player.setGames(totalGames);
                                                     player.setSingles(totalSingles);
@@ -258,6 +261,7 @@ public class FirestoreSyncService extends IntentService {
                                                     player.setRuns(totalRuns);
                                                     player.setSacFlies(totalSFs);
                                                     player.setStolenBases(totalSBs);
+                                                    player.setStrikeouts(totalStrikeouts);
 
                                                     if (querySnapshot.size() > 0) {
                                                         WriteBatch batch = mFirestore.batch();
@@ -288,6 +292,7 @@ public class FirestoreSyncService extends IntentService {
                                                     values.put(StatsEntry.COLUMN_OUT, player.getOuts());
                                                     values.put(StatsEntry.COLUMN_SF, player.getSacFlies());
                                                     values.put(StatsEntry.COLUMN_SB, player.getStolenBases());
+                                                    values.put(StatsEntry.COLUMN_K, player.getStrikeouts());
                                                     values.put(StatsEntry.COLUMN_G, player.getGames());
                                                     String selection = StatsEntry.COLUMN_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
 

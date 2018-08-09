@@ -43,6 +43,10 @@
             style="@style/ResultsButtonStyle"
             android:text="@string/bb" />
 
+        <RadioButton
+            android:id="@+id/k_rb"
+            style="@style/ResultsButtonStyle"
+            android:text="@string/k" />
     </RadioGroup>
 
     <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"

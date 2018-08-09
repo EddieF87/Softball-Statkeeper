@@ -35,6 +35,7 @@ public class Player implements Parcelable {
     private int outs;
     private int sacFlies;
     private int stolenBases;
+    private int strikeouts;
     private int games;
     private int gender;
     private long playerId;
@@ -75,6 +76,7 @@ public class Player implements Parcelable {
         this.outs = getColumnInt(cursor, StatsEntry.COLUMN_OUT);
         this.sacFlies = getColumnInt(cursor, StatsEntry.COLUMN_SF);
         this.stolenBases = getColumnInt(cursor, StatsEntry.COLUMN_SB);
+        this.strikeouts = getColumnInt(cursor, StatsEntry.COLUMN_K);
 
         if(tempData) {
             this.playerId = getColumnInt(cursor, StatsEntry.COLUMN_PLAYERID);
@@ -242,6 +244,14 @@ public class Player implements Parcelable {
         this.walks = walks;
     }
 
+    public int getStrikeouts() {
+        return strikeouts;
+    }
+
+    public void setStrikeouts(int strikeouts) {
+        this.strikeouts = strikeouts;
+    }
+
     public void setTeamfirestoreid(String teamfirestoreid) {this.teamfirestoreid = teamfirestoreid;}
 
     @Override
@@ -343,6 +353,15 @@ public class Player implements Parcelable {
             @Override
             public int compare(Player player1, Player player2) {
                 return player2.getWalks() - player1.getWalks();
+            }
+        };
+    }
+
+    public static Comparator<Player> kComparator () {
+        return new Comparator<Player>() {
+            @Override
+            public int compare(Player player1, Player player2) {
+                return player2.getStrikeouts() - player1.getStrikeouts();
             }
         };
     }
@@ -465,6 +484,7 @@ public class Player implements Parcelable {
         outs = in.readInt();
         sacFlies = in.readInt();
         stolenBases = in.readInt();
+        strikeouts = in.readInt();
         games = in.readInt();
         gender = in.readInt();
         playerId = in.readLong();
@@ -491,6 +511,7 @@ public class Player implements Parcelable {
         dest.writeInt(outs);
         dest.writeInt(sacFlies);
         dest.writeInt(stolenBases);
+        dest.writeInt(strikeouts);
         dest.writeInt(games);
         dest.writeInt(gender);
         dest.writeLong(playerId);

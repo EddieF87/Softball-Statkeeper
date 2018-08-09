@@ -21,11 +21,12 @@ public class PlayerLog implements Parcelable {
     private int walks;
     private int sacfly;
     private int stolenbases;
+    private int strikeouts;
 
     public PlayerLog() {
     }
 
-    public PlayerLog(long id, int rbi, int runs, int singles, int doubles, int triples, int hrs, int outs, int walks, int sacfly, int stolenbases) {
+    public PlayerLog(long id, int rbi, int runs, int singles, int doubles, int triples, int hrs, int outs, int walks, int sacfly, int stolenbases, int strikeouts) {
         this.id = id;
         this.rbi = rbi;
         this.runs = runs;
@@ -37,6 +38,7 @@ public class PlayerLog implements Parcelable {
         this.walks = walks;
         this.sacfly = sacfly;
         this.stolenbases = stolenbases;
+        this.strikeouts = strikeouts;
     }
 
     public int getDoubles() {
@@ -123,6 +125,14 @@ public class PlayerLog implements Parcelable {
 
     public void setStolenbases(int stolenbases) { this.stolenbases = stolenbases; }
 
+    public int getStrikeouts() {
+        return strikeouts;
+    }
+
+    public void setStrikeouts(int strikeouts) {
+        this.strikeouts = strikeouts;
+    }
+
     public void addWalks(int walks) {
         this.walks += walks;
     }
@@ -167,6 +177,10 @@ public class PlayerLog implements Parcelable {
         this.stolenbases += stolenbases;
     }
 
+    public void addStrikeouts (int strikeouts) {
+        this.strikeouts += strikeouts;
+    }
+
     protected PlayerLog(Parcel in) {
         id = in.readLong();
         rbi = in.readInt();
@@ -179,6 +193,7 @@ public class PlayerLog implements Parcelable {
         walks = in.readInt();
         sacfly = in.readInt();
         stolenbases = in.readInt();
+        strikeouts = in.readInt();
     }
 
     @Override
@@ -199,6 +214,7 @@ public class PlayerLog implements Parcelable {
         dest.writeInt(walks);
         dest.writeInt(sacfly);
         dest.writeInt(stolenbases);
+        dest.writeInt(strikeouts);
     }
 
     @SuppressWarnings("unused")

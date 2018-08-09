@@ -13,7 +13,7 @@ import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
 class StatsDbHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "playerstats.db";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
 
 
     StatsDbHelper(Context context) {
@@ -47,7 +47,8 @@ class StatsDbHelper extends SQLiteOpenHelper {
                         StatsEntry.COLUMN_RBI + " INTEGER DEFAULT 0, " +
 
                         StatsEntry.COLUMN_G + " INTEGER DEFAULT 0, " +
-                        StatsEntry.COLUMN_SB + " INTEGER DEFAULT 0" +
+                        StatsEntry.COLUMN_SB + " INTEGER DEFAULT 0, " +
+                        StatsEntry.COLUMN_K + " INTEGER DEFAULT 0" +
                         ");";
 
         final String SQL_CREATE_TEMPPLAYERSTATS_TABLE =
@@ -73,7 +74,8 @@ class StatsDbHelper extends SQLiteOpenHelper {
 
                         StatsEntry.COLUMN_RUN + " INTEGER DEFAULT 0, " +
                         StatsEntry.COLUMN_RBI + " INTEGER DEFAULT 0, " +
-                        StatsEntry.COLUMN_SB + " INTEGER DEFAULT 0" +
+                        StatsEntry.COLUMN_SB + " INTEGER DEFAULT 0, " +
+                        StatsEntry.COLUMN_K + " INTEGER DEFAULT 0" +
                         ");";
 
         final String SQL_CREATE_BACKUP_PLAYERSTATS_TABLE =
@@ -93,7 +95,8 @@ class StatsDbHelper extends SQLiteOpenHelper {
                         StatsEntry.COLUMN_OUT + " INTEGER DEFAULT 0, " +
                         StatsEntry.COLUMN_RUN + " INTEGER DEFAULT 0, " +
                         StatsEntry.COLUMN_RBI + " INTEGER DEFAULT 0, " +
-                        StatsEntry.COLUMN_SB + " INTEGER DEFAULT 0" +
+                        StatsEntry.COLUMN_SB + " INTEGER DEFAULT 0, " +
+                        StatsEntry.COLUMN_K + " INTEGER DEFAULT 0" +
                         ");";
 
         final String SQL_CREATE_TEAMSTATS_TABLE =
@@ -191,7 +194,8 @@ class StatsDbHelper extends SQLiteOpenHelper {
                         StatsEntry.COLUMN_OUT + " INTEGER DEFAULT 0, " +
                         StatsEntry.COLUMN_RUN + " INTEGER DEFAULT 0, " +
                         StatsEntry.COLUMN_RBI + " INTEGER DEFAULT 0, " +
-                        StatsEntry.COLUMN_SB + " INTEGER DEFAULT 0" +
+                        StatsEntry.COLUMN_SB + " INTEGER DEFAULT 0, " +
+                        StatsEntry.COLUMN_K + " INTEGER DEFAULT 0" +
                         ");";
 
 
@@ -222,6 +226,15 @@ class StatsDbHelper extends SQLiteOpenHelper {
                             + " ADD COLUMN " + StatsEntry.COLUMN_SB + "  INTEGER DEFAULT 0");
                     db.execSQL("ALTER TABLE " + StatsEntry.BOXSCORE_PLAYERS_TABLE_NAME
                             + " ADD COLUMN " + StatsEntry.COLUMN_SB + "  INTEGER DEFAULT 0");
+                case 3:
+                    db.execSQL("ALTER TABLE " + StatsEntry.PLAYERS_TABLE_NAME
+                            + " ADD COLUMN " + StatsEntry.COLUMN_K + "  INTEGER DEFAULT 0");
+                    db.execSQL("ALTER TABLE " + StatsEntry.TEMPPLAYERS_TABLE_NAME
+                            + " ADD COLUMN " + StatsEntry.COLUMN_K + "  INTEGER DEFAULT 0");
+                    db.execSQL("ALTER TABLE " + StatsEntry.BACKUP_PLAYERS_TABLE_NAME
+                            + " ADD COLUMN " + StatsEntry.COLUMN_K + "  INTEGER DEFAULT 0");
+                    db.execSQL("ALTER TABLE " + StatsEntry.BOXSCORE_PLAYERS_TABLE_NAME
+                            + " ADD COLUMN " + StatsEntry.COLUMN_K + "  INTEGER DEFAULT 0");
             }
         }
     }

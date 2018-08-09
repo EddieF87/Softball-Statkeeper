@@ -115,4 +115,9 @@
         style="@style/StatsStyle"
         tools:text="44" />
 
+    <TextView
+        android:id="@+id/k"
+        style="@style/StatsStyle"
+        tools:text="44" />
+
 </LinearLayout>
