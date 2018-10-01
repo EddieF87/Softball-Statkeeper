@@ -180,12 +180,13 @@
     <string name="sb">SB</string>
     <string name="game">Game</string>
     <string name="reset_lineup_rules">Reset Lineup Rules</string>
-    <string name="stolen_bases_off">K\'s &amp; SB\'s: Off</string>
-    <string name="stolen_bases_on">K\'s &amp; SB\'s: On</string>
+    <string name="stolen_bases_off">K/SB/HBP: Off</string>
+    <string name="stolen_bases_on">K/SB/HBP: On</string>
     <string name="edit_team_stats">Edit Team Stats</string>
     <string name="edit_of_games_played">Edit # of Games Played</string>
     <string name="gdpr">GDPR</string>
     <string name="add_extra_out">Add Extra Out</string>
     <string name="k">K</string>
     <string name="edit_score">Edit Score</string>
+    <string name="hbp">HBP</string>
 </resources>

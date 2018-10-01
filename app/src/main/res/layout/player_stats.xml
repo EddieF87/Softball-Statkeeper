@@ -125,10 +125,22 @@
         android:layout_weight="3"
         android:gravity="center"
         android:text="@string/k"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/playerboard_hbp_title"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/playerboard_sb_title"
         app:layout_constraintTop_toTopOf="@id/playerboard_sb_title" />
+
+    <TextView
+        android:id="@+id/playerboard_hbp_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="3"
+        android:gravity="center"
+        android:text="@string/hbp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/playerboard_k_title"
+        app:layout_constraintTop_toTopOf="@id/playerboard_k_title" />
 
 
     <TextView
@@ -200,6 +212,14 @@
         app:layout_constraintBottom_toBottomOf="@+id/playerboard_sb"
         app:layout_constraintLeft_toLeftOf="@+id/playerboard_k_title"
         app:layout_constraintRight_toRightOf="@+id/playerboard_k_title"
+        tools:text="0" />
+
+    <TextView
+        android:id="@+id/playerboard_hbp"
+        style="@style/PlayerBoardStyle"
+        app:layout_constraintBottom_toBottomOf="@+id/playerboard_k"
+        app:layout_constraintLeft_toLeftOf="@+id/playerboard_hbp_title"
+        app:layout_constraintRight_toRightOf="@+id/playerboard_hbp_title"
         tools:text="0" />
 
     <TextView

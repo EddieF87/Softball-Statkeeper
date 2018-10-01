@@ -97,6 +97,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     private static final String RESULT_RBI = "RBI";
     private static final String RESULT_SB = "SB";
     private static final String RESULT_K = "K";
+    private static final String RESULT_HBP = "HBP";
 
     private static final String KEY_PLAYER_URI = "playerURI";
 
@@ -311,7 +312,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
 
     private void updatePlayerDataFirebase(String currentResult, int currentResultCount) {
         if(mPlayerLog == null) {
-            mPlayerLog = new PlayerLog(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+            mPlayerLog = new PlayerLog(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
         }
         switch (currentResult) {
             case RESULT_1B:
@@ -347,6 +348,9 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             case RESULT_K:
                 mPlayerLog.addStrikeouts(currentResultCount);
                 mPlayerLog.addOuts(currentResultCount);
+                break;
+            case RESULT_HBP:
+                mPlayerLog.addHBP(currentResultCount);
                 break;
         }
     }
@@ -466,6 +470,9 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                         case RESULT_K:
                             statEntry = StatsEntry.COLUMN_K;
                             break;
+                        case RESULT_HBP:
+                            statEntry = StatsEntry.COLUMN_HBP;
+                            break;
                         default:
                             return;
                     }
@@ -515,6 +522,19 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         RadioButton rbi = view.findViewById(R.id.rbi_rb);
         RadioButton sb = view.findViewById(R.id.sb_rb);
         RadioButton k = view.findViewById(R.id.k_rb);
+        RadioButton hbp = view.findViewById(R.id.hbp_rb);
+
+        hbp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean checked = ((RadioButton) view).isChecked();
+                if (checked) {
+                    group2.clearCheck();
+                    result = RESULT_HBP;
+                    resultText.setText(result);
+                }
+            }
+        });
         bb.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

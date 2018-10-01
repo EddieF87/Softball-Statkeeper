@@ -21,6 +21,11 @@
         app:layout_constraintVertical_chainStyle="packed">
 
         <RadioButton
+            android:id="@+id/hbp_rb"
+            style="@style/SmallRadioButtonStyle"
+            android:text="@string/hbp" />
+
+        <RadioButton
             android:id="@+id/bb_rb"
             style="@style/SmallRadioButtonStyle"
             android:text="@string/bb" />

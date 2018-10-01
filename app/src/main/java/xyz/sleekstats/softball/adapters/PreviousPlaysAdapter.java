@@ -238,6 +238,9 @@ public class PreviousPlaysAdapter extends RecyclerView.Adapter<PreviousPlaysAdap
 
             case StatsEntry.COLUMN_K:
                 return " struck out";
+
+            case StatsEntry.COLUMN_HBP:
+                return " was hit by pitch";
         }
         return "";
     }

@@ -149,6 +149,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         rootView.findViewById(R.id.bb_title).setOnClickListener(this);
         rootView.findViewById(R.id.sb_title).setOnClickListener(this);
         rootView.findViewById(R.id.k_title).setOnClickListener(this);
+        rootView.findViewById(R.id.hbp_title).setOnClickListener(this);
         rootView.findViewById(R.id.game_title).setOnClickListener(this);
 
         String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
@@ -159,14 +160,9 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
 
         teamsArray = new ArrayList<>();
         teamsArray.add(KEY_ALL_TEAMS);
-//        teamIDs = new HashMap<>();
-//        teamIDs.put(StatsEntry.FREE_AGENT, -1);
         mCursor.moveToPosition(-1);
         while (mCursor.moveToNext()) {
             String teamName = StatsContract.getColumnString(mCursor, StatsEntry.COLUMN_NAME);
-//            String firestoreID = StatsContract.getColumnString(mCursor, StatsEntry.COLUMN_FIRESTORE_ID);
-//            int id = StatsContract.getColumnInt(mCursor, StatsEntry._ID);
-//            teamIDs.put(firestoreID, id);
             teamsArray.add(teamName);
         }
         teamsArray.add(StatsEntry.FREE_AGENT);
@@ -415,6 +411,10 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
                 Collections.sort(mPlayers, Player.kComparator());
                 break;
 
+            case R.id.hbp_title:
+                Collections.sort(mPlayers, Player.hbpComparator());
+                break;
+
             default:
                 Toast.makeText(getActivity(), "Error. Please contact sleekstats@gmail.com", Toast.LENGTH_LONG).show();
         }
@@ -422,11 +422,6 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
     }
 
     public void updateTeams(String team, int id, String firestoreID) {
-//        if (teamIDs == null) {
-//            teamIDs = new HashMap<>();
-//            teamIDs.put(StatsEntry.FREE_AGENT, -1);
-//        }
-//        teamIDs.put(firestoreID, id);
 
         if (mSpinnerAdapter == null || teamsArray == null) {
             return;

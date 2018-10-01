@@ -36,6 +36,7 @@ public class Player implements Parcelable {
     private int sacFlies;
     private int stolenBases;
     private int strikeouts;
+    private int hbp;
     private int games;
     private int gender;
     private long playerId;
@@ -77,6 +78,7 @@ public class Player implements Parcelable {
         this.sacFlies = getColumnInt(cursor, StatsEntry.COLUMN_SF);
         this.stolenBases = getColumnInt(cursor, StatsEntry.COLUMN_SB);
         this.strikeouts = getColumnInt(cursor, StatsEntry.COLUMN_K);
+        this.hbp = getColumnInt(cursor, StatsEntry.COLUMN_HBP);
 
         if(tempData) {
             this.playerId = getColumnInt(cursor, StatsEntry.COLUMN_PLAYERID);
@@ -95,11 +97,11 @@ public class Player implements Parcelable {
     }
 
     public double getOBP() {
-        if (getABs() + this.walks + this.sacFlies == 0) {
+        if (getABs() + this.walks + this.sacFlies + this.hbp == 0) {
             return .000;
         }
-        return ((double) (getHits() + this.walks))
-                / (getABs() + this.walks + this.sacFlies);
+        return ((double) (getHits() + this.walks + this.hbp))
+                / (getABs() + this.walks + this.hbp + this.sacFlies);
     }
 
     public double getSLG() {
@@ -127,7 +129,7 @@ public class Player implements Parcelable {
     }
 
     private int getPAs() {
-        return this.getABs() + this.walks + this.sacFlies;
+        return this.getABs() + this.walks + this.sacFlies + this.hbp;
     }
 
     public String getName() {
@@ -252,6 +254,14 @@ public class Player implements Parcelable {
         this.strikeouts = strikeouts;
     }
 
+    public int getHbp() {
+        return hbp;
+    }
+
+    public void setHbp(int hbp) {
+        this.hbp = hbp;
+    }
+
     public void setTeamfirestoreid(String teamfirestoreid) {this.teamfirestoreid = teamfirestoreid;}
 
     @Override
@@ -362,6 +372,15 @@ public class Player implements Parcelable {
             @Override
             public int compare(Player player1, Player player2) {
                 return player2.getStrikeouts() - player1.getStrikeouts();
+            }
+        };
+    }
+
+    public static Comparator<Player> hbpComparator () {
+        return new Comparator<Player>() {
+            @Override
+            public int compare(Player player1, Player player2) {
+                return player2.getHbp() - player1.getHbp();
             }
         };
     }
@@ -485,6 +504,7 @@ public class Player implements Parcelable {
         sacFlies = in.readInt();
         stolenBases = in.readInt();
         strikeouts = in.readInt();
+        hbp = in.readInt();
         games = in.readInt();
         gender = in.readInt();
         playerId = in.readLong();
@@ -512,6 +532,7 @@ public class Player implements Parcelable {
         dest.writeInt(sacFlies);
         dest.writeInt(stolenBases);
         dest.writeInt(strikeouts);
+        dest.writeInt(hbp);
         dest.writeInt(games);
         dest.writeInt(gender);
         dest.writeLong(playerId);

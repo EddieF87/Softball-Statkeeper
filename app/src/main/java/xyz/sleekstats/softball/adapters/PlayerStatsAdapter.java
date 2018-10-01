@@ -152,6 +152,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
         private final TextView bbView;
         private final TextView sbView;
         private final TextView kView;
+        private final TextView hbpView;
         private final TextView gameView;
         private final TextView nameView;
         private final TextView teamView;
@@ -177,6 +178,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             bbView = linearLayout.findViewById(R.id.bb);
             sbView = linearLayout.findViewById(R.id.sb);
             kView = linearLayout.findViewById(R.id.k);
+            hbpView = linearLayout.findViewById(R.id.hbp);
             gameView = linearLayout.findViewById(R.id.game);
         }
 
@@ -262,6 +264,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             int sf = player.getSacFlies();
             int sb = player.getStolenBases();
             int k = player.getStrikeouts();
+            int hbp = player.getHbp();
             abView.setText(String.valueOf(ab));
             hitView.setText(String.valueOf(player.getHits()));
             hrView.setText(String.valueOf(player.getHrs()));
@@ -274,6 +277,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
             bbView.setText(String.valueOf(bb));
             sbView.setText(String.valueOf(sb));
             kView.setText(String.valueOf(k));
+            hbpView.setText(String.valueOf(hbp));
             NumberFormat formatter = new DecimalFormat("#.000");
             if (ab == 0) {
                 avgView.setText("- - -");

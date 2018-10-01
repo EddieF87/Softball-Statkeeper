@@ -187,6 +187,7 @@ public class TeamFragment extends Fragment
         rootView.findViewById(R.id.bb_title).setOnClickListener(this);
         rootView.findViewById(R.id.sb_title).setOnClickListener(this);
         rootView.findViewById(R.id.k_title).setOnClickListener(this);
+        rootView.findViewById(R.id.hbp_title).setOnClickListener(this);
         rootView.findViewById(R.id.game_title).setOnClickListener(this);
 
         FloatingActionButton startAdderBtn = rootView.findViewById(R.id.btn_start_adder);
@@ -359,6 +360,7 @@ public class TeamFragment extends Fragment
         int sumBB = 0;
         int sumSB = 0;
         int sumK = 0;
+        int sumHBP = 0;
         int sumOut = 0;
         int sumRbi = 0;
         int sumRun = 0;
@@ -374,6 +376,7 @@ public class TeamFragment extends Fragment
             sumBB += player.getWalks();
             sumSB += player.getStolenBases();
             sumK += player.getStrikeouts();
+            sumHBP += player.getHbp();
             sumOut += player.getOuts();
             sumRbi += player.getRbis();
             sumRun += player.getRuns();
@@ -415,6 +418,7 @@ public class TeamFragment extends Fragment
         TextView bbView = totalLayout.findViewById(R.id.bb_title);
         TextView sbView = totalLayout.findViewById(R.id.sb_title);
         TextView kView = totalLayout.findViewById(R.id.k_title);
+        TextView hbpView = totalLayout.findViewById(R.id.hbp_title);
         TextView gameView = totalLayout.findViewById(R.id.game_title);
 
         totalNameView.setText(R.string.total);
@@ -425,6 +429,7 @@ public class TeamFragment extends Fragment
         bbView.setText(String.valueOf(sumBB));
         sbView.setText(String.valueOf(sumSB));
         kView.setText(String.valueOf(sumK));
+        hbpView.setText(String.valueOf(sumHBP));
         rbiView.setText(String.valueOf(sumRbi));
         runView.setText(String.valueOf(sumRun));
         gameView.setText(String.valueOf(sumG));
@@ -435,7 +440,7 @@ public class TeamFragment extends Fragment
         abView.setText(String.valueOf(sumAB));
 
         double sumAvg = convertAVG(sumHits, sumAB);
-        double sumOBP = convertOBP(sumHits, sumAB, sumBB, sumSf);
+        double sumOBP = convertOBP(sumHits, sumAB, sumBB, sumSf, sumHBP);
         double sumSLG = convertSLG(sumAB, sumSgl, sumDbl, sumTpl, sumHr);
         double sumOPS = sumOBP + sumSLG;
 
@@ -479,12 +484,12 @@ public class TeamFragment extends Fragment
         return ((double) hits) / atbats;
     }
 
-    private double convertOBP(int hits, int atbats, int walks, int sacFlies) {
-        if (atbats + walks + sacFlies == 0) {
+    private double convertOBP(int hits, int atbats, int walks, int sacFlies, int hbp) {
+        if (atbats + walks + sacFlies + hbp == 0) {
             return .000;
         }
-        return ((double) (hits + walks))
-                / (atbats + walks + sacFlies);
+        return ((double) (hits + walks + hbp))
+                / (atbats + walks + hbp + sacFlies);
     }
 
     private double convertSLG(int atbats, int singles, int doubles, int triples, int hrs) {
@@ -885,6 +890,10 @@ public class TeamFragment extends Fragment
 
             case R.id.k_title:
                 Collections.sort(mPlayers, Player.kComparator());
+                break;
+
+            case R.id.hbp_title:
+                Collections.sort(mPlayers, Player.hbpComparator());
                 break;
 
             default:

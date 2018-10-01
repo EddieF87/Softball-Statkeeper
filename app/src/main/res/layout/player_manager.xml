@@ -19,6 +19,11 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <RadioButton
+            android:id="@+id/hbp_rb"
+            style="@style/SmallRadioButtonStyle"
+            android:text="@string/hbp" />
+
+        <RadioButton
             android:id="@+id/bb_rb"
             style="@style/SmallRadioButtonStyle"
             android:text="@string/bb" />

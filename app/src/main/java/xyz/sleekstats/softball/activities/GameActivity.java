@@ -280,14 +280,17 @@ public abstract class GameActivity extends AppCompatActivity
         inningBottomArrow = findViewById(R.id.inning_bottom_arrow);
         RadioButton sbBtn = findViewById(R.id.sb_rb);
         RadioButton kBtn = findViewById(R.id.k_rb);
+        RadioButton hbpBtn = findViewById(R.id.hbp_rb);
         SharedPreferences sharedPreferences = getSharedPreferences(mSelectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
         boolean sbOn = sharedPreferences.getBoolean(StatsEntry.COLUMN_SB, false);
         if (sbOn) {
             sbBtn.setVisibility(View.VISIBLE);
             kBtn.setVisibility(View.VISIBLE);
+            hbpBtn.setVisibility(View.VISIBLE);
         } else {
             sbBtn.setVisibility(View.GONE);
             kBtn.setVisibility(View.GONE);
+            hbpBtn.setVisibility(View.GONE);
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -544,6 +547,10 @@ public abstract class GameActivity extends AppCompatActivity
                 break;
             case R.id.sacbunt_rb:
                 result = StatsEntry.COLUMN_SAC_BUNT;
+                group1.clearCheck();
+                break;
+            case R.id.hbp_rb:
+                result = StatsEntry.COLUMN_HBP;
                 group1.clearCheck();
                 break;
             case R.id.sb_rb:
@@ -982,6 +989,10 @@ public abstract class GameActivity extends AppCompatActivity
                 values.put(StatsEntry.COLUMN_OUT, newValue);
                 newValue = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_K) + n;
                 values.put(StatsEntry.COLUMN_K, newValue);
+                break;
+            case StatsEntry.COLUMN_HBP:
+                newValue = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_HBP) + n;
+                values.put(StatsEntry.COLUMN_HBP, newValue);
                 break;
             case StatsEntry.COLUMN_SAC_BUNT:
             case StatsEntry.COLUMN_SB:
@@ -1818,6 +1829,7 @@ public abstract class GameActivity extends AppCompatActivity
     private void setSB(MenuItem item) {
         RadioButton sbBtn = findViewById(R.id.sb_rb);
         RadioButton kBtn = findViewById(R.id.k_rb);
+        RadioButton hbpBtn = findViewById(R.id.hbp_rb);
         SharedPreferences sharedPreferences = getSharedPreferences(mSelectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
         boolean sbOn = !sharedPreferences.getBoolean(StatsEntry.COLUMN_SB, false);
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -1826,10 +1838,12 @@ public abstract class GameActivity extends AppCompatActivity
         if (sbOn) {
             sbBtn.setVisibility(View.VISIBLE);
             kBtn.setVisibility(View.VISIBLE);
+            hbpBtn.setVisibility(View.VISIBLE);
             item.setTitle(R.string.stolen_bases_on);
         } else {
             sbBtn.setVisibility(View.GONE);
             kBtn.setVisibility(View.GONE);
+            hbpBtn.setVisibility(View.GONE);
             item.setTitle(R.string.stolen_bases_off);
         }
     }
