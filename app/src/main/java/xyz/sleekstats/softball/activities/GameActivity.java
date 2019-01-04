@@ -26,7 +26,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.DragEvent;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -46,13 +45,18 @@ import android.widget.Toast;
 import com.google.ads.consent.ConsentInfoUpdateListener;
 import com.google.ads.consent.ConsentInformation;
 import com.google.ads.consent.ConsentStatus;
-import com.google.ads.consent.DebugGeography;
 import com.google.ads.mediation.admob.AdMobAdapter;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.List;
+
 import xyz.sleekstats.softball.R;
 import xyz.sleekstats.softball.data.StatsContract;
+import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
 import xyz.sleekstats.softball.dialogs.AddRunsDialog;
 import xyz.sleekstats.softball.dialogs.EditWarningDialog;
 import xyz.sleekstats.softball.dialogs.EndOfGameDialog;
@@ -60,14 +64,7 @@ import xyz.sleekstats.softball.dialogs.FinishGameConfirmationDialog;
 import xyz.sleekstats.softball.dialogs.GameSettingsDialog;
 import xyz.sleekstats.softball.dialogs.SaveDeleteGameDialog;
 import xyz.sleekstats.softball.models.BaseLog;
-
-import xyz.sleekstats.softball.data.StatsContract.StatsEntry;
 import xyz.sleekstats.softball.models.Player;
-
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class GameActivity extends AppCompatActivity
         implements EndOfGameDialog.OnFragmentInteractionListener,
@@ -1076,10 +1073,9 @@ public abstract class GameActivity extends AppCompatActivity
                 oldRunsLog[2] = run3;
                 oldRunsLog[3] = run4;
 
-                for (int i = 0; i < oldRunsLog.length; i++) {
-                    String oldRunnerScored = oldRunsLog[i];
+                for (String oldRunnerScored : oldRunsLog) {
                     if (oldRunnerScored != null && !oldRunnerScored.isEmpty()) {
-                        for (int j = 0; i < oldBases.length; j++) {
+                        for (int j = 0; j < oldBases.length; j++) {
                             String newPlayerOnBase = newBases[j];
                             if (oldRunnerScored.equals(newPlayerOnBase)) {
                                 updatePlayerSBs(newPlayerOnBase, j - 3);

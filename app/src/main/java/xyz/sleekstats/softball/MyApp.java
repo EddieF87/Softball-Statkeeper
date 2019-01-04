@@ -1,15 +1,14 @@
 package xyz.sleekstats.softball;
 
-import android.app.Application;
 import android.support.multidex.MultiDexApplication;
-
-//import com.squareup.leakcanary.LeakCanary;
 
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.core.CrashlyticsCore;
 
 import io.fabric.sdk.android.Fabric;
 import xyz.sleekstats.softball.models.MainPageSelection;
+
+//import com.squareup.leakcanary.LeakCanary;
 
 /**
  * Created by Eddie on 11/10/2017.

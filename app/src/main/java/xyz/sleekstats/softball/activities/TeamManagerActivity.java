@@ -468,9 +468,9 @@ public class TeamManagerActivity extends ExportActivity
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "Stats";
+                    return getString(R.string.stats);
                 case 1:
-                    return "Game";
+                    return getString(R.string.game);
                 default:
                     return null;
             }

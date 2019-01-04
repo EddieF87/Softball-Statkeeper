@@ -15,9 +15,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import xyz.sleekstats.softball.R;
-import xyz.sleekstats.softball.activities.UsersActivity;
 import xyz.sleekstats.softball.data.StatsContract;
-import xyz.sleekstats.softball.models.MainPageSelection;
 
 public class EditGamesPlayedDialog extends DialogFragment {
 

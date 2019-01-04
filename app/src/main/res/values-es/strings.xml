@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">SleekStats: Softball</string>
+    <string name="nowbatting">At Bat:</string>
+    <string name="_3b">3B</string>
+    <string name="bb">BB</string>
+    <string name="_2b">2B</string>
+    <string name="_1b">1B</string>
+    <string name="ops">OPS</string>
+    <string name="slg">SLG</string>
+    <string name="obp">OBP</string>
+    <string name="avg">PROM</string>
+    <string name="rbi">RBI</string>
+    <string name="r">D</string>
+    <string name="hr">HR</string>
+    <string name="h">H</string>
+    <string name="ab">AB</string>
+    <string name="g">G</string>
+
+    <string name="out">Out</string>
+    <string name="error">Error</string>
+    <string name="sf">SF</string>
+    <string name="fc">FC</string>
+    <string name="exit">Exit</string>
+    <string name="finish">Finish Early</string>
+    <string name="w">W</string>
+    <string name="l">L</string>
+    <string name="t">T</string>
+    <string name="diff">DIFF</string>
+    <string name="ra">RA</string>
+    <string name="rs">RS</string>
+    <string name="winpct">Win%</string>
+    <string name="sb">SB</string>
+    <string name="game">Juego</string>
+    <string name="k">K</string>
+    <string name="hbp">HBP</string>
+    <string name="outs">Outs</string>
+    <string name="sac_bunt">Sac Bunt</string>
+    <string name="runs">Runs Scored</string>
+
+    <string name="team">Equipo</string>
+    <string name="name">Nombre</string>
+    <string name="yes">Sí</string>
+    <string name="no">No</string>
+
+    <string name="delete">Borrar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="undo">Deshacer</string>
+    <string name="edit_name">Editar Nombre</string>
+    <string name="edit_team">Cambiar Equipo</string>
+    <string name="delete_player">Borrar Jugador</string>
+    <string name="delete_team">Borrar Equipo</string>
+    <string name="edit_lineup">Editar Alineación</string>
+    <string name="redo_play">Rehacer Jugada</string>
+    <string name="undo_play">Deshacer Jugada</string>
+
+
+    <string name="welcome_to_statkeeper">SleekStats Softball</string>
+    <string name="my_statkeepers">Mis StatKeepers</string>
+
+    <string name="delete_dialog_msg">¿Estás seguro de que deseas eliminar borrar %1$s de la liga de forma permanente?</string>
+    <string name="delete_warning_msg">Eliminar eliminará toda la información para siempre.</string>
+    <string name="remove_warning_msg">Ya no tendrás acceso a este %1$s.</string>
+
+    <string name="editor_delete_player_successful">fue eliminado exitosamente.</string>
+    <string name="delete_or_freeagency_msg">Borrar jugadores permanentemente o hacer jugadores agentes libres?</string>
+    <string name="waivers">Waivers</string>
+    <string name="add_teams_text">Añadir Equipos Por Favor!</string>
+    <string name="add_players_text">Añadir Jugadores Por Favor!</string>
+    <string name="edit_player_name">Editar el nombre de %1$s :</string>
+    <string name="edit_player_team">Editar el equipo de %1$s</string>
+    <string name="end_msg">Completar y Actualizar Estadísticas</string>
+    <string name="stats">Estadísticas</string>
+    <string name="gamestats">Estadísticas del Juego</string>
+    <string name="bench">Bench</string>
+    <string name="remove_all_players">Eliminar Todos los Jugadores</string>
+    <string name="remove_all_free_agents">¿Eliminar todos los agentes libres de la liga?</string>
+    <string name="send_all_to_waivers">¿Envía a todos jugadores del %1$s a waivers?</string>
+
+    <!-- Strings related to login -->
+    <string name="sign_out">Desconectar</string>
+    <string name="sign_in">Registrarse</string>
+
+    <string name="continue_game">Continuar Juego</string>
+    <string name="add_players">Añadir Jugadores</string>
+    <string name="home">Local</string>
+    <string name="away">Visitante</string>
+    <string name="start">Comienzo</string>
+    <string name="edit_score">Editar Resultado</string>
+
+    <string name="empty_avg">---</string>
+    <string name="user_settings">Usuarios</string>
+    <string name="reset">Reinicializar</string>
+    <string name="save">Guardar</string>
+    <string name="lineup">Alineación</string>
+    <string name="submit_lineup">Submit Alineación</string>
+    <string name="help_OFF">En-Juego Ayuda: OFF</string>
+    <string name="help_ON">En-Juego Ayuda: ON</string>
+    <string name="Innings">Entradas: %1$s</string>
+    <string name="set_gender_lineup">Alineación Rules:</string>
+    <string name="game_settings">Ajustes del Juego</string>
+    <string name="player">Jugador</string>
+    <string name="league">Liga</string>
+    <string name="teamStatKeeper">StatKeeper del Equipo</string>
+    <string name="leagueStatKeeper">StatKeeper de la Liga</string>
+    <string name="playerStatKeeper">StatKeeper del Jugador</string>
+
+    <string name="view_only">Sólo vista</string>
+    <string name="view_manage">Ver/Gestionar</string>
+    <string name="admin">Admin</string>
+    <string name="remove_user">Eliminar Usuario</string>
+    <string name="export_stats">Exportar Estadísticas</string>
+
+    <string name="skip">Omitir</string>
+    <string name="submit">Enviar</string>
+    <string name="submit_play">Enviar Jugada</string>
+    <string name="reset_bases">Restablecer Bases</string>
+
+    <string name="exit_game">Salir del juego</string>
+    <string name="load">Carga</string>
+    <string name="back">Volver</string>
+    <string name="edit_gender">Editar Gender</string>
+    <string name="save_edit">Guardar Edit</string>
+    <string name="create_statkeeper">Bienvenido a SleekStats-Softball.\n\Administrar estadísticas para un jugador, equipo, o liga!\n\nCrea un nuevo StatKeeper!</string>
+    <string name="creator">Creador</string>
+    <string name="create_a_new_statkeeper">Crea un nuevo StatKeeper!</string>
+    <string name="error_with_loading">Error al cargar</string>
+
+    <string name="please_enter_name_first">Por favor, introduzca un nombre primero!</string>
+    <string name="add_team_players">Añadir Equipo/Jugadores</string>
+
+    <string name="step_1_drag_batter_to_a_base">Paso 1: Arrastra el bateador a una base vacía</string>
+    <string name="step_2_choose_at_bat_result">Paso 2: Elija al resultado del bate</string>
+    <string name="step_3_submit_play">Paso 3: Enviar juego</string>
+    <string name="step_4_repeat">Paso 4: Repite!</string>
+
+    <string name="select_from_current_teams">Seleccione de los equipos actuales</string>
+    <string name="create_new_team">Crea Nuevo Equipo</string>
+
+    <string name="player_statkeeper_desc">Administrar estadísticas para un jugador</string>
+    <string name="league_statkeeper_desc">Administrar estadísticas, resultados, y posiciones para una liga</string>
+    <string name="team_statkeeper_desc">Administrar estadísticas y resultados para un equipo</string>
+
+    <string name="blank">----</string>
+
+    <string name="load1_prepare_sync" tools:ignore="TypographyFractions">(1/3)  Preparando Sync</string>
+    <string name="load1_desc">Espere mientras se recupera la base de datos.</string>
+    <string name="load3_deletion_check">(3/3)  Verificación de Eliminación</string>
+    <string name="load3_desc">Comprobando si los jugadores o equipos fueron eliminados en otros dispositivos.</string>
+    <string name="load2_syncing">(2/3)  Sincronizando…</string>
+    <string name="load2_desc">Actualizando estadísticas de %1$s.</string>
+    <string name="email_users">Email Usuarios</string>
+    <string name="created_by">Creado Por</string>
+    <string name="invite_friends">¡Invitar a amigos!</string>
+
+    <string name="infield">Infield</string>
+    <string name="batter">Bateador</string>
+    <string name="info">info</string>
+
+
+
+    <string name="total">Total</string>
+    <string name="wait">Espere</string>
+    <string name="accept">Aceptar</string>
+    <string name="delete_recap">Borrar</string>
+    <string name="scores">Resultados</string>
+    <string name="change_innings_mercy">Establecer Entradas/Mercy</string>
+    <string name="open_stat_manager">Abierto Administrador de Estadísticas</string>
+    <string name="close_stat_manager">Cerrar Administrador de Estadísticas</string>
+
+
+    <string name="load_from_cache_desc">Si no puedes esperar, puedes cargar desde el caché, ¡pero algunas estadísticas pueden estar incompletas!</string>
+    <string name="stat_update_success">Las estadísticas se han actualizado con éxito.</string>
+    <string name="cloud_fail">Error de base de datos en la nube! Por favor, asegúrese de que tiene una conexión de datos de trabajo.</string>
+    <string name="no_data_connection">Sin conexión de datos</string>
+    <string name="connection_warning">Puede cargar desde la memoria caché, pero se recomienda una conexión de datos para garantizar que las estadísticas estén actualizadas.</string>
+    <string name="unable_to_connect">Incapaz de conectar a la base de datos</string>
+    <string name="check_connection_and_retry">Por favor, compruebe su conexión de datos y vuelva a intentarlo.</string>
+    <string name="retry_load">Rever Cargar</string>
+    <string name="load_from_cache">Cargar desde caché</string>
+    <string name="set_user_access">Establecer Acceso de Usuarios</string>
+
+    <string name="retry">Rever</string>
+    <string name="type_">Tipo:</string>
+    <string name="level_">Nivel:</string>
+    <string name="delete_">Borrar?</string>
+    <string name="m">M</string>
+    <string name="f">F</string>
+    <string name="email_head_admin">Email Jefe de Liga</string>
+    <string name="changes_to_cloud">Los cambios se han subido a la nube!</string>
+    <string name="game_deleted">El juego ha sido eliminado, y las estadísticas han sido revertidas.</string>
+    <string name="add_auto_outs">Añadir Auto-Outs</string>
+    <string name="auto_sort">Auto-Sort</string>
+    <string name="preview">Avance</string>
+
+    <string name="mercy_rule">Regla de la Mercy: %1$s</string>
+
+    <string name="reset_lineup_rules">Rever Reglas de la Alineación</string>
+    <string name="stolen_bases_off">K/SB/HBP: Off</string>
+    <string name="stolen_bases_on">K/SB/HBP: On</string>
+
+    <string name="edit_team_stats">Editar Estadísticas del Equipo</string>
+    <string name="edit_of_games_played">Editar # numero de juegos jugados</string>
+
+    <string name="gdpr">GDPR</string>
+    <string name="add_extra_out">Añadir Extra Out</string>
+    <string name="standings">Posiciones</string>
+    <string name="plays">Jugadas</string>
+
+    <!--<string name="hit_single"> bateó un solo</string>-->
+    <!--<string name="hit_double"> bateó un doble</string>-->
+    <!--<string name="hit_triple"> bateó un triple</string>-->
+    <!--<string name="hit_hr"> bateó un home run</string>-->
+    <!--<string name="hit_out"> estaba fuera</string>-->
+    <!--<string name="hit_error"> alcanzó por error</string>-->
+    <!--<string name="hit_fc"> bateó en la elección de un jardinero</string>-->
+    <!--<string name="sac_bunted"> bunt para sacrificio</string>-->
+    <!--<string name="struck_out"> se ponchó</string>-->
+    <!--<string name="hit_by_pitch"> fue golpeado por un lanzamiento</string>-->
+</resources>

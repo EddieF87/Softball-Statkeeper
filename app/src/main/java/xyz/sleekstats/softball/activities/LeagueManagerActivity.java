@@ -574,11 +574,11 @@ public class LeagueManagerActivity extends ExportActivity
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "Standings";
+                    return getString(R.string.standings);
                 case 1:
-                    return "Stats";
+                    return getString(R.string.stats);
                 case 2:
-                    return "Game";
+                    return getString(R.string.game);
                 default:
                     return null;
             }

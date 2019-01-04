@@ -200,6 +200,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             TextView bbView = rootView.findViewById(R.id.playerboard_bb);
             TextView sbView = rootView.findViewById(R.id.playerboard_sb);
             TextView kView = rootView.findViewById(R.id.playerboard_k);
+            TextView hbpView = rootView.findViewById(R.id.playerboard_hbp);
             TextView teamView = rootView.findViewById(R.id.player_team);
             playerImage = rootView.findViewById(R.id.player_image);
 
@@ -251,6 +252,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             bbView.setText(String.valueOf(player.getWalks()));
             sbView.setText(String.valueOf(player.getStolenBases()));
             kView.setText(String.valueOf(player.getStrikeouts()));
+            hbpView.setText(String.valueOf(player.getHbp()));
             avgView.setText(String.valueOf(formatter.format(player.getAVG())));
             obpView.setText(String.valueOf(formatter.format(player.getOBP())));
             slgView.setText(String.valueOf(formatter.format(player.getSLG())));

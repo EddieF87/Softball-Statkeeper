@@ -32,7 +32,7 @@
 
     <item
         android:id="@+id/action_goto_stats"
-        android:title="@string/stats"
+        android:title="@string/gamestats"
         app:showAsAction="never" />
 
     <item

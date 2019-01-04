@@ -88,9 +88,9 @@ public class BoxScoreActivity extends AppCompatActivity {
             public CharSequence getPageTitle(int position) {
                 switch (position) {
                     case 0:
-                        return "Stats";
+                        return getString(R.string.stats);
                     case 1:
-                        return "Plays";
+                        return getString(R.string.plays);
                     default:
                         return null;
                 }
