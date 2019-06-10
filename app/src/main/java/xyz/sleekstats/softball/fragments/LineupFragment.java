@@ -211,8 +211,13 @@ public class LineupFragment extends Fragment {
             @Override
             public void onFocusedColumnChanged(int oldColumn, int newColumn) { }
             @Override
-            public void onItemDragEnded(int fromColumn, int fromRow, int toColumn, int toRow) {
-            }
+            public void onColumnDragStarted(int position) { }
+            @Override
+            public void onColumnDragChangedPosition(int oldPosition, int newPosition) { }
+            @Override
+            public void onColumnDragEnded(int position) { }
+            @Override
+            public void onItemDragEnded(int fromColumn, int fromRow, int toColumn, int toRow) { }
         });
         mBoardView.setBoardCallback(new BoardView.BoardCallback() {
             @Override
@@ -299,7 +304,7 @@ public class LineupFragment extends Fragment {
             mItemArray.add(new Pair<>(id, player));
         }
         final MyLineupAdapter listAdapter = new MyLineupAdapter(mItemArray, getActivity(), isBench, getGenderSorter());
-        mBoardView.addColumnList(listAdapter, null, false);
+        mBoardView.addColumn(listAdapter, null, null, false);
     }
 
     private void onSubmitEdit() {

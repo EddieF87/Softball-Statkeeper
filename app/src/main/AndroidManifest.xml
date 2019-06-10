@@ -8,12 +8,6 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <!-- To auto-complete the email text field in the login form with statKeepUseruser's emails -->
-    <!--<uses-permission android:name="android.permission.GET_ACCOUNTS" />-->
-    <!--<uses-permission android:name="android.permission.READ_PROFILE" />-->
-    <!--<uses-permission android:name="android.permission.READ_CONTACTS" />-->
-    <!--<uses-permission android:name="android.permission.WRITE_CONTACTS" />-->
-
     <application
         android:name=".MyApp"
         android:allowBackup="true"
@@ -27,7 +21,9 @@
         <meta-data
             android:name="asset_statements"
             android:resource="@string/asset_statements" />
-
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-5443559095909539~1574171209"/>
         <activity
             android:name=".activities.MainActivity"
             android:launchMode="singleTop"

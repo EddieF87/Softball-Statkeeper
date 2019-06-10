@@ -202,7 +202,7 @@ public abstract class ExportActivity extends AppCompatActivity {
                 "Name", "AB", "R",
                 "H",  "RBI","HR",
                 "3B", "2B", "1B", "BB",
-                "SF", "Out", "SB"
+                "SF", "Out", "SB", "K", "HBP"
         };
         data.add(titleArray);
 

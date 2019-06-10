@@ -668,18 +668,18 @@ public class StatsProvider extends ContentProvider {
                 Toast.makeText(getContext(), R.string.please_enter_name_first, Toast.LENGTH_LONG).show();
                 return true;
             }
-            String[] projection = new String[]{StatsEntry.COLUMN_NAME};
-            Cursor cursor = query(uri, projection, selection, selectionArgs, null);
-            while (cursor.moveToNext()) {
-                String failedName = (StatsContract.getColumnString(cursor, StatsEntry.COLUMN_NAME)).toLowerCase();
-                if (failedName.equals(name)) {
-                    String toastText = String.format("%1$s already exists!", failedName);
-                    Toast.makeText(getContext(), toastText, Toast.LENGTH_SHORT).show();
-                    cursor.close();
-                    return true;
-                }
-            }
-            cursor.close();
+//            String[] projection = new String[]{StatsEntry.COLUMN_NAME};
+//            Cursor cursor = query(uri, projection, selection, selectionArgs, null);
+//            while (cursor.moveToNext()) {
+//                String failedName = (StatsContract.getColumnString(cursor, StatsEntry.COLUMN_NAME)).toLowerCase();
+//                if (failedName.equals(name)) {
+//                    String toastText = String.format("%1$s already exists!", failedName);
+//                    Toast.makeText(getContext(), toastText, Toast.LENGTH_SHORT).show();
+//                    cursor.close();
+//                    return true;
+//                }
+//            }
+//            cursor.close();
         }
         return false;
     }
