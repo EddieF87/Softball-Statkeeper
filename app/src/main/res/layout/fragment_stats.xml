@@ -141,6 +141,11 @@
                     android:id="@+id/hbp_title"
                     style="@style/StatsTitleStyle"
                     android:text="@string/hbp" />
+
+                <TextView
+                    android:id="@+id/roe_title"
+                    style="@style/StatsTitleStyle"
+                    android:text="@string/roe" />
             </LinearLayout>
 
             <android.support.v7.widget.RecyclerView

@@ -530,8 +530,8 @@ public abstract class GameActivity extends AppCompatActivity
                 result = StatsEntry.COLUMN_OUT;
                 group1.clearCheck();
                 break;
-            case R.id.error_rb:
-                result = StatsEntry.COLUMN_ERROR;
+            case R.id.roe_rb:
+                result = StatsEntry.COLUMN_ROE;
                 group1.clearCheck();
                 break;
             case R.id.fc_rb:
@@ -968,10 +968,13 @@ public abstract class GameActivity extends AppCompatActivity
                 values.put(StatsEntry.COLUMN_HR, newValue);
                 break;
             case StatsEntry.COLUMN_OUT:
-            case StatsEntry.COLUMN_ERROR:
             case StatsEntry.COLUMN_FC:
                 newValue = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_OUT) + n;
                 values.put(StatsEntry.COLUMN_OUT, newValue);
+                break;
+            case StatsEntry.COLUMN_ROE:
+                newValue = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_ROE) + n;
+                values.put(StatsEntry.COLUMN_ROE, newValue);
                 break;
             case StatsEntry.COLUMN_BB:
                 newValue = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_BB) + n;

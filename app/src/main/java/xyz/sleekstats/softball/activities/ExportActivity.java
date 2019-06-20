@@ -202,7 +202,7 @@ public abstract class ExportActivity extends AppCompatActivity {
                 "Name", "AB", "R",
                 "H",  "RBI","HR",
                 "3B", "2B", "1B", "BB",
-                "SF", "Out", "SB", "K", "HBP"
+                "SF", "Out", "SB", "K", "HBP", "ROE"
         };
         data.add(titleArray);
 
@@ -227,6 +227,7 @@ public abstract class ExportActivity extends AppCompatActivity {
             int sb =  StatsContract.getColumnInt(playerCursor, StatsEntry.COLUMN_SB);
             int k =  StatsContract.getColumnInt(playerCursor, StatsEntry.COLUMN_K);
             int hbp =  StatsContract.getColumnInt(playerCursor, StatsEntry.COLUMN_HBP);
+            int roe =  StatsContract.getColumnInt(playerCursor, StatsEntry.COLUMN_ROE);
 
             int hit = hr + tpl + dbl + sgl;
             int ab =  hit + out;
@@ -246,6 +247,7 @@ public abstract class ExportActivity extends AppCompatActivity {
             String sbString = String.valueOf(sb);
             String kString = String.valueOf(k);
             String hbpString = String.valueOf(hbp);
+            String roeString = String.valueOf(roe);
 
             String nameSelection = StatsEntry.COLUMN_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
             String[] nameSelectionArgs = new String[] {playerID, mStatKeeperID};
@@ -264,7 +266,7 @@ public abstract class ExportActivity extends AppCompatActivity {
                     nameString, abString, runString,
                     hitString, rbiString, hrString,
                     tplString, dblString, sglString, bbString,
-                    sfString, outString, sbString, kString, hbpString
+                    sfString, outString, sbString, kString, hbpString, roeString
             };
             data.add(stringArray);
         }
@@ -285,7 +287,7 @@ public abstract class ExportActivity extends AppCompatActivity {
                 "H", "HR", "R", "RBI",
                 "AVG", "OBP", "SLG", "OPS",
                 "3B", "2B", "1B", "BB",
-                "Out", "SF", "SB", "K", "HBP", "Gender"
+                "Out", "SF", "SB", "K", "HBP", "ROE", "Gender"
         };
         data.add(titleArray);
 
@@ -307,6 +309,7 @@ public abstract class ExportActivity extends AppCompatActivity {
             int sb = player.getStolenBases();
             int k = player.getStrikeouts();
             int hbp = player.getHbp();
+            int roe = player.getRoe();
             int g = player.getGames();
             int hit = player.getHits();
             int ab = player.getABs();
@@ -329,6 +332,7 @@ public abstract class ExportActivity extends AppCompatActivity {
             String sbString = String.valueOf(sb);
             String kString = String.valueOf(k);
             String hbpString = String.valueOf(hbp);
+            String roeString = String.valueOf(roe);
             String gameString = String.valueOf(g);
 
             String avgString;
@@ -364,7 +368,7 @@ public abstract class ExportActivity extends AppCompatActivity {
                     hitString, hrString, runString, rbiString,
                     avgString, obpString, slgString, opsString,
                     tplString, dblString, sglString, bbString,
-                    outString, sfString, sbString, kString, hbpString, genderString
+                    outString, sfString, sbString, kString, hbpString, roeString, genderString
             };
             data.add(stringArray);
         }

@@ -221,7 +221,7 @@ public class PreviousPlaysAdapter extends RecyclerView.Adapter<PreviousPlaysAdap
             case StatsEntry.COLUMN_OUT:
                 return " got out";
 
-            case StatsEntry.COLUMN_ERROR:
+            case StatsEntry.COLUMN_ROE:
                 return " reached on error";
 
             case StatsEntry.COLUMN_BB:

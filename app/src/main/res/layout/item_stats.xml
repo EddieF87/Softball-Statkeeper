@@ -123,4 +123,9 @@
         android:id="@+id/hbp"
         style="@style/StatsStyle"
         tools:text="44" />
+
+    <TextView
+        android:id="@+id/roe"
+        style="@style/StatsStyle"
+        tools:text="44" />
 </LinearLayout>

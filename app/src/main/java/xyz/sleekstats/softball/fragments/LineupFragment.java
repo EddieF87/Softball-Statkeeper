@@ -17,6 +17,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.util.Pair;
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -710,8 +711,12 @@ public class LineupFragment extends Fragment {
         int females = 0;
         int males = 0;
         int malesInRow = 0;
+        int femalesInRow = 0;
         int firstMalesInRow = 0;
+        int firstFemalesInRow = 0;
+        boolean beforeFirstMale = true;
         boolean beforeFirstFemale = true;
+        boolean firstInRowIsMale = true;
         boolean notProperOrder = false;
         sortLineup = false;
 
@@ -736,7 +741,10 @@ public class LineupFragment extends Fragment {
             if (gender == 0) {
                 males++;
                 malesInRow++;
+                femalesInRow = 0;
+                beforeFirstMale = false;
                 if (beforeFirstFemale) {
+                    firstInRowIsMale = true;
                     firstMalesInRow++;
                 }
                 if (malesInRow > requiredFemale) {
@@ -744,8 +752,16 @@ public class LineupFragment extends Fragment {
                 }
             } else {
                 females++;
+                femalesInRow++;
                 malesInRow = 0;
                 beforeFirstFemale = false;
+                if (beforeFirstMale) {
+                    firstInRowIsMale = false;
+                    firstFemalesInRow++;
+                }
+                if (femalesInRow > 1) {
+                    notProperOrder = true;
+                }
             }
         }
 
@@ -753,12 +769,19 @@ public class LineupFragment extends Fragment {
             return true;
         }
 
-        int lastMalesInRow = malesInRow;
-        if (firstMalesInRow + lastMalesInRow > requiredFemale) {
-            notProperOrder = true;
+        if(firstInRowIsMale) {
+            if (firstMalesInRow + malesInRow > requiredFemale) {
+                notProperOrder = true;
+            }
+        } else {
+            if (firstFemalesInRow + femalesInRow > 1) {
+                notProperOrder = true;
+            }
         }
+
         if (notProperOrder) {
-            if (females * requiredFemale >= males) {
+            Log.d("POOOO", "notProperOrder");
+            if (females * requiredFemale == males) {
                 Toast.makeText(getActivity(),
                         "Please set " + mTeamName + "'s lineup properly or edit gender order settings",
                         Toast.LENGTH_LONG).show();

@@ -125,10 +125,25 @@
         android:layout_weight="3"
         android:gravity="center"
         android:text="@string/k"
-        app:layout_constraintEnd_toStartOf="@+id/playerboard_hbp_title"
+        app:layout_constraintEnd_toStartOf="@+id/playerboard_roe_title"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/playerboard_sb_title"
         app:layout_constraintTop_toTopOf="@id/playerboard_sb_title" />
+
+
+
+    <TextView
+        android:id="@+id/playerboard_roe_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="3"
+        android:gravity="center"
+        android:text="@string/roe"
+        app:layout_constraintEnd_toStartOf="@+id/playerboard_hbp_title"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/playerboard_k_title"
+        app:layout_constraintTop_toTopOf="@id/playerboard_k_title" />
+
 
     <TextView
         android:id="@+id/playerboard_hbp_title"
@@ -139,13 +154,14 @@
         android:text="@string/hbp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/playerboard_k_title"
-        app:layout_constraintTop_toTopOf="@id/playerboard_k_title" />
+        app:layout_constraintStart_toEndOf="@+id/playerboard_roe_title"
+        app:layout_constraintTop_toTopOf="@id/playerboard_roe_title" />
 
 
     <TextView
         android:id="@+id/playerboard_ab"
         style="@style/PlayerBoardStyle"
+        android:text="99"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="@+id/playerboard_ab_title"
         app:layout_constraintRight_toRightOf="@+id/playerboard_ab_title"
@@ -220,6 +236,14 @@
         app:layout_constraintBottom_toBottomOf="@+id/playerboard_k"
         app:layout_constraintLeft_toLeftOf="@+id/playerboard_hbp_title"
         app:layout_constraintRight_toRightOf="@+id/playerboard_hbp_title"
+        tools:text="99" />
+
+    <TextView
+        android:id="@+id/playerboard_roe"
+        style="@style/PlayerBoardStyle"
+        app:layout_constraintBottom_toBottomOf="@+id/playerboard_k"
+        app:layout_constraintLeft_toLeftOf="@+id/playerboard_roe_title"
+        app:layout_constraintRight_toRightOf="@+id/playerboard_roe_title"
         tools:text="0" />
 
     <TextView

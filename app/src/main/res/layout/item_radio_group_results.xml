@@ -86,14 +86,13 @@
             android:textSize="12sp" />
 
         <RadioButton
-            android:id="@+id/error_rb"
+            android:id="@+id/roe_rb"
             style="@style/ResultsButtonStyle"
             android:maxLines="3"
             android:paddingBottom="2dp"
             android:paddingTop="2dp"
-            android:text="@string/error"
-            android:textSize="12sp"
-            tools:text="Reached on Error" />
+            android:text="@string/roe"
+            android:textSize="12sp"/>
 
         <RadioButton
             android:id="@+id/sb_rb"

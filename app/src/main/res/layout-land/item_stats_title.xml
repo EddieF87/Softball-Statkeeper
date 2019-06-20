@@ -122,4 +122,9 @@
         style="@style/StatsTitleStyle"
         android:text="@string/hbp"/>
 
+    <TextView
+        android:id="@+id/roe_title"
+        style="@style/StatsTitleStyle"
+        android:text="@string/roe"/>
+
 </LinearLayout>

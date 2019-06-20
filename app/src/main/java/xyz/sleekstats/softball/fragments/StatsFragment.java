@@ -150,6 +150,7 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
         rootView.findViewById(R.id.sb_title).setOnClickListener(this);
         rootView.findViewById(R.id.k_title).setOnClickListener(this);
         rootView.findViewById(R.id.hbp_title).setOnClickListener(this);
+        rootView.findViewById(R.id.roe_title).setOnClickListener(this);
         rootView.findViewById(R.id.game_title).setOnClickListener(this);
 
         String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
@@ -413,6 +414,11 @@ public class StatsFragment extends Fragment implements LoaderManager.LoaderCallb
 
             case R.id.hbp_title:
                 Collections.sort(mPlayers, Player.hbpComparator());
+                break;
+
+
+            case R.id.roe_title:
+                Collections.sort(mPlayers, Player.roeComparator());
                 break;
 
             default:

@@ -98,6 +98,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
     private static final String RESULT_SB = "SB";
     private static final String RESULT_K = "K";
     private static final String RESULT_HBP = "HBP";
+    private static final String RESULT_ROE = "ROE";
 
     private static final String KEY_PLAYER_URI = "playerURI";
 
@@ -201,6 +202,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             TextView sbView = rootView.findViewById(R.id.playerboard_sb);
             TextView kView = rootView.findViewById(R.id.playerboard_k);
             TextView hbpView = rootView.findViewById(R.id.playerboard_hbp);
+            TextView roeView = rootView.findViewById(R.id.playerboard_roe);
             TextView teamView = rootView.findViewById(R.id.player_team);
             playerImage = rootView.findViewById(R.id.player_image);
 
@@ -253,6 +255,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
             sbView.setText(String.valueOf(player.getStolenBases()));
             kView.setText(String.valueOf(player.getStrikeouts()));
             hbpView.setText(String.valueOf(player.getHbp()));
+            roeView.setText(String.valueOf(player.getRoe()));
             avgView.setText(String.valueOf(formatter.format(player.getAVG())));
             obpView.setText(String.valueOf(formatter.format(player.getOBP())));
             slgView.setText(String.valueOf(formatter.format(player.getSLG())));
@@ -314,7 +317,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
 
     private void updatePlayerDataFirebase(String currentResult, int currentResultCount) {
         if(mPlayerLog == null) {
-            mPlayerLog = new PlayerLog(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+            mPlayerLog = new PlayerLog(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
         }
         switch (currentResult) {
             case RESULT_1B:
@@ -353,6 +356,9 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 break;
             case RESULT_HBP:
                 mPlayerLog.addHBP(currentResultCount);
+                break;
+            case RESULT_ROE:
+                mPlayerLog.addROE(currentResultCount);
                 break;
         }
     }
@@ -475,6 +481,9 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                         case RESULT_HBP:
                             statEntry = StatsEntry.COLUMN_HBP;
                             break;
+                        case RESULT_ROE:
+                            statEntry = StatsEntry.COLUMN_ROE;
+                            break;
                         default:
                             return;
                     }
@@ -525,6 +534,7 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
         RadioButton sb = view.findViewById(R.id.sb_rb);
         RadioButton k = view.findViewById(R.id.k_rb);
         RadioButton hbp = view.findViewById(R.id.hbp_rb);
+        RadioButton roe = view.findViewById(R.id.roe_rb);
 
         hbp.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -621,6 +631,17 @@ public class PlayerFragment extends Fragment implements LoaderManager.LoaderCall
                 if (checked) {
                     group1.clearCheck();
                     result = RESULT_SB;
+                    resultText.setText(result);
+                }
+            }
+        });
+        roe.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean checked = ((RadioButton) view).isChecked();
+                if (checked) {
+                    group1.clearCheck();
+                    result = RESULT_ROE;
                     resultText.setText(result);
                 }
             }

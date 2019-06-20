@@ -63,7 +63,7 @@ public class StatsContract {
         public static final String COLUMN_SF = "sf";
         public static final String COLUMN_SAC_BUNT = "sacbunt";
         public static final String COLUMN_FC = "fielderschoice";
-        public static final String COLUMN_ERROR = "error";
+        public static final String COLUMN_ROE = "roe";
         public static final String COLUMN_SB = "stolenbase";
         public static final String COLUMN_K = "k";
         public static final String COLUMN_HBP = "hbp";

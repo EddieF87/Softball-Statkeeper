@@ -37,6 +37,7 @@ public class Player implements Parcelable {
     private int stolenBases;
     private int strikeouts;
     private int hbp;
+    private int roe;
     private int games;
     private int gender;
     private long playerId;
@@ -79,6 +80,7 @@ public class Player implements Parcelable {
         this.stolenBases = getColumnInt(cursor, StatsEntry.COLUMN_SB);
         this.strikeouts = getColumnInt(cursor, StatsEntry.COLUMN_K);
         this.hbp = getColumnInt(cursor, StatsEntry.COLUMN_HBP);
+        this.roe = getColumnInt(cursor, StatsEntry.COLUMN_ROE);
 
         if(tempData) {
             this.playerId = getColumnInt(cursor, StatsEntry.COLUMN_PLAYERID);
@@ -125,7 +127,7 @@ public class Player implements Parcelable {
     }
 
     public int getABs() {
-        return getHits() + this.outs;
+        return getHits() + this.outs + this.roe;
     }
 
     private int getPAs() {
@@ -262,6 +264,10 @@ public class Player implements Parcelable {
         this.hbp = hbp;
     }
 
+    public int getRoe() { return roe; }
+
+    public void setRoe(int roe) { this.roe = roe; }
+
     public void setTeamfirestoreid(String teamfirestoreid) {this.teamfirestoreid = teamfirestoreid;}
 
     @Override
@@ -375,6 +381,16 @@ public class Player implements Parcelable {
             }
         };
     }
+
+    public static Comparator<Player> roeComparator () {
+        return new Comparator<Player>() {
+            @Override
+            public int compare(Player player1, Player player2) {
+                return player2.getRoe() - player1.getRoe();
+            }
+        };
+    }
+
 
     public static Comparator<Player> hbpComparator () {
         return new Comparator<Player>() {
@@ -505,6 +521,7 @@ public class Player implements Parcelable {
         stolenBases = in.readInt();
         strikeouts = in.readInt();
         hbp = in.readInt();
+        roe = in.readInt();
         games = in.readInt();
         gender = in.readInt();
         playerId = in.readLong();
@@ -533,6 +550,7 @@ public class Player implements Parcelable {
         dest.writeInt(stolenBases);
         dest.writeInt(strikeouts);
         dest.writeInt(hbp);
+        dest.writeInt(roe);
         dest.writeInt(games);
         dest.writeInt(gender);
         dest.writeLong(playerId);

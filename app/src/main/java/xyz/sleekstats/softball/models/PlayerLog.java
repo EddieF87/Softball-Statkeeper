@@ -23,11 +23,12 @@ public class PlayerLog implements Parcelable {
     private int stolenbases;
     private int strikeouts;
     private int hbp;
+    private int roe;
 
     public PlayerLog() {
     }
 
-    public PlayerLog(long id, int rbi, int runs, int singles, int doubles, int triples, int hrs, int outs, int walks, int sacfly, int stolenbases, int strikeouts, int hbp) {
+    public PlayerLog(long id, int rbi, int runs, int singles, int doubles, int triples, int hrs, int outs, int walks, int sacfly, int stolenbases, int strikeouts, int hbp, int roe) {
         this.id = id;
         this.rbi = rbi;
         this.runs = runs;
@@ -41,6 +42,7 @@ public class PlayerLog implements Parcelable {
         this.stolenbases = stolenbases;
         this.strikeouts = strikeouts;
         this.hbp = hbp;
+        this.roe = roe;
     }
 
     public int getDoubles() {
@@ -135,6 +137,10 @@ public class PlayerLog implements Parcelable {
         this.hbp = hbp;
     }
 
+    public int getRoe() { return roe; }
+
+    public void setRoe(int roe) { this.roe = roe; }
+
     public int getStrikeouts() {
         return strikeouts;
     }
@@ -195,6 +201,10 @@ public class PlayerLog implements Parcelable {
         this.hbp += hbp;
     }
 
+    public void addROE (int roe) {
+        this.roe += roe;
+    }
+
     protected PlayerLog(Parcel in) {
         id = in.readLong();
         rbi = in.readInt();
@@ -209,6 +219,7 @@ public class PlayerLog implements Parcelable {
         stolenbases = in.readInt();
         strikeouts = in.readInt();
         hbp = in.readInt();
+        roe = in.readInt();
     }
 
     @Override
@@ -231,6 +242,7 @@ public class PlayerLog implements Parcelable {
         dest.writeInt(stolenbases);
         dest.writeInt(strikeouts);
         dest.writeInt(hbp);
+        dest.writeInt(roe);
     }
 
     @SuppressWarnings("unused")

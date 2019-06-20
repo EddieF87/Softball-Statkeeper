@@ -81,6 +81,11 @@
             android:text="@string/k" />
 
         <RadioButton
+            android:id="@+id/roe_rb"
+            style="@style/SmallRadioButtonStyle"
+            android:text="@string/roe" />
+
+        <RadioButton
             android:id="@+id/run_rb"
             style="@style/SmallRadioButtonStyle"
             android:text="@string/r" />
