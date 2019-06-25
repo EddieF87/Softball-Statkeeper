@@ -15,17 +15,6 @@
         android:textStyle="bold"
         tools:targetApi="o" />
 
-    <!--<TextView-->
-        <!--android:id="@+id/innings_textview"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="0dp"-->
-        <!--android:layout_marginTop="2dp"-->
-        <!--android:autoSizeMinTextSize="12sp"-->
-        <!--android:autoSizeTextType="uniform"-->
-        <!--android:gravity="center"-->
-        <!--android:textSize="12sp"-->
-        <!--tools:targetApi="o" />-->
-
     <SeekBar
         android:id="@+id/innings_seekbar"
         style="@style/Widget.AppCompat.SeekBar.Discrete"
@@ -34,6 +23,7 @@
         android:layout_marginTop="8dp"
         android:max="8"
         android:progress="1" />
+
 
     <TextView
         android:id="@+id/gender_sort_title"
@@ -47,26 +37,33 @@
         android:textStyle="bold"
         tools:targetApi="o" />
 
-    <!--<TextView-->
-        <!--android:id="@+id/gender_sort_textview"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="0dp"-->
-        <!--android:layout_marginTop="2dp"-->
-        <!--android:autoSizeMinTextSize="12sp"-->
-        <!--android:autoSizeTextType="uniform"-->
-        <!--android:gravity="center"-->
-        <!--android:textColor="@color/male"-->
-        <!--android:textSize="12sp"-->
-        <!--tools:targetApi="o" />-->
-
-    <SeekBar
-        android:id="@+id/gender_sort_seekbar"
-        style="@style/Widget.AppCompat.SeekBar.Discrete"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:max="4"
-        android:progress="1" />
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp">
+
+        <SeekBar
+            android:id="@+id/gender_sort_seekbar"
+            style="@style/Widget.AppCompat.SeekBar.Discrete"
+            android:layout_width="0dp"
+            android:layout_weight="4"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:max="7"
+            android:progress="1" />
+
+        <ToggleButton
+            android:id="@+id/sort_girls_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:textSize="10sp"
+            android:textOff="If extra girls: keep as is"
+            android:textOn="If extra girls: sort"
+            />
+    </LinearLayout>
+
 
     <TextView
         android:id="@+id/mercy_textview"

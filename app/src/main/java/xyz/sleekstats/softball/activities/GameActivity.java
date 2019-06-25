@@ -1851,7 +1851,9 @@ public abstract class GameActivity extends AppCompatActivity
         int genderSorter = 0;
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = GameSettingsDialog.newInstance(totalInnings, genderSorter, mercyRuns, mSelectionID, inningNumber, gameHelp);
+        SharedPreferences settingsPreferences = getSharedPreferences(mSelectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
+        boolean extraGirlsSorted = settingsPreferences.getBoolean(StatsEntry.SORT_GIRLS, false);
+        DialogFragment newFragment = GameSettingsDialog.newInstance(totalInnings, genderSorter, mercyRuns, mSelectionID, inningNumber, gameHelp, extraGirlsSorted);
         newFragment.show(fragmentTransaction, "");
     }
 

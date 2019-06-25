@@ -46,6 +46,7 @@ import xyz.sleekstats.softball.dialogs.GameSettingsDialog;
 import xyz.sleekstats.softball.dialogs.LineupSortDialog;
 import xyz.sleekstats.softball.models.MainPageSelection;
 import xyz.sleekstats.softball.models.Player;
+
 import com.woxthebox.draglistview.BoardView;
 
 import java.util.ArrayList;
@@ -111,7 +112,7 @@ public class LineupFragment extends Fragment {
             mTeamID = args.getString(KEY_TEAM_ID);
             inGame = args.getBoolean(KEY_INGAME);
         } else {
-            getActivity().finish();
+            requireActivity().finish();
         }
     }
 
@@ -179,7 +180,7 @@ public class LineupFragment extends Fragment {
                 String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
                 String[] selectionArgs = new String[]{mTeamID, mSelectionID};
                 String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
-                Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS,
+                Cursor cursor = requireActivity().getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS,
                         null, selection, selectionArgs, sortOrder);
 
                 while (cursor.moveToNext()) {
@@ -204,42 +205,62 @@ public class LineupFragment extends Fragment {
         mBoardView.setColumnSnapPosition(BoardView.ColumnSnapPosition.CENTER);
         mBoardView.setBoardListener(new BoardView.BoardListener() {
             @Override
-            public void onItemDragStarted(int column, int row) { }
+            public void onItemDragStarted(int column, int row) {
+            }
+
             @Override
-            public void onItemChangedPosition(int oldColumn, int oldRow, int newColumn, int newRow) { }
+            public void onItemChangedPosition(int oldColumn, int oldRow, int newColumn, int newRow) {
+            }
+
             @Override
-            public void onItemChangedColumn(int oldColumn, int newColumn) { }
+            public void onItemChangedColumn(int oldColumn, int newColumn) {
+            }
+
             @Override
-            public void onFocusedColumnChanged(int oldColumn, int newColumn) { }
+            public void onFocusedColumnChanged(int oldColumn, int newColumn) {
+            }
+
             @Override
-            public void onColumnDragStarted(int position) { }
+            public void onColumnDragStarted(int position) {
+            }
+
             @Override
-            public void onColumnDragChangedPosition(int oldPosition, int newPosition) { }
+            public void onColumnDragChangedPosition(int oldPosition, int newPosition) {
+            }
+
             @Override
-            public void onColumnDragEnded(int position) { }
+            public void onColumnDragEnded(int position) {
+            }
+
             @Override
-            public void onItemDragEnded(int fromColumn, int fromRow, int toColumn, int toRow) { }
+            public void onItemDragEnded(int fromColumn, int fromRow, int toColumn, int toRow) {
+            }
         });
         mBoardView.setBoardCallback(new BoardView.BoardCallback() {
             @Override
             public boolean canDragItemAtPosition(int column, int dragPosition) {
                 return true;
             }
+
             @Override
-            public boolean canDropItemAtPosition(int oldColumn, int oldRow, int newColumn, int newRow) { return true; }
+            public boolean canDropItemAtPosition(int oldColumn, int oldRow, int newColumn, int newRow) {
+                return true;
+            }
         });
 
         return rootView;
     }
 
 
-    public void setPostGameLayout(boolean clickable){
+    public void setPostGameLayout(boolean clickable) {
         postGameUpdate = !clickable;
         View view = getView();
-        if(view == null) {return;}
+        if (view == null) {
+            return;
+        }
         view.findViewById(R.id.lineup_submit).setEnabled(clickable);
         view.findViewById(R.id.continue_game).setVisibility(View.GONE);
-        if(gameSummaryView == null) {
+        if (gameSummaryView == null) {
             gameSummaryView = view.findViewById(R.id.current_game_view);
         }
         gameSummaryView.setVisibility(View.GONE);
@@ -248,29 +269,33 @@ public class LineupFragment extends Fragment {
     public void onTransferError() {
         postGameUpdate = false;
         View view = getView();
-        if(view == null) {return;}
+        if (view == null) {
+            return;
+        }
         view.findViewById(R.id.lineup_submit).setEnabled(true);
         view.findViewById(R.id.continue_game).setVisibility(View.VISIBLE);
-        if(gameSummaryView == null) {
+        if (gameSummaryView == null) {
             gameSummaryView = view.findViewById(R.id.current_game_view);
         }
         gameSummaryView.setVisibility(View.VISIBLE);
     }
 
-    private void resetBoardView(){
-        if(mBoardView == null) {return;}
+    private void resetBoardView() {
+        if (mBoardView == null) {
+            return;
+        }
         mBoardView.clearBoard();
         sCreatedItems = 0;
         startBoardView();
     }
 
     private void shuffleBoardView() {
-        if(mLineup == null) {
+        if (mLineup == null) {
             mLineup = new ArrayList<>();
         } else {
             mLineup.clear();
         }
-        if(mBench == null) {
+        if (mBench == null) {
             mBench = new ArrayList<>();
         } else {
             mBench.clear();
@@ -287,13 +312,13 @@ public class LineupFragment extends Fragment {
             Player player = pair.second;
             mBench.add(player);
         }
-        if(mLineup != null) {
+        if (mLineup != null) {
             Collections.shuffle(mLineup);
         }
         resetBoardView();
     }
 
-    private void startBoardView(){
+    private void startBoardView() {
         addColumnList(mLineup, false);
         addColumnList(mBench, true);
     }
@@ -311,7 +336,7 @@ public class LineupFragment extends Fragment {
     private void onSubmitEdit() {
         if (isLineupOK()) {
             setNewLineupToTempDB(getPreviousLineup(mTeamID));
-            SharedPreferences gamePreferences = getActivity().getSharedPreferences(mSelectionID + StatsEntry.GAME, Context.MODE_PRIVATE);
+            SharedPreferences gamePreferences = requireActivity().getSharedPreferences(mSelectionID + StatsEntry.GAME, Context.MODE_PRIVATE);
 
             SharedPreferences.Editor editor = gamePreferences.edit();
             if (mType == MainPageSelection.TYPE_LEAGUE) {
@@ -345,10 +370,10 @@ public class LineupFragment extends Fragment {
                 editor.putInt(GameActivity.KEY_GENDERSORT, 0);
             }
             editor.apply();
-            getActivity().setResult(GameActivity.RESULT_CODE_EDITED);
+            requireActivity().setResult(GameActivity.RESULT_CODE_EDITED);
 //            intent.putExtra("edited", true);
 //            startActivity(intent);
-            getActivity().finish();
+            requireActivity().finish();
         } else {
             Toast.makeText(getActivity(), "Add more players to lineup first.", Toast.LENGTH_SHORT).show();
             lineupSubmitButton.setEnabled(true);
@@ -377,7 +402,7 @@ public class LineupFragment extends Fragment {
             }
         } else {
             updateAndSubmitLineup();
-            getActivity().finish();
+            requireActivity().finish();
         }
     }
 
@@ -398,12 +423,12 @@ public class LineupFragment extends Fragment {
                 settingsLayout.setEnabled(true);
             }
         });
-        if(lineupSubmitButton == null) {
+        if (lineupSubmitButton == null) {
             lineupSubmitButton = getView().findViewById(R.id.lineup_submit);
         }
         lineupSubmitButton.setEnabled(true);
         if (mType == MainPageSelection.TYPE_TEAM && !inGame) {
-            SharedPreferences settingsPreferences = getActivity()
+            SharedPreferences settingsPreferences = requireActivity()
                     .getSharedPreferences(mSelectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
             final int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
             final int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
@@ -420,11 +445,11 @@ public class LineupFragment extends Fragment {
                 @Override
                 public void onClick(View view) {
                     continueGameButton.setEnabled(false);
-                    if(lineupSubmitButton != null) {
+                    if (lineupSubmitButton != null) {
                         lineupSubmitButton.setEnabled(false);
                     }
                     Intent intent = new Intent(getActivity(), TeamGameActivity.class);
-                    if(mListener != null) {
+                    if (mListener != null) {
                         mListener.startGameActivity(intent);
                     }
                 }
@@ -433,7 +458,7 @@ public class LineupFragment extends Fragment {
 
             String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
             String[] selectionArgs = new String[]{mSelectionID};
-            Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG,
+            Cursor cursor = requireActivity().getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG,
                     null, selection, selectionArgs, null);
             if (!postGameUpdate && cursor.moveToLast()) {
                 int awayRuns = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_AWAY_RUNS);
@@ -464,7 +489,7 @@ public class LineupFragment extends Fragment {
     }
 
     private void createTeamFragment(String teamName, String teamID) {
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         DialogFragment newFragment = AddNewPlayersDialog.newInstance(teamName, teamID);
         newFragment.show(fragmentTransaction, "");
@@ -499,7 +524,7 @@ public class LineupFragment extends Fragment {
     }
 
     private void setGameSummaryView(final int awayRuns, final int homeRuns) {
-        SharedPreferences savedGamePreferences = getActivity()
+        SharedPreferences savedGamePreferences = requireActivity()
                 .getSharedPreferences(mSelectionID + StatsEntry.GAME, Context.MODE_PRIVATE);
         final int inningNumber = savedGamePreferences.getInt("keyInningNumber", 2);
         int inningDisplay = inningNumber / 2;
@@ -540,21 +565,21 @@ public class LineupFragment extends Fragment {
 
 
     private void startGame(boolean isHome) {
-        if(sortLineup) {
+        if (sortLineup) {
             openLineupSortDialog(1);
         } else {
 //            lineupSubmitButton.setEnabled(true);
             Intent intent = new Intent(getActivity(), TeamGameActivity.class);
             intent.putExtra("isHome", isHome);
             intent.putExtra(GameActivity.KEY_GENDERSORT, 0);
-            if(mListener != null) {
+            if (mListener != null) {
                 mListener.startGameActivity(intent);
             }
         }
     }
 
     public void setStartButtonClickable() {
-        if(lineupSubmitButton == null) {
+        if (lineupSubmitButton == null) {
             lineupSubmitButton = getView().findViewById(R.id.lineup_submit);
         }
         lineupSubmitButton.setEnabled(true);
@@ -564,7 +589,7 @@ public class LineupFragment extends Fragment {
     public void openLineupSortDialog(int sortArg) {
         updateAndSubmitLineup();
         int genderSorter = getGenderSorter();
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         DialogFragment newFragment = LineupSortDialog.newInstance(mTeamID, sortArg, genderSorter);
         newFragment.setCancelable(false);
@@ -576,7 +601,7 @@ public class LineupFragment extends Fragment {
     }
 
     private int getGenderSorter() {
-        SharedPreferences genderPreferences = getActivity()
+        SharedPreferences genderPreferences = requireActivity()
                 .getSharedPreferences(mSelectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
         return genderPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
     }
@@ -596,9 +621,9 @@ public class LineupFragment extends Fragment {
     private void clearGameDB() {
         String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
         String[] selectionArgs = new String[]{mSelectionID};
-        getActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, selection, selectionArgs);
-        getActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, selection, selectionArgs);
-        SharedPreferences savedGamePreferences = getActivity().getSharedPreferences(mSelectionID + StatsEntry.GAME, Context.MODE_PRIVATE);
+        requireActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_GAMELOG, selection, selectionArgs);
+        requireActivity().getContentResolver().delete(StatsEntry.CONTENT_URI_TEMP, selection, selectionArgs);
+        SharedPreferences savedGamePreferences = requireActivity().getSharedPreferences(mSelectionID + StatsEntry.GAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = savedGamePreferences.edit();
         editor.clear();
         editor.apply();
@@ -608,7 +633,7 @@ public class LineupFragment extends Fragment {
 
         String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
         String[] selectionArgs = new String[]{teamID, mSelectionID};
-        Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEMP,
+        Cursor cursor = requireActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEMP,
                 null, selection, selectionArgs, null);
 
         List<Player> previousLineup = new ArrayList<>();
@@ -627,7 +652,7 @@ public class LineupFragment extends Fragment {
         String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
         String[] selectionArgs = new String[]{mTeamID, mSelectionID};
 
-        ContentResolver contentResolver = getActivity().getContentResolver();
+        ContentResolver contentResolver = requireActivity().getContentResolver();
         contentResolver.delete(StatsEntry.CONTENT_URI_TEMP, selection, selectionArgs);
 
         for (int i = 0; i < lineup.size(); i++) {
@@ -706,8 +731,85 @@ public class LineupFragment extends Fragment {
 
 
     private boolean addTeamToTempDB(int requiredFemale) {
+        SharedPreferences settingsPreferences = requireActivity()
+                .getSharedPreferences(mSelectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
+        boolean extraGirlsSorted = settingsPreferences.getBoolean(StatsEntry.SORT_GIRLS, false);
+        if(extraGirlsSorted) {
+            return sortExtraGirlsToo(requiredFemale);
+        } else {
+            return sortDefault(requiredFemale);
+        }
+    }
+
+    private boolean sortDefault(int requiredFemale){
         List<Player> lineup = getLineup();
-        ContentResolver contentResolver = getActivity().getContentResolver();
+        ContentResolver contentResolver = requireActivity().getContentResolver();
+        int females = 0;
+        int males = 0;
+        int malesInRow = 0;
+        int firstMalesInRow = 0;
+        boolean beforeFirstFemale = true;
+        boolean notProperOrder = false;
+        sortLineup = false;
+
+        for (int i = 0; i < lineup.size(); i++) {
+            Player player = lineup.get(i);
+            long playerId = player.getPlayerId();
+            String playerName = player.getName();
+            int gender = player.getGender();
+            String firestoreID = player.getFirestoreID();
+
+            ContentValues values = new ContentValues();
+            values.put(StatsEntry.COLUMN_LEAGUE_ID, mSelectionID);
+            values.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
+            values.put(StatsEntry.COLUMN_PLAYERID, playerId);
+            values.put(StatsEntry.COLUMN_NAME, playerName);
+            values.put(StatsEntry.COLUMN_TEAM, mTeamName);
+            values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, mTeamID);
+            values.put(StatsEntry.COLUMN_ORDER, i + 1);
+            values.put(StatsEntry.COLUMN_GENDER, gender);
+            contentResolver.insert(StatsEntry.CONTENT_URI_TEMP, values);
+
+            if (gender == 0) {
+                males++;
+                malesInRow++;
+                if (beforeFirstFemale) {
+                    firstMalesInRow++;
+                }
+                if (malesInRow > requiredFemale) {
+                    notProperOrder = true;
+                }
+            } else {
+                females++;
+                malesInRow = 0;
+                beforeFirstFemale = false;
+            }
+        }
+
+        if (requiredFemale < 1) {
+            return true;
+        }
+
+        int lastMalesInRow = malesInRow;
+        if (firstMalesInRow + lastMalesInRow > requiredFemale) {
+            notProperOrder = true;
+        }
+        if (notProperOrder) {
+            if (females * requiredFemale >= males) {
+                Toast.makeText(getActivity(),
+                        "Please set " + mTeamName + "'s lineup properly or edit gender order settings",
+                        Toast.LENGTH_LONG).show();
+                return false;
+            }
+            sortLineup = true;
+        }
+        return true;
+    }
+
+    private boolean sortExtraGirlsToo(int requiredFemale) {
+
+        List<Player> lineup = getLineup();
+        ContentResolver contentResolver = requireActivity().getContentResolver();
         int females = 0;
         int males = 0;
         int malesInRow = 0;
@@ -719,6 +821,22 @@ public class LineupFragment extends Fragment {
         boolean firstInRowIsMale = true;
         boolean notProperOrder = false;
         sortLineup = false;
+
+
+        for (int i = 0; i < lineup.size(); i++) {
+            Player player = lineup.get(i);
+            if (player.getGender() == 0) {
+                males++;
+            } else {
+                females++;
+            }
+        }
+        if (females * requiredFemale > males) {
+            Log.d("hooba", "females>males");
+        }
+        females = 0;
+        males = 0;
+
 
         for (int i = 0; i < lineup.size(); i++) {
             Player player = lineup.get(i);
@@ -769,7 +887,7 @@ public class LineupFragment extends Fragment {
             return true;
         }
 
-        if(firstInRowIsMale) {
+        if (firstInRowIsMale) {
             if (firstMalesInRow + malesInRow > requiredFemale) {
                 notProperOrder = true;
             }
@@ -799,7 +917,7 @@ public class LineupFragment extends Fragment {
             String[] selectionArgs = new String[]{mTeamID, mSelectionID};
             String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
 
-            Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS, null,
+            Cursor cursor = requireActivity().getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS, null,
                     selection, selectionArgs, sortOrder);
             while (cursor.moveToNext()) {
                 int order = StatsContract.getColumnInt(cursor, StatsEntry.COLUMN_ORDER);
@@ -841,7 +959,7 @@ public class LineupFragment extends Fragment {
             ContentValues values = new ContentValues();
             values.put(StatsEntry.COLUMN_ORDER, i);
             values.put(StatsEntry.COLUMN_LEAGUE_ID, mSelectionID);
-            getActivity().getContentResolver().update(StatsEntry.CONTENT_URI_PLAYERS, values,
+            requireActivity().getContentResolver().update(StatsEntry.CONTENT_URI_PLAYERS, values,
                     selection, selectionArgs);
             i++;
         }
@@ -856,7 +974,7 @@ public class LineupFragment extends Fragment {
             ContentValues values = new ContentValues();
             values.put(StatsContract.StatsEntry.COLUMN_ORDER, i);
             values.put(StatsEntry.COLUMN_LEAGUE_ID, mSelectionID);
-            getActivity().getContentResolver().update(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, values,
+            requireActivity().getContentResolver().update(StatsContract.StatsEntry.CONTENT_URI_PLAYERS, values,
                     selection, selectionArgs);
         }
 
@@ -881,7 +999,7 @@ public class LineupFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                if(getActivity() instanceof TeamManagerActivity) {
+                if (getActivity() instanceof TeamManagerActivity) {
                     Intent intent = new Intent(getActivity(), MainActivity.class);
                     startActivity(intent);
                     getActivity().finish();
@@ -909,15 +1027,16 @@ public class LineupFragment extends Fragment {
     }
 
     private void openGameSettingsDialog() {
-        SharedPreferences settingsPreferences = getActivity()
+        SharedPreferences settingsPreferences = requireActivity()
                 .getSharedPreferences(mSelectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
         int innings = settingsPreferences.getInt(StatsEntry.INNINGS, 7);
         int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
         int mercyRuns = settingsPreferences.getInt(StatsEntry.MERCY, 99);
         boolean gameHelp = settingsPreferences.getBoolean(StatsEntry.HELP, true);
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        boolean extraGirlsSorted = settingsPreferences.getBoolean(StatsEntry.SORT_GIRLS, false);
+        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = GameSettingsDialog.newInstance(innings, genderSorter, mercyRuns, mSelectionID, 0, gameHelp);
+        DialogFragment newFragment = GameSettingsDialog.newInstance(innings, genderSorter, mercyRuns, mSelectionID, 0, gameHelp, extraGirlsSorted);
         newFragment.show(fragmentTransaction, "");
     }
 
@@ -950,15 +1069,15 @@ public class LineupFragment extends Fragment {
     }
 
     public void updatePlayerName(String name, String playerFirestoreID) {
-        for(Player player : mLineup) {
-            if(player.getFirestoreID().equals(playerFirestoreID)) {
+        for (Player player : mLineup) {
+            if (player.getFirestoreID().equals(playerFirestoreID)) {
                 player.setName(name);
                 resetBoardView();
                 return;
             }
         }
-        for(Player player : mBench) {
-            if(player.getFirestoreID().equals(playerFirestoreID)) {
+        for (Player player : mBench) {
+            if (player.getFirestoreID().equals(playerFirestoreID)) {
                 player.setName(name);
                 resetBoardView();
                 return;
@@ -967,15 +1086,15 @@ public class LineupFragment extends Fragment {
     }
 
     public void updatePlayerGender(int gender, String playerFirestoreID) {
-        for(Player player : mLineup) {
-            if(player.getFirestoreID().equals(playerFirestoreID)) {
+        for (Player player : mLineup) {
+            if (player.getFirestoreID().equals(playerFirestoreID)) {
                 player.setGender(gender);
                 resetBoardView();
                 return;
             }
         }
-        for(Player player : mBench) {
-            if(player.getFirestoreID().equals(playerFirestoreID)) {
+        for (Player player : mBench) {
+            if (player.getFirestoreID().equals(playerFirestoreID)) {
                 player.setGender(gender);
                 resetBoardView();
                 return;

@@ -45,14 +45,32 @@
             android:textStyle="bold"
             tools:targetApi="o" />
 
-        <SeekBar
-            android:id="@+id/gender_sort_seekbar"
-            style="@style/Widget.AppCompat.SeekBar.Discrete"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:max="4"
-            android:progress="1" />
+            android:orientation="horizontal">
+
+            <SeekBar
+                android:id="@+id/gender_sort_seekbar"
+                style="@style/Widget.AppCompat.SeekBar.Discrete"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="9"
+                android:layout_marginTop="8dp"
+                android:max="4"
+                android:progress="1" />
+
+            <ToggleButton
+                android:id="@+id/sort_girls_button"
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:layout_height="match_parent"
+                android:textOff=""
+                android:textOn=""
+                />
+
+
+        </LinearLayout>
 
     </LinearLayout>
 

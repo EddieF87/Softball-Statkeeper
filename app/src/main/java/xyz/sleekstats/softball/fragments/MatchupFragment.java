@@ -256,7 +256,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
     }
 
     public void openLineupSortDialog(int sortArg) {
-         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+         FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
          FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
          DialogFragment newFragment = LineupSortDialog.newInstance(awayTeamID, homeTeamID, innings, sortArg, genderSorter);
         newFragment.setCancelable(false);
@@ -310,7 +310,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
 
         String selection = StatsEntry.COLUMN_LEAGUE_ID + "=?";
         String[] selectionArgs = new String[]{leagueID};
-        Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG,
+        Cursor cursor = requireActivity().getContentResolver().query(StatsEntry.CONTENT_URI_GAMELOG,
                 null, selection, selectionArgs, null);
         if (!postGameUpdate && cursor.moveToLast()) {
             continueGameButton.setVisibility(View.VISIBLE);
@@ -382,7 +382,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         String[] selectionArgs = new String[]{firestoreID, leagueID};
         String[] projection = new String[]{StatsEntry.COLUMN_NAME};
 
-        Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
+        Cursor cursor = requireActivity().getContentResolver().query(StatsEntry.CONTENT_URI_TEAMS,
                 projection, selection, selectionArgs, null);
         String name = null;
         if (cursor.moveToFirst()) {
@@ -441,20 +441,24 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         boolean cancel = false;
         int genderSorter = getGenderSorter();
 
+        SharedPreferences settingsPreferences = requireActivity()
+                .getSharedPreferences(leagueID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
+        boolean extraGirlsSorted = settingsPreferences.getBoolean(StatsEntry.SORT_GIRLS, false);
+
         if (genderSorter < 1) {
-            addTeamToTempDB(awayTeamName, awayTeamID, genderSorter);
-            addTeamToTempDB(homeTeamName, homeTeamID, genderSorter);
+            addTeamToTempDB(awayTeamName, awayTeamID, genderSorter, extraGirlsSorted);
+            addTeamToTempDB(homeTeamName, homeTeamID, genderSorter, extraGirlsSorted);
             return false;
         }
 
-        int lineupCheck = addTeamToTempDB(awayTeamName, awayTeamID, genderSorter);
+        int lineupCheck = addTeamToTempDB(awayTeamName, awayTeamID, genderSorter, extraGirlsSorted);
         if (lineupCheck == 1) {
             cancel = true;
         } else if (lineupCheck == 2) {
             sortAwayLineup = true;
         }
 
-        lineupCheck = addTeamToTempDB(homeTeamName, homeTeamID, genderSorter);
+        lineupCheck = addTeamToTempDB(homeTeamName, homeTeamID, genderSorter, extraGirlsSorted);
         if (lineupCheck == 1) {
             cancel = true;
         } else if (lineupCheck == 2) {
@@ -463,9 +467,17 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         return cancel;
     }
 
-    private int addTeamToTempDB(String teamName, String teamSelection, int requiredFemale) {
+    private int addTeamToTempDB(String teamName, String teamSelection, int requiredFemale, boolean extraGirlsSorted) {
+        if(extraGirlsSorted) {
+            return sortExtraGirlsToo(teamName, teamSelection, requiredFemale);
+        } else {
+            return sortDefault(teamName, teamSelection, requiredFemale);
+        }
+    }
+
+    private int sortExtraGirlsToo(String teamName, String teamSelection, int requiredFemale) {
         List<Player> lineup = getLineup(teamSelection);
-        ContentResolver contentResolver = getActivity().getContentResolver();
+        ContentResolver contentResolver = requireActivity().getContentResolver();
 
         int females = 0;
         int males = 0;
@@ -537,20 +549,81 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
         }
 
         if (notProperOrder) {
-            Log.d("POOOO", "notProperOrder");
             if (females * requiredFemale == males) {
                 Toast.makeText(getActivity(),
                         "Please set " + teamName + "'s lineup properly or edit gender order settings",
                         Toast.LENGTH_LONG).show();
 
-                Log.d("POOOO", "1");
                 return 1;
             } else {
-                Log.d("POOOO", "2");
                 return 2;
             }
         }
-        Log.d("POOOO", "0");
+        return 0;
+    }
+
+    private int sortDefault(String teamName, String teamSelection, int requiredFemale){
+        List<Player> lineup = getLineup(teamSelection);
+        ContentResolver contentResolver = requireActivity().getContentResolver();
+
+        int females = 0;
+        int males = 0;
+        int malesInRow = 0;
+        int firstMalesInRow = 0;
+        boolean beforeFirstFemale = true;
+        boolean notProperOrder = false;
+
+        for (int i = 0; i < lineup.size(); i++) {
+            Player player = lineup.get(i);
+            long playerId = player.getPlayerId();
+            String playerName = player.getName();
+            String firestoreID = player.getFirestoreID();
+            int gender = player.getGender();
+
+            ContentValues values = new ContentValues();
+            values.put(StatsEntry.COLUMN_LEAGUE_ID, leagueID);
+            values.put(StatsEntry.COLUMN_PLAYERID, playerId);
+            values.put(StatsEntry.COLUMN_NAME, playerName);
+            values.put(StatsEntry.COLUMN_FIRESTORE_ID, firestoreID);
+            values.put(StatsEntry.COLUMN_TEAM, teamName);
+            values.put(StatsEntry.COLUMN_TEAM_FIRESTORE_ID, teamSelection);
+            values.put(StatsEntry.COLUMN_GENDER, gender);
+            values.put(StatsEntry.COLUMN_ORDER, i + 1);
+            contentResolver.insert(StatsEntry.CONTENT_URI_TEMP, values);
+
+            if (gender == 0) {
+                males++;
+                malesInRow++;
+                if (beforeFirstFemale) {
+                    firstMalesInRow++;
+                }
+                if (malesInRow > requiredFemale) {
+                    notProperOrder = true;
+                }
+            } else {
+                females++;
+                malesInRow = 0;
+                beforeFirstFemale = false;
+            }
+        }
+        if (requiredFemale < 1) {
+            return 0;
+        }
+
+        int lastMalesInRow = malesInRow;
+        if (firstMalesInRow + lastMalesInRow > requiredFemale) {
+            notProperOrder = true;
+        }
+        if (notProperOrder) {
+            if (females * requiredFemale >= males) {
+                Toast.makeText(getActivity(),
+                        "Please set " + teamName + "'s lineup properly or edit gender order settings",
+                        Toast.LENGTH_LONG).show();
+                return 1;
+            } else {
+                return 2;
+            }
+        }
         return 0;
     }
 
@@ -742,7 +815,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
             String[] selectionArgs = new String[]{teamID, leagueID};
             String sortOrder = StatsEntry.COLUMN_ORDER + " ASC";
 
-            Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS, null,
+            Cursor cursor = requireActivity().getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS, null,
                     selection, selectionArgs, sortOrder);
 
             while (cursor.moveToNext()) {
@@ -774,7 +847,7 @@ public class MatchupFragment extends Fragment implements LoaderManager.LoaderCal
             String selection = StatsEntry.COLUMN_TEAM_FIRESTORE_ID + "=? AND " + StatsEntry.COLUMN_ORDER + ">? AND " + StatsEntry.COLUMN_LEAGUE_ID + "=?";
             String[] selectionArgs = new String[]{teamID, String.valueOf(49), leagueID};
 
-            Cursor cursor = getActivity().getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS, null,
+            Cursor cursor = requireActivity().getContentResolver().query(StatsEntry.CONTENT_URI_PLAYERS, null,
                     selection, selectionArgs, null);
 
             while (cursor.moveToNext()) {

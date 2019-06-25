@@ -265,9 +265,10 @@ public class LeagueManagerActivity extends ExportActivity
         int genderSorter = settingsPreferences.getInt(StatsEntry.COLUMN_GENDER, 0);
         int mercyRuns = settingsPreferences.getInt(StatsEntry.MERCY, 99);
         boolean gameHelp = settingsPreferences.getBoolean(StatsEntry.HELP, true);
+        boolean extraGirlsSorted = settingsPreferences.getBoolean(StatsEntry.SORT_GIRLS, false);
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        DialogFragment newFragment = GameSettingsDialog.newInstance(innings, genderSorter, mercyRuns, mLeagueID, 0, gameHelp);
+        DialogFragment newFragment = GameSettingsDialog.newInstance(innings, genderSorter, mercyRuns, mLeagueID, 0, gameHelp, extraGirlsSorted);
         newFragment.show(fragmentTransaction, "");
     }
 

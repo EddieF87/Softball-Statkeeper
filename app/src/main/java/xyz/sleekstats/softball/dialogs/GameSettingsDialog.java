@@ -37,18 +37,20 @@ public class GameSettingsDialog extends DialogFragment {
     private TextView mInningDisplay;
     private TextView mMercyDisplay;
     private boolean gameHelp;
+    private boolean extraGirlsSorted;
 
     public GameSettingsDialog() {
         // Required empty public constructor
     }
 
-    public static GameSettingsDialog newInstance(int innings, int genderSortArg, int mercy, String selectionID, int currentInning, boolean helpArg) {
+    public static GameSettingsDialog newInstance(int innings, int genderSortArg, int mercy, String selectionID, int currentInning, boolean helpArg, boolean extraGirlsSortedArg) {
 
         Bundle args = new Bundle();
         GameSettingsDialog fragment = new GameSettingsDialog();
         args.putInt(StatsContract.StatsEntry.INNINGS, innings);
         args.putInt(StatsContract.StatsEntry.COLUMN_GENDER, genderSortArg);
         args.putBoolean(StatsContract.StatsEntry.HELP, helpArg);
+        args.putBoolean(StatsContract.StatsEntry.SORT_GIRLS, extraGirlsSortedArg);
         args.putString("mSelectionID", selectionID);
         args.putInt("inningNumber", currentInning);
         args.putInt(StatsContract.StatsEntry.MERCY, mercy);
@@ -67,6 +69,7 @@ public class GameSettingsDialog extends DialogFragment {
             inningNumber = args.getInt("inningNumber") / 2;
             mercyRuns = args.getInt(StatsContract.StatsEntry.MERCY, 99);
             gameHelp = args.getBoolean(StatsContract.StatsEntry.HELP);
+            extraGirlsSorted = args.getBoolean(StatsContract.StatsEntry.SORT_GIRLS);
         }
     }
 
@@ -83,6 +86,7 @@ public class GameSettingsDialog extends DialogFragment {
         if(inningNumber > 0) {
             v.findViewById(R.id.gender_sort_seekbar).setVisibility(View.GONE);
             v.findViewById(R.id.gender_sort_title).setVisibility(View.GONE);
+            v.findViewById(R.id.sort_girls_button).setVisibility(View.GONE);
             v.findViewById(R.id.toggle_help).setVisibility(View.GONE);
         }
 
@@ -113,12 +117,21 @@ public class GameSettingsDialog extends DialogFragment {
             public void onStopTrackingTouch(SeekBar seekBar) {}
         });
 
-        ToggleButton toggleButton = v.findViewById(R.id.toggle_help);
-        toggleButton.setChecked(gameHelp);
-        toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        ToggleButton helpToggleButton = v.findViewById(R.id.toggle_help);
+        helpToggleButton.setChecked(gameHelp);
+        helpToggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
                 gameHelp = checked;
+            }
+        });
+
+        ToggleButton extraGirlsToggleButton = v.findViewById(R.id.sort_girls_button);
+        extraGirlsToggleButton.setChecked(extraGirlsSorted);
+        extraGirlsToggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
+                extraGirlsSorted = checked;
             }
         });
 
@@ -129,7 +142,7 @@ public class GameSettingsDialog extends DialogFragment {
             runs = "Off";
             mercySeekBar.setProgress(0);
         } else {
-            runs = String.valueOf(mercyRuns) + " Runs";
+            runs = mercyRuns + " Runs";
             mercySeekBar.setProgress(mercyRuns - 4);
         }
         String mercyString = String.format(getString(R.string.mercy_rule), runs);
@@ -229,6 +242,7 @@ public class GameSettingsDialog extends DialogFragment {
         editor.putInt(StatsContract.StatsEntry.COLUMN_GENDER, genderSorter);
         editor.putInt(StatsContract.StatsEntry.MERCY, mercyRuns);
         editor.putBoolean(StatsContract.StatsEntry.HELP, gameHelp);
+        editor.putBoolean(StatsContract.StatsEntry.SORT_GIRLS, extraGirlsSorted);
         editor.apply();
         if (mListener != null) {
             mListener.onGameSettingsChanged(innings, genderSorter, mercyRuns);
