@@ -1,4 +1,4 @@
-# scorekeepdraft1
+# Sleek Stats - Softball StatKeeper
 
 Ditch the scorebook and effortlessly keep softball (or baseball) scores, stats, & standings from your phone, whether for yourself, your team, or an entire league! 
 
