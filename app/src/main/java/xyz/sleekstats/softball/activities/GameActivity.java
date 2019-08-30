@@ -74,7 +74,6 @@ public abstract class GameActivity extends AppCompatActivity
         EditWarningDialog.OnFragmentInteractionListener,
         AddRunsDialog.OnFragmentInteractionListener {
 
-    private static final String TAG = "concon";
     Cursor gameCursor;
 
     TextView scoreboardAwayName;
@@ -88,6 +87,7 @@ public abstract class GameActivity extends AppCompatActivity
     TextView runDisplay;
     TextView hrDisplay;
     private TextView mercyDisplay;
+    private TextView counterDisplay;
     private TextView inningDisplay;
     private ImageView inningTopArrow;
     private ImageView inningBottomArrow;
@@ -128,6 +128,7 @@ public abstract class GameActivity extends AppCompatActivity
     int gameOuts = 0;
     private int tempOuts;
     private int tempRuns;
+    private int count;
 
     Player currentBatter;
     private Drawable mRunner;
@@ -209,6 +210,10 @@ public abstract class GameActivity extends AppCompatActivity
         setInningDisplay();
         finalInning = false;
         startGame();
+
+        if(savedInstanceState != null) {
+            count = savedInstanceState.getInt("count");
+        }
     }
 
     private void checkForConsent() {
@@ -356,6 +361,22 @@ public abstract class GameActivity extends AppCompatActivity
         thirdDisplay.setOnDragListener(myDragListener);
         homeDisplay.setOnDragListener(myDragListener);
         outTrash.setOnDragListener(myDragListener);
+
+        counterDisplay = findViewById(R.id.counter_display);
+        findViewById(R.id.counter_plus).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                count++;
+                counterDisplay.setText(String.valueOf(count));
+            }
+        });
+        findViewById(R.id.counter_minus).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                count--;
+                counterDisplay.setText(String.valueOf(count));
+            }
+        });
     }
 
     protected abstract void loadGamePreferences();
@@ -1821,6 +1842,9 @@ public abstract class GameActivity extends AppCompatActivity
             case R.id.action_edit_score:
                 openAddRunsDialog();
                 break;
+            case R.id.show_counter:
+                showCounter();
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -2097,5 +2121,20 @@ public abstract class GameActivity extends AppCompatActivity
         }
         scoreboardAwayScore.setText(String.valueOf(awayR));
         scoreboardHomeScore.setText(String.valueOf(homeR));
+    }
+
+    private void showCounter() {
+        View counterLayout = findViewById(R.id.counter_layout);
+        if(counterLayout.getVisibility() == View.GONE) {
+            counterLayout.setVisibility(View.VISIBLE);
+        } else {
+            counterLayout.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("count", count);
     }
 }

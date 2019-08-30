@@ -22,7 +22,7 @@
         android:textAlignment="center"
         android:textSize="24sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toStartOf="@id/btn_randomize"
+        app:layout_constraintEnd_toStartOf="@id/btn_clear"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -104,8 +104,19 @@
     </RadioGroup>
 
     <android.support.design.widget.FloatingActionButton
+        android:id="@+id/btn_clear"
+        style="@style/ClearFABStyle"
+        android:layout_height="0dp"
+        app:fabSize="mini"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintBottom_toBottomOf="@id/btn_randomize"
+        app:layout_constraintEnd_toStartOf="@+id/btn_randomize"
+        app:layout_constraintTop_toTopOf="@id/btn_randomize" />
+
+    <android.support.design.widget.FloatingActionButton
         android:id="@+id/btn_randomize"
         style="@style/ShuffleFABStyle"
+        app:fabSize="mini"
         android:layout_height="0dp"
         android:layout_marginEnd="16dp"
         app:layout_constraintBottom_toBottomOf="@id/btn_start_adder"
@@ -116,6 +127,7 @@
         android:id="@+id/btn_start_adder"
         style="@style/AddPlayersFABStyle"
         android:layout_height="0dp"
+        app:fabSize="mini"
         android:layout_alignParentEnd="true"
         android:layout_marginBottom="4dp"
         android:layout_marginEnd="8dp"

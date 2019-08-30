@@ -157,6 +157,14 @@ public class LineupFragment extends Fragment {
             }
         });
 
+        final FloatingActionButton clearButton = rootView.findViewById(R.id.btn_clear);
+        clearButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                clearLineupBoardView();
+            }
+        });
+
         mBoardView = rootView.findViewById(R.id.team_bv);
         mBoardView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
@@ -315,6 +323,12 @@ public class LineupFragment extends Fragment {
         if (mLineup != null) {
             Collections.shuffle(mLineup);
         }
+        resetBoardView();
+    }
+
+    private void clearLineupBoardView() {
+        mBench.addAll(mLineup);
+        mLineup.clear();
         resetBoardView();
     }
 

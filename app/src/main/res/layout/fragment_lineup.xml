@@ -169,18 +169,16 @@
         android:id="@+id/radiobtns_away_or_home_team"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
+        android:layout_marginEnd="16dp"
         android:layout_toStartOf="@id/btn_start_adder"
         android:orientation="horizontal"
-        android:text="x"
         android:textAlignment="center"
         android:textSize="30sp"
         android:textStyle="bold"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="@+id/btn_start_adder"
-        app:layout_constraintEnd_toStartOf="@+id/btn_randomize"
+        app:layout_constraintEnd_toStartOf="@+id/btn_clear"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/btn_start_adder"
         tools:visibility="visible">
@@ -189,8 +187,7 @@
             android:id="@+id/radio_away"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_marginLeft="24dp"
-            android:layout_marginRight="24dp"
+            android:layout_marginEnd="12dp"
             android:checked="true"
             android:text="@string/away" />
 
@@ -203,11 +200,23 @@
     </RadioGroup>
 
     <android.support.design.widget.FloatingActionButton
+        android:id="@+id/btn_clear"
+        style="@style/ClearFABStyle"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        app:fabCustomSize="36dp"
+        android:layout_marginEnd="12dp"
+        app:layout_constraintBottom_toBottomOf="@id/btn_randomize"
+        app:layout_constraintEnd_toStartOf="@id/btn_randomize"
+        app:layout_constraintTop_toTopOf="@id/btn_randomize" />
+
+    <android.support.design.widget.FloatingActionButton
         android:id="@+id/btn_randomize"
         style="@style/ShuffleFABStyle"
         android:layout_width="36dp"
         android:layout_height="36dp"
-        android:layout_marginEnd="16dp"
+        app:fabCustomSize="36dp"
+        android:layout_marginEnd="12dp"
         app:layout_constraintBottom_toBottomOf="@id/btn_start_adder"
         app:layout_constraintEnd_toStartOf="@id/btn_start_adder"
         app:layout_constraintTop_toTopOf="@id/btn_start_adder" />
@@ -217,6 +226,7 @@
         style="@style/AddPlayersFABStyle"
         android:layout_width="36dp"
         android:layout_height="36dp"
+        app:fabCustomSize="36dp"
         android:layout_alignParentEnd="true"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"

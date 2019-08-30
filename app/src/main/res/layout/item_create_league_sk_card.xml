@@ -14,6 +14,7 @@
         style="@style/AddStatkeeperFABStyle"
         android:layout_width="24dp"
         android:layout_height="24dp"
+        app:fabCustomSize="24dp"
         android:clickable="false"
         android:layout_marginBottom="8dp"
         android:layout_marginTop="8dp"

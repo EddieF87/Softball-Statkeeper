@@ -193,6 +193,7 @@
     <string name="standings">Standings</string>
     <string name="plays">Plays</string>
     <string name="roe" translatable="false">ROE</string>
+    <string name="show_counter" translatable="false">Show Counter</string>
 
     <!--<string name="hit_single"> hit a single</string>-->
     <!--<string name="hit_double"> hit a double</string>-->

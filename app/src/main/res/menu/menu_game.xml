@@ -64,4 +64,9 @@
         android:id="@+id/action_off_lineup_rules"
         android:title="@string/reset_lineup_rules"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/show_counter"
+        android:title="@string/show_counter"
+        app:showAsAction="never" />
 </menu>
