@@ -128,7 +128,8 @@ public abstract class GameActivity extends AppCompatActivity
     int gameOuts = 0;
     private int tempOuts;
     private int tempRuns;
-    private int count;
+    private int countAway;
+    private int countHome;
 
     Player currentBatter;
     private Drawable mRunner;
@@ -212,7 +213,8 @@ public abstract class GameActivity extends AppCompatActivity
         startGame();
 
         if(savedInstanceState != null) {
-            count = savedInstanceState.getInt("count");
+            countAway = savedInstanceState.getInt("countAway");
+            countHome = savedInstanceState.getInt("countHome");
         }
     }
 
@@ -283,6 +285,7 @@ public abstract class GameActivity extends AppCompatActivity
         RadioButton sbBtn = findViewById(R.id.sb_rb);
         RadioButton kBtn = findViewById(R.id.k_rb);
         RadioButton hbpBtn = findViewById(R.id.hbp_rb);
+        counterDisplay = findViewById(R.id.counter_display);
         SharedPreferences sharedPreferences = getSharedPreferences(mSelectionID + StatsEntry.SETTINGS, Context.MODE_PRIVATE);
         boolean sbOn = sharedPreferences.getBoolean(StatsEntry.COLUMN_SB, false);
         if (sbOn) {
@@ -362,19 +365,28 @@ public abstract class GameActivity extends AppCompatActivity
         homeDisplay.setOnDragListener(myDragListener);
         outTrash.setOnDragListener(myDragListener);
 
-        counterDisplay = findViewById(R.id.counter_display);
         findViewById(R.id.counter_plus).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                count++;
-                counterDisplay.setText(String.valueOf(count));
+                if(inningNumber % 2 == 0) {
+                    countAway++;
+                    counterDisplay.setText(String.valueOf(countAway));
+                } else {
+                    countHome++;
+                    counterDisplay.setText(String.valueOf(countHome));
+                }
             }
         });
         findViewById(R.id.counter_minus).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                count--;
-                counterDisplay.setText(String.valueOf(count));
+                if(inningNumber % 2 == 0) {
+                    countAway--;
+                    counterDisplay.setText(String.valueOf(countAway));
+                } else {
+                    countHome--;
+                    counterDisplay.setText(String.valueOf(countHome));
+                }
             }
         });
     }
@@ -912,6 +924,7 @@ public abstract class GameActivity extends AppCompatActivity
             scoreboardAwayScore.setTextColor(atBatColor);
             scoreboardHomeName.setTextColor(scoreboardColor);
             scoreboardHomeScore.setTextColor(scoreboardColor);
+            counterDisplay.setText(String.valueOf(countAway));
         } else {
             inningTopArrow.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.cardview_dark_background));
             inningBottomArrow.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.colorScoreboard));
@@ -920,6 +933,7 @@ public abstract class GameActivity extends AppCompatActivity
             scoreboardAwayScore.setTextColor(scoreboardColor);
             scoreboardHomeName.setTextColor(atBatColor);
             scoreboardHomeScore.setTextColor(atBatColor);
+            counterDisplay.setText(String.valueOf(countHome));
         }
 //        mercyDisplay.setTextColor(getResources().getColor(R.color.colorHighlight));
         inningDisplay.setText(String.valueOf(inningNumber / 2));
@@ -2135,6 +2149,7 @@ public abstract class GameActivity extends AppCompatActivity
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt("count", count);
+        outState.putInt("countAway", countAway);
+        outState.putInt("countHome", countHome);
     }
 }
